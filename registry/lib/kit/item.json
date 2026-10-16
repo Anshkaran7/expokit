@@ -1,6 +1,7 @@
 {
   "name": "kit",
   "title": "Kit theme",
+  "tier": "free",
   "description": "Design tokens, KitProvider and motion presets shared by every ExpoKit component.",
   "dependencies": []
 }

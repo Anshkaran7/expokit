@@ -2,6 +2,7 @@
   "name": "liquidglass-tab",
   "type": "template",
   "title": "Native bottom tabs (Liquid Glass)",
+  "tier": "free",
   "description": "Real Liquid Glass NativeTabs on iOS 26+, and a floating blur glass tab bar with the same scroll-collapse on iOS 18 and older, Android and web.",
   "dependencies": [
     "expo-router",
