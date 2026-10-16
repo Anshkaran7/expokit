@@ -9,4 +9,4 @@ discussions or anywhere else the project is — is expected to:
 - Respect privacy — don't share other people's personal information.
 
 Maintainers may edit or remove comments, close threads, or block anyone who doesn't follow this. To report a problem
-privately, use https://expokit.karandev.in/support and mention "Code of Conduct".
+privately, email work@karandev.in and mention "Code of Conduct".
