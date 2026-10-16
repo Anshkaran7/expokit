@@ -2,14 +2,14 @@
 
 A modern, customizable charting library built specifically for Expo and React Native applications. Create beautiful, animated charts with minimal configuration.
 
-![Platform - Android and iOS](https://img.shields.io/badge/platform-Android%20%7C%20iOS-green.svg)
+![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20Android%20%7C%20Web-green.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
 [![npm](https://img.shields.io/npm/v/expo-charts.svg)](https://www.npmjs.com/package/expo-charts)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## ✨ Current Features
 
-- 📊 15 charts: Bar, Line, Area, Pie, Donut, Multi-line, Stacked/Grouped bars, Ranking bars, Radar, Activity rings, Gauge, Candlestick, Heatmap, Funnel and Sparkline
+- 📊 21 charts: Bar, Line, Area, Pie, Donut, Multi-line, Stacked/Grouped bars, Ranking bars, Radar, Activity rings, Gauge, Candlestick, Heatmap, Funnel and Sparkline, plus shadcn-style Area, Line, Bar, Combo, Pie and Radial series charts
 - 📱 Built specifically for Expo and React Native
 - 🎨 Fully customizable colors and styles
 - ⚡ Smooth animations
@@ -95,7 +95,7 @@ export default function App() {
 
 The Bar Chart component offers extensive customization and interactivity:
 
-![Bar Chart Example](./assets/barchart.png)
+![Bar Chart Example](https://raw.githubusercontent.com/Anshkaran7/expokit/main/packages/charts/assets/barchart.png)
 
 ```jsx
 <BarChart
@@ -131,7 +131,7 @@ The Bar Chart component offers extensive customization and interactivity:
 
 The Line Chart component supports curved lines, area fills, tooltips, and drag/tap selection:
 
-![Line Chart Example](./assets/linechart.png)
+![Line Chart Example](https://raw.githubusercontent.com/Anshkaran7/expokit/main/packages/charts/assets/linechart.png)
 
 ```jsx
 <LineChart
@@ -225,9 +225,9 @@ The Line Chart component supports curved lines, area fills, tooltips, and drag/t
 />
 ```
 
-## 🎨 v1.2: shadcn-style charts + theming
+## 🎨 Series charts and theming
 
-v1.2 adds charts that follow the [shadcn/ui charts](https://ui.shadcn.com/charts) model: you pass rows of `data` plus a `config` that names the series. Wrap your app in `ChartProvider` to theme every chart at once (palette, light/dark, radius).
+These charts follow the [shadcn/ui charts](https://ui.shadcn.com/charts) model: you pass rows of `data` plus a `config` that names the series. Wrap your app in `ChartProvider` to theme every chart at once (palette, light/dark, radius).
 
 ```tsx
 import { ChartProvider, ChartCard, AreaSeriesChart, Chart } from "expo-charts";
@@ -262,11 +262,11 @@ const config = { desktop: { label: "Desktop" }, mobile: { label: "Mobile" } };
 
 **Building blocks:** `ChartCard`, `ChartTooltip`, `ChartLegend`, `TrendIcon`, `useChartTheme()`, `palettes`, and the path helpers `buildPath`, `roundedRect` and `sector`. For custom charts there are also `responsive`, `TouchLayer`, `useMorphPaths`, `useAnimatedValues`, `AnimatedPath` / `AnimatedRect` and the number helpers `niceTicks`, `compactNumber`, `labelStep`, `estimateTextWidth`, `clamp` and `readableTextColor`.
 
-**Palettes:** `default`, `blue`, `green`, `violet`, `rose`, `orange`, `vivid`. You can also pass your own `string[]`. The v1.1 charts pick up the provider's palette and colours too.
+**Palettes:** `default`, `blue`, `green`, `violet`, `rose`, `orange`, `vivid`. You can also pass your own `string[]`. The interactive charts below pick up the provider's palette and colours too.
 
-## 🆕 v1.1 charts
+## 👆 Interactive charts
 
-Every v1.1 chart **fills its parent's width when you leave out `width`**, and re-lays out on rotation, split screen and tablets. They share theme props (`labelColor`, `gridColor`, `tooltipBackground`, `tooltipTextColor`), an `animate` flag, `formatValue`, and an `onSelect` callback (handy for haptics). Data changes morph smoothly instead of jumping.
+Each of these charts **fills its parent's width when you leave out `width`**, and re-lays out on rotation, split screen and tablets. They share theme props (`labelColor`, `gridColor`, `tooltipBackground`, `tooltipTextColor`), an `animate` flag, `formatValue`, and an `onSelect` callback (handy for haptics). Data changes morph smoothly instead of jumping.
 
 | Chart | Interaction |
 | --- | --- |
@@ -320,19 +320,11 @@ const [scrollEnabled, setScrollEnabled] = useState(true);
 
 All props are typed. See `src/types.ts` for the full list.
 
-### Playground app
-
-`../expo-charts-playground` is an Expo SDK 57 app that shows every chart. Its Metro config loads this library straight from `src/`, so edits hot-reload:
-
-```bash
-cd ../expo-charts-playground && npx expo start
-```
-
-Scan the QR code with Expo Go on your phone, or press `i` / `a` for a simulator or emulator.
+Live previews of every chart: [expokit.karandev.in/docs/charts](https://expokit.karandev.in/docs/charts).
 
 ## 🎨 Styling Guide
 
-Both charts support extensive customization through props:
+Every chart takes a `style` for its container, on top of its colour and layout props:
 
 ```jsx
 // Example of advanced styling
@@ -361,13 +353,9 @@ Both charts support extensive customization through props:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/NewChart`)
-3. Commit your changes (`git commit -m 'Add new chart type'`)
-4. Push to the branch (`git push origin feature/NewChart`)
-5. Open a Pull Request
+The source lives in [github.com/Anshkaran7/expokit](https://github.com/Anshkaran7/expokit/tree/main/packages/charts).
+Found a bug or want a chart? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choose) — a screenshot or the
+data you used helps a lot.
 
 ## 📝 License
 
@@ -377,7 +365,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 Need help? We're here for you:
 
-- Open an [issue](https://github.com/anshkaran7/expo-charts/issues)
+- Open an [issue](https://github.com/Anshkaran7/expokit/issues)
 - Email: ansh.tsx@gmail.com
 
 ---

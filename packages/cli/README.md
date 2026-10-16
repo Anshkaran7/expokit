@@ -1,183 +1,156 @@
 # @anshkaran7/expo-kit
 
-shadcn-style CLI for Expo — add native UI blocks and components into your app as **source you own**.
+[![npm](https://img.shields.io/npm/v/@anshkaran7/expo-kit.svg)](https://www.npmjs.com/package/@anshkaran7/expo-kit)
+![Platforms](https://img.shields.io/badge/platforms-iOS%20%7C%20Android%20%7C%20Web%20%7C%20Expo%20Go-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-No opaque UI dependency. Run a command, get TypeScript files in your repo, edit freely.
+The CLI for **[ExpoKit](https://expokit.karandev.in)** — beautifully animated UI components, blocks and charts for Expo
+and React Native. Like shadcn/ui, it copies the **source** into your app: no UI dependency in `node_modules`, just
+typed files you own and can change.
+
+- **40+ free components** — buttons, inputs, OTP, switches, sliders, sheets, dialogs, drawers, selects, toasts, date and
+  time pickers, tabs, cards and more
+- **Pro** — 3D and Liquid Glass components, motion buttons, full-screen blocks (sign-in, checkout, settings, …) and more charts
+- Plain React Native `Animated` + `react-native-svg` — runs on iOS, Android, web and in Expo Go, no native setup
+- Light / dark built in; one `<KitProvider accent radius>` re-skins everything
+
+Live previews and docs for every item: **[expokit.karandev.in/docs](https://expokit.karandev.in/docs)**
 
 ## Quick start
 
-From any Expo project:
+In your Expo app's folder:
 
 ```bash
 npx @anshkaran7/expo-kit@latest init
-npx @anshkaran7/expo-kit@latest add button
-npx @anshkaran7/expo-kit@latest add liquidglass-tab
+npx @anshkaran7/expo-kit@latest add button otp-input bottom-sheet
 ```
 
-List everything in the registry:
+Then use them:
+
+```tsx
+import { Button } from '@/components/ui/button';
+import { OtpInput } from '@/components/ui/otp-input';
+
+<OtpInput length={6} onComplete={verify} />
+<Button variant="gradient" onPress={save}>Continue</Button>
+```
+
+See everything you can add:
 
 ```bash
 npx @anshkaran7/expo-kit@latest add --list
 ```
 
-## How it works
+## Commands
 
 | Command | What it does |
 | --- | --- |
-| `init` | Creates `components.json` (paths + aliases) and sets up `@/*` in `tsconfig.json` if needed |
-| `add <name>` | Copies registry files into your project and runs `npx expo install` for peer deps |
-| `add --dry-run` | Preview files without writing |
-| `add --force` | Overwrite existing files |
-| `update` | Refresh framework files after a package upgrade (keeps `tabs.ts`) |
-| `update --force` | Full overwrite including your `tabs.ts` |
-| `doctor` | Validate tabs config, routes, and peer deps |
-| `add --list` | Prints available components and templates (Pro items are tagged `PRO`) |
-| `login [--token <t>]` | Saves a CLI token to `~/.expo-kit/credentials.json` (0600) for Pro items |
-| `logout` / `whoami` | Removes the saved token / shows your plan |
+| `init` | Creates `components.json` (where files go) and adds the `@/*` alias to `tsconfig.json` if it is missing |
+| `add <name...>` | Copies the items and their registry dependencies, then runs `npx expo install` for missing packages |
+| `add --list` | Every component, block, chart and template (Pro items are tagged `PRO`) |
+| `add --dry-run` / `--force` | Preview the files without writing / overwrite files you changed |
+| `update [name]` | Refreshes template framework files after an upgrade (your `tabs.ts` is kept; `--force` replaces it) |
+| `doctor` | Checks `components.json`, routes and peer dependencies |
+| `login` / `logout` / `whoami` | Saves, removes or shows the CLI token used for Pro items |
+| `mcp` / `mcp init --client <name>` | Starts the MCP server for AI assistants / writes its config into your app |
 
-Same mental model as `npx shadcn@latest add button` — copy-paste, not an import from `node_modules`.
+`add` never silently replaces a shared file you edited (like `src/lib/kit.tsx`) — it keeps yours and tells you. `init` only
+touches `tsconfig.json` when `compilerOptions.paths["@/*"]` is missing, and keeps its comments and formatting.
+
+## Theming
+
+Every component reads colours, radius and light / dark from `useKit()`. Wrap your app once to re-skin all of them:
+
+```tsx
+import { Slot } from 'expo-router';
+import { KitProvider } from '@/lib/kit';
+
+export default function RootLayout() {
+  return (
+    <KitProvider accent="#6366f1" radius={14}>
+      <Slot />
+    </KitProvider>
+  );
+}
+```
+
+## Use it with AI
+
+`expo-kit mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server, so your AI editor can search
+ExpoKit, read an item's props, import line and examples, and run the exact `add` command — instead of guessing an API.
+It reads the registry bundled with the CLI: no network, and it never sees your token.
+
+```bash
+# Claude Code
+claude mcp add expokit -- npx -y @anshkaran7/expo-kit@latest mcp
+
+# Cursor, VS Code: writes .cursor/mcp.json or .vscode/mcp.json in your app (codex prints a config.toml snippet)
+npx @anshkaran7/expo-kit@latest mcp init --client cursor
+```
+
+Antigravity, Windsurf and the rest: [expokit.karandev.in/docs/mcp](https://expokit.karandev.in/docs/mcp). Then just ask
+_"add an ExpoKit bottom sheet to the settings screen"_. Tools: `list_items`, `search_items`, `view_item`, `get_add_command`.
+
+No MCP? Every docs page has **Copy for AI** with a prompt written for Cursor, Claude Code, Antigravity, ChatGPT and others.
 
 ## Pro items
 
-Pro components and blocks are not bundled in this package — `add` downloads them from
-`https://expokit.karandev.in/api/registry/<name>` with your token (free registry dependencies still come from the package):
+Pro items aren't bundled in this package. With an [ExpoKit Pro](https://expokit.karandev.in/pricing) plan, create a token
+on [your account page](https://expokit.karandev.in/account), log in once, and add them like any other item:
 
 ```bash
-# 1. create a token at https://expokit.karandev.in/account (signed in, Pro plan)
 npx @anshkaran7/expo-kit@latest login
-npx @anshkaran7/expo-kit@latest add shimmer-button
+npx @anshkaran7/expo-kit@latest add glass-tab-bar swipe-deck
 ```
 
-`EXPO_KIT_TOKEN` overrides the saved token (CI); `EXPO_KIT_URL` points the CLI at another site (e.g. a local build).
+`add` downloads them from `https://expokit.karandev.in/api/registry/<name>`; free registry dependencies still come from
+the package. In CI, set `EXPO_KIT_TOKEN` instead of logging in.
 
-Token safety:
+<details>
+<summary>Token safety</summary>
 
-- `EXPO_KIT_URL` must be `https://` — plain `http://` is only accepted for `localhost` / `127.0.0.1`.
-- `login` prints which host will receive the token and saves that site's origin with it. A saved token is only
-  sent to that origin or to `https://expokit.karandev.in`; pointing `EXPO_KIT_URL` elsewhere makes the CLI refuse
-  (run `login` again against the new site). `EXPO_KIT_TOKEN` is only sent to the default site or a localhost server.
-- Item names that aren't bundled with your CLI version are looked up on the site before "unknown item" is reported,
-  and their npm dependencies come from the site's response.
+- The token is saved in `~/.expo-kit/credentials.json` with `0600` permissions, together with the site it belongs to.
+- A saved token is only sent to that site or to `https://expokit.karandev.in`. If `EXPO_KIT_URL` points elsewhere, the
+  CLI refuses until you run `login` against the new site. `EXPO_KIT_TOKEN` is only sent to the default site or localhost.
+- `EXPO_KIT_URL` must be `https://` — plain `http://` is accepted only for `localhost` / `127.0.0.1`.
 
-`init` only touches `tsconfig.json` when `compilerOptions.paths["@/*"]` is missing, and keeps comments and
-formatting when it adds it.
+</details>
 
-## AI assistants (MCP)
-
-`expo-kit mcp` runs a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio, so Claude Code,
-Cursor, VS Code (Copilot) or Codex can search ExpoKit, read an item's props, import line and examples, and get the
-exact `add` command. It reads the registry bundled with the CLI — no network, and it never sees your token.
-
-```bash
-# writes .mcp.json / .cursor/mcp.json / .vscode/mcp.json in your app (codex prints a config.toml snippet)
-npx @anshkaran7/expo-kit@latest mcp init --client claude
-
-# or, for Claude Code:
-claude mcp add expokit -- npx -y @anshkaran7/expo-kit@latest mcp
-```
-
-Then ask your assistant something like "add an ExpoKit bottom sheet to the settings screen".
-
-Tools: `list_items`, `search_items`, `view_item` (props, examples, optional source for free items), `get_add_command`.
-Pro items show props only; adding them still needs `login`.
-
-## Registry
-
-| Name | Type | Description |
-| --- | --- | --- |
-| `button` | component | Pressable with solid / outline / ghost, sizes, loading |
-| `liquidglass-tab` | template | NativeTabs with dynamic icons/labels and App Store scroll-collapse |
-
-Aliases for the tab template: `liquid-glass-tab`, `native-tabs`, `liquidglass-tabs`.
-
-### Button
-
-```bash
-npx @anshkaran7/expo-kit@latest add button
-```
-
-Writes `src/components/ui/button.tsx` (path configurable via `components.json`).
-
-```tsx
-import { Button } from "@/components/ui/button";
-
-<Button onPress={onSave} loading={isSaving}>
-  Save
-</Button>
-
-<Button variant="outline" size="lg">
-  Cancel
-</Button>
-```
-
-### Liquid glass bottom tabs
+## Liquid Glass tabs template
 
 ```bash
 npx @anshkaran7/expo-kit@latest add liquidglass-tab
 ```
 
-Copies:
-
-- `src/app/_layout.tsx`
-- `src/app/(tabs)/_layout.tsx` + tab screens
-- `src/lib/tabs.ts` — labels, icons, icon libraries, collapse behavior
-- `src/lib/tab-icons.ts` — `iconFont` / `icoMoon` for any .ttf (Tabler, Hugeicons, …)
-- `src/components/TabScreen.tsx`
-
-Then installs peers (`expo-router`, gesture handler, screens, reanimated, etc.).
-
-**Next steps after add:**
-
-1. Edit `src/lib/tabs.ts` — labels, icon presets, colors, screen text
-2. Run `npx @anshkaran7/expo-kit@latest doctor`
-3. Real liquid glass needs a **dev build** on **iOS 26+** with **Xcode 26** — Expo Go usually shows a normal blur bar
-4. Scroll a tab screen: the bar collapses into a glass circle (current tab) like the App Store; scroll up to expand
-5. Run: `npx expo run:ios`
-
-Preview or overwrite safely:
-
-```bash
-npx @anshkaran7/expo-kit@latest add liquidglass-tab --dry-run
-npx @anshkaran7/expo-kit@latest add liquidglass-tab --force
-npx @anshkaran7/expo-kit@latest update
-npx @anshkaran7/expo-kit@latest doctor
-```
+Copies the `expo-router` layouts, tab screens and `src/lib/tabs.ts` (labels, icons, collapse behaviour) and installs its
+peers. Real Liquid Glass needs a development build on iOS 26+ (`npx expo run:ios`); Expo Go shows a regular blur bar.
+Run `doctor` afterwards. Docs: [expokit.karandev.in/docs/templates/liquidglass-tab](https://expokit.karandev.in/docs/templates/liquidglass-tab)
 
 ## Configuration
 
-`init` creates `components.json`:
+`init` writes `components.json`:
 
 ```json
 {
-  "$schema": "https://expokit.karandev.in/schema.json",
-  "aliases": {
-    "components": "@/components",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "paths": {
-    "components": "src/components",
-    "lib": "src/lib",
-    "app": "src/app"
-  }
+  "aliases": { "components": "@/components", "lib": "@/lib", "hooks": "@/hooks" },
+  "paths": { "components": "src/components", "lib": "src/lib", "app": "src/app" }
 }
 ```
 
-Change `paths` if your app layout differs (e.g. `app` instead of `src/app`).
+Change `paths` before adding items if your app doesn't use `src/` (for example `components` and `app`).
 
 ## Requirements
 
 - Node 18+
-- Expo SDK 51+ (SDK 54+ recommended for native liquid-glass tabs)
-- TypeScript or JavaScript
-- `expo-router` for tab templates
+- Expo SDK 55+ (TypeScript or JavaScript)
+- `expo-router` for the tab template
 
-## Docs
+## Links
 
-- Site: [expokit.karandev.in/docs](https://expokit.karandev.in/docs)
-- Installation: [expokit.karandev.in/docs/installation](https://expokit.karandev.in/docs/installation)
-- Liquid glass tabs: [expokit.karandev.in/docs/templates/native-tabs-liquid-glass](https://expokit.karandev.in/docs/templates/native-tabs-liquid-glass)
+- Docs: [expokit.karandev.in/docs](https://expokit.karandev.in/docs) · Installation: [/docs/installation](https://expokit.karandev.in/docs/installation) · CLI: [/docs/cli](https://expokit.karandev.in/docs/cli)
+- Charts as a regular npm package: [`expo-charts`](https://www.npmjs.com/package/expo-charts)
+- Source of the free components: [github.com/Anshkaran7/expokit](https://github.com/Anshkaran7/expokit) · Issues: [/issues](https://github.com/Anshkaran7/expokit/issues)
 
 ## License
 
-MIT
+MIT for the CLI and the free components. Pro items are licensed under the [ExpoKit terms](https://expokit.karandev.in/terms).

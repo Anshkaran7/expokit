@@ -31,7 +31,7 @@ npx @anshkaran7/expo-kit@latest add button otp-input bottom-sheet
 | `registry/ui` | 43 free components (source, `item.json` and a demo) |
 | `registry/lib` | Shared theme (`useKit`, `KitProvider`) |
 | `registry/charts`, `registry/templates` | Free charts and app templates |
-| `packages/cli` | `@anshkaran7/expo-kit`, the CLI (v0.1.3) |
+| `packages/cli` | `@anshkaran7/expo-kit`, the CLI (v0.2.0) |
 | `packages/charts` | `expo-charts` |
 | `skills/`, `.claude-plugin/` | The ExpoKit skill and Claude Code plugin |
 

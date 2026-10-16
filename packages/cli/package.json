@@ -1,6 +1,6 @@
 {
   "name": "@anshkaran7/expo-kit",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "shadcn-style CLI for Expo — add native UI blocks and components to your app",
   "license": "MIT",
   "type": "module",
