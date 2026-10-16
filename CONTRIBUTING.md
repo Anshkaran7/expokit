@@ -1,11 +1,14 @@
 # Contributing
 
-Thanks for helping! Bug reports, component ideas and pull requests are all welcome.
+This repository is a **read-only mirror**: ExpoKit is developed in a private repository and the free part is synced
+here automatically. Pull requests can't be merged here, so they are closed automatically — but your help is very welcome:
 
-- **Bugs and ideas:** open an issue with the templates — include the platform (iOS / Android / web) and a recording if you can.
-- **A new component or a fix:** follow [registry/CONTRIBUTING.md](registry/CONTRIBUTING.md). Run `npm ci`, `npm test` and
-  `npm run typecheck` before opening the PR.
+- **Bugs:** open an issue with the bug template — the component or command, the platform (iOS / Android / web) and a
+  screen recording or code to reproduce it. Fixes ship in the next release.
+- **Ideas and new components:** open a feature or component request. Links or screenshots of apps that have it help a lot.
+- **A fix you already wrote:** put the diff or a link to your fork in the issue — it is applied upstream with credit.
 - **Pro, billing or account questions:** https://expokit.karandev.in/support — not GitHub issues.
 
-The maintainer builds releases of the CLI and the docs site from merged changes. By contributing you agree your work is
-released under the [MIT License](LICENSE) and that you follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+[registry/CONTRIBUTING.md](registry/CONTRIBUTING.md) explains how components are built, if you want to read or adapt
+the source. Everything here is released under the [MIT License](LICENSE); please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md).

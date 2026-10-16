@@ -1,9 +1,4 @@
-## What
-
-<!-- One or two sentences. Link the issue: Closes #123 -->
-
-## Checklist
-
-- [ ] Follows [registry/CONTRIBUTING.md](../registry/CONTRIBUTING.md) (theme from `useKit()`, native driver, accessibility, no new dependencies)
-- [ ] `npm test` and `npm run typecheck` pass
-- [ ] Tested on iOS and Android (a short screen recording of each variant is ideal)
+<!--
+This repository is a read-only mirror of ExpoKit and pull requests are closed automatically.
+Please open an issue instead and paste your diff (or a link to your fork) there — it is applied upstream with credit.
+-->

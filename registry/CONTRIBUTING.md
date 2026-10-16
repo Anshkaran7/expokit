@@ -61,7 +61,7 @@ component (e.g. `"floating-input"`) if you import it.
    `alignSelf`/flex, never fixed screen widths.
 10. Keep it typed: `strict` TypeScript, no `any` in the public props.
 
-## Pull requests
+## Suggesting a component
 
-Open a PR with the three files above and a short screen recording of each variant on iOS and Android.
-The maintainer adds it to the CLI and the docs site.
+This repository is a read-only mirror, so pull requests are closed automatically. Open a component request issue
+instead — the three files above and a short recording of each variant on iOS and Android are perfect.

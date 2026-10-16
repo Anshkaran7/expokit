@@ -23,4 +23,4 @@ npm test            # CLI tests
 npm run typecheck   # every free component and demo
 ```
 
-Pro items are not in this repository — don't recreate them here.
+Pro items are not in this repository — don't recreate them here. This repo is a read-only mirror (PRs are closed automatically); suggest changes in an issue.

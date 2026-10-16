@@ -40,13 +40,9 @@ https://expokit.karandev.in/pricing. Pro source is not in this repository.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) and [registry/CONTRIBUTING.md](registry/CONTRIBUTING.md).
-
-```bash
-npm ci
-npm test            # CLI tests
-npm run typecheck   # every free component and demo
-```
+This repository is a read-only mirror, synced automatically from ExpoKit's main (private) repository — pull requests
+are closed automatically. Found a bug or want a component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choose).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

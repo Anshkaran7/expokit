@@ -1,0 +1,23 @@
+name: Close pull requests
+
+# This repository is a read-only mirror of ExpoKit (synced from the private repo), so PRs can't be merged here.
+# pull_request_target runs with this repo's token but never checks out the PR's code.
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  close:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh pr close "$PR" --repo "$REPO" --comment "Thanks for this! 🙏 This repository is a read-only mirror of ExpoKit — it is synced automatically from the main repository, so pull requests can't be merged here.
+
+          Please open an issue (https://github.com/$REPO/issues/new/choose) and paste your diff or a link to this branch. It will be applied upstream with credit and show up here in the next sync."
