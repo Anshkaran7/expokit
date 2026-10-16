@@ -1,49 +1,15 @@
 # ExpoKit
 
-Beautifully animated UI components, blocks and charts for **Expo and React Native**. You don't install
-ExpoKit as a dependency — the CLI copies the source into your app, like shadcn/ui, and you own it.
-
-- Docs and live previews: https://expokit.karandev.in
-- Works on iOS, Android, web and Expo Go — plain React Native, `Animated` and `react-native-svg`.
-
-## Quick start
+Animated UI components for **Expo and React Native**. The CLI copies the source into your app, like shadcn/ui.
 
 ```bash
 npx @anshkaran7/expo-kit@latest init
-npx @anshkaran7/expo-kit@latest add button otp-input bottom-sheet
+npx @anshkaran7/expo-kit@latest add button otp-input
 ```
 
-## Use it with AI
+**Docs, live previews, installation and help: [expokit.karandev.in](https://expokit.karandev.in/docs)**
 
-- **Any editor (Cursor, Antigravity, VS Code, Windsurf, Codex):** add the MCP server `npx -y @anshkaran7/expo-kit@latest mcp` —
-  setup for each one: https://expokit.karandev.in/docs/mcp.
-- **Claude Code plugin** (skill + MCP server):
-  ```
-  /plugin marketplace add Anshkaran7/expokit
-  /plugin install expokit@expokit
-  ```
-- Every docs page has **Copy for AI**, with a prompt written for your tool.
+This repo has the free components (`registry/`), the CLI (`packages/cli`) and [`expo-charts`](https://www.npmjs.com/package/expo-charts)
+(`packages/charts`). It is a read-only mirror — found a bug or want a component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choose).
 
-## What's here
-
-| Folder | What |
-| --- | --- |
-| `registry/ui` | 43 free components (source, `item.json` and a demo) |
-| `registry/lib` | Shared theme (`useKit`, `KitProvider`) |
-| `registry/charts`, `registry/templates` | Free charts and app templates |
-| `packages/cli` | `@anshkaran7/expo-kit`, the CLI (v0.2.0) |
-| `packages/charts` | `expo-charts` |
-| `skills/`, `.claude-plugin/` | The ExpoKit skill and Claude Code plugin |
-
-ExpoKit Pro adds 3D, Liquid Glass and motion components, full-screen blocks and more charts:
-https://expokit.karandev.in/pricing. Pro source is not in this repository.
-
-## Contributing
-
-This repository is a read-only mirror, synced automatically from ExpoKit's main (private) repository — pull requests
-are closed automatically. Found a bug or want a component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choose).
-See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+MIT licensed. [ExpoKit Pro](https://expokit.karandev.in/pricing) items are not in this repo.
