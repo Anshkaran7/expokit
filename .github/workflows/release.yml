@@ -1,0 +1,35 @@
+name: Release
+
+# Creates a GitHub Release (and tag) for @anshkaran7/expo-kit and expo-charts once the version in
+# packages/*/package.json is published on npm — never for a version that only exists in the repo.
+# Runs after every sync, every 6 hours (so a publish shows up without a push) and on demand.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+
+      - name: Release published versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ vars.RELEASE_DRY_RUN }}
+        run: bash .github/workflows/release.sh
