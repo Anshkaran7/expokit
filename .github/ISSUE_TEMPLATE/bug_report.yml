@@ -1,0 +1,38 @@
+name: Bug report
+description: Something in a free component or the CLI doesn't work.
+labels: [bug]
+body:
+  - type: input
+    id: item
+    attributes:
+      label: Component or command
+      placeholder: otp-input, or `expo-kit add`
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what you saw. Screenshots or a screen recording help a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Code to reproduce
+      render: tsx
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Where does it happen?
+      multiple: true
+      options: [iOS, Android, Web, Expo Go, Development build]
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: Expo SDK 57, react-native 0.86, @anshkaran7/expo-kit 0.1.3
+    validations:
+      required: true

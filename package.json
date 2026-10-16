@@ -2,10 +2,17 @@
   "name": "expokit",
   "private": true,
   "description": "ExpoKit — animated, copy-paste UI components for Expo and React Native",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "scripts": {
-    "test": "npm test -w @anshkaran7/expo-kit"
+    "test": "npm test -w @anshkaran7/expo-kit",
+    "typecheck": "tsc -p registry"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "expo-haptics": "~57.0.3",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-svg": "15.15.4",
+    "typescript": "~6.0.3"
   }
 }

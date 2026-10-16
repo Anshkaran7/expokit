@@ -1,0 +1,17 @@
+name: Feature request
+description: A new prop, variant or CLI option for something that already exists.
+labels: [enhancement]
+body:
+  - type: input
+    id: item
+    attributes:
+      label: Component or command
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: The problem it solves and how you'd use it.
+    validations:
+      required: true

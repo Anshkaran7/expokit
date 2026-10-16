@@ -1,0 +1,12 @@
+{
+  "name": "expokit",
+  "description": "ExpoKit for Claude Code: a skill and an MCP server to find and add ExpoKit components to Expo apps.",
+  "owner": { "name": "Anshkaran7" },
+  "plugins": [
+    {
+      "name": "expokit",
+      "source": ".",
+      "description": "Find, add and use ExpoKit components in Expo / React Native apps (skill + MCP server)."
+    }
+  ]
+}

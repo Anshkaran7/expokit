@@ -13,8 +13,16 @@ npx @anshkaran7/expo-kit@latest init
 npx @anshkaran7/expo-kit@latest add button otp-input bottom-sheet
 ```
 
-Using Cursor, Claude Code, Antigravity, VS Code or Codex? `npx @anshkaran7/expo-kit@latest mcp` lets your
-AI find and add components — see https://expokit.karandev.in/docs/mcp.
+## Use it with AI
+
+- **Any editor (Cursor, Antigravity, VS Code, Windsurf, Codex):** add the MCP server `npx -y @anshkaran7/expo-kit@latest mcp` —
+  setup for each one: https://expokit.karandev.in/docs/mcp.
+- **Claude Code plugin** (skill + MCP server):
+  ```
+  /plugin marketplace add Anshkaran7/expokit
+  /plugin install expokit@expokit
+  ```
+- Every docs page has **Copy for AI**, with a prompt written for your tool.
 
 ## What's here
 
@@ -25,13 +33,20 @@ AI find and add components — see https://expokit.karandev.in/docs/mcp.
 | `registry/charts`, `registry/templates` | Free charts and app templates |
 | `packages/cli` | `@anshkaran7/expo-kit`, the CLI (v0.1.3) |
 | `packages/charts` | `expo-charts` |
+| `skills/`, `.claude-plugin/` | The ExpoKit skill and Claude Code plugin |
 
 ExpoKit Pro adds 3D, Liquid Glass and motion components, full-screen blocks and more charts:
 https://expokit.karandev.in/pricing. Pro source is not in this repository.
 
 ## Contributing
 
-See [registry/CONTRIBUTING.md](registry/CONTRIBUTING.md). Run the CLI tests with `npm test`.
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [registry/CONTRIBUTING.md](registry/CONTRIBUTING.md).
+
+```bash
+npm ci
+npm test            # CLI tests
+npm run typecheck   # every free component and demo
+```
 
 ## License
 

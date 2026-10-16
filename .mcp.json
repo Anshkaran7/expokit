@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "expokit": {
+      "command": "npx",
+      "args": ["-y", "@anshkaran7/expo-kit@latest", "mcp"]
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "types": [],
+    "paths": {
+      "@/components/charts/kpi-card": [
+        "./charts/kpi-card/src/components/charts/kpi-card.tsx"
+      ],
+      "@/components/ui/accordion": [
+        "./ui/accordion/src/components/ui/accordion.tsx"
+      ],
+      "@/components/ui/action-sheet": [
+        "./ui/action-sheet/src/components/ui/action-sheet.tsx"
+      ],
+      "@/components/ui/alert": [
+        "./ui/alert/src/components/ui/alert.tsx"
+      ],
+      "@/components/ui/avatar": [
+        "./ui/avatar/src/components/ui/avatar.tsx"
+      ],
+      "@/components/ui/badge": [
+        "./ui/badge/src/components/ui/badge.tsx"
+      ],
+      "@/components/ui/bottom-nav": [
+        "./ui/bottom-nav/src/components/ui/bottom-nav.tsx"
+      ],
+      "@/components/ui/bottom-sheet": [
+        "./ui/bottom-sheet/src/components/ui/bottom-sheet.tsx"
+      ],
+      "@/components/ui/button": [
+        "./ui/button/src/components/ui/button.tsx"
+      ],
+      "@/components/ui/button-3d": [
+        "./ui/button-3d/src/components/ui/button-3d.tsx"
+      ],
+      "@/components/ui/calendar": [
+        "./ui/calendar/src/components/ui/calendar.tsx"
+      ],
+      "@/components/ui/card": [
+        "./ui/card/src/components/ui/card.tsx"
+      ],
+      "@/components/ui/checkbox": [
+        "./ui/checkbox/src/components/ui/checkbox.tsx"
+      ],
+      "@/components/ui/chip-group": [
+        "./ui/chip-group/src/components/ui/chip-group.tsx"
+      ],
+      "@/components/ui/confetti": [
+        "./ui/confetti/src/components/ui/confetti.tsx"
+      ],
+      "@/components/ui/coupon": [
+        "./ui/coupon/src/components/ui/coupon.tsx"
+      ],
+      "@/components/ui/date-picker": [
+        "./ui/date-picker/src/components/ui/date-picker.tsx"
+      ],
+      "@/components/ui/dialog": [
+        "./ui/dialog/src/components/ui/dialog.tsx"
+      ],
+      "@/components/ui/drawer": [
+        "./ui/drawer/src/components/ui/drawer.tsx"
+      ],
+      "@/components/ui/flip-card": [
+        "./ui/flip-card/src/components/ui/flip-card.tsx"
+      ],
+      "@/components/ui/floating-input": [
+        "./ui/floating-input/src/components/ui/floating-input.tsx"
+      ],
+      "@/components/ui/list-item": [
+        "./ui/list-item/src/components/ui/list-item.tsx"
+      ],
+      "@/components/ui/otp-input": [
+        "./ui/otp-input/src/components/ui/otp-input.tsx"
+      ],
+      "@/components/ui/pagination-dots": [
+        "./ui/pagination-dots/src/components/ui/pagination-dots.tsx"
+      ],
+      "@/components/ui/password-input": [
+        "./ui/password-input/src/components/ui/password-input.tsx"
+      ],
+      "@/components/ui/payment-card": [
+        "./ui/payment-card/src/components/ui/payment-card.tsx"
+      ],
+      "@/components/ui/progress": [
+        "./ui/progress/src/components/ui/progress.tsx"
+      ],
+      "@/components/ui/progress-steps": [
+        "./ui/progress-steps/src/components/ui/progress-steps.tsx"
+      ],
+      "@/components/ui/radio-group": [
+        "./ui/radio-group/src/components/ui/radio-group.tsx"
+      ],
+      "@/components/ui/search-bar": [
+        "./ui/search-bar/src/components/ui/search-bar.tsx"
+      ],
+      "@/components/ui/segmented-control": [
+        "./ui/segmented-control/src/components/ui/segmented-control.tsx"
+      ],
+      "@/components/ui/select": [
+        "./ui/select/src/components/ui/select.tsx"
+      ],
+      "@/components/ui/skeleton": [
+        "./ui/skeleton/src/components/ui/skeleton.tsx"
+      ],
+      "@/components/ui/slider": [
+        "./ui/slider/src/components/ui/slider.tsx"
+      ],
+      "@/components/ui/spinner": [
+        "./ui/spinner/src/components/ui/spinner.tsx"
+      ],
+      "@/components/ui/stepper": [
+        "./ui/stepper/src/components/ui/stepper.tsx"
+      ],
+      "@/components/ui/switch": [
+        "./ui/switch/src/components/ui/switch.tsx"
+      ],
+      "@/components/ui/tabs": [
+        "./ui/tabs/src/components/ui/tabs.tsx"
+      ],
+      "@/components/ui/tag-input": [
+        "./ui/tag-input/src/components/ui/tag-input.tsx"
+      ],
+      "@/components/ui/textarea": [
+        "./ui/textarea/src/components/ui/textarea.tsx"
+      ],
+      "@/components/ui/tilt-card": [
+        "./ui/tilt-card/src/components/ui/tilt-card.tsx"
+      ],
+      "@/components/ui/time-picker": [
+        "./ui/time-picker/src/components/ui/time-picker.tsx"
+      ],
+      "@/components/ui/timeline": [
+        "./ui/timeline/src/components/ui/timeline.tsx"
+      ],
+      "@/components/ui/toast": [
+        "./ui/toast/src/components/ui/toast.tsx"
+      ],
+      "@/lib/kit": [
+        "./lib/kit/src/lib/kit.tsx"
+      ],
+      "@/lib/ticket-shape": [
+        "./lib/ticket-shape/src/lib/ticket-shape.tsx"
+      ],
+      "expo-charts": [
+        "../packages/charts/src"
+      ]
+    }
+  },
+  "include": [
+    "lib/**/*",
+    "ui/**/*",
+    "charts/**/*"
+  ]
+}

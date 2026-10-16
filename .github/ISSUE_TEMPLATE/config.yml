@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Docs
+    url: https://expokit.karandev.in/docs
+    about: Installation, theming, the CLI and every component's props.
+  - name: Pro, billing and account help
+    url: https://expokit.karandev.in/support
+    about: Questions about ExpoKit Pro, payments or your account — not GitHub issues, please.
