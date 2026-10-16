@@ -1,0 +1,78 @@
+{
+  "name": "shimmer-button",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "ShimmerButton",
+  "files": [
+    "src/components/ui/shimmer-button.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"shimmer\" | \"glow\" | \"border-beam\"",
+      "\"shimmer\"",
+      "Light sweep, breathing halo or orbiting border beam."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "40 / 50 / 58pt tall."
+    ],
+    [
+      "color",
+      "string",
+      "primary / accent",
+      "Button colour (beam colour for border-beam)."
+    ],
+    [
+      "textColor",
+      "string",
+      "readable on color",
+      "Label colour."
+    ],
+    [
+      "speed",
+      "number",
+      "2600 / 2400 / 3200",
+      "Loop length in ms."
+    ],
+    [
+      "pill",
+      "boolean",
+      "true",
+      "Fully rounded ends."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretches to the parent's width (alignSelf: stretch)."
+    ],
+    [
+      "left / right",
+      "ReactNode",
+      "—",
+      "Icons beside the label."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Style for the label text."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer animated wrapper (margins, alignment)."
+    ],
+    [
+      "…PressableProps",
+      "",
+      "",
+      "onPress, disabled, …"
+    ]
+  ],
+  "examples": []
+}

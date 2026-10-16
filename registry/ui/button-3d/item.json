@@ -1,0 +1,100 @@
+{
+  "name": "button-3d",
+  "title": "3D Button",
+  "tier": "free",
+  "category": "3D",
+  "description": "A physical, keycap-style button — a softly lit face on a darker edge that sinks in when pressed, with a light haptic, and springs back. Light, dark or frosted-glass keycaps (auto picks the one that contrasts with your screen) or any colour; three sizes, pill and circle shapes, loading state.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Label, a single glyph (circle buttons) or custom content."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Fires on tap."
+    ],
+    [
+      "appearance",
+      "\"auto\" | \"light\" | \"dark\" | \"glass\"",
+      "\"auto\"",
+      "Keycap material; auto is light on dark screens and dark on light ones. Glass is for buttons on photos."
+    ],
+    [
+      "color",
+      "string",
+      "—",
+      "A custom face colour instead of a material, e.g. your brand colour."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Height and text size (36 / 46 / 56)."
+    ],
+    [
+      "shape",
+      "\"rounded\" | \"pill\" | \"circle\"",
+      "\"rounded\"",
+      "Keycap, pill or round icon button."
+    ],
+    [
+      "depth",
+      "number",
+      "4 / 5 / 6 by size",
+      "Edge height in points."
+    ],
+    [
+      "icon",
+      "ReactNode",
+      "—",
+      "Shown before the label."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretch to the parent's width."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Show a spinner and ignore taps."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dim the button and ignore taps."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light haptic tap on press (iOS / Android)."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Label for screen readers (needed for icon-only buttons)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width, margins)."
+    ]
+  ]
+}

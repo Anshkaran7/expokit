@@ -1,0 +1,17 @@
+{
+  "name": "wheel-list",
+  "type": "component",
+  "title": "Wheel List",
+  "description": "A 3D wheel picker — rows sit on a cylinder and curve away above and below the selection band, like the iOS alarm wheel. Snaps to a row, takes plain strings or custom rows, and works controlled or uncontrolled.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

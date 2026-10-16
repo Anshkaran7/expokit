@@ -1,0 +1,93 @@
+{
+  "name": "card",
+  "title": "Card",
+  "tier": "free",
+  "category": "Display",
+  "description": "Composable surface — Header, Title, Description, Content, Media, Footer — in default, outline and elevated styles. Pressable cards spring down and can light up with a spotlight that follows your finger or a glowing accent border.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"default\" | \"outline\" | \"elevated\"",
+      "\"default\"",
+      "Surface style. Glass is translucent with a light edge — place it over colour or imagery."
+    ],
+    [
+      "onPress / onLongPress",
+      "(e) => void",
+      "—",
+      "Makes the card a button with a spring press."
+    ],
+    [
+      "pressable",
+      "boolean",
+      "false",
+      "Spring press without an onPress."
+    ],
+    [
+      "highlight",
+      "\"none\" | \"spotlight\" | \"border\"",
+      "\"none\"",
+      "Radial glow that tracks the finger, or an accent border that glows in."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Highlight colour."
+    ],
+    [
+      "padding",
+      "number",
+      "18",
+      "Inner padding."
+    ],
+    [
+      "gap",
+      "number",
+      "14",
+      "Space between sections."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "Card.Header action",
+      "ReactNode",
+      "—",
+      "Element pinned to the header's top-right."
+    ],
+    [
+      "Card.Title / Description numberOfLines",
+      "number",
+      "—",
+      "Clamp the text to this many lines with an ellipsis."
+    ],
+    [
+      "Card.Content / Footer",
+      "{ children, style? }",
+      "—",
+      "Plain section view / bottom row of actions (row, 10pt gap); `style` overrides either."
+    ],
+    [
+      "Card.Media source / height",
+      "ImageSource / number",
+      "— / 168",
+      "Full-bleed image; place it first."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the card surface (merged after the variant background, border and radius)."
+    ]
+  ]
+}

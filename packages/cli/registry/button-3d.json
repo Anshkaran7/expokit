@@ -1,0 +1,18 @@
+{
+  "name": "button-3d",
+  "type": "component",
+  "title": "3D Button",
+  "description": "A physical, keycap-style button — a softly lit face on a darker edge that sinks in when pressed, with a light haptic, and springs back. Light, dark or frosted-glass keycaps (auto picks the one that contrasts with your screen) or any colour; three sizes, pill and circle shapes, loading state.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "button-3d/files"
+}

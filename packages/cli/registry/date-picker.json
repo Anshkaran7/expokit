@@ -1,0 +1,19 @@
+{
+  "name": "date-picker",
+  "type": "component",
+  "title": "Date Picker",
+  "description": "A date field with a floating label and glowing focus halo that opens the Calendar in a spring sheet (drag the grabber to dismiss, a dialog on wide screens) or an anchored popover. Single or range mode, one-tap presets like Next 7 days and Next weekend, optional Clear / Done staging with a live summary, Intl formatting, error shake with an icon message and a success check.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "calendar"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/calendar.tsx"
+  ],
+  "filesDir": "date-picker/files"
+}

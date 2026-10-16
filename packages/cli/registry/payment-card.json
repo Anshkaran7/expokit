@@ -1,0 +1,21 @@
+{
+  "name": "payment-card",
+  "type": "component",
+  "title": "Payment Card",
+  "description": "A realistic bank card on any photo or texture — gold or silver EMV chip, contactless mark, embossed number and the real Visa / Mastercard / Amex / RuPay marks. It tilts toward your finger with a moving reflection and flips on tap to the back: magnetic stripe, signature panel with the CVV and a hologram. Frozen state for card controls.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "tilt-card",
+    "flip-card"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/tilt-card.tsx",
+    "components/ui/flip-card.tsx"
+  ],
+  "filesDir": "payment-card/files"
+}

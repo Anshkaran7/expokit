@@ -1,0 +1,108 @@
+{
+  "name": "morph-button",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "MorphButton",
+  "files": [
+    "src/components/ui/morph-button.tsx"
+  ],
+  "props": [
+    [
+      "onPress",
+      "() => Promise<unknown>",
+      "—",
+      "Async work. Resolve → tick, reject → cross + shake."
+    ],
+    [
+      "variant",
+      "\"primary\" | \"accent\" | \"soft\" | \"outline\"",
+      "\"primary\"",
+      "Look while idle."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "40 / 48 / 56pt tall."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Brand colour for accent, soft and outline."
+    ],
+    [
+      "successColor / errorColor",
+      "string",
+      "theme success / danger",
+      "Colours of the result circle."
+    ],
+    [
+      "resetAfter",
+      "number",
+      "1300",
+      "ms the result stays before morphing back."
+    ],
+    [
+      "minLoading",
+      "number",
+      "600",
+      "Minimum ms the spinner is shown."
+    ],
+    [
+      "onSuccess / onError",
+      "(value) => void",
+      "—",
+      "Called with the resolved value or the thrown error."
+    ],
+    [
+      "onStatusChange",
+      "(status) => void",
+      "—",
+      "\"idle\" | \"loading\" | \"success\" | \"error\"."
+    ],
+    [
+      "pill",
+      "boolean",
+      "true",
+      "Fully rounded ends while idle."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Full width; shrinks to the centre while busy."
+    ],
+    [
+      "left",
+      "ReactNode",
+      "—",
+      "Icon before the label."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Taps on start, success and error."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Blocks presses."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Style for the idle label text."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer animated wrapper (margins, alignment)."
+    ]
+  ],
+  "examples": []
+}

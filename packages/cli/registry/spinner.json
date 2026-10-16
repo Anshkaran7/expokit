@@ -1,0 +1,17 @@
+{
+  "name": "spinner",
+  "type": "component",
+  "title": "Spinner",
+  "description": "A comet arc whose tail fades out and breathes as it spins (native rotation), or a soft staggered wave of dots. Optional faint track and a visible label with an animated ellipsis.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "spinner/files"
+}

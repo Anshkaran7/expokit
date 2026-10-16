@@ -1,0 +1,134 @@
+{
+  "name": "otp-input",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "OtpInput",
+  "files": [
+    "src/components/ui/otp-input.tsx"
+  ],
+  "props": [
+    [
+      "length",
+      "number",
+      "6",
+      "Number of cells."
+    ],
+    [
+      "value / onChangeText",
+      "string",
+      "—",
+      "Controlled code (digits only). Pasting a longer string fills every cell."
+    ],
+    [
+      "onComplete",
+      "(code) => void",
+      "—",
+      "Called when every cell is filled."
+    ],
+    [
+      "variant",
+      "\"box\" | \"underline\" | \"pill\"",
+      "\"box\"",
+      "Rounded box cells, underline bars, or round pill cells."
+    ],
+    [
+      "error",
+      "boolean",
+      "false",
+      "Shakes the row and turns it the danger colour."
+    ],
+    [
+      "errorText",
+      "string",
+      "—",
+      "Message (with icon) shown under the cells while `error` is set."
+    ],
+    [
+      "success",
+      "boolean",
+      "false",
+      "Success colour with a staggered pulse across the cells."
+    ],
+    [
+      "successText",
+      "string",
+      "—",
+      "Message with an animated check shown while `success` is set."
+    ],
+    [
+      "helperText",
+      "string",
+      "—",
+      "Hint shown under the cells otherwise."
+    ],
+    [
+      "separatorAfter",
+      "number",
+      "—",
+      "Draw a dash after this many cells, e.g. 3 → 123 – 456."
+    ],
+    [
+      "maxCellSize",
+      "number",
+      "52",
+      "Largest cell width; cells shrink to fit the row and never overflow."
+    ],
+    [
+      "secure",
+      "boolean",
+      "false",
+      "Dots instead of digits."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks input."
+    ],
+    [
+      "autoFocus",
+      "boolean",
+      "false",
+      "Focus on mount."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Active cell colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view around the cells and message."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "VerifyPhone",
+      "title": "Verify Phone",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { OtpInput } from '@/components/ui/otp-input';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nfunction Header({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4, alignItems: 'center' }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground, textAlign: 'center' }}>{title}</Text>\n      <Text style={{ fontSize: 13, color: colors.mutedForeground, textAlign: 'center' }}>{body}</Text>\n    </View>\n  );\n}\n\nexport default function VerifyPhone() {\n  const { colors } = useKit();\n  const [code, setCode] = useState('');\n  const [left, setLeft] = useState(24);\n  useEffect(() => {\n    if (left <= 0) return;\n    const id = setTimeout(() => setLeft((s) => s - 1), 1000);\n    return () => clearTimeout(id);\n  }, [left]);\n  const done = code.length === 6;\n  return (\n    <Card>\n      <Header title=\"Verify your number\" body=\"Enter the code sent to +91 98•••• 4210\" />\n      <OtpInput\n        value={code}\n        onChangeText={setCode}\n        success={code === '123456'}\n        error={done && code !== '123456'}\n        successText=\"Number verified\"\n        errorText=\"That code didn't match. Try 123456.\"\n        helperText=\"Tip: the demo code is 123456\"\n      />\n      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>\n        <Pressable disabled={left > 0} onPress={() => { setLeft(24); setCode(''); }} hitSlop={10}>\n          <Text style={{ fontSize: 13, fontWeight: '400', color: left > 0 ? colors.mutedForeground : colors.accent }}>\n            {left > 0 ? `Resend in 0:${String(left).padStart(2, '0')}` : 'Resend code'}\n          </Text>\n        </Pressable>\n        <Pressable hitSlop={10} accessibilityRole=\"button\">\n          <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>Change number</Text>\n        </Pressable>\n      </View>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Pin",
+      "title": "Pin",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { OtpInput } from '@/components/ui/otp-input';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nfunction Header({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4, alignItems: 'center' }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground, textAlign: 'center' }}>{title}</Text>\n      <Text style={{ fontSize: 13, color: colors.mutedForeground, textAlign: 'center' }}>{body}</Text>\n    </View>\n  );\n}\n\nexport default function Pin() {\n  const [pin, setPin] = useState('');\n  return (\n    <Card>\n      <Header title=\"Enter your PIN\" body=\"Confirm the transfer of ₹2,400 to Ananya\" />\n      <OtpInput variant=\"pill\" length={4} secure value={pin} onChangeText={setPin} maxCellSize={56} />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Underline",
+      "title": "Underline",
+      "code": "import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { OtpInput } from '@/components/ui/otp-input';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nfunction Header({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4, alignItems: 'center' }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground, textAlign: 'center' }}>{title}</Text>\n      <Text style={{ fontSize: 13, color: colors.mutedForeground, textAlign: 'center' }}>{body}</Text>\n    </View>\n  );\n}\n\nexport default function Underline() {\n  return (\n    <Card>\n      <Header title=\"Check your inbox\" body=\"We emailed a 6-digit code to karan@…\" />\n      <OtpInput variant=\"underline\" helperText=\"Code expires in 10 minutes\" />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "WithSeparator",
+      "title": "With Separator",
+      "code": "import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { OtpInput } from '@/components/ui/otp-input';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nfunction Header({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4, alignItems: 'center' }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground, textAlign: 'center' }}>{title}</Text>\n      <Text style={{ fontSize: 13, color: colors.mutedForeground, textAlign: 'center' }}>{body}</Text>\n    </View>\n  );\n}\n\nexport default function WithSeparator() {\n  return (\n    <Card>\n      <Header title=\"Two-factor authentication\" body=\"Open your authenticator app\" />\n      <OtpInput separatorAfter={3} maxCellSize={46} />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "States",
+      "title": "States",
+      "code": "import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { OtpInput } from '@/components/ui/otp-input';\n\nexport default function States() {\n  return (\n    <View style={{ gap: 18 }}>\n      <OtpInput length={4} value=\"4821\" success successText=\"Verified\" />\n      <OtpInput length={4} value=\"1093\" error errorText=\"Incorrect code\" />\n      <OtpInput length={4} value=\"72\" disabled helperText=\"Too many attempts — try again in 5 min\" />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "action-sheet",
+  "type": "component",
+  "title": "Action Sheet",
+  "description": "An iOS-quality action sheet: grouped rounded cards with hairline separators, an optional title and message, and a separate Cancel card. It springs up over a fading scrim and follows your finger anywhere on the sheet — fling or pull past a third to dismiss, pulling up rubber-bands. Rows highlight on touch with a selection haptic; icons, destructive and disabled options; plus a Material list and a share-sheet grid.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "action-sheet/files"
+}

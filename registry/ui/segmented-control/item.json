@@ -1,0 +1,76 @@
+{
+  "name": "segmented-control",
+  "title": "Segmented Control",
+  "tier": "free",
+  "category": "Selection",
+  "description": "A liquid indicator: the leading edge springs ahead and the trailing edge catches up, so it stretches between segments — measured with onLayout to fit any label. Drag the selected segment to scrub. iOS pill, tab underline and outline looks, with icons and three sizes.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "options",
+      "(string | { value, label?, icon?, disabled? })[]",
+      "—",
+      "Segments. `icon` can be a node or ({ active, color }) => node."
+    ],
+    [
+      "value / onValueChange",
+      "string",
+      "—",
+      "Controlled selection (or use defaultValue; defaults to the first segment)."
+    ],
+    [
+      "defaultValue",
+      "string",
+      "first segment",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "variant",
+      "\"pill\" | \"underline\" | \"outline\"",
+      "\"pill\"",
+      "Raised pill on a track, tab underline, or tinted outline."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "32 / 40 / 48pt tall."
+    ],
+    [
+      "fullWidth",
+      "boolean",
+      "true",
+      "Equal-width segments filling the row, or segments sized to their labels."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Indicator colour (pill becomes a filled accent pill)."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the track holding the segments."
+    ]
+  ]
+}

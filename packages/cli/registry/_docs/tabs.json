@@ -1,0 +1,105 @@
+{
+  "name": "tabs",
+  "category": "Navigation",
+  "aliases": [],
+  "exportName": "Tabs",
+  "files": [
+    "src/components/ui/tabs.tsx"
+  ],
+  "props": [
+    [
+      "items",
+      "{ value, label, icon?, badge?, content?, disabled?, accessibilityLabel? }[]",
+      "—",
+      "Tabs and (optionally) their content panes. `icon` is a node or `({ active, color }) => node`."
+    ],
+    [
+      "value / defaultValue",
+      "string",
+      "first enabled tab",
+      "Active tab (controlled / uncontrolled)."
+    ],
+    [
+      "onValueChange",
+      "(value: string) => void",
+      "—",
+      "Called when a tab is pressed or swiped to."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\"",
+      "\"md\"",
+      "36 / 44pt tall (sm keeps a 44pt hit area)."
+    ],
+    [
+      "scrollable",
+      "boolean",
+      "auto",
+      "`true` sizes tabs to labels and scrolls; `false` gives equal widths. Default fills the width and scrolls only when tabs overflow, keeping the active tab centred."
+    ],
+    [
+      "swipeable",
+      "boolean",
+      "true",
+      "Drag the content sideways to change tab; the underline tracks the drag."
+    ],
+    [
+      "transition",
+      "\"slide\" | \"fade\" | \"none\"",
+      "\"slide\"",
+      "How content changes on a tap."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Underline and active badge colour."
+    ],
+    [
+      "variant",
+      "\"underline\"",
+      "\"underline\"",
+      "Deprecated: `pill` and `soft` render as `underline` — use SegmentedControl for a pill switch."
+    ],
+    [
+      "contentStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style of each content pane."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view wrapping the tab bar and content."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Underline",
+      "title": "Underline",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Tabs } from '@/components/ui/tabs';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Panel({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4 }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n      <Text style={{ fontSize: 14, fontWeight: '400', lineHeight: 20, color: colors.mutedForeground }}>{body}</Text>\n    </View>\n  );\n}\n\nexport default function Underline() {\n  return (\n    <Tabs\n      items={[\n        { value: 'overview', label: 'Overview', content: <Panel title=\"Revenue up 12%\" body=\"Annual plans drove most of the growth this week. Churn held at 1.8%.\" /> },\n        { value: 'activity', label: 'Activity', badge: 3, content: <Panel title=\"3 new comments\" body=\"Priya and Leo left notes on the Q4 roadmap since yesterday.\" /> },\n        { value: 'settings', label: 'Settings', content: <Panel title=\"Project settings\" body=\"Notifications, members and integrations for Mobile app 2.0.\" /> },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Profile",
+      "title": "Profile",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Tabs } from '@/components/ui/tabs';\nimport { alpha, useKit } from '@/lib/kit';\n\ntype Post = [who: string, text: string, meta: string];\n\nfunction Feed({ posts }: { posts: Post[] }) {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View style={{ gap: 14 }}>\n      {posts.map(([who, text, meta]) => (\n        <View key={text} style={{ flexDirection: 'row', gap: 10 }}>\n          <View\n            style={{\n              width: 34,\n              height: 34,\n              borderRadius: radius.capsule(34),\n              backgroundColor: alpha(colors.accent, dark ? 0.22 : 0.12),\n              alignItems: 'center',\n              justifyContent: 'center',\n            }}\n          >\n            <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{who.slice(0, 1)}</Text>\n          </View>\n          <View style={{ flex: 1, gap: 2 }}>\n            <Text style={{ fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>\n              <Text style={{ color: colors.foreground }}>{who}</Text> · {meta}\n            </Text>\n            <Text style={{ fontSize: 14.5, fontWeight: '400', lineHeight: 20, color: colors.foreground }}>{text}</Text>\n          </View>\n        </View>\n      ))}\n    </View>\n  );\n}\n\nfunction Grid() {\n  const { colors, radius, dark } = useKit();\n  const tones = [0.1, 0.18, 0.26, 0.14, 0.22, 0.3];\n  return (\n    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>\n      {tones.map((a, i) => (\n        <View\n          key={i}\n          style={{ width: '32%', aspectRatio: 1, borderRadius: radius.scale(10), backgroundColor: alpha(colors.accent, dark ? a + 0.08 : a) }}\n        />\n      ))}\n    </View>\n  );\n}\n\nexport default function Profile() {\n  return (\n    <Tabs\n      items={[\n        {\n          value: 'posts',\n          label: 'Posts',\n          badge: 128,\n          content: (\n            <Feed\n              posts={[\n                ['Maya Chen', 'Shipped the new onboarding today. Three screens instead of seven, and it finally feels calm.', '2h'],\n                ['Maya Chen', 'Hot take: every tab bar needs a haptic tick.', '1d'],\n              ]}\n            />\n          ),\n        },\n        {\n          value: 'replies',\n          label: 'Replies',\n          content: <Feed posts={[['Maya Chen', 'Agreed, the spring on that indicator is perfect. Ship it.', '5h']]} />,\n        },\n        { value: 'media', label: 'Media', badge: 24, content: <Grid /> },\n        {\n          value: 'likes',\n          label: 'Likes',\n          content: (\n            <Feed\n              posts={[\n                ['Leo Park', 'Offsite is booked: June 12–14 in Lisbon. Bring sunscreen.', '3h'],\n                ['Ana Ruiz', 'Pricing page v3 is live. Conversion up 0.6 points so far.', '1d'],\n              ]}\n            />\n          ),\n        },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Scrollable",
+      "title": "Scrollable",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Tabs } from '@/components/ui/tabs';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Panel({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4 }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n      <Text style={{ fontSize: 14, fontWeight: '400', lineHeight: 20, color: colors.mutedForeground }}>{body}</Text>\n    </View>\n  );\n}\n\nexport default function Scrollable() {\n  const categories = ['For you', 'Trending', 'Design', 'Engineering', 'Product', 'Marketing', 'Finance', 'Remote'];\n  return (\n    <Tabs\n      items={categories.map((c, i) => ({\n        value: c,\n        label: c,\n        badge: i === 1 ? 'New' : undefined,\n        content: <Panel title={c} body={`Hand-picked ${c.toLowerCase()} stories from people you follow, updated every hour.`} />,\n      }))}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "WithIcons",
+      "title": "With Icons",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { BottomNavIcon } from '@/components/ui/bottom-nav';\nimport { Tabs } from '@/components/ui/tabs';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Panel({ title, body }: { title: string; body: string }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 4 }}>\n      <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n      <Text style={{ fontSize: 14, fontWeight: '400', lineHeight: 20, color: colors.mutedForeground }}>{body}</Text>\n    </View>\n  );\n}\n\ntype Post = [who: string, text: string, meta: string];\n\nfunction Feed({ posts }: { posts: Post[] }) {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View style={{ gap: 14 }}>\n      {posts.map(([who, text, meta]) => (\n        <View key={text} style={{ flexDirection: 'row', gap: 10 }}>\n          <View\n            style={{\n              width: 34,\n              height: 34,\n              borderRadius: radius.capsule(34),\n              backgroundColor: alpha(colors.accent, dark ? 0.22 : 0.12),\n              alignItems: 'center',\n              justifyContent: 'center',\n            }}\n          >\n            <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{who.slice(0, 1)}</Text>\n          </View>\n          <View style={{ flex: 1, gap: 2 }}>\n            <Text style={{ fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>\n              <Text style={{ color: colors.foreground }}>{who}</Text> · {meta}\n            </Text>\n            <Text style={{ fontSize: 14.5, fontWeight: '400', lineHeight: 20, color: colors.foreground }}>{text}</Text>\n          </View>\n        </View>\n      ))}\n    </View>\n  );\n}\n\nexport default function WithIcons() {\n  const { colors } = useKit();\n  const [unread, setUnread] = useState(4);\n  const [mentions, setMentions] = useState(2);\n  const clear = (\n    <Pressable\n      accessibilityRole=\"button\"\n      onPress={() => {\n        setUnread(0);\n        setMentions(0);\n      }}\n      hitSlop={10}\n      style={{ alignSelf: 'flex-start', marginTop: 12 }}\n    >\n      <Text style={{ fontSize: 14, fontWeight: '400', color: colors.accent }}>Mark all as read</Text>\n    </Pressable>\n  );\n  return (\n    <Tabs\n      size=\"sm\"\n      items={[\n        {\n          value: 'inbox',\n          label: 'Inbox',\n          icon: ({ active, color }) => <BottomNavIcon name=\"inbox\" color={color} size={17} active={active} />,\n          badge: unread || undefined,\n          content: (\n            <View>\n              <Feed posts={[['Priya Nair', 'Can you review the pricing page before 3pm?', '9:41']]} />\n              {clear}\n            </View>\n          ),\n        },\n        {\n          value: 'mentions',\n          label: 'Mentions',\n          icon: ({ active, color }) => <BottomNavIcon name=\"message\" color={color} size={17} active={active} />,\n          badge: mentions || undefined,\n          content: <Feed posts={[['Leo Park', '@karan the offsite deck is ready for a look.', '9:12']]} />,\n        },\n        { value: 'activity', label: 'Activity', icon: ({ active, color }) => <BottomNavIcon name=\"activity\" color={color} size={17} active={active} />, content: <Panel title=\"All quiet\" body=\"Nothing new since you last checked.\" /> },\n      ]}\n    />\n  );\n}\n"
+    }
+  ]
+}

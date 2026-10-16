@@ -1,0 +1,117 @@
+{
+  "name": "search-bar",
+  "title": "Search Bar",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "Search field with a soft focus halo: the magnifier pops on focus, Cancel slides in as the field springs narrower, the clear button scales in and a spinning arc shows loading. Suggestions drop down in an animated panel with recent / trending icons and the matching text in bold; a trailing slot fits a filter or mic button. The minimal variant expands from a round icon.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"default\" | \"filled\" | \"minimal\"",
+      "\"default\"",
+      "Outlined pill, iOS grey field, or a round icon that expands into a field."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "34 / 44 / 56pt tall; font, icons, padding and radius scale too."
+    ],
+    [
+      "value / defaultValue / onChangeText",
+      "string",
+      "—",
+      "Controlled or uncontrolled query."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Crossfades the magnifier into a spinning arc."
+    ],
+    [
+      "showCancel",
+      "boolean",
+      "true (false for minimal)",
+      "Slide a Cancel button in while searching."
+    ],
+    [
+      "cancelLabel",
+      "string",
+      "\"Cancel\"",
+      "Cancel button text."
+    ],
+    [
+      "onCancel",
+      "() => void",
+      "—",
+      "After Cancel clears the query and blurs."
+    ],
+    [
+      "onClear",
+      "() => void",
+      "—",
+      "After the clear button empties the query."
+    ],
+    [
+      "align",
+      "\"left\" | \"right\"",
+      "\"left\"",
+      "Minimal only: where the collapsed icon rests."
+    ],
+    [
+      "suggestions",
+      "{ key, label, hint?, icon?: 'recent' | 'trending' | 'search' }[]",
+      "—",
+      "Shown in a dropdown panel while focused; the matching text is bolded."
+    ],
+    [
+      "onSelectSuggestion",
+      "(item) => void",
+      "—",
+      "Called after a suggestion is picked (the query is set to its label)."
+    ],
+    [
+      "filterSuggestions",
+      "boolean",
+      "true",
+      "Filter suggestions by the query. Turn off to filter them yourself."
+    ],
+    [
+      "maxSuggestions",
+      "number",
+      "6",
+      "Most rows shown in the panel."
+    ],
+    [
+      "trailing",
+      "ReactNode",
+      "—",
+      "Rendered inside the field on the right, e.g. a filter or mic button."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus ring, caret and Cancel colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view around the field, cancel button and suggestions."
+    ],
+    [
+      "…TextInputProps",
+      "",
+      "",
+      "placeholder, onSubmitEditing, autoFocus, …"
+    ]
+  ]
+}

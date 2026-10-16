@@ -1,0 +1,142 @@
+{
+  "name": "skeleton",
+  "category": "Feedback",
+  "aliases": [],
+  "exportName": "SkeletonGroup",
+  "files": [
+    "src/components/ui/skeleton.tsx"
+  ],
+  "props": [
+    [
+      "width / height",
+      "DimensionValue",
+      "\"100%\" / 14",
+      "Block width and height, in points or percent."
+    ],
+    [
+      "radius",
+      "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"capsule\" | \"full\" | number",
+      "\"sm\"",
+      "Corner radius. 'capsule' follows the kit radius for bars; 'full' is always a pill / circle."
+    ],
+    [
+      "variant",
+      "\"shimmer\" | \"wave\" | \"pulse\" | \"static\"",
+      "\"shimmer\"",
+      "Angled light band sweeping all blocks as one wave, a staggered top-to-bottom brighten, an opacity pulse, or no motion. Every variant is static when reduce motion is on."
+    ],
+    [
+      "color",
+      "string",
+      "faint foreground",
+      "Block colour."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Centred overlay inside the block (e.g. a faint glyph)."
+    ],
+    [
+      "Skeleton.Text",
+      "{ lines, lineHeight, gap, lastLineWidth }",
+      "3 lines",
+      "Paragraph placeholder with a slightly ragged edge."
+    ],
+    [
+      "Skeleton.Avatar",
+      "{ size, shape: \"circle\" | \"rounded\" }",
+      "40, circle",
+      "Avatar placeholder."
+    ],
+    [
+      "Skeleton.Media",
+      "{ aspectRatio, height, width, glyph, glyphSize, radius }",
+      "16 / 9, glyph off",
+      "Image block with a faint picture glyph in the centre."
+    ],
+    [
+      "Skeleton.List",
+      "{ rows, avatarSize, avatarShape, trailing, dividers }",
+      "4 rows, 44, circle, trailing on",
+      "Rows with an avatar, two lines and a trailing pill."
+    ],
+    [
+      "Skeleton.Card",
+      "{ media, mediaHeight, header, lines, actions }",
+      "all on, 168",
+      "Feed post: author row with menu, caption, media and an action bar."
+    ],
+    [
+      "Skeleton.Nav",
+      "{ header, back, actions, tabs, tabCount, rows, children }",
+      "header + 4 tabs + 4 rows",
+      "Screen chrome while content loads — app bar, list body, bottom tabs."
+    ],
+    [
+      "Skeleton.Group",
+      "{ style, children }",
+      "window",
+      "Frame the shimmer / wave travels across, so blocks inside line up as one wave (Nav and Reveal add one)."
+    ],
+    [
+      "Skeleton.Reveal",
+      "{ loading, skeleton, children, stagger, animateHeight, loadingLabel }",
+      "—, 3 lines, —, 70, true, \"Loading\"",
+      "Shows `skeleton` while loading; then it dissolves, top-level children rise in with a stagger and the height glides between the two."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the block (composites apply it to their wrapper)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Shimmer",
+      "title": "Shimmer",
+      "code": "import { Text, View, type DimensionValue } from 'react-native';\nimport { Skeleton } from '@/components/ui/skeleton';\n\nexport default function Shimmer() {\n  return (\n    <Skeleton.Group style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>\n      <Skeleton.Avatar size={52} />\n      <View style={{ flex: 1, gap: 10 }}>\n        <Skeleton width=\"70%\" height={14} radius=\"capsule\" />\n        <Skeleton width=\"45%\" height={12} radius=\"capsule\" />\n      </View>\n    </Skeleton.Group>\n  );\n}\n"
+    },
+    {
+      "name": "Card",
+      "title": "Card",
+      "code": "import { Skeleton } from '@/components/ui/skeleton';\n\nexport default function Card() {\n  return (\n    <Skeleton.Group style={{ gap: 14 }}>\n      <Skeleton.Card />\n      <Skeleton.Card media={false} lines={3} />\n    </Skeleton.Group>\n  );\n}\n"
+    },
+    {
+      "name": "List",
+      "title": "List",
+      "code": "import { Skeleton } from '@/components/ui/skeleton';\nimport { useKit } from '@/lib/kit';\n\nexport default function List() {\n  const { radius } = useKit();\n  return (\n    <Skeleton.Group style={{ gap: 8 }}>\n      <Skeleton height={40} radius={radius.capsule(40)} />\n      <Skeleton.List rows={5} dividers />\n    </Skeleton.Group>\n  );\n}\n"
+    },
+    {
+      "name": "ProductGrid",
+      "title": "Product Grid",
+      "code": "import { Text, View, type DimensionValue } from 'react-native';\nimport { Skeleton } from '@/components/ui/skeleton';\n\nexport default function ProductGrid() {\n  return (\n    <Skeleton.Group style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>\n      {[0, 1, 2, 3].map((i) => (\n        <View key={i} style={{ flexBasis: '45%', flexGrow: 1, gap: 8 }}>\n          <Skeleton.Media aspectRatio={1} radius=\"lg\" />\n          <Skeleton width={i % 2 ? '70%' : '86%'} height={12} radius=\"capsule\" />\n          <Skeleton width={56} height={14} radius=\"capsule\" />\n        </View>\n      ))}\n    </Skeleton.Group>\n  );\n}\n"
+    },
+    {
+      "name": "ProfileHeader",
+      "title": "Profile Header",
+      "code": "import { Text, View, type DimensionValue } from 'react-native';\nimport { Skeleton } from '@/components/ui/skeleton';\nimport { useKit } from '@/lib/kit';\n\nconst ROW_W: DimensionValue[] = ['34%', '46%', '28%'];\n\nexport default function ProfileHeader() {\n  const { colors, radius, dark } = useKit();\n  const surface = { backgroundColor: dark ? colors.card : colors.muted, borderRadius: radius.xl, paddingHorizontal: 14 };\n  return (\n    <Skeleton.Group style={{ gap: 20 }}>\n      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>\n        <Skeleton.Avatar size={72} />\n        <View style={{ flex: 1, gap: 9 }}>\n          <Skeleton width=\"58%\" height={16} radius=\"capsule\" />\n          <Skeleton width=\"74%\" height={11} radius=\"capsule\" />\n          <Skeleton width={96} height={28} radius=\"full\" style={{ marginTop: 4 }} />\n        </View>\n      </View>\n      {[3, 2].map((rows, g) => (\n        <View key={g} style={{ gap: 8 }}>\n          <Skeleton width={g ? 84 : 120} height={10} radius=\"capsule\" />\n          <View style={surface}>\n            {Array.from({ length: rows }, (_, i) => (\n              <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, height: 52 }}>\n                <Skeleton width={30} height={30} radius=\"md\" />\n                <Skeleton width={ROW_W[i % 3]} height={12} radius=\"capsule\" />\n                <View style={{ flex: 1 }} />\n                <Skeleton width={[64, 40, 52][i % 3]} height={11} radius=\"capsule\" />\n              </View>\n            ))}\n          </View>\n        </View>\n      ))}\n    </Skeleton.Group>\n  );\n}\n"
+    },
+    {
+      "name": "LoadingSwap",
+      "title": "Loading Swap",
+      "code": "import React, { useEffect, useRef, useState } from 'react';\nimport { Text, View, type DimensionValue } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Skeleton } from '@/components/ui/skeleton';\nimport { useKit } from '@/lib/kit';\n\nexport default function LoadingSwap() {\n  const { colors, radius, text } = useKit();\n  const [loading, setLoading] = useState(true);\n  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);\n  const reload = () => {\n    setLoading(true);\n    if (timer.current) clearTimeout(timer.current);\n    timer.current = setTimeout(() => setLoading(false), 1600);\n  };\n  useEffect(() => {\n    timer.current = setTimeout(() => setLoading(false), 1600);\n    return () => {\n      if (timer.current) clearTimeout(timer.current);\n    };\n  }, []);\n  return (\n    <View style={{ gap: 16 }}>\n      <Skeleton.Reveal\n        loading={loading}\n        skeleton={\n          <View style={{ gap: 12 }}>\n            <Skeleton.List rows={1} trailing={false} />\n            <Skeleton.Text lines={2} />\n          </View>\n        }\n      >\n        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 }}>\n          <View style={{ width: 44, height: 44, borderRadius: radius.full, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>\n            <Text style={{ color: colors.accentForeground, fontSize: 16, fontWeight: '400' }}>MC</Text>\n          </View>\n          <View style={{ flex: 1 }}>\n            <Text style={[text.md, { color: colors.foreground, fontWeight: '400' }]}>Maya Chen</Text>\n            <Text style={[text.sm, { color: colors.mutedForeground, fontWeight: '400' }]}>Product designer · Lisbon</Text>\n          </View>\n        </View>\n        <Text style={[text.sm, { color: colors.foreground, fontWeight: '400', marginTop: 4 }]}>\n          Shipped the new onboarding flow today. Activation is up 18% in the first week — thanks to everyone who tested the beta.\n        </Text>\n        <Text style={[text.xs, { color: colors.mutedForeground, fontWeight: '400', marginTop: 10 }]}>\n          124 likes · 18 comments\n        </Text>\n      </Skeleton.Reveal>\n      <Button size=\"sm\" variant=\"outline\" style={{ alignSelf: 'flex-start' }} disabled={loading} onPress={reload}>\n        {loading ? 'Loading…' : 'Reload'}\n      </Button>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Wave",
+      "title": "Wave",
+      "code": "import { Text, View, type DimensionValue } from 'react-native';\nimport { Skeleton } from '@/components/ui/skeleton';\n\nexport default function Wave() {\n  return (\n    <Skeleton.Group style={{ gap: 16 }}>\n      <Skeleton.Media variant=\"wave\" radius=\"lg\" />\n      <Skeleton.Text variant=\"wave\" lines={3} />\n      <Skeleton.List variant=\"wave\" rows={2} />\n    </Skeleton.Group>\n  );\n}\n"
+    },
+    {
+      "name": "Pulse",
+      "title": "Pulse",
+      "code": "import { Text, View, type DimensionValue } from 'react-native';\nimport { Skeleton } from '@/components/ui/skeleton';\n\nexport default function Pulse() {\n  return (\n    <View style={{ gap: 16 }}>\n      <Skeleton variant=\"pulse\" height={140} radius=\"lg\" />\n      <Skeleton.Text variant=\"pulse\" lines={3} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Nav",
+      "title": "Nav",
+      "code": "import { Skeleton } from '@/components/ui/skeleton';\n\nexport default function Nav() {\n  return <Skeleton.Nav rows={6} tabCount={5} style={{ minHeight: 600 }} />;\n}\n"
+    }
+  ]
+}

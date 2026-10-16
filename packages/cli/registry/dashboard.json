@@ -1,0 +1,32 @@
+{
+  "name": "dashboard",
+  "type": "block",
+  "title": "Dashboard",
+  "description": "A finance / analytics home screen: a collapsing “Overview” large title with bell and avatar, time-of-day greeting, Day / Week / Month switcher, a revenue area chart that rises in on every period change and scrubs under your finger while the headline number rolls, KPI tiles with sparklines, springy quick actions and recent transactions — plus skeleton loading and pull-to-refresh.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "avatar",
+    "badge",
+    "button",
+    "list-item",
+    "number-ticker",
+    "segmented-control",
+    "skeleton"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/avatar.tsx",
+    "components/ui/badge.tsx",
+    "components/ui/button.tsx",
+    "components/ui/list-item.tsx",
+    "components/ui/number-ticker.tsx",
+    "components/ui/segmented-control.tsx",
+    "components/ui/skeleton.tsx"
+  ],
+  "filesDir": null
+}

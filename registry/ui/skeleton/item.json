@@ -1,0 +1,99 @@
+{
+  "name": "skeleton",
+  "title": "Skeleton",
+  "tier": "free",
+  "category": "Feedback",
+  "description": "Loading placeholders where one soft, 20°-angled light band sweeps the whole screen as a single wave (or blocks brighten top-to-bottom, or gently pulse), all from one shared native-driver clock and static under reduce motion. Text, avatar, media, list, feed card and full-screen Nav composites, plus Skeleton.Reveal: the skeleton dissolves, content rises in child by child and the height glides between the two.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "width / height",
+      "DimensionValue",
+      "\"100%\" / 14",
+      "Block width and height, in points or percent."
+    ],
+    [
+      "radius",
+      "\"sm\" | \"md\" | \"lg\" | \"xl\" | \"capsule\" | \"full\" | number",
+      "\"sm\"",
+      "Corner radius. 'capsule' follows the kit radius for bars; 'full' is always a pill / circle."
+    ],
+    [
+      "variant",
+      "\"shimmer\" | \"wave\" | \"pulse\" | \"static\"",
+      "\"shimmer\"",
+      "Angled light band sweeping all blocks as one wave, a staggered top-to-bottom brighten, an opacity pulse, or no motion. Every variant is static when reduce motion is on."
+    ],
+    [
+      "color",
+      "string",
+      "faint foreground",
+      "Block colour."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Centred overlay inside the block (e.g. a faint glyph)."
+    ],
+    [
+      "Skeleton.Text",
+      "{ lines, lineHeight, gap, lastLineWidth }",
+      "3 lines",
+      "Paragraph placeholder with a slightly ragged edge."
+    ],
+    [
+      "Skeleton.Avatar",
+      "{ size, shape: \"circle\" | \"rounded\" }",
+      "40, circle",
+      "Avatar placeholder."
+    ],
+    [
+      "Skeleton.Media",
+      "{ aspectRatio, height, width, glyph, glyphSize, radius }",
+      "16 / 9, glyph off",
+      "Image block with a faint picture glyph in the centre."
+    ],
+    [
+      "Skeleton.List",
+      "{ rows, avatarSize, avatarShape, trailing, dividers }",
+      "4 rows, 44, circle, trailing on",
+      "Rows with an avatar, two lines and a trailing pill."
+    ],
+    [
+      "Skeleton.Card",
+      "{ media, mediaHeight, header, lines, actions }",
+      "all on, 168",
+      "Feed post: author row with menu, caption, media and an action bar."
+    ],
+    [
+      "Skeleton.Nav",
+      "{ header, back, actions, tabs, tabCount, rows, children }",
+      "header + 4 tabs + 4 rows",
+      "Screen chrome while content loads — app bar, list body, bottom tabs."
+    ],
+    [
+      "Skeleton.Group",
+      "{ style, children }",
+      "window",
+      "Frame the shimmer / wave travels across, so blocks inside line up as one wave (Nav and Reveal add one)."
+    ],
+    [
+      "Skeleton.Reveal",
+      "{ loading, skeleton, children, stagger, animateHeight, loadingLabel }",
+      "—, 3 lines, —, 70, true, \"Loading\"",
+      "Shows `skeleton` while loading; then it dissolves, top-level children rise in with a stagger and the height glides between the two."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the block (composites apply it to their wrapper)."
+    ]
+  ]
+}

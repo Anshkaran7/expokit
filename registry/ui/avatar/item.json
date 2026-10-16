@@ -1,0 +1,166 @@
+{
+  "name": "avatar",
+  "title": "Avatar",
+  "tier": "free",
+  "category": "Display",
+  "description": "Photo that fades in over soft tinted initials (hue hashed from the name, ink picked for contrast), presence dots, notification badges and a verified seal cut into the edge, a gapped story ring that cross-fades to “seen”, and an AvatarGroup with cut-out borders, a +N chip and a staggered spring-in.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "src",
+      "string",
+      "—",
+      "Image URL. Fades in over the initials; falls back to them on error."
+    ],
+    [
+      "name",
+      "string",
+      "—",
+      "Initials, the deterministic fallback colour and the accessibility label."
+    ],
+    [
+      "size",
+      "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | number",
+      "\"md\"",
+      "24 / 32 / 40 / 56 / 72pt, or any number."
+    ],
+    [
+      "shape",
+      "\"circle\" | \"rounded\"",
+      "\"circle\"",
+      "Circle or rounded square (follows the kit radius)."
+    ],
+    [
+      "fallback",
+      "\"soft\" | \"solid\" | \"gradient\"",
+      "\"soft\"",
+      "Soft tint with deep ink, flat fill, or an opt-in two-tone gradient."
+    ],
+    [
+      "status",
+      "\"online\" | \"away\" | \"busy\" | \"offline\"",
+      "—",
+      "Presence dot in a ring cut-out: filled, crescent, bar, hollow."
+    ],
+    [
+      "pulse",
+      "boolean",
+      "true when online",
+      "Soft pulse behind the dot (off with reduce motion)."
+    ],
+    [
+      "ring",
+      "\"none\" | \"story\" | \"accent\" | \"seen\"",
+      "\"none\"",
+      "Solid accent ring with a clear gap. \"seen\" = story + seen."
+    ],
+    [
+      "seen",
+      "boolean",
+      "false",
+      "Story watched: the ring cross-fades to a quiet hairline."
+    ],
+    [
+      "ringColors",
+      "string[]",
+      "sunset",
+      "Ring colour override; the first entry is used as a solid colour."
+    ],
+    [
+      "ringSpin",
+      "boolean",
+      "false",
+      "Broken ring that spins — a loading story (circle only)."
+    ],
+    [
+      "verified",
+      "boolean",
+      "false",
+      "Rosette seal with a check, bottom-right (bottom-left if a status dot is shown)."
+    ],
+    [
+      "badge",
+      "number | boolean",
+      "—",
+      "Notification count (99+), or true for a dot, top-right."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the avatar; cut-outs and group borders use it."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Ring and verified seal colour."
+    ],
+    [
+      "elevated",
+      "boolean",
+      "true for 72pt+",
+      "Soft drop shadow under the face."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Makes it a button with spring press feedback."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light haptic tick on press."
+    ],
+    [
+      "AvatarGroup.max",
+      "number",
+      "4",
+      "Avatars shown before the +N chip."
+    ],
+    [
+      "AvatarGroup.total",
+      "number",
+      "children count",
+      "Real total when larger than what you pass."
+    ],
+    [
+      "AvatarGroup.overlap",
+      "number",
+      "0.28",
+      "Overlap as a fraction of the size."
+    ],
+    [
+      "AvatarGroup.surface",
+      "string",
+      "theme background",
+      "Colour of the separating borders — match the parent."
+    ],
+    [
+      "AvatarGroup.animated",
+      "boolean",
+      "true",
+      "Staggered spring-in on mount."
+    ],
+    [
+      "AvatarGroup.onPressMore",
+      "() => void",
+      "—",
+      "Makes the +N chip a button."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the avatar root; AvatarGroup applies it to its row."
+    ]
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "name": "tabs",
+  "title": "Tabs",
+  "tier": "free",
+  "category": "Navigation",
+  "description": "Underline tabs with swipeable content panes. The underline is measured to each label and moves like liquid — leading edge first, trailing edge catching up — and follows your finger while you drag the panes, with rubber-band resistance at the ends. Count badges pop, the bar scrolls and centres the active tab once tabs overflow, and every change ticks a haptic.",
+  "dependencies": [
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "items",
+      "{ value, label, icon?, badge?, content?, disabled?, accessibilityLabel? }[]",
+      "—",
+      "Tabs and (optionally) their content panes. `icon` is a node or `({ active, color }) => node`."
+    ],
+    [
+      "value / defaultValue",
+      "string",
+      "first enabled tab",
+      "Active tab (controlled / uncontrolled)."
+    ],
+    [
+      "onValueChange",
+      "(value: string) => void",
+      "—",
+      "Called when a tab is pressed or swiped to."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\"",
+      "\"md\"",
+      "36 / 44pt tall (sm keeps a 44pt hit area)."
+    ],
+    [
+      "scrollable",
+      "boolean",
+      "auto",
+      "`true` sizes tabs to labels and scrolls; `false` gives equal widths. Default fills the width and scrolls only when tabs overflow, keeping the active tab centred."
+    ],
+    [
+      "swipeable",
+      "boolean",
+      "true",
+      "Drag the content sideways to change tab; the underline tracks the drag."
+    ],
+    [
+      "transition",
+      "\"slide\" | \"fade\" | \"none\"",
+      "\"slide\"",
+      "How content changes on a tap."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Underline and active badge colour."
+    ],
+    [
+      "variant",
+      "\"underline\"",
+      "\"underline\"",
+      "Deprecated: `pill` and `soft` render as `underline` — use SegmentedControl for a pill switch."
+    ],
+    [
+      "contentStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style of each content pane."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view wrapping the tab bar and content."
+    ]
+  ]
+}

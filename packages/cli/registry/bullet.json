@@ -1,0 +1,14 @@
+{
+  "name": "bullet",
+  "type": "chart",
+  "title": "Bullet",
+  "description": "Compact KPI rows with qualitative bands and a target tick. Built on expo-charts.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-charts",
+    "react-native-svg"
+  ],
+  "registryDependencies": [],
+  "sharedFiles": [],
+  "filesDir": null
+}

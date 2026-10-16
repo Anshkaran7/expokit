@@ -1,0 +1,18 @@
+{
+  "name": "dialog",
+  "type": "component",
+  "title": "Dialog",
+  "description": "A centred alert dialog: the scrim fades in while the card springs from 0.92 to full size, with an optional living tone icon that draws itself in a glowing halo. Modern pill buttons or iOS hairline buttons, side by side or stacked; danger-coloured destructive confirms with a warning haptic, async spinners, a prompt field, and a shake when the confirm is invalid. Use Action Sheet for bottom actions.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "dialog/files"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "progress",
+  "type": "component",
+  "title": "Progress",
+  "description": "Solid bar in the accent colour with a soft glowing head that rides the fill (or sweeps when indeterminate, or carries animated stripes), an SVG ring with a glowing arc tip whose percentage counts up and morphs into a drawn check, and segments that pop as they fill while the current step pulses. Reaching max plays a short success flash.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "progress/files"
+}

@@ -1,0 +1,200 @@
+{
+  "name": "list-item",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "ListItem",
+  "files": [
+    "src/components/ui/list-item.tsx"
+  ],
+  "props": [
+    [
+      "title",
+      "string",
+      "—",
+      "Main text (required)."
+    ],
+    [
+      "subtitle",
+      "string",
+      "—",
+      "One muted line under the title."
+    ],
+    [
+      "description",
+      "string",
+      "—",
+      "Longer muted text, clamped to numberOfLines."
+    ],
+    [
+      "numberOfLines",
+      "number",
+      "2",
+      "Lines of description shown."
+    ],
+    [
+      "meta",
+      "string",
+      "—",
+      "Small text at the end of the title row, e.g. a time."
+    ],
+    [
+      "icon",
+      "ListItemIconName | ({ color, size }) => ReactNode",
+      "—",
+      "Built-in glyph (user, bell, lock, shield, mail, card, help, logout, moon, globe, star, trash, settings, heart, phone, wifi) or your own, drawn in a rounded tile."
+    ],
+    [
+      "iconColor",
+      "string",
+      "accent",
+      "Tile colour (danger when destructive)."
+    ],
+    [
+      "iconVariant",
+      "\"filled\" | \"tinted\"",
+      "\"filled\"",
+      "White glyph on a solid tile, or coloured glyph on a soft tile."
+    ],
+    [
+      "avatar",
+      "{ src?, name?, color?, online? }",
+      "—",
+      "Round avatar with initials fallback and presence dot."
+    ],
+    [
+      "leading",
+      "ReactNode",
+      "—",
+      "Custom leading content (overrides icon / avatar)."
+    ],
+    [
+      "value",
+      "string",
+      "—",
+      "Muted value text on the right."
+    ],
+    [
+      "badge",
+      "boolean | number | string",
+      "—",
+      "Dot, count (99+) or short label pill."
+    ],
+    [
+      "checked",
+      "boolean",
+      "—",
+      "Accent check mark, for pickers."
+    ],
+    [
+      "chevron",
+      "boolean",
+      "pressable",
+      "Disclosure chevron; on by default for pressable rows without trailing / checked."
+    ],
+    [
+      "trailing",
+      "ReactNode",
+      "—",
+      "Any control on the right, e.g. a Switch."
+    ],
+    [
+      "onPress / onLongPress",
+      "() => void",
+      "—",
+      "Makes the row pressable with a fading highlight."
+    ],
+    [
+      "destructive",
+      "boolean",
+      "false",
+      "Red title, icon and highlight."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "44 / 52 / 68pt minimum height; icons and avatars scale."
+    ],
+    [
+      "divider",
+      "boolean",
+      "auto in groups",
+      "Hairline that starts past the leading slot."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Check, badge and default tile colour."
+    ],
+    [
+      "titleStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "E.g. bold for unread rows."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the row; ListGroup / ListSection apply theirs to their root view."
+    ],
+    [
+      "ListGroup header / footer",
+      "string",
+      "—",
+      "Uppercase heading and muted note around the inset card."
+    ],
+    [
+      "ListGroup background",
+      "string",
+      "colors.card",
+      "Card colour."
+    ],
+    [
+      "ListSection header / footer",
+      "string",
+      "—",
+      "Plain, full-width section (contacts, inbox)."
+    ],
+    [
+      "ListSection dividerAfterLast",
+      "boolean",
+      "false",
+      "Draw the inset hairline under the last row too."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Settings",
+      "title": "Settings",
+      "code": "import React, { useState } from 'react';\nimport { View } from 'react-native';\nimport { ListGroup, ListItem, ListSection } from '@/components/ui/list-item';\nimport { Switch } from '@/components/ui/switch';\n\nexport default function Settings() {\n  const [dark, setDark] = useState(true);\n  return (\n    <View style={{ gap: 22 }}>\n      <ListGroup header=\"Account\">\n        <ListItem icon=\"user\" title=\"Profile\" value=\"Amelia Hart\" onPress={() => {}} />\n        <ListItem icon=\"bell\" iconColor=\"#ef4444\" title=\"Notifications\" value=\"Banners\" onPress={() => {}} />\n        <ListItem icon=\"shield\" iconColor=\"#22c55e\" title=\"Privacy & security\" onPress={() => {}} />\n        <ListItem\n          icon=\"moon\"\n          iconColor=\"#0ea5e9\"\n          title=\"Dark mode\"\n          trailing={<Switch size=\"sm\" value={dark} onValueChange={setDark} accessibilityLabel=\"Dark mode\" />}\n        />\n      </ListGroup>\n      <ListGroup footer=\"You'll need your password to sign back in on this device.\">\n        <ListItem icon=\"logout\" title=\"Sign out\" destructive chevron={false} onPress={() => {}} />\n      </ListGroup>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Contacts",
+      "title": "Contacts",
+      "code": "import { View } from 'react-native';\nimport { ListGroup, ListItem, ListSection } from '@/components/ui/list-item';\n\nconst CONTACTS = [\n  { name: 'Aisha Rahman', role: 'Product designer · Lisbon', src: 'https://i.pravatar.cc/120?img=47', online: true },\n  { name: 'Alex Moreno', role: 'iOS engineer · Madrid' },\n  { name: 'Ben Carter', role: 'Founder at Northwind', src: 'https://i.pravatar.cc/120?img=12' },\n  { name: 'Bianca Rossi', role: 'Marketing lead · Milan', online: true },\n];\n\nexport default function Contacts() {\n  return (\n    <View>\n      <ListSection header=\"A\">\n        {CONTACTS.slice(0, 2).map((c) => (\n          <ListItem key={c.name} avatar={{ src: c.src, name: c.name, online: c.online }} title={c.name} subtitle={c.role} onPress={() => {}} />\n        ))}\n      </ListSection>\n      <ListSection header=\"B\">\n        {CONTACTS.slice(2).map((c) => (\n          <ListItem key={c.name} avatar={{ src: c.src, name: c.name, online: c.online }} title={c.name} subtitle={c.role} onPress={() => {}} />\n        ))}\n      </ListSection>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Inbox",
+      "title": "Inbox",
+      "code": "import { ListGroup, ListItem, ListSection } from '@/components/ui/list-item';\n\nconst MAIL = [\n  { from: 'Maya Lin', subject: 'Q3 roadmap — final draft', body: 'Attached the updated plan with the launch moved to the 14th. Can you sign off by Friday?', time: '9:41', unread: 3 },\n  { from: 'Stripe', subject: 'Your payout is on the way', body: '₹4,21,850 will arrive in your account ending 4432 on Wednesday.', time: '8:02', unread: 1, color: '#635bff' },\n  { from: 'Jonas Weber', subject: 'Re: Dinner on Saturday?', body: \"Booked the Italian place for 7:30. I'll bring the wine.\", time: 'Tue' },\n];\n\nexport default function Inbox() {\n  return (\n    <ListGroup>\n      {MAIL.map((m) => (\n        <ListItem\n          key={m.from}\n          size=\"lg\"\n          avatar={{ name: m.from, color: m.color }}\n          title={m.from}\n          titleStyle={m.unread ? { fontWeight: '400' } : null}\n          meta={m.time}\n          subtitle={m.subject}\n          description={m.body}\n          badge={m.unread}\n          chevron={false}\n          onPress={() => {}}\n        />\n      ))}\n    </ListGroup>\n  );\n}\n"
+    },
+    {
+      "name": "Picker",
+      "title": "Picker",
+      "code": "import React, { useState } from 'react';\nimport { ListGroup, ListItem, ListSection } from '@/components/ui/list-item';\n\nexport default function Picker() {\n  const [lang, setLang] = useState('English');\n  return (\n    <ListGroup header=\"Language\" footer=\"Apps and websites will use the first language they support.\">\n      {['English', 'Español', 'Deutsch', '日本語'].map((l) => (\n        <ListItem key={l} size=\"sm\" title={l} checked={lang === l} onPress={() => setLang(l)} />\n      ))}\n    </ListGroup>\n  );\n}\n"
+    },
+    {
+      "name": "Tinted",
+      "title": "Tinted",
+      "code": "import { ListGroup, ListItem, ListSection } from '@/components/ui/list-item';\n\nexport default function Tinted() {\n  return (\n    <ListGroup>\n      <ListItem icon=\"wifi\" iconVariant=\"tinted\" iconColor=\"#0ea5e9\" title=\"Wi-Fi\" value=\"Home-5G\" onPress={() => {}} />\n      <ListItem icon=\"card\" iconVariant=\"tinted\" iconColor=\"#f59e0b\" title=\"Payment methods\" description=\"Visa ending 4432 · Apple Pay\" onPress={() => {}} />\n      <ListItem icon=\"star\" iconVariant=\"tinted\" title=\"Upgrade to Pro\" badge=\"New\" onPress={() => {}} />\n      <ListItem icon=\"trash\" iconVariant=\"tinted\" title=\"Delete account\" destructive disabled onPress={() => {}} />\n    </ListGroup>\n  );\n}\n"
+    }
+  ]
+}

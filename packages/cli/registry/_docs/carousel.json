@@ -1,0 +1,102 @@
+{
+  "name": "carousel",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "Carousel",
+  "files": [
+    "src/components/ui/carousel.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "T[]",
+      "—",
+      "Items to render, one slide each."
+    ],
+    [
+      "renderItem",
+      "({ item, index, progress, width }) => ReactNode",
+      "—",
+      "Render a slide. `progress` runs -1 → 0 → 1 across the centre — use it for parallax."
+    ],
+    [
+      "keyExtractor",
+      "(item: T, index: number) => string",
+      "index",
+      "React key for each slide."
+    ],
+    [
+      "itemWidth",
+      "number",
+      "0.82",
+      "Fraction of the carousel (≤ 1) or points. Capped at 460pt for tablets."
+    ],
+    [
+      "height",
+      "number",
+      "200",
+      "Slide height."
+    ],
+    [
+      "gap",
+      "number",
+      "12",
+      "Space between slides."
+    ],
+    [
+      "effect",
+      "\"scale\" | \"coverflow\" | \"flat\"",
+      "\"scale\"",
+      "How neighbours look."
+    ],
+    [
+      "pagination",
+      "\"dots\" | \"expanding\" | \"bar\" | \"none\"",
+      "\"dots\"",
+      "Indicator under the slides; dots are tappable."
+    ],
+    [
+      "autoplay",
+      "boolean | number",
+      "false",
+      "Advance every 3.5s (or N ms); pauses while touched."
+    ],
+    [
+      "loop",
+      "boolean",
+      "true",
+      "Autoplay wraps to the first slide."
+    ],
+    [
+      "index",
+      "number",
+      "—",
+      "Controlled active slide. Pair with onIndexChange so autoplay / swipes update parent state."
+    ],
+    [
+      "defaultIndex",
+      "number",
+      "0",
+      "Uncontrolled initial slide (ignored when index is set)."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "Fires when the centred slide changes (swipe, dots, autoplay)."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Active dot / bar colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view wrapping the slides and pagination."
+    ]
+  ],
+  "examples": []
+}

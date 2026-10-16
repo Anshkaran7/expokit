@@ -1,0 +1,66 @@
+{
+  "name": "pixel-bar",
+  "category": "Charts",
+  "aliases": [],
+  "exportName": "PixelBarChart",
+  "files": [
+    "src/components/charts/pixel-bar.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "{ label, value, color? }[]",
+      "—",
+      "One block per category."
+    ],
+    [
+      "height",
+      "number",
+      "240",
+      "Chart height."
+    ],
+    [
+      "animate",
+      "boolean",
+      "true",
+      "Entrance animation."
+    ],
+    [
+      "isLoading",
+      "boolean",
+      "false",
+      "Skeleton state."
+    ],
+    [
+      "formatValue",
+      "(v) => string",
+      "compact",
+      "Value formatting."
+    ],
+    [
+      "onSelect",
+      "(item, index) => void",
+      "—",
+      "Tap callback."
+    ],
+    [
+      "levels",
+      "number",
+      "10",
+      "Squares per column."
+    ],
+    [
+      "gap",
+      "number",
+      "2",
+      "Gap between squares."
+    ],
+    [
+      "gradient",
+      "boolean",
+      "true",
+      "Fade colour upwards."
+    ]
+  ],
+  "examples": []
+}

@@ -1,0 +1,99 @@
+{
+  "name": "badge",
+  "title": "Badge",
+  "tier": "free",
+  "category": "Display",
+  "description": "Status labels in solid, soft, outline and dot styles across five tones — plus NotificationBadge with BadgeIconTile/BadgeIcon anchors (or your own children), spring-in counts, and pop on change.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"solid\" | \"soft\" | \"outline\" | \"dot\"",
+      "\"soft\"",
+      "Filled, tinted, bordered, or a neutral outline with a coloured leading dot."
+    ],
+    [
+      "tone",
+      "\"neutral\" | \"accent\" | \"success\" | \"warning\" | \"danger\"",
+      "\"neutral\"",
+      "Semantic colour."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "20 / 24 / 28pt tall."
+    ],
+    [
+      "color",
+      "string",
+      "—",
+      "Custom colour (overrides tone)."
+    ],
+    [
+      "icon",
+      "ReactNode",
+      "—",
+      "Shown before the label."
+    ],
+    [
+      "shape",
+      "\"pill\" | \"rounded\"",
+      "\"pill\"",
+      "Corner style."
+    ],
+    [
+      "pulse",
+      "boolean",
+      "false",
+      "Pulsing dot for live states (dot variant)."
+    ],
+    [
+      "NotificationBadge.count",
+      "number",
+      "0",
+      "Number shown; 0 hides it."
+    ],
+    [
+      "NotificationBadge.showZero",
+      "boolean",
+      "false",
+      "Keep the badge visible (showing 0) when count is 0."
+    ],
+    [
+      "NotificationBadge.max",
+      "number",
+      "99",
+      "Shows \"99+\" above this."
+    ],
+    [
+      "NotificationBadge.dot",
+      "boolean",
+      "false",
+      "Dot only, no number."
+    ],
+    [
+      "NotificationBadge.children",
+      "ReactNode",
+      "—",
+      "Element the badge is pinned to (top-right)."
+    ],
+    [
+      "NotificationBadge.offset",
+      "[number, number]",
+      "[0, 0]",
+      "Nudge from the corner."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the badge pill; NotificationBadge applies it to the anchor wrapper or bare bubble wrapper."
+    ]
+  ]
+}

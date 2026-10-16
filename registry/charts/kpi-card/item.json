@@ -1,0 +1,7 @@
+{
+  "name": "kpi-card",
+  "type": "chart",
+  "title": "KPI card",
+  "description": "Big number, trend badge and an animated sparkline. Built on expo-charts.",
+  "dependencies": ["expo-charts", "react-native-svg"]
+}

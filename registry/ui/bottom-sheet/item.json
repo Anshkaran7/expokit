@@ -1,0 +1,136 @@
+{
+  "name": "bottom-sheet",
+  "title": "Bottom Sheet",
+  "tier": "free",
+  "category": "Overlays",
+  "previewHeight": 560,
+  "description": "Draggable bottom sheet with snap points, a grabber pill that stretches as you drag, rubber-banding past its limits and release-velocity snapping with a haptic tick on each detent. The scrim dims in step with its height, content scrolls once fully expanded, a footer stays pinned at every detent, and the keyboard lifts it. Large radius, hairline edge and a soft layered top shadow.",
+  "dependencies": [
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "open",
+      "boolean",
+      "—",
+      "Show the sheet."
+    ],
+    [
+      "onClose",
+      "() => void",
+      "—",
+      "Called after it is dragged, flung, tapped or back-buttoned closed."
+    ],
+    [
+      "snapPoints",
+      "(number | \"NN%\")[]",
+      "content height",
+      "Resting heights, in points or % of the screen. Omit to size the sheet to its content (taller content scrolls)."
+    ],
+    [
+      "initialSnap",
+      "number",
+      "0",
+      "Snap index it opens at."
+    ],
+    [
+      "snapIndex",
+      "number",
+      "—",
+      "Controlled snap index — change it while open to move the sheet."
+    ],
+    [
+      "onSnapChange",
+      "(index: number) => void",
+      "—",
+      "Fires when it settles on another snap."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Allow drag-down / scrim / back to close; otherwise it rubber-bands at the lowest snap."
+    ],
+    [
+      "title / subtitle",
+      "string",
+      "—",
+      "Left-aligned heading and muted line under the grabber."
+    ],
+    [
+      "headerRight",
+      "ReactNode",
+      "—",
+      "Trailing node in the title row, e.g. a Reset link."
+    ],
+    [
+      "showClose",
+      "boolean",
+      "with a title",
+      "Round ✕ in the header (shown when dismissible, there's a title and no headerRight)."
+    ],
+    [
+      "handle",
+      "boolean",
+      "true",
+      "Grabber pill (also an accessibility adjustable)."
+    ],
+    [
+      "scrollable",
+      "boolean",
+      "false",
+      "Body is a ScrollView: below the top snap a drag resizes the sheet, at the top snap it scrolls, and pulling down from the top collapses it."
+    ],
+    [
+      "dragFromContent",
+      "boolean",
+      "= scrollable",
+      "Let vertical drags on the body move the sheet. Leave false if children contain their own ScrollView."
+    ],
+    [
+      "footer",
+      "ReactNode",
+      "—",
+      "Pinned to the bottom of the visible sheet at every snap point."
+    ],
+    [
+      "avoidKeyboard",
+      "boolean",
+      "true",
+      "Lift the sheet above the keyboard (capped below the status bar; the rest becomes scroll padding)."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light impact on open, selection tick on each snap."
+    ],
+    [
+      "backdropOpacity",
+      "number",
+      "1",
+      "Scrim dim at the top snap, 0–1."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "platform safe inset",
+      "Extra padding above the home indicator; pass useSafeAreaInsets().bottom for the device."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "title",
+      "Label for the modal sheet."
+    ],
+    [
+      "style / contentStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet and content styles."
+    ]
+  ]
+}

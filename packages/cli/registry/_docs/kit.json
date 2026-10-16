@@ -1,0 +1,11 @@
+{
+  "name": "kit",
+  "category": null,
+  "aliases": [],
+  "exportName": "KitProvider",
+  "files": [
+    "src/lib/kit.tsx"
+  ],
+  "props": [],
+  "examples": []
+}

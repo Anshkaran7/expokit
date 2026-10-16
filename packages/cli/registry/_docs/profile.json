@@ -1,0 +1,84 @@
+{
+  "name": "profile",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Profile",
+  "files": [
+    "src/components/blocks/profile.tsx"
+  ],
+  "props": [
+    [
+      "user",
+      "{ name, email?, phone?, avatar?, subtitle?, badge? }",
+      "Aarav Mehta",
+      "Who the account belongs to. subtitle is a muted line (e.g. 'Member since 2023'); badge shows a chip next to the name (e.g. 'Pro')."
+    ],
+    [
+      "stats",
+      "{ label, value, onPress? }[]",
+      "Orders / Wishlist / Reviews",
+      "Highlights strip under the header. Pass [] to hide."
+    ],
+    [
+      "details",
+      "{ key, label, value?, icon? }[]",
+      "Date of birth, Address",
+      "“Personal details” rows (name, email and phone already show in the header). Empty value shows a muted “Add”. Pass [] to hide."
+    ],
+    [
+      "sections",
+      "{ title?, items: { key, label, value?, icon?, badge?, destructive?, onPress? }[] }[]",
+      "Account, Preferences, Support",
+      "Grouped rows below the details. destructive rows are red with no chevron."
+    ],
+    [
+      "title",
+      "string",
+      "'Profile'",
+      "Header title."
+    ],
+    [
+      "onEditProfile",
+      "() => void",
+      "—",
+      "Shows a small 'Edit profile' pill under the contact details."
+    ],
+    [
+      "onAvatarPress",
+      "() => void",
+      "—",
+      "Makes the avatar pressable and adds a camera badge."
+    ],
+    [
+      "onRowPress",
+      "(key: string) => void",
+      "—",
+      "Any detail or section row was pressed (after the item's own onPress)."
+    ],
+    [
+      "onSignOut",
+      "() => void",
+      "—",
+      "The destructive 'Sign out' row at the end was pressed."
+    ],
+    [
+      "onBack",
+      "() => void",
+      "—",
+      "Shows a back button in the header."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Badge chip and pressed-state tint. Everything else stays monochrome."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

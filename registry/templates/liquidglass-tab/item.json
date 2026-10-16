@@ -1,0 +1,20 @@
+{
+  "name": "liquidglass-tab",
+  "type": "template",
+  "title": "Native bottom tabs (Liquid Glass)",
+  "description": "Real Liquid Glass NativeTabs on iOS 26+, and a floating blur glass tab bar with the same scroll-collapse on iOS 18 and older, Android and web.",
+  "dependencies": [
+    "expo-router",
+    "expo-glass-effect",
+    "expo-blur",
+    "expo-haptics",
+    "expo-splash-screen",
+    "@expo/vector-icons",
+    "react-native-gesture-handler",
+    "react-native-safe-area-context",
+    "react-native-screens",
+    "react-native-reanimated",
+    "react-native-worklets"
+  ],
+  "category": "Templates"
+}

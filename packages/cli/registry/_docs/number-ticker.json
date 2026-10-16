@@ -1,0 +1,96 @@
+{
+  "name": "number-ticker",
+  "category": "Motion",
+  "aliases": [],
+  "exportName": "NumberTicker",
+  "files": [
+    "src/components/ui/number-ticker.tsx"
+  ],
+  "props": [
+    [
+      "value",
+      "number",
+      "—",
+      "The number to show."
+    ],
+    [
+      "decimals",
+      "number",
+      "0",
+      "Digits after the decimal point."
+    ],
+    [
+      "prefix / suffix",
+      "string",
+      "—",
+      "Static text around the number (\"₹\", \"%\")."
+    ],
+    [
+      "separator",
+      "string | false",
+      "\",\"",
+      "Thousands separator."
+    ],
+    [
+      "grouping",
+      "'thousands' | 'indian'",
+      "'thousands'",
+      "Digit grouping: 1,234,567 or lakh / crore style 12,34,567."
+    ],
+    [
+      "decimalSeparator",
+      "string",
+      "\".\"",
+      "Decimal point."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\" | \"xl\" | number",
+      "\"md\"",
+      "18 / 28 / 40 / 56pt, or a font size."
+    ],
+    [
+      "fontWeight",
+      "TextStyle['fontWeight']",
+      "\"500\"",
+      "Weight of the digits."
+    ],
+    [
+      "color",
+      "string",
+      "theme foreground",
+      "Text colour."
+    ],
+    [
+      "flash",
+      "boolean",
+      "true",
+      "Tint green on increase, red on decrease."
+    ],
+    [
+      "animateOnMount",
+      "boolean",
+      "true",
+      "Roll up from zero on first render."
+    ],
+    [
+      "stagger",
+      "number",
+      "35",
+      "Delay between columns in ms."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Extra glyph styles."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the row of digits."
+    ]
+  ],
+  "examples": []
+}

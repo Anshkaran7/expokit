@@ -1,0 +1,81 @@
+{
+  "name": "accordion",
+  "title": "Accordion",
+  "tier": "free",
+  "category": "Display",
+  "description": "Collapsible sections whose content is measured, so any height springs open smoothly — with a rotating chevron, fade-and-drop content, single or multiple mode, and default, bordered or separated-card styles.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "type",
+      "\"single\" | \"multiple\"",
+      "\"single\"",
+      "One open item at a time, or any number."
+    ],
+    [
+      "value / defaultValue",
+      "string[]",
+      "[]",
+      "Open item values (controlled / uncontrolled)."
+    ],
+    [
+      "onValueChange",
+      "(value: string[]) => void",
+      "—",
+      "Called when items open or close."
+    ],
+    [
+      "collapsible",
+      "boolean",
+      "true",
+      "Single mode: allow closing the open item."
+    ],
+    [
+      "variant",
+      "\"default\" | \"bordered\" | \"separated\"",
+      "\"default\"",
+      "Divided list, one bordered box, or separate cards."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Chevron colour of open items."
+    ],
+    [
+      "AccordionItem.value",
+      "string",
+      "—",
+      "Identifies the item in the Accordion's value array."
+    ],
+    [
+      "AccordionItem.title / subtitle",
+      "ReactNode / string",
+      "—",
+      "Header text."
+    ],
+    [
+      "AccordionItem.icon",
+      "ReactNode",
+      "—",
+      "Leading icon; content indents to line up with the title."
+    ],
+    [
+      "AccordionItem.disabled",
+      "boolean",
+      "false",
+      "Can't be toggled."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the Accordion's root view (the card in the bordered variant); AccordionItem takes its own."
+    ]
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "name": "segmented-control",
+  "category": "Selection",
+  "aliases": [],
+  "exportName": "SegmentedControl",
+  "files": [
+    "src/components/ui/segmented-control.tsx"
+  ],
+  "props": [
+    [
+      "options",
+      "(string | { value, label?, icon?, disabled? })[]",
+      "—",
+      "Segments. `icon` can be a node or ({ active, color }) => node."
+    ],
+    [
+      "value / onValueChange",
+      "string",
+      "—",
+      "Controlled selection (or use defaultValue; defaults to the first segment)."
+    ],
+    [
+      "defaultValue",
+      "string",
+      "first segment",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "variant",
+      "\"pill\" | \"underline\" | \"outline\"",
+      "\"pill\"",
+      "Raised pill on a track, tab underline, or tinted outline."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "32 / 40 / 48pt tall."
+    ],
+    [
+      "fullWidth",
+      "boolean",
+      "true",
+      "Equal-width segments filling the row, or segments sized to their labels."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Indicator colour (pill becomes a filled accent pill)."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the track holding the segments."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Pill",
+      "title": "Pill",
+      "code": "import { SegmentedControl } from '@/components/ui/segmented-control';\n\nexport default function Pill() {\n  return <SegmentedControl options={['Day', 'Week', 'Month', 'Year']} defaultValue=\"Week\" />;\n}\n"
+    },
+    {
+      "name": "Underline",
+      "title": "Underline",
+      "code": "import React, { useState } from 'react';\nimport { SegmentedControl } from '@/components/ui/segmented-control';\n\nexport default function Underline() {\n  const [tab, setTab] = useState('overview');\n  return (\n    <SegmentedControl\n      variant=\"underline\"\n      fullWidth={false}\n      value={tab}\n      onValueChange={setTab}\n      options={[\n        { value: 'overview', label: 'Overview' },\n        { value: 'activity', label: 'Activity' },\n        { value: 'reviews', label: 'Reviews (128)' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Outline",
+      "title": "Outline",
+      "code": "import { SegmentedControl } from '@/components/ui/segmented-control';\n\nexport default function Outline() {\n  return <SegmentedControl variant=\"outline\" options={['Monthly', 'Yearly · save 20%']} defaultValue=\"Yearly · save 20%\" />;\n}\n"
+    },
+    {
+      "name": "WithIcons",
+      "title": "With Icons",
+      "code": "import { Text, View } from 'react-native';\nimport { SegmentedControl } from '@/components/ui/segmented-control';\n\nexport default function WithIcons() {\n  const glyph = (g: string) => ({ color }: { color: string }) => <Text style={{ fontSize: 15, color }}>{g}</Text>;\n  return (\n    <SegmentedControl\n      defaultValue=\"grid\"\n      options={[\n        { value: 'list', label: 'List', icon: glyph('☰') },\n        { value: 'grid', label: 'Grid', icon: glyph('▦') },\n        { value: 'map', label: 'Map', icon: glyph('◎') },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Accent",
+      "title": "Accent",
+      "code": "import { SegmentedControl } from '@/components/ui/segmented-control';\nimport { useKit } from '@/lib/kit';\n\nexport default function Accent() {\n  const { colors } = useKit();\n  return (\n    <SegmentedControl\n      accent={colors.accent}\n      options={[\n        { value: 'buy', label: 'Buy' },\n        { value: 'rent', label: 'Rent' },\n        { value: 'sold', label: 'Sold' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Text, View } from 'react-native';\nimport { SegmentedControl } from '@/components/ui/segmented-control';\n\nexport default function Sizes() {\n  return (\n    <View style={{ gap: 12 }}>\n      <SegmentedControl size=\"sm\" options={['XS', 'S', 'M', 'L', 'XL']} defaultValue=\"M\" />\n      <SegmentedControl size=\"md\" options={['Small', 'Medium', 'Large']} defaultValue=\"Medium\" />\n      <SegmentedControl size=\"lg\" options={['Pickup', 'Delivery']} />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

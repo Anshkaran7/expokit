@@ -1,0 +1,78 @@
+{
+  "name": "polar-area",
+  "category": "Charts",
+  "aliases": [],
+  "exportName": "PolarAreaChart",
+  "files": [
+    "src/components/charts/polar-area.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "Datum[]",
+      "—",
+      "Rows like [{ browser: \"chrome\", visitors: 275 }]."
+    ],
+    [
+      "nameKey / valueKey",
+      "string",
+      "\"name\" / \"value\"",
+      "Which keys hold the label and the number."
+    ],
+    [
+      "config",
+      "ChartConfig",
+      "—",
+      "Labels / colours keyed by name."
+    ],
+    [
+      "size",
+      "number",
+      "260",
+      "Diameter."
+    ],
+    [
+      "showLegend",
+      "boolean",
+      "false",
+      "Legend under the chart."
+    ],
+    [
+      "legendVariant",
+      "LegendVariant",
+      "\"rounded-square\"",
+      "Legend marker style."
+    ],
+    [
+      "glow",
+      "boolean | string[]",
+      "false",
+      "Glow every segment or only named ones."
+    ],
+    [
+      "isLoading",
+      "boolean",
+      "false",
+      "Skeleton state."
+    ],
+    [
+      "onSelect",
+      "(index, datum) => void",
+      "—",
+      "Selection callback."
+    ],
+    [
+      "padAngle",
+      "number (deg)",
+      "2",
+      "Gap between petals."
+    ],
+    [
+      "levels",
+      "number",
+      "4",
+      "Grid circles."
+    ]
+  ],
+  "examples": []
+}

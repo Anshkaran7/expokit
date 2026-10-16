@@ -1,0 +1,17 @@
+{
+  "name": "tilt-card",
+  "type": "component",
+  "title": "Tilt Card",
+  "description": "A card that tilts toward your finger in 3D — it lifts, its shadow slides away from the light and a reflection (or a rainbow holo sheen) glides across it. Give it a photo (`image`), float content in TiltLayers, and add TiltFoil seals that shimmer as it leans.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "tilt-card/files"
+}

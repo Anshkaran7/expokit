@@ -1,0 +1,191 @@
+{
+  "name": "floating-input",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "FloatingInput",
+  "files": [
+    "src/components/ui/floating-input.tsx"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "—",
+      "Placeholder that floats onto the border."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch) and show placeholder inside; filled and underline work too."
+    ],
+    [
+      "variant",
+      "\"outlined\" | \"filled\" | \"underline\"",
+      "\"outlined\"",
+      "Notched outline, rounded filled, or bare underline (filled/underline bars grow from the centre on focus)."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "44 / 54 / 64pt — font, padding, radius and icons scale too."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Red state, icon + message that slides in, one shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "—",
+      "Green border + animated check; a string is shown as the message."
+    ],
+    [
+      "helper",
+      "string",
+      "—",
+      "Hint under the field."
+    ],
+    [
+      "prefix / suffix",
+      "string",
+      "—",
+      "Inline text like \"₹\", \"+91\", \"INR\" — fades in when the label floats."
+    ],
+    [
+      "counter",
+      "boolean",
+      "false",
+      "Shows length/maxLength under the field (needs maxLength)."
+    ],
+    [
+      "left / right",
+      "ReactNode",
+      "—",
+      "Icons or adornments inside the field."
+    ],
+    [
+      "clearable",
+      "boolean",
+      "false",
+      "Animated SVG clear button while there's text."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus border, halo and label colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the field (paints the notch)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer wrapper around the field and message line (the one that shakes)."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "The typed text — fontSize, fontWeight, color, letterSpacing, fontFamily."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Label in both modes (floating and above). color is the resting colour — focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "prefixStyle / suffixStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Prefix / suffix text (still fades in with the label)."
+    ],
+    [
+      "counterStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "The length/maxLength counter; turns danger at the limit regardless."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour (floatingLabel={false})."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Clear button colour at rest."
+    ],
+    [
+      "…TextInputProps",
+      "",
+      "",
+      "Everything TextInput accepts."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "SignUp",
+      "title": "Sign Up",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nconst isEmail = (v: string) => /^\\S+@\\S+\\.\\S{2,}$/.test(v);\n\nexport default function SignUp() {\n  const { colors } = useKit();\n  const [name, setName] = useState('Priya Sharma');\n  const [email, setEmail] = useState('priya@');\n  const [phone, setPhone] = useState('');\n  const emailError = email.length > 0 && !isEmail(email) ? 'Enter a valid email address' : undefined;\n  return (\n    <Card title=\"Create your account\" subtitle=\"It takes less than a minute.\">\n      <FloatingInput label=\"Full name\" value={name} onChangeText={setName} autoComplete=\"name\" clearable />\n      <FloatingInput\n        label=\"Email\"\n        value={email}\n        onChangeText={setEmail}\n        keyboardType=\"email-address\"\n        autoCapitalize=\"none\"\n        autoCorrect={false}\n        error={emailError}\n        success={isEmail(email) ? 'Looks good' : undefined}\n      />\n      <FloatingInput\n        label=\"Mobile number\"\n        prefix=\"+91\"\n        value={phone}\n        onChangeText={(v) => setPhone(v.replace(/\\D/g, ''))}\n        keyboardType=\"phone-pad\"\n        maxLength={10}\n        success={phone.length === 10}\n        helper=\"We'll text you a 6-digit code\"\n      />\n      <Text style={{ fontSize: 13, color: colors.mutedForeground }}>\n        Already have an account? <Text style={{ fontWeight: '400', color: colors.accent }}>Sign in</Text>\n      </Text>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Payment",
+      "title": "Payment",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nconst formatCard = (v: string) =>\n  v\n    .replace(/\\D/g, '')\n    .slice(0, 16)\n    .replace(/(\\d{4})(?=\\d)/g, '$1 ');\n\nconst formatExpiry = (v: string) => {\n  const d = v.replace(/\\D/g, '').slice(0, 4);\n  return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;\n};\n\nconst cardBrand = (v: string) => {\n  const d = v.replace(/\\D/g, '');\n  if (/^4/.test(d)) return 'VISA';\n  if (/^(5[1-5]|2[2-7])/.test(d)) return 'MC';\n  if (/^3[47]/.test(d)) return 'AMEX';\n  return undefined;\n};\n\n/** '' = not finished yet, otherwise an error message or null when valid. */\nconst expiryError = (v: string): string | null | '' => {\n  if (v.length < 5) return '';\n  const month = Number(v.slice(0, 2));\n  const year = 2000 + Number(v.slice(3));\n  if (month < 1 || month > 12) return 'Month must be 01–12';\n  const now = new Date();\n  if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) return 'This card has expired';\n  return null;\n};\n\nconst rupees = (n: number) => {\n  const [int, frac] = n.toFixed(2).split('.');\n  return `₹${int.replace(/(\\d)(?=(\\d\\d)+\\d$)/g, '$1,')}${frac === '00' ? '' : `.${frac}`}`;\n};\n\nexport default function Payment() {\n  const { colors, radius } = useKit();\n  const [amount, setAmount] = useState('1299');\n  const [card, setCard] = useState('4242 4242 4242 4242');\n  const [expiry, setExpiry] = useState('');\n  const [cvc, setCvc] = useState('');\n  const [paid, setPaid] = useState(false);\n  const brand = cardBrand(card);\n  const cvcLen = brand === 'AMEX' ? 4 : 3;\n  const expErr = expiryError(expiry);\n  const ready = Number(amount) > 0 && card.length >= 18 && expErr === null && cvc.length === cvcLen;\n  return (\n    <Card title=\"Add funds\" subtitle=\"Charged securely — you can cancel anytime.\">\n      <FloatingInput label=\"Amount\" prefix=\"₹\" suffix=\"INR\" keyboardType=\"decimal-pad\" value={amount} onChangeText={setAmount} />\n      <FloatingInput\n        label=\"Card number\"\n        keyboardType=\"number-pad\"\n        autoComplete=\"cc-number\"\n        value={card}\n        onChangeText={(v) => setCard(formatCard(v))}\n        maxLength={19}\n        suffix={brand}\n        success={card.length === 19}\n      />\n      <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>\n        <FloatingInput\n          label=\"MM/YY\"\n          keyboardType=\"number-pad\"\n          autoComplete=\"cc-exp\"\n          value={expiry}\n          onChangeText={(v) => setExpiry(formatExpiry(v))}\n          maxLength={5}\n          error={expErr || undefined}\n          success={expErr === null}\n          style={{ flex: 1 }}\n        />\n        <FloatingInput\n          label=\"CVC\"\n          keyboardType=\"number-pad\"\n          autoComplete=\"cc-csc\"\n          secureTextEntry\n          value={cvc}\n          onChangeText={(v) => setCvc(v.replace(/\\D/g, '').slice(0, cvcLen))}\n          maxLength={cvcLen}\n          helper={`${cvcLen} digits on the ${brand === 'AMEX' ? 'front' : 'back'}`}\n          style={{ flex: 1 }}\n        />\n      </View>\n      <Pressable\n        disabled={!ready}\n        onPress={() => setPaid(true)}\n        accessibilityRole=\"button\"\n        accessibilityState={{ disabled: !ready }}\n        style={({ pressed }) => ({\n          height: 50,\n          marginTop: 4,\n          borderRadius: radius.md,\n          alignItems: 'center',\n          justifyContent: 'center',\n          backgroundColor: ready ? colors.accent : colors.muted,\n          opacity: pressed ? 0.85 : 1,\n        })}\n      >\n        <Text style={{ fontSize: 16, fontWeight: '400', color: ready ? readableOn(colors.accent) : colors.mutedForeground }}>\n          {paid ? 'Paid ✓' : `Pay ${rupees(Number(amount) || 0)}`}\n        </Text>\n      </Pressable>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Variants",
+      "title": "Variants",
+      "code": "import { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\n\nexport default function Variants() {\n  return (\n    <View style={{ gap: 18 }}>\n      <FloatingInput label=\"Outlined\" defaultValue=\"Notch cuts the border\" helper=\"Tap to see the focus halo\" />\n      <FloatingInput variant=\"filled\" label=\"Filled\" defaultValue=\"Bar grows from the centre\" />\n      <FloatingInput variant=\"underline\" label=\"Underline\" defaultValue=\"Minimal, for dense forms\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "States",
+      "title": "States",
+      "code": "import { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\n\nexport default function States() {\n  return (\n    <View style={{ gap: 16 }}>\n      <FloatingInput label=\"Username\" defaultValue=\"admin\" error=\"That username is already taken\" />\n      <FloatingInput label=\"Username\" defaultValue=\"priya.codes\" success=\"Nice — it's available\" />\n      <FloatingInput label=\"Workspace\" defaultValue=\"Acme Inc.\" editable={false} helper=\"Only owners can rename the workspace\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Website",
+      "title": "Website",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nexport default function Website() {\n  const [slug, setSlug] = useState('');\n  return (\n    <Card title=\"Your public page\">\n      <FloatingInput\n        label=\"Website\"\n        prefix=\"https://\"\n        keyboardType=\"url\"\n        autoCapitalize=\"none\"\n        autoCorrect={false}\n        clearable\n      />\n      <FloatingInput\n        label=\"Handle\"\n        prefix=\"@\"\n        suffix=\".expo.page\"\n        value={slug}\n        onChangeText={(v) => setSlug(v.toLowerCase().replace(/[^a-z0-9-]/g, ''))}\n        autoCapitalize=\"none\"\n        maxLength={20}\n        counter\n        helper=\"Letters, numbers and dashes\"\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\n\nexport default function Sizes() {\n  return (\n    <View style={{ gap: 14 }}>\n      <FloatingInput size=\"sm\" label=\"Small · 44pt\" defaultValue=\"Compact filters and toolbars\" clearable />\n      <FloatingInput size=\"md\" label=\"Medium · 54pt\" defaultValue=\"The default for forms\" clearable />\n      <FloatingInput size=\"lg\" label=\"Large · 64pt\" defaultValue=\"Hero fields\" clearable />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "LabelAbove",
+      "title": "Label Above",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nconst isEmail = (v: string) => /^\\S+@\\S+\\.\\S{2,}$/.test(v);\n\nexport default function LabelAbove() {\n  const [name, setName] = useState('');\n  const [email, setEmail] = useState('');\n  const [bio, setBio] = useState('');\n  return (\n    <Card title=\"Edit profile\" subtitle=\"This is how others will see you.\">\n      <FloatingInput floatingLabel={false} label=\"Full name\" placeholder=\"Priya Sharma\" value={name} onChangeText={setName} autoComplete=\"name\" clearable />\n      <FloatingInput\n        floatingLabel={false}\n        label=\"Email\"\n        placeholder=\"you@example.com\"\n        value={email}\n        onChangeText={setEmail}\n        keyboardType=\"email-address\"\n        autoCapitalize=\"none\"\n        autoCorrect={false}\n        error={email.length > 0 && !isEmail(email) ? 'Enter a valid email address' : undefined}\n        helper=\"We'll never share it.\"\n      />\n      <FloatingInput\n        floatingLabel={false}\n        label=\"Bio\"\n        placeholder=\"A line about you\"\n        value={bio}\n        onChangeText={setBio}\n        maxLength={80}\n        counter\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "CustomStyles",
+      "title": "Custom Styles",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { FloatingInput } from '@/components/ui/floating-input';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nexport default function CustomStyles() {\n  const { colors, radius } = useKit();\n  const [handle, setHandle] = useState('priya.codes');\n  return (\n    <Card title=\"Custom styles\" subtitle=\"fieldStyle, labelStyle, inputStyle, messageStyle.\">\n      <FloatingInput\n        label=\"Username\"\n        prefix=\"@\"\n        value={handle}\n        onChangeText={setHandle}\n        autoCapitalize=\"none\"\n        autoCorrect={false}\n        helper=\"Letters, numbers and dots.\"\n        fieldStyle={{ borderWidth: 2, borderColor: colors.border, borderRadius: radius.lg, backgroundColor: colors.card }}\n        surface={colors.card}\n        labelStyle={{ fontSize: 15, fontWeight: '400', letterSpacing: 0.2 }}\n        inputStyle={{ fontSize: 17, fontWeight: '400', letterSpacing: 0.3 }}\n        prefixStyle={{ color: colors.accent, fontWeight: '400' }}\n        messageStyle={{ fontStyle: 'italic' }}\n      />\n    </Card>\n  );\n}\n"
+    }
+  ]
+}

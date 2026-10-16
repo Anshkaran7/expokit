@@ -1,0 +1,116 @@
+{
+  "name": "chip-group",
+  "category": "Selection",
+  "aliases": [],
+  "exportName": "ChipGroup",
+  "files": [
+    "src/components/ui/chip-group.tsx"
+  ],
+  "props": [
+    [
+      "options",
+      "(string | { value, label?, icon?, count?, disabled? })[]",
+      "—",
+      "Plain strings or objects with label, icon, count and per-chip disabled."
+    ],
+    [
+      "multiple",
+      "boolean",
+      "false",
+      "Allow several selected chips."
+    ],
+    [
+      "value / onValueChange",
+      "string[]",
+      "—",
+      "Controlled selection (or use defaultValue). Single mode reports [] or [value]."
+    ],
+    [
+      "defaultValue",
+      "string[]",
+      "[]",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "deselectable",
+      "boolean",
+      "true",
+      "Single mode: tapping the selected chip clears it."
+    ],
+    [
+      "variant",
+      "\"solid\" | \"outline\" | \"soft\"",
+      "\"solid\"",
+      "Selected look: filled accent, accent border with a faint tint, or soft accent tint."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "30 / 36 / 42pt tall."
+    ],
+    [
+      "scrollable",
+      "boolean",
+      "false",
+      "One horizontally scrolling row instead of wrapping."
+    ],
+    [
+      "contentInset",
+      "number",
+      "0",
+      "Scroll-row edge padding that bleeds into your screen gutter."
+    ],
+    [
+      "showCheck",
+      "boolean",
+      "true",
+      "Morph a check in front of the label when selected."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selected colour."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims every chip and blocks presses (or set disabled per option)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the wrapping row (the ScrollView when scrollable)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Solid",
+      "title": "Solid",
+      "code": "import { ChipGroup } from '@/components/ui/chip-group';\n\nexport default function Solid() {\n  return (\n    <ChipGroup\n      multiple\n      defaultValue={['Vegan', 'Gluten-free']}\n      options={['Vegan', 'Vegetarian', 'Gluten-free', 'Dairy-free', 'Nut-free', 'Halal']}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Outline",
+      "title": "Outline",
+      "code": "import { ChipGroup } from '@/components/ui/chip-group';\n\nexport default function Outline() {\n  return (\n    <ChipGroup\n      variant=\"outline\"\n      defaultValue={['Remote']}\n      options={['Remote', 'Hybrid', 'On-site']}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Soft",
+      "title": "Soft",
+      "code": "import { ChipGroup } from '@/components/ui/chip-group';\n\nexport default function Soft() {\n  return (\n    <ChipGroup\n      variant=\"soft\"\n      multiple\n      defaultValue={['open']}\n      options={[\n        { value: 'open', label: 'Open', count: 24 },\n        { value: 'review', label: 'In review', count: 7 },\n        { value: 'merged', label: 'Merged', count: 112 },\n        { value: 'closed', label: 'Closed', count: 3 },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Scrollable",
+      "title": "Scrollable",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { ChipGroup } from '@/components/ui/chip-group';\n\nexport default function Scrollable() {\n  const [picked, setPicked] = useState<string[]>(['all']);\n  return (\n    <ChipGroup\n      scrollable\n      deselectable={false}\n      value={picked}\n      onValueChange={setPicked}\n      options={[\n        { value: 'all', label: 'All' },\n        { value: 'coffee', label: 'Coffee', icon: <Text>☕️</Text> },\n        { value: 'bakery', label: 'Bakery', icon: <Text>🥐</Text> },\n        { value: 'brunch', label: 'Brunch', icon: <Text>🍳</Text> },\n        { value: 'pizza', label: 'Pizza', icon: <Text>🍕</Text> },\n        { value: 'sushi', label: 'Sushi', icon: <Text>🍣</Text> },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Text, View } from 'react-native';\nimport { ChipGroup } from '@/components/ui/chip-group';\n\nexport default function Sizes() {\n  return (\n    <View style={{ gap: 12 }}>\n      <ChipGroup size=\"sm\" multiple defaultValue={['S']} options={['XS', 'S', 'M', 'L']} />\n      <ChipGroup size=\"md\" multiple defaultValue={['M']} options={['XS', 'S', 'M', 'L']} />\n      <ChipGroup size=\"lg\" multiple defaultValue={['L']} options={['XS', 'S', 'M', 'L']} />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

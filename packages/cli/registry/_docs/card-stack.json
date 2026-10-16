@@ -1,0 +1,108 @@
+{
+  "name": "card-stack",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "CardStack",
+  "files": [
+    "src/components/ui/card-stack.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "T[]",
+      "—",
+      "Items, one card each."
+    ],
+    [
+      "renderItem",
+      "({ item, index, front }) => ReactNode",
+      "—",
+      "Render a card. `front` is true for the card in front."
+    ],
+    [
+      "keyExtractor",
+      "(item: T, index: number) => string",
+      "index",
+      "React key for each card."
+    ],
+    [
+      "cardHeight",
+      "number",
+      "190",
+      "Card height."
+    ],
+    [
+      "peek",
+      "number",
+      "14",
+      "How much of each card shows behind the front one when closed."
+    ],
+    [
+      "spread",
+      "number",
+      "64",
+      "Space between cards when open."
+    ],
+    [
+      "depth",
+      "number",
+      "3",
+      "Cards visible behind the front one when closed."
+    ],
+    [
+      "selected",
+      "number",
+      "—",
+      "Controlled front card (index into data)."
+    ],
+    [
+      "onPressFront",
+      "(index) => void",
+      "—",
+      "Tap on the front card while closed (pay with it); the cards behind still open the stack."
+    ],
+    [
+      "getAccessibilityLabel",
+      "(item, index) => string",
+      "\"Card 2 of 4\"",
+      "Screen-reader label for each card."
+    ],
+    [
+      "defaultSelected",
+      "number",
+      "0",
+      "Uncontrolled initial front card."
+    ],
+    [
+      "onSelect",
+      "(index: number) => void",
+      "—",
+      "Fires when a card is picked."
+    ],
+    [
+      "open",
+      "boolean",
+      "—",
+      "Controlled open state."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Fires when the stack opens or closes."
+    ],
+    [
+      "radius",
+      "number",
+      "18",
+      "Corner radius of each card."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view."
+    ]
+  ],
+  "examples": []
+}

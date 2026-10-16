@@ -1,0 +1,26 @@
+{
+  "name": "sign-in",
+  "type": "block",
+  "title": "Sign In",
+  "description": "One configurable sign-in flow modelled on top mobile apps: Apple / Google / Microsoft / GitHub buttons, phone number + SMS code with a dial-code picker and resend countdown, and email with a password (plus sign-up strength meter and forgot password), a one-time code or a magic link with a 'Check your inbox' screen. Every method is optional; steps slide in direction-aware, respect Reduce Motion, and stay clear of the keyboard. Monochrome by default.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "button",
+    "floating-input",
+    "password-input",
+    "otp-input"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/button.tsx",
+    "components/ui/floating-input.tsx",
+    "components/ui/password-input.tsx",
+    "components/ui/otp-input.tsx"
+  ],
+  "filesDir": null
+}

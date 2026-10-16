@@ -1,0 +1,108 @@
+{
+  "name": "glass-sheet",
+  "category": "Glass",
+  "aliases": [],
+  "exportName": "GlassSheet",
+  "files": [
+    "src/components/ui/glass-sheet.tsx"
+  ],
+  "props": [
+    [
+      "open",
+      "boolean",
+      "—",
+      "Show the sheet."
+    ],
+    [
+      "onClose",
+      "() => void",
+      "—",
+      "Called after it is dragged, flung, tapped or back-buttoned closed."
+    ],
+    [
+      "snapPoints",
+      "(number | \"NN%\")[]",
+      "fits content",
+      "Resting heights in points or % of the screen; without them one snap sized to the content (capped below the status bar)."
+    ],
+    [
+      "initialSnap",
+      "number",
+      "0",
+      "Snap index it opens at."
+    ],
+    [
+      "onSnapChange",
+      "(index: number) => void",
+      "—",
+      "Fires when it settles on another snap."
+    ],
+    [
+      "title",
+      "string",
+      "—",
+      "Centred heading under the grabber."
+    ],
+    [
+      "detached",
+      "boolean",
+      "true",
+      "Float inset from the screen edges with every corner rounded (iOS 26); false docks it edge-to-edge."
+    ],
+    [
+      "inset",
+      "number",
+      "10",
+      "Gap to the screen edges when detached."
+    ],
+    [
+      "radius",
+      "number",
+      "32",
+      "Corner radius."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass and ink."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Allow drag-down / backdrop tap / back to close; otherwise it rubber-bands at the lowest snap."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light tap on open, selection tick on each snap."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "platform safe inset",
+      "Edge-to-edge: padding above the home indicator; pass useSafeAreaInsets().bottom for the device."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "title",
+      "Label for the modal sheet."
+    ],
+    [
+      "style / contentStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet style (e.g. maxWidth) and the scrolling content container."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Sheet content; scrolls at the top snap when taller than the sheet."
+    ]
+  ],
+  "examples": []
+}

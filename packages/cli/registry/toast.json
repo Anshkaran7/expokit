@@ -1,0 +1,20 @@
+{
+  "name": "toast",
+  "type": "component",
+  "title": "Toast",
+  "description": "Sonner-style toasts with living tone icons: the outline draws itself inside a halo, a light-leak glow spills behind it, and a hairline drains along the bottom as time runs out (paused while touched). toast.promise() closes the spinning arc into the success or error circle before the mark draws in, variant=\"minimal\" gives compact inverted pills (with a second line for the description), and variant=\"island\" turns the Toaster into an iPhone-style Dynamic Island.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "button"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/button.tsx"
+  ],
+  "filesDir": "toast/files"
+}

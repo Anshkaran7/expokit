@@ -1,0 +1,66 @@
+{
+  "name": "glass-segmented",
+  "category": "Glass",
+  "aliases": [],
+  "exportName": "GlassSegmentedControl",
+  "files": [
+    "src/components/ui/glass-segmented.tsx"
+  ],
+  "props": [
+    [
+      "options",
+      "(string | { value, label, icon? })[]",
+      "—",
+      "Equal-width segments; icon is a node shown before the label."
+    ],
+    [
+      "value / onChange",
+      "string / (value) => void",
+      "—",
+      "Controlled selection (or use defaultValue). Fires on tap and on release after a drag."
+    ],
+    [
+      "defaultValue",
+      "string",
+      "first segment",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "size",
+      "'sm' | 'md'",
+      "'md'",
+      "32 / 40pt tall."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass and ink, e.g. over a photo."
+    ],
+    [
+      "accent",
+      "string",
+      "glass ink (black / white)",
+      "Selection colour: fills the thumb; the label switches to black or white to stay readable."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change and while dragging across segments."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Label for the whole control (tablist; each segment is a tab with selected state)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the glass track."
+    ]
+  ],
+  "examples": []
+}

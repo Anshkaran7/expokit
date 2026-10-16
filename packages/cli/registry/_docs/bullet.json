@@ -1,0 +1,24 @@
+{
+  "name": "bullet",
+  "category": "Charts",
+  "aliases": [],
+  "exportName": "BulletChart",
+  "files": [
+    "src/components/charts/bullet.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "{ label, value, target?, ranges? }[]",
+      "—",
+      "KPI rows."
+    ],
+    [
+      "rowHeight / barHeight",
+      "number",
+      "52 / 14",
+      "Sizing."
+    ]
+  ],
+  "examples": []
+}

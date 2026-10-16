@@ -1,0 +1,115 @@
+{
+  "name": "button",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "Button",
+  "files": [
+    "src/components/ui/button.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"primary\" | \"accent\" | \"secondary\" | \"outline\" | \"ghost\" | \"soft\" | \"destructive\" | \"link\" | \"gradient\" | \"glow\" | \"elevated\"",
+      "\"primary\"",
+      "Solid primary / accent / secondary / danger fill, bordered outline, transparent ghost, tinted soft, underlined link, two-tone gradient, accent with a coloured glow, or a raised elevated surface."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\" | \"icon\"",
+      "\"md\"",
+      "36 / 46 / 54pt, or a round icon button."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Spinner + blocks presses."
+    ],
+    [
+      "left / right",
+      "ReactNode",
+      "—",
+      "Icons beside the label."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretches to the parent's width (alignSelf: stretch)."
+    ],
+    [
+      "pill",
+      "boolean",
+      "false",
+      "Fully rounded."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Any colour; recolours every tinted variant and picks readable text automatically."
+    ],
+    [
+      "gradientTo",
+      "string",
+      "color shifted 38° on the hue wheel",
+      "Second stop for variant=\"gradient\"."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "false",
+      "Light tap on press."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Style for the label text (merged over size and variant typography)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer animated wrapper (margins, alignment); the pressable surface keeps its own."
+    ],
+    [
+      "…PressableProps",
+      "",
+      "",
+      "onPress, disabled, …"
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "title": "Variants",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\n\nexport default function Variants() {\n  return (\n    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>\n      <Button>Primary</Button>\n      <Button variant=\"accent\">Accent</Button>\n      <Button variant=\"secondary\">Secondary</Button>\n      <Button variant=\"outline\">Outline</Button>\n      <Button variant=\"soft\">Soft</Button>\n      <Button variant=\"ghost\">Ghost</Button>\n      <Button variant=\"elevated\">Elevated</Button>\n      <Button variant=\"destructive\">Delete</Button>\n      <Button variant=\"link\">Link</Button>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "GradientAndGlow",
+      "title": "Gradient And Glow",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\nexport default function GradientAndGlow() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 12 }}>\n      <Button\n        variant=\"gradient\"\n        size=\"lg\"\n        block\n        pill\n        right={<Text style={{ color: readableOn(colors.accent), fontSize: 18 }}>→</Text>}\n      >\n        Get started\n      </Button>\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        <Button variant=\"glow\" pill style={{ flex: 1 }}>\n          Go live\n        </Button>\n        <Button variant=\"gradient\" pill style={{ flex: 1 }}>\n          Boost\n        </Button>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "DynamicColor",
+      "title": "Dynamic Color",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\nconst PALETTE = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#ec4899'];\n\nexport default function DynamicColor() {\n  const { colors, radius } = useKit();\n  const [color, setColor] = useState(PALETTE[0]);\n  return (\n    <View style={{ gap: 14 }}>\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        {PALETTE.map((c) => (\n          <Pressable\n            key={c}\n            onPress={() => setColor(c)}\n            accessibilityRole=\"button\"\n            accessibilityLabel={`Use ${c}`}\n            style={{\n              width: 28,\n              height: 28,\n              borderRadius: radius.full,\n              backgroundColor: c,\n              borderWidth: 3,\n              borderColor: c === color ? colors.foreground : 'transparent',\n            }}\n          />\n        ))}\n      </View>\n      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>\n        <Button variant=\"accent\" color={color}>Accent</Button>\n        <Button variant=\"gradient\" color={color}>Gradient</Button>\n        <Button variant=\"glow\" color={color}>Glow</Button>\n        <Button variant=\"soft\" color={color}>Soft</Button>\n        <Button variant=\"outline\" color={color}>Outline</Button>\n        <Button variant=\"elevated\" color={color}>Elevated</Button>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>\n      <Button size=\"sm\">Small</Button>\n      <Button size=\"md\">Medium</Button>\n      <Button size=\"lg\">Large</Button>\n      <Button size=\"icon\" variant=\"outline\">\n        <Text style={{ fontSize: 18 }}>♥</Text>\n      </Button>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Loading",
+      "title": "Loading",
+      "code": "import React, { useState } from 'react';\nimport { Button } from '@/components/ui/button';\n\nexport default function Loading() {\n  const [busy, setBusy] = useState(false);\n  return (\n    <Button\n      variant=\"accent\"\n      pill\n      block\n      size=\"lg\"\n      loading={busy}\n      onPress={() => {\n        setBusy(true);\n        setTimeout(() => setBusy(false), 1600);\n      }}\n    >\n      {busy ? 'Saving' : 'Save changes'}\n    </Button>\n  );\n}\n"
+    },
+    {
+      "name": "Colors",
+      "title": "Colors",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\n\nexport default function Colors() {\n  return (\n    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>\n      <Button variant=\"soft\" color=\"#10b981\">Approve</Button>\n      <Button variant=\"soft\" color=\"#f59e0b\">Pending</Button>\n      <Button variant=\"soft\" color=\"#ef4444\">Reject</Button>\n      <Button variant=\"accent\" color=\"#ec4899\" pill>Follow</Button>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

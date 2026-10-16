@@ -1,0 +1,90 @@
+{
+  "name": "glass-search-bar",
+  "category": "Glass",
+  "aliases": [],
+  "exportName": "GlassSearchBar",
+  "files": [
+    "src/components/ui/glass-search-bar.tsx"
+  ],
+  "props": [
+    [
+      "value / defaultValue / onChangeText",
+      "string",
+      "—",
+      "Controlled or uncontrolled query; clear and cancel report ''."
+    ],
+    [
+      "placeholder",
+      "string",
+      "\"Search\"",
+      "Placeholder, also the field's accessibility label."
+    ],
+    [
+      "onSubmit",
+      "(text: string) => void",
+      "—",
+      "Called with the query when the keyboard's search key is pressed."
+    ],
+    [
+      "showCancel",
+      "boolean",
+      "false",
+      "A glass cancel button springs in beside the pill while focused or holding text."
+    ],
+    [
+      "cancelLabel",
+      "string",
+      "— (round ✕)",
+      "Text for the cancel button, e.g. \"Cancel\"; without it the button is a round ✕."
+    ],
+    [
+      "onCancel",
+      "() => void",
+      "—",
+      "After cancel clears the query and dismisses the keyboard."
+    ],
+    [
+      "leading",
+      "ReactNode",
+      "magnifier",
+      "Replaces the magnifier at the start of the pill."
+    ],
+    [
+      "trailing",
+      "ReactNode",
+      "—",
+      "Inside the pill at the end, e.g. a mic button."
+    ],
+    [
+      "autoFocus",
+      "boolean",
+      "false",
+      "Focus the field on mount."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass and ink, e.g. 'dark' over a photo."
+    ],
+    [
+      "size",
+      "'md' | 'lg'",
+      "'md'",
+      "44 / 52pt tall; font, icons and padding scale too."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Row holding the pill and the cancel button."
+    ],
+    [
+      "…TextInputProps",
+      "",
+      "",
+      "editable, returnKeyType, onFocus, onBlur, onSubmitEditing, … (ref forwards to the TextInput)."
+    ]
+  ],
+  "examples": []
+}

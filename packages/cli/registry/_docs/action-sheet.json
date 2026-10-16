@@ -1,0 +1,110 @@
+{
+  "name": "action-sheet",
+  "category": "Overlays",
+  "aliases": [],
+  "exportName": "ActionSheet",
+  "files": [
+    "src/components/ui/action-sheet.tsx"
+  ],
+  "props": [
+    [
+      "open / defaultOpen",
+      "boolean",
+      "false",
+      "Controlled / uncontrolled visibility."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called on actions, Cancel, backdrop tap, drag-down, back and Escape."
+    ],
+    [
+      "actions",
+      "{ label, icon?, destructive?, disabled?, color?, onPress? }[]",
+      "—",
+      "The options. `icon` is a built-in name (camera, image, trash, reply, forward, copy, pin, edit, share, link, mail, …) or a node; destructive rows use the danger colour; return false from onPress to stay open; `color` tints grid tiles."
+    ],
+    [
+      "title / message",
+      "string",
+      "—",
+      "Header text above the actions."
+    ],
+    [
+      "cancelLabel",
+      "string | null",
+      "\"Cancel\"",
+      "Separate cancel button; null hides it."
+    ],
+    [
+      "onCancel",
+      "() => void",
+      "—",
+      "Called on Cancel, backdrop tap and drag-to-dismiss."
+    ],
+    [
+      "variant",
+      "\"inset\" | \"list\" | \"grid\"",
+      "\"inset\"",
+      "iOS grouped cards (text-only rows centred in the accent; rows with icons read like a menu), Material edge-to-edge list with a drag handle, or share-sheet tiles."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "platform safe inset",
+      "Padding above the home indicator; pass useSafeAreaInsets().bottom for the device."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Colour of text-only actions and Cancel in the inset variant."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Close on scrim tap, drag, back and Escape. When false the sheet only rubber-bands."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light impact on open, selection tick when an action is picked."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet container style."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Photo",
+      "title": "Photo",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ActionSheet } from '@/components/ui/action-sheet';\nimport { Avatar } from '@/components/ui/avatar';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function Photo() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [status, setStatus] = useState('Tap the photo to change it');\n  return (\n    <View style={{ alignItems: 'center', gap: 12 }}>\n      <Avatar name=\"Maya Patel\" size=\"xl\" ring=\"accent\" onPress={() => setOpen(true)} />\n      <Text style={muted}>{status}</Text>\n      <ActionSheet\n        open={open}\n        onOpenChange={setOpen}\n        title=\"Profile photo\"\n        message=\"Your photo is visible to everyone in Northwind.\"\n        actions={[\n          { label: 'Take photo', onPress: () => setStatus('Opening camera…') },\n          { label: 'Choose from library', onPress: () => setStatus('Opening library…') },\n          { label: 'Remove photo', destructive: true, onPress: () => setStatus('Photo removed') },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "MessageActions",
+      "title": "Message Actions",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ActionSheet } from '@/components/ui/action-sheet';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function MessageActions() {\n  const { colors, radius } = useKit();\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [pinned, setPinned] = useState(false);\n  const [status, setStatus] = useState('Long-press the message');\n  return (\n    <View style={{ alignSelf: 'stretch', gap: 12, paddingHorizontal: 16 }}>\n      <Pressable\n        onLongPress={() => setOpen(true)}\n        delayLongPress={300}\n        accessibilityRole=\"button\"\n        accessibilityHint=\"Long-press for message actions\"\n        style={({ pressed }) => ({\n          alignSelf: 'flex-end',\n          maxWidth: '82%',\n          paddingHorizontal: 14,\n          paddingVertical: 10,\n          borderRadius: radius.scale(20),\n          borderBottomRightRadius: radius.scale(6),\n          backgroundColor: colors.accent,\n          transform: [{ scale: pressed ? 0.97 : 1 }],\n        })}\n      >\n        <Text style={{ color: readableOn(colors.accent), fontSize: 15, lineHeight: 20 }}>\n          Running 10 min late — grab us a table by the window?\n        </Text>\n      </Pressable>\n      <Text style={muted}>{status}</Text>\n      <ActionSheet\n        open={open}\n        onOpenChange={setOpen}\n        actions={[\n          { label: 'Reply', icon: 'reply', onPress: () => setStatus('Replying to Maya') },\n          { label: 'Forward', icon: 'forward', onPress: () => setStatus('Choose a chat') },\n          { label: 'Copy text', icon: 'copy', onPress: () => setStatus('Copied to clipboard') },\n          {\n            label: pinned ? 'Unpin' : 'Pin',\n            icon: 'pin',\n            onPress: () => {\n              setPinned((p) => !p);\n              setStatus(pinned ? 'Unpinned' : 'Pinned to the top of the chat');\n            },\n          },\n          { label: 'Edit', icon: 'edit', disabled: true },\n          { label: 'Delete for everyone', icon: 'trash', destructive: true, onPress: () => setStatus('Message deleted') },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Share",
+      "title": "Share",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ActionSheet } from '@/components/ui/action-sheet';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\nexport default function Share() {\n  const { colors } = useKit();\n  const [open, setOpen] = useState(false);\n  return (\n    <View style={{ alignItems: 'center' }}>\n      <Button variant=\"accent\" onPress={() => setOpen(true)}>\n        Share trip\n      </Button>\n      <ActionSheet\n        open={open}\n        onOpenChange={setOpen}\n        variant=\"grid\"\n        title=\"Share “Lisbon, May 12–16”\"\n        actions={[\n          { label: 'Messages', icon: 'message', color: colors.success },\n          { label: 'Mail', icon: 'mail', color: colors.accent },\n          { label: 'Send to…', icon: 'send', color: colors.primary },\n          { label: 'Copy link', icon: 'link' },\n          { label: 'Save PDF', icon: 'download' },\n          { label: 'Print', icon: 'printer' },\n          { label: 'Invite', icon: 'user' },\n          { label: 'More', icon: 'more' },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "PostOptions",
+      "title": "Post Options",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ActionSheet } from '@/components/ui/action-sheet';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function PostOptions() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [saved, setSaved] = useState(false);\n  return (\n    <View style={{ alignItems: 'center', gap: 10 }}>\n      <Button variant=\"outline\" onPress={() => setOpen(true)}>\n        Post options\n      </Button>\n      <Text style={muted}>{saved ? 'Saved to your collection' : 'Material list with icons'}</Text>\n      <ActionSheet\n        open={open}\n        onOpenChange={setOpen}\n        variant=\"list\"\n        title=\"Jonas’s post\"\n        cancelLabel={null}\n        actions={[\n          { label: 'Edit post', icon: 'edit' },\n          { label: saved ? 'Remove from saved' : 'Save post', icon: 'bookmark', onPress: () => setSaved((s) => !s) },\n          { label: 'Copy link', icon: 'copy' },\n          { label: 'Hide from feed', icon: 'eye-off' },\n          { label: 'Report post', icon: 'flag', destructive: true },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "DiscardDraft",
+      "title": "Discard Draft",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ActionSheet } from '@/components/ui/action-sheet';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function DiscardDraft() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [result, setResult] = useState('');\n  return (\n    <View style={{ alignItems: 'center', gap: 10 }}>\n      <Button variant=\"secondary\" onPress={() => setOpen(true)}>\n        Close editor\n      </Button>\n      {result ? <Text style={muted}>{result}</Text> : null}\n      <ActionSheet\n        open={open}\n        onOpenChange={setOpen}\n        message=\"You have unsaved changes to “Weekly update”. Save them as a draft?\"\n        onCancel={() => setResult('Kept editing')}\n        cancelLabel=\"Keep editing\"\n        actions={[\n          { label: 'Discard changes', destructive: true, onPress: () => setResult('Changes discarded') },\n          { label: 'Save draft', onPress: () => setResult('Draft saved') },\n          { label: 'Schedule post', disabled: true },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

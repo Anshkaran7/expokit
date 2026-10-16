@@ -1,0 +1,15 @@
+{
+  "name": "pagination-dots",
+  "type": "component",
+  "title": "Pagination Dots",
+  "description": "Page indicator for carousels and onboarding that follows your finger: hand it a live scroll position and the active dot stretches into a pill that pours into the next one, dots scale, segments fill, or the page number rolls. Tap a dot to jump; VoiceOver can swipe through pages.",
+  "tier": "free",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "pagination-dots/files"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "treemap",
+  "type": "chart",
+  "title": "Treemap",
+  "description": "Squarified tiles for part-to-whole data, with automatically readable text colour. Tap a tile. Built on expo-charts.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-charts",
+    "react-native-svg"
+  ],
+  "registryDependencies": [],
+  "sharedFiles": [],
+  "filesDir": null
+}

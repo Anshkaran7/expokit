@@ -1,0 +1,93 @@
+{
+  "name": "checkbox",
+  "category": "Selection",
+  "aliases": [],
+  "exportName": "Checkbox",
+  "files": [
+    "src/components/ui/checkbox.tsx"
+  ],
+  "props": [
+    [
+      "checked / onChange",
+      "boolean",
+      "—",
+      "Controlled state (or use defaultChecked)."
+    ],
+    [
+      "defaultChecked",
+      "boolean",
+      "false",
+      "Initial state when uncontrolled."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Text next to the box."
+    ],
+    [
+      "description",
+      "string",
+      "—",
+      "Secondary line."
+    ],
+    [
+      "strike",
+      "boolean",
+      "false",
+      "Strike the label through when checked."
+    ],
+    [
+      "shape",
+      "\"square\" | \"circle\"",
+      "\"square\"",
+      "Rounded square (corner = size / 3.4) or full circle."
+    ],
+    [
+      "size",
+      "number",
+      "24",
+      "Box width and height in points; the tick is 80% of it."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Checked colour."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims to 50% and blocks presses."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the pressable row holding the box and label."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "title": "Default",
+      "code": "import { Checkbox } from '@/components/ui/checkbox';\n\nexport default function Default() {\n  return <Checkbox label=\"Accept terms and conditions\" defaultChecked />;\n}\n"
+    },
+    {
+      "name": "WithDescription",
+      "title": "With Description",
+      "code": "import { Checkbox } from '@/components/ui/checkbox';\n\nexport default function WithDescription() {\n  return (\n    <Checkbox\n      label=\"Marketing emails\"\n      description=\"Product news and offers, about once a month.\"\n    />\n  );\n}\n"
+    },
+    {
+      "name": "TodoList",
+      "title": "Todo List",
+      "code": "import { View } from 'react-native';\nimport { Checkbox } from '@/components/ui/checkbox';\n\nexport default function TodoList() {\n  return (\n    <View style={{ gap: 16 }}>\n      <Checkbox shape=\"circle\" strike label=\"Design the onboarding flow\" defaultChecked />\n      <Checkbox shape=\"circle\" strike label=\"Ship floating inputs\" />\n      <Checkbox shape=\"circle\" strike label=\"Write the docs\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Colors",
+      "title": "Colors",
+      "code": "import { View } from 'react-native';\nimport { Checkbox } from '@/components/ui/checkbox';\n\nexport default function Colors() {\n  return (\n    <View style={{ flexDirection: 'row', gap: 18 }}>\n      {['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#ec4899'].map((c) => (\n        <Checkbox key={c} accent={c} defaultChecked size={28} />\n      ))}\n    </View>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "name": "button",
+  "title": "Button",
+  "tier": "free",
+  "category": "Buttons",
+  "description": "Spring press feedback, eleven variants — including a two-tone gradient, a coloured glow and an elevated surface — four sizes, icons and a loading state. Pass any colour and every tinted variant follows it.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"primary\" | \"accent\" | \"secondary\" | \"outline\" | \"ghost\" | \"soft\" | \"destructive\" | \"link\" | \"gradient\" | \"glow\" | \"elevated\"",
+      "\"primary\"",
+      "Solid primary / accent / secondary / danger fill, bordered outline, transparent ghost, tinted soft, underlined link, two-tone gradient, accent with a coloured glow, or a raised elevated surface."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\" | \"icon\"",
+      "\"md\"",
+      "36 / 46 / 54pt, or a round icon button."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Spinner + blocks presses."
+    ],
+    [
+      "left / right",
+      "ReactNode",
+      "—",
+      "Icons beside the label."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretches to the parent's width (alignSelf: stretch)."
+    ],
+    [
+      "pill",
+      "boolean",
+      "false",
+      "Fully rounded."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Any colour; recolours every tinted variant and picks readable text automatically."
+    ],
+    [
+      "gradientTo",
+      "string",
+      "color shifted 38° on the hue wheel",
+      "Second stop for variant=\"gradient\"."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "false",
+      "Light tap on press."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Style for the label text (merged over size and variant typography)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer animated wrapper (margins, alignment); the pressable surface keeps its own."
+    ],
+    [
+      "…PressableProps",
+      "",
+      "",
+      "onPress, disabled, …"
+    ]
+  ]
+}

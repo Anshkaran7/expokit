@@ -1,0 +1,13 @@
+{
+  "$schema": "https://expokit.karandev.in/schema.json",
+  "aliases": {
+    "components": "@/components",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "paths": {
+    "components": "src/components",
+    "lib": "src/lib",
+    "app": "src/app"
+  }
+}

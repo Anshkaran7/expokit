@@ -1,0 +1,20 @@
+{
+  "name": "timeline",
+  "type": "component",
+  "title": "Timeline",
+  "description": "Vertical timeline for order tracking, activity feeds, travel logs and release history, in the preview's solid accent colour. Items rise in, then the connector fills down to the current step: done dots draw their check as the line arrives, the current dot pulses, upcoming dots stay hollow on a dotted track, and failures draw a red cross. The scroll variant ties the fill to the scroll position, lighting each node as the line reaches it. Entries can carry photo galleries, tags and links.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "avatar"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/avatar.tsx"
+  ],
+  "filesDir": "timeline/files"
+}

@@ -1,0 +1,90 @@
+{
+  "name": "scratch-card",
+  "category": "Coupons",
+  "aliases": [],
+  "exportName": "ScratchCard",
+  "files": [
+    "src/components/ui/scratch-card.tsx"
+  ],
+  "props": [
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "The reward underneath; it sets the card's size."
+    ],
+    [
+      "foil",
+      "\"silver\" | \"gold\" | \"holo\" | \"rose\" | \"midnight\" | { colors, ink }",
+      "\"silver\"",
+      "Foil look."
+    ],
+    [
+      "label / sublabel",
+      "string",
+      "\"Scratch to reveal\" / —",
+      "Printed on the foil."
+    ],
+    [
+      "threshold",
+      "number",
+      "0.55",
+      "Share of the foil to scratch before the rest clears."
+    ],
+    [
+      "brushSize",
+      "number",
+      "22",
+      "Brush radius in points."
+    ],
+    [
+      "radius",
+      "number",
+      "20",
+      "Corner radius of the foil."
+    ],
+    [
+      "revealed",
+      "boolean",
+      "—",
+      "Controlled: true shows the reward, false puts the foil back."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Turn scratching off."
+    ],
+    [
+      "onScratchStart / onScratchEnd",
+      "() => void",
+      "—",
+      "Finger down / up — e.g. pause a parent ScrollView."
+    ],
+    [
+      "onProgress",
+      "(fraction) => void",
+      "—",
+      "0 … 1 while scratching."
+    ],
+    [
+      "onReveal",
+      "() => void",
+      "—",
+      "Once, when the foil clears."
+    ],
+    [
+      "ref",
+      "{ reveal(), reset() }",
+      "—",
+      "Clear the foil, or put a fresh one on."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Width, margins."
+    ]
+  ],
+  "examples": []
+}

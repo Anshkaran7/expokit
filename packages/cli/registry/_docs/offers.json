@@ -1,0 +1,78 @@
+{
+  "name": "offers",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Offers",
+  "files": [
+    "src/components/blocks/offers.tsx"
+  ],
+  "props": [
+    [
+      "offers",
+      "Offer[]",
+      "sample food-delivery offers",
+      "Coupon props plus { id, category?, minOrder?, saves? } — saves is an amount or (total) => amount."
+    ],
+    [
+      "featuredId",
+      "string | null",
+      "first offer",
+      "The offer shown big at the top in 3D; null hides it."
+    ],
+    [
+      "cartTotal",
+      "number",
+      "549",
+      "Decides which coupons are locked and what you save."
+    ],
+    [
+      "appliedId / defaultAppliedId / onApply",
+      "string | null / string | null / (offer | null) => void",
+      "— / null / —",
+      "Controlled or uncontrolled applied coupon; null means removed."
+    ],
+    [
+      "onRedeemCode",
+      "(code) => Offer | null | Promise<…>",
+      "match by code",
+      "Look up a typed code (e.g. on your server)."
+    ],
+    [
+      "onCopy",
+      "(code) => void",
+      "—",
+      "Code chips — wire to expo-clipboard."
+    ],
+    [
+      "onBack",
+      "() => void",
+      "—",
+      "Shows the back button."
+    ],
+    [
+      "onDone",
+      "(offer | null) => void",
+      "—",
+      "Shows the To pay footer with a Done button."
+    ],
+    [
+      "currency / formatPrice",
+      "string / (amount) => string",
+      "'₹' / Indian grouping",
+      "Money formatting."
+    ],
+    [
+      "labels",
+      "Partial<OffersLabels>",
+      "English",
+      "Every string, with {code} and {amount} placeholders."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

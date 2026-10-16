@@ -1,0 +1,234 @@
+{
+  "name": "date-picker",
+  "title": "Date Picker",
+  "tier": "free",
+  "category": "Inputs",
+  "isNew": true,
+  "previewHeight": 600,
+  "description": "A date field with a floating label and glowing focus halo that opens the Calendar in a spring sheet (drag the grabber to dismiss, a dialog on wide screens) or an anchored popover. Single or range mode, one-tap presets like Next 7 days and Next weekend, optional Clear / Done staging with a live summary, Intl formatting, error shake with an icon message and a success check.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "calendar"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "—",
+      "Rests in the field, floats onto the border when open or filled."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch) and show placeholder inside."
+    ],
+    [
+      "mode",
+      "'single' | 'range'",
+      "'single'",
+      "One date or a start / end range."
+    ],
+    [
+      "value",
+      "Date | { start, end } | null",
+      "—",
+      "Controlled value."
+    ],
+    [
+      "defaultValue",
+      "Date | { start, end } | null",
+      "null",
+      "Initial value when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(value) => void",
+      "—",
+      "Called with the committed date / range, or null when cleared."
+    ],
+    [
+      "presentation",
+      "'auto' | 'sheet' | 'dialog' | 'popover'",
+      "'auto'",
+      "auto: bottom sheet on phones, centred dialog from 640pt wide · sheet: always a bottom sheet with drag-to-dismiss · dialog: always a centred modal · popover: drops under the field."
+    ],
+    [
+      "presets",
+      "boolean | { label, value | () => value }[]",
+      "—",
+      "true adds built-in shortcuts (Today, Next 7 days, Next weekend, This month…); or pass your own."
+    ],
+    [
+      "confirm",
+      "boolean",
+      "false",
+      "Stage picks behind Clear / Done; otherwise picking (or finishing a range) closes the picker."
+    ],
+    [
+      "clearable",
+      "boolean",
+      "false",
+      "Show an × in the field that clears the value."
+    ],
+    [
+      "format",
+      "(date: Date) => string",
+      "—",
+      "Custom formatter for each date shown in the field."
+    ],
+    [
+      "formatOptions",
+      "Intl.DateTimeFormatOptions",
+      "{ day, month: 'short', year }",
+      "Intl options for the field text."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "Locale for the field and the calendar."
+    ],
+    [
+      "size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Field height 46 / 56 / 66 and type size."
+    ],
+    [
+      "placeholder",
+      "string",
+      "—",
+      "Shown in the field while open with nothing picked, and in the sheet header."
+    ],
+    [
+      "title",
+      "string",
+      "label",
+      "Sheet heading."
+    ],
+    [
+      "minDate / maxDate",
+      "Date",
+      "—",
+      "Selectable bounds; presets outside them are disabled."
+    ],
+    [
+      "isDateDisabled",
+      "(date: Date) => boolean",
+      "—",
+      "Disable individual days."
+    ],
+    [
+      "markedDates",
+      "Record<string, string | string[]>",
+      "—",
+      "Event dots, passed to Calendar."
+    ],
+    [
+      "weekStartsOn",
+      "0 | 1",
+      "0",
+      "First day of the week."
+    ],
+    [
+      "showOutsideDays",
+      "boolean",
+      "false",
+      "Show neighbouring-month days in the grid."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Red border, icon message and one shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "—",
+      "Success border and check; a string is shown under the field."
+    ],
+    [
+      "helper",
+      "string",
+      "—",
+      "Hint under the field."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims the field and blocks opening."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus, halo and selection colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Background behind the field (the label notch uses it)."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called when the picker opens or closes."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container style."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "The formatted date text in the trigger."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Label in both modes (floating and above). color is the resting colour — focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour in the trigger."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Calendar icon and clear × colour at rest (calendar turns accent while open)."
+    ],
+    [
+      "menuStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet / dialog / popover panel — background, border, radius, padding, shadow (transform and opacity are animated)."
+    ]
+  ]
+}

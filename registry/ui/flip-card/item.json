@@ -1,0 +1,91 @@
+{
+  "name": "flip-card",
+  "title": "Flip Card",
+  "tier": "free",
+  "category": "3D",
+  "description": "Two-sided card that turns over in 3D on tap — it lifts toward you half-way and its shadow narrows as it goes edge-on, like a real card. Flips left/right or top/bottom, controlled or uncontrolled, and swaps faces exactly at 90° so Android never flickers.",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "front",
+      "ReactNode",
+      "—",
+      "First face. Sets the card's size."
+    ],
+    [
+      "back",
+      "ReactNode",
+      "—",
+      "Second face, filling the same box."
+    ],
+    [
+      "flipped",
+      "boolean",
+      "—",
+      "Controlled side — true shows the back."
+    ],
+    [
+      "defaultFlipped",
+      "boolean",
+      "false",
+      "Uncontrolled initial side."
+    ],
+    [
+      "onFlip",
+      "(flipped: boolean) => void",
+      "—",
+      "Fires when tapped."
+    ],
+    [
+      "direction",
+      "\"horizontal\" | \"vertical\"",
+      "\"horizontal\"",
+      "Turn around the vertical or the horizontal axis."
+    ],
+    [
+      "trigger",
+      "\"press\" | \"none\"",
+      "\"press\"",
+      "Flip on tap, or only through `flipped`."
+    ],
+    [
+      "perspective",
+      "number",
+      "1000",
+      "Depth of the effect — smaller is more dramatic."
+    ],
+    [
+      "radius",
+      "number",
+      "20",
+      "Corner radius of both faces."
+    ],
+    [
+      "shadow",
+      "boolean",
+      "true",
+      "Soft shadow that narrows as the card turns edge-on."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Label for screen readers."
+    ],
+    [
+      "labels",
+      "{ toBack?: string; toFront?: string }",
+      "English hints",
+      "Screen-reader hints for each side."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width, margins)."
+    ]
+  ]
+}

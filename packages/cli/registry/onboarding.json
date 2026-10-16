@@ -1,0 +1,17 @@
+{
+  "name": "onboarding",
+  "type": "block",
+  "title": "Onboarding",
+  "description": "A minimal swipeable welcome flow. Illustrations float and drift with a parallax, copy slides in behind them, the active dot stretches into a pill and the round next button grows into “Get started” on the last step — all tied to the swipe. Respects Reduce Motion.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

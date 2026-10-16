@@ -1,0 +1,23 @@
+{
+  "name": "coupon",
+  "type": "component",
+  "title": "Coupon",
+  "description": "Coupons people actually want to tap — a vivid value panel (sunburst, confetti, waves…) joined to a details panel by a perforated tear line with real cut-outs. Ten themes, five outlines (ticket, stamp, receipt, scallop, cut-out), copyable code, Apply button, live countdown, applied / used / expired / locked states, a light sweep, and an optional 3D tilt with a holo sheen that flips over to the T&C.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "tilt-card",
+    "flip-card",
+    "ticket-shape"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/tilt-card.tsx",
+    "components/ui/flip-card.tsx",
+    "lib/ticket-shape.tsx"
+  ],
+  "filesDir": "coupon/files"
+}

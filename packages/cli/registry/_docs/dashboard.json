@@ -1,0 +1,120 @@
+{
+  "name": "dashboard",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Dashboard",
+  "files": [
+    "src/components/blocks/dashboard.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "{ userName?, avatar?, periods: Record<'day' | 'week' | 'month', { revenue, delta, series, labels?, kpis }>, transactions }",
+      "sample merchant",
+      "Everything the screen shows. KPIs: { id, label, value, format?: 'money' | 'count' | 'percent', delta?, trend?, invert? }. Transactions: { id, title, subtitle?, amount (signed), category?, pending? }."
+    ],
+    [
+      "currency",
+      "string",
+      "'₹'",
+      "Symbol placed before money values."
+    ],
+    [
+      "formatMoney",
+      "(value: number) => string",
+      "—",
+      "Custom money formatter (overrides currency), e.g. Intl.NumberFormat or en-IN grouping."
+    ],
+    [
+      "title",
+      "string",
+      "'Overview'",
+      "Large title."
+    ],
+    [
+      "defaultPeriod / period",
+      "'day' | 'week' | 'month'",
+      "'week'",
+      "Uncontrolled initial period, or controlled period."
+    ],
+    [
+      "onPeriodChange",
+      "(period) => void",
+      "—",
+      "Segmented control changed."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Shows skeleton placeholders for the chart, KPIs, actions and transactions."
+    ],
+    [
+      "onRefresh",
+      "() => void | Promise",
+      "—",
+      "Enables pull-to-refresh; a returned promise keeps the spinner until it settles."
+    ],
+    [
+      "refreshing",
+      "boolean",
+      "—",
+      "Controlled refreshing flag."
+    ],
+    [
+      "quickActions",
+      "{ id, label, icon: 'send' | 'request' | 'topup' | 'cards' | 'more' }[]",
+      "Send · Request · Top up · Cards",
+      "Round shortcut buttons under the KPIs."
+    ],
+    [
+      "onQuickAction",
+      "(action) => void",
+      "—",
+      "A quick action was tapped."
+    ],
+    [
+      "onSelectTransaction",
+      "(transaction) => void",
+      "—",
+      "Makes transaction rows pressable."
+    ],
+    [
+      "onSeeAllTransactions",
+      "() => void",
+      "—",
+      "Shows a “See all” link beside the section heading."
+    ],
+    [
+      "onSelectKpi",
+      "(kpi) => void",
+      "—",
+      "Makes KPI tiles pressable."
+    ],
+    [
+      "onPressAvatar / onPressNotifications",
+      "() => void",
+      "—",
+      "Header avatar and bell."
+    ],
+    [
+      "notificationBadge",
+      "boolean | number",
+      "—",
+      "Red dot on the bell."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Chart, quick action and refresh colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

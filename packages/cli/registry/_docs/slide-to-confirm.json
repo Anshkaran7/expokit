@@ -1,0 +1,84 @@
+{
+  "name": "slide-to-confirm",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "SlideToConfirm",
+  "files": [
+    "src/components/ui/slide-to-confirm.tsx"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "\"Slide to confirm\"",
+      "Shimmering text in the track."
+    ],
+    [
+      "confirmedLabel",
+      "string",
+      "\"Confirmed\"",
+      "Text once completed."
+    ],
+    [
+      "onConfirm",
+      "() => void | Promise<unknown>",
+      "—",
+      "Fires at the end. Return a promise to show a spinner in the thumb; a rejection shakes the track, flashes the danger colour and slides back."
+    ],
+    [
+      "variant",
+      "\"default\" | \"gradient\" | \"outline\" | \"compact\"",
+      "\"default\"",
+      "Tinted track with a solid thumb, opt-in two-tone gradient track with a white thumb, transparent track with a tinted hairline, or a 48pt slim track."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Thumb, trail and track colour; only the gradient variant derives a second tone from it."
+    ],
+    [
+      "icon",
+      "ReactNode",
+      "animated chevrons",
+      "Custom thumb icon."
+    ],
+    [
+      "resetAfter",
+      "number",
+      "—",
+      "Auto-reset after this many ms. Otherwise call ref.reset()."
+    ],
+    [
+      "threshold",
+      "number",
+      "0.82",
+      "Fraction of the track that confirms on release."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Ticks at 25 / 50 / 75 %, success on confirm, error on failure."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Locks the thumb."
+    ],
+    [
+      "ref",
+      "{ reset(): void }",
+      "—",
+      "Imperative reset."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the track (merged over its height, radius and colour)."
+    ]
+  ],
+  "examples": []
+}

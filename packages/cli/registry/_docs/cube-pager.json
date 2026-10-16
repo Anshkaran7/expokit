@@ -1,0 +1,84 @@
+{
+  "name": "cube-pager",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "CubePager",
+  "files": [
+    "src/components/ui/cube-pager.tsx"
+  ],
+  "props": [
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "One child per page."
+    ],
+    [
+      "height",
+      "number",
+      "260",
+      "Page height."
+    ],
+    [
+      "effect",
+      "\"cube\" | \"inside\" | \"flip\"",
+      "\"cube\"",
+      "Outside of a cube, its inner walls, or each page spinning in place."
+    ],
+    [
+      "index",
+      "number",
+      "—",
+      "Controlled page."
+    ],
+    [
+      "defaultIndex",
+      "number",
+      "0",
+      "Uncontrolled initial page."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "Fires when the page changes."
+    ],
+    [
+      "pagination",
+      "boolean",
+      "true",
+      "Dots under the pager."
+    ],
+    [
+      "shade",
+      "boolean",
+      "true",
+      "Darken faces as they turn away."
+    ],
+    [
+      "accent",
+      "string",
+      "theme foreground",
+      "Active dot colour."
+    ],
+    [
+      "radius",
+      "number",
+      "20",
+      "Corner radius of the pages."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Turn swiping off (dots and a controlled index still work)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view."
+    ]
+  ],
+  "examples": []
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ring-carousel",
+  "type": "component",
+  "title": "Ring Carousel",
+  "description": "Cards on a 3D ring you spin with a swipe — it loops forever, snaps with flick momentum, and neighbours turn, shrink and fall into shadow as they go round the back, each with a real shadow. Tap a side card to turn to it; optional autoplay.",
+  "tier": "pro",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

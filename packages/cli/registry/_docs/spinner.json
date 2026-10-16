@@ -1,0 +1,91 @@
+{
+  "name": "spinner",
+  "category": "Feedback",
+  "aliases": [],
+  "exportName": "Spinner",
+  "files": [
+    "src/components/ui/spinner.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"ring\" | \"dots\"",
+      "\"ring\"",
+      "Indicator style."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\" | \"xl\" | number",
+      "\"md\"",
+      "16 / 24 / 36 / 52pt, or any number."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Indicator colour."
+    ],
+    [
+      "speed",
+      "number",
+      "1",
+      "Speed multiplier."
+    ],
+    [
+      "label",
+      "string",
+      "\"Loading\"",
+      "Accessibility label; shown on screen when labelPosition is set."
+    ],
+    [
+      "labelPosition",
+      "\"none\" | \"right\" | \"bottom\"",
+      "\"none\"",
+      "Show the label beside or under the spinner, with an animated ellipsis."
+    ],
+    [
+      "track",
+      "boolean",
+      "false",
+      "Faint full circle behind the ring."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view (the square, or the spinner + label row/column)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "title": "Variants",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Spinner } from '@/components/ui/spinner';\n\nexport default function Variants() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 40 }}>\n      <Spinner variant=\"ring\" size=\"lg\" track />\n      <Spinner variant=\"ring\" size=\"lg\" />\n      <Spinner variant=\"dots\" size=\"lg\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "InButton",
+      "title": "In Button",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { Spinner } from '@/components/ui/spinner';\nimport { readableOn, useKit } from '@/lib/kit';\n\nexport default function InButton() {\n  const { colors, radius } = useKit();\n  const [busy, setBusy] = useState(false);\n  const fg = readableOn(colors.accent);\n  return (\n    <Pressable\n      accessibilityRole=\"button\"\n      accessibilityState={{ busy }}\n      onPress={() => {\n        setBusy(true);\n        setTimeout(() => setBusy(false), 2200);\n      }}\n      style={{\n        height: 48,\n        borderRadius: radius.capsule(48),\n        backgroundColor: colors.accent,\n        alignItems: 'center',\n        justifyContent: 'center',\n        alignSelf: 'stretch',\n      }}\n    >\n      {busy ? (\n        <Spinner size=\"sm\" color={fg} label=\"Placing order\" labelPosition=\"right\" />\n      ) : (\n        <Text style={{ color: fg, fontSize: 16, fontWeight: '400' }}>Place order · ₹749</Text>\n      )}\n    </Pressable>\n  );\n}\n"
+    },
+    {
+      "name": "LoadingCard",
+      "title": "Loading Card",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Spinner } from '@/components/ui/spinner';\nimport { readableOn, useKit } from '@/lib/kit';\n\nexport default function LoadingCard() {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        alignSelf: 'stretch',\n        alignItems: 'center',\n        gap: 6,\n        paddingVertical: 32,\n        paddingHorizontal: 20,\n        borderRadius: radius.lg,\n        backgroundColor: colors.card,\n        borderWidth: 1,\n        borderColor: colors.border,\n      }}\n    >\n      <Spinner size=\"xl\" track label=\"Preparing your itinerary\" labelPosition=\"bottom\" />\n      <Text style={{ fontSize: 13, color: colors.mutedForeground, textAlign: 'center' }}>\n        Checking 3 flights and 2 hotels\n      </Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "InlineStatus",
+      "title": "Inline Status",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Spinner } from '@/components/ui/spinner';\n\nexport default function InlineStatus() {\n  return (\n    <View style={{ gap: 16 }}>\n      <Spinner size=\"sm\" label=\"Syncing 128 photos\" labelPosition=\"right\" />\n      <Spinner variant=\"dots\" size=\"md\" label=\"Maya is typing\" labelPosition=\"right\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Colors",
+      "title": "Colors",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Spinner } from '@/components/ui/spinner';\nimport { readableOn, useKit } from '@/lib/kit';\n\nexport default function Colors() {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', gap: 20 }}>\n      <Spinner size=\"lg\" color={colors.success} track />\n      <Spinner variant=\"dots\" size=\"lg\" color={colors.warning} />\n      <Spinner size=\"lg\" color={colors.danger} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Spinner } from '@/components/ui/spinner';\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 }}>\n      <Spinner size=\"sm\" />\n      <Spinner size=\"md\" />\n      <Spinner size=\"lg\" />\n      <Spinner size=\"xl\" />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

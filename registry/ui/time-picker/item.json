@@ -1,0 +1,227 @@
+{
+  "name": "time-picker",
+  "title": "Time Picker",
+  "tier": "free",
+  "category": "Inputs",
+  "previewHeight": 560,
+  "isNew": true,
+  "description": "Time input in three styles: iOS-style wheel drums whose rows tilt, shrink and fade past an inset selection band (scroll-driven on the native driver, momentum snapping, tap a row to jump); a Material 3-style clock face with a big hh : mm header, AM / PM toggle and a hand you drag anywhere on the dial — it snaps to hours, then crossfades to minutes; or a grid of bookable time chips with struck-through booked slots and Morning / Afternoon / Evening groups. Render any of them inline or as a floating-label field that opens it in a drag-to-dismiss sheet.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "value",
+      "{ hours, minutes } | null",
+      "—",
+      "Controlled 24-hour time."
+    ],
+    [
+      "defaultValue",
+      "{ hours, minutes } | null",
+      "null",
+      "Initial time when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(time: TimeValue) => void",
+      "—",
+      "Called when a wheel settles, the clock hand snaps or a chip is picked (or on Set when staged)."
+    ],
+    [
+      "variant",
+      "'wheel' | 'chips' | 'clock'",
+      "'wheel'",
+      "3D wheel drums, a grid of time slots, or an analog dial (24-hour mode adds an inner 13–00 ring)."
+    ],
+    [
+      "presentation",
+      "'inline' | 'sheet'",
+      "'inline'",
+      "Render in place, or as a field that opens a bottom sheet."
+    ],
+    [
+      "hour12",
+      "boolean",
+      "from locale",
+      "12-hour clock: an AM / PM column on the wheel, an AM / PM toggle on the clock."
+    ],
+    [
+      "minuteInterval",
+      "number",
+      "1 (wheel, clock) · 30 (chips)",
+      "Minute step for the wheel and the clock hand (the dial labels every 5); slot spacing for chips."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "Used to pick 12h / 24h when hour12 is not set."
+    ],
+    [
+      "startTime",
+      "'HH:mm' | TimeValue",
+      "'09:00'",
+      "Chips: first slot."
+    ],
+    [
+      "endTime",
+      "'HH:mm' | TimeValue",
+      "'17:00'",
+      "Chips: closing time (exclusive)."
+    ],
+    [
+      "slots",
+      "('HH:mm' | TimeValue)[]",
+      "—",
+      "Chips: explicit slot list instead of start / end / interval."
+    ],
+    [
+      "bookedTimes",
+      "('HH:mm' | TimeValue)[]",
+      "—",
+      "Chips: taken slots, struck through and not selectable."
+    ],
+    [
+      "disabledTimes",
+      "('HH:mm' | TimeValue)[]",
+      "—",
+      "Chips: slots unavailable for another reason (faded)."
+    ],
+    [
+      "columns",
+      "number",
+      "3",
+      "Chips per row."
+    ],
+    [
+      "groupByPeriod",
+      "boolean",
+      "false",
+      "Chips: Morning / Afternoon / Evening headings with an open-slot count."
+    ],
+    [
+      "label",
+      "string",
+      "'Time'",
+      "Sheet: field label."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Sheet: set to false to put the label above the field as static text (no notch) and show placeholder inside."
+    ],
+    [
+      "title",
+      "string",
+      "label",
+      "Sheet: heading."
+    ],
+    [
+      "placeholder",
+      "string",
+      "'Select a time'",
+      "Sheet: shown while nothing is picked."
+    ],
+    [
+      "size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Sheet: field height and type size."
+    ],
+    [
+      "confirm",
+      "boolean",
+      "true for wheel and clock",
+      "Sheet: stage the choice behind Cancel / Set; chips otherwise close on pick."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Sheet: red border, icon message and a shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "—",
+      "Sheet: success border and check; a string is shown under the field."
+    ],
+    [
+      "helper",
+      "string",
+      "—",
+      "Sheet: hint under the field."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Sheet: dims the field and blocks opening."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selection band, clock hand and active segment, focus and halo colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Sheet: background behind the field (label notch)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the wheel, clock, slot grid or field wrapper, depending on variant and presentation."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet: the trigger box — background, border, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (open, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Sheet: the formatted time text in the trigger."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Sheet: label in both modes. color is the resting colour — open (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Sheet: helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Sheet: placeholder colour in the trigger."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Sheet: clock icon colour at rest (accent while open)."
+    ],
+    [
+      "menuStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet: the sheet / dialog panel — background, border, radius, padding, shadow (transform and opacity are animated)."
+    ]
+  ]
+}

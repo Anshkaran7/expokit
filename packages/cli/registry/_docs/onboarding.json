@@ -1,0 +1,66 @@
+{
+  "name": "onboarding",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Onboarding",
+  "files": [
+    "src/components/blocks/onboarding.tsx"
+  ],
+  "props": [
+    [
+      "steps",
+      "{ title, body, illustration?, color? }[]",
+      "3 product steps",
+      "Pages to show. illustration is a node or 'capture' | 'insights' | 'together'."
+    ],
+    [
+      "onDone",
+      "() => void",
+      "—",
+      "Pressed the final button."
+    ],
+    [
+      "onSkip",
+      "() => void",
+      "onDone",
+      "Pressed Skip."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "The visible step changed."
+    ],
+    [
+      "skipLabel",
+      "string",
+      "'Skip'",
+      "Skip button text."
+    ],
+    [
+      "nextLabel",
+      "string",
+      "'Next'",
+      "Accessibility label of the round next button."
+    ],
+    [
+      "doneLabel",
+      "string",
+      "'Get started'",
+      "Button text on the last step."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Active dot, primary button and built-in illustration colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

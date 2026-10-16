@@ -1,0 +1,253 @@
+{
+  "name": "time-picker",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "TimePicker",
+  "files": [
+    "src/components/ui/time-picker.tsx"
+  ],
+  "props": [
+    [
+      "value",
+      "{ hours, minutes } | null",
+      "—",
+      "Controlled 24-hour time."
+    ],
+    [
+      "defaultValue",
+      "{ hours, minutes } | null",
+      "null",
+      "Initial time when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(time: TimeValue) => void",
+      "—",
+      "Called when a wheel settles, the clock hand snaps or a chip is picked (or on Set when staged)."
+    ],
+    [
+      "variant",
+      "'wheel' | 'chips' | 'clock'",
+      "'wheel'",
+      "3D wheel drums, a grid of time slots, or an analog dial (24-hour mode adds an inner 13–00 ring)."
+    ],
+    [
+      "presentation",
+      "'inline' | 'sheet'",
+      "'inline'",
+      "Render in place, or as a field that opens a bottom sheet."
+    ],
+    [
+      "hour12",
+      "boolean",
+      "from locale",
+      "12-hour clock: an AM / PM column on the wheel, an AM / PM toggle on the clock."
+    ],
+    [
+      "minuteInterval",
+      "number",
+      "1 (wheel, clock) · 30 (chips)",
+      "Minute step for the wheel and the clock hand (the dial labels every 5); slot spacing for chips."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "Used to pick 12h / 24h when hour12 is not set."
+    ],
+    [
+      "startTime",
+      "'HH:mm' | TimeValue",
+      "'09:00'",
+      "Chips: first slot."
+    ],
+    [
+      "endTime",
+      "'HH:mm' | TimeValue",
+      "'17:00'",
+      "Chips: closing time (exclusive)."
+    ],
+    [
+      "slots",
+      "('HH:mm' | TimeValue)[]",
+      "—",
+      "Chips: explicit slot list instead of start / end / interval."
+    ],
+    [
+      "bookedTimes",
+      "('HH:mm' | TimeValue)[]",
+      "—",
+      "Chips: taken slots, struck through and not selectable."
+    ],
+    [
+      "disabledTimes",
+      "('HH:mm' | TimeValue)[]",
+      "—",
+      "Chips: slots unavailable for another reason (faded)."
+    ],
+    [
+      "columns",
+      "number",
+      "3",
+      "Chips per row."
+    ],
+    [
+      "groupByPeriod",
+      "boolean",
+      "false",
+      "Chips: Morning / Afternoon / Evening headings with an open-slot count."
+    ],
+    [
+      "label",
+      "string",
+      "'Time'",
+      "Sheet: field label."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Sheet: set to false to put the label above the field as static text (no notch) and show placeholder inside."
+    ],
+    [
+      "title",
+      "string",
+      "label",
+      "Sheet: heading."
+    ],
+    [
+      "placeholder",
+      "string",
+      "'Select a time'",
+      "Sheet: shown while nothing is picked."
+    ],
+    [
+      "size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Sheet: field height and type size."
+    ],
+    [
+      "confirm",
+      "boolean",
+      "true for wheel and clock",
+      "Sheet: stage the choice behind Cancel / Set; chips otherwise close on pick."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Sheet: red border, icon message and a shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "—",
+      "Sheet: success border and check; a string is shown under the field."
+    ],
+    [
+      "helper",
+      "string",
+      "—",
+      "Sheet: hint under the field."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Sheet: dims the field and blocks opening."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selection band, clock hand and active segment, focus and halo colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Sheet: background behind the field (label notch)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the wheel, clock, slot grid or field wrapper, depending on variant and presentation."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet: the trigger box — background, border, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (open, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Sheet: the formatted time text in the trigger."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Sheet: label in both modes. color is the resting colour — open (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Sheet: helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Sheet: placeholder colour in the trigger."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Sheet: clock icon colour at rest (accent while open)."
+    ],
+    [
+      "menuStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet: the sheet / dialog panel — background, border, radius, padding, shadow (transform and opacity are animated)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Alarm",
+      "title": "Alarm",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\n/** \"in 7 h 20 min\" until the next occurrence of `t`. */\nfunction until(t: TimeValue) {\n  const now = new Date();\n  let diff = t.hours * 60 + t.minutes - (now.getHours() * 60 + now.getMinutes());\n  if (diff <= 0) diff += 24 * 60;\n  const h = Math.floor(diff / 60);\n  return h ? `in ${h} h ${diff % 60} min` : `in ${diff} min`;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },\n  headText: { flexShrink: 1, gap: 2 },\n  title: { fontSize: 15, fontWeight: '400' },\n  meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },\n  hint: { fontSize: 12.5, textAlign: 'center' },\n  note: { paddingVertical: 10, alignItems: 'center' },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonOff: { opacity: 0.45 },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Alarm() {\n  const [time, setTime] = useState<TimeValue>({ hours: 6, minutes: 45 });\n  return (\n    <Card>\n      <View style={s.head}>\n        <View style={s.headText}>\n          <Ink style={s.title}>Wake up</Ink>\n          <Ink tone=\"muted\" style={s.meta}>Weekdays · Radar</Ink>\n        </View>\n        <Ink tone=\"muted\" style={s.meta}>{until(time)}</Ink>\n      </View>\n      <TimePicker value={time} onChange={setTime} hour12 />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Clock",
+      "title": "Clock",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\n/** \"in 7 h 20 min\" until the next occurrence of `t`. */\nfunction until(t: TimeValue) {\n  const now = new Date();\n  let diff = t.hours * 60 + t.minutes - (now.getHours() * 60 + now.getMinutes());\n  if (diff <= 0) diff += 24 * 60;\n  const h = Math.floor(diff / 60);\n  return h ? `in ${h} h ${diff % 60} min` : `in ${diff} min`;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },\n  headText: { flexShrink: 1, gap: 2 },\n  title: { fontSize: 15, fontWeight: '400' },\n  meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },\n  hint: { fontSize: 12.5, textAlign: 'center' },\n  note: { paddingVertical: 10, alignItems: 'center' },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonOff: { opacity: 0.45 },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Clock() {\n  const { colors, radius } = useKit();\n  const [time, setTime] = useState<TimeValue>({ hours: 7, minutes: 30 });\n  return (\n    <Card>\n      <View style={s.headText}>\n        <Ink style={s.title}>Morning run</Ink>\n        <Ink tone=\"muted\" style={s.meta}>Tap the hour or minute, then drag the dial.</Ink>\n      </View>\n      <TimePicker variant=\"clock\" value={time} onChange={setTime} hour12 />\n      <View style={[s.note, { backgroundColor: colors.muted, borderRadius: radius.md }]}>\n        <Ink tone=\"muted\" style={s.meta}>Rings {until(time)}</Ink>\n      </View>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Appointment",
+      "title": "Appointment",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },\n  headText: { flexShrink: 1, gap: 2 },\n  title: { fontSize: 15, fontWeight: '400' },\n  meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },\n  hint: { fontSize: 12.5, textAlign: 'center' },\n  note: { paddingVertical: 10, alignItems: 'center' },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonOff: { opacity: 0.45 },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Appointment() {\n  const { colors, radius } = useKit();\n  const [slot, setSlot] = useState<TimeValue | null>(null);\n  return (\n    <Card>\n      <Ink style={s.title}>Dr. Amara Okafor · Dermatology</Ink>\n      <TimePicker\n        variant=\"chips\"\n        value={slot}\n        onChange={setSlot}\n        hour12\n        startTime=\"09:00\"\n        endTime=\"18:00\"\n        minuteInterval={30}\n        bookedTimes={['09:30', '10:00', '11:30', '13:00', '14:30', '15:00', '17:30']}\n        disabledTimes={['12:00', '12:30']}\n        groupByPeriod\n      />\n      <Pressable\n        disabled={!slot}\n        style={[s.button, { backgroundColor: colors.accent, borderRadius: radius.md }, !slot && s.buttonOff]}\n        accessibilityRole=\"button\"\n      >\n        <Text style={[s.buttonText, { color: colors.accentForeground }]}>{slot ? `Book ${formatTime(slot)} · 30 min` : 'Choose a time'}</Text>\n      </Pressable>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Reminder",
+      "title": "Reminder",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },\n  headText: { flexShrink: 1, gap: 2 },\n  title: { fontSize: 15, fontWeight: '400' },\n  meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },\n  hint: { fontSize: 12.5, textAlign: 'center' },\n  note: { paddingVertical: 10, alignItems: 'center' },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonOff: { opacity: 0.45 },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Reminder() {\n  const [time, setTime] = useState<TimeValue>({ hours: 21, minutes: 30 });\n  return (\n    <Card>\n      <View style={s.head}>\n        <Ink style={s.title}>Daily journal reminder</Ink>\n        <Ink tone=\"muted\" style={s.meta}>{formatTime(time, false)}</Ink>\n      </View>\n      <TimePicker value={time} onChange={setTime} hour12={false} minuteInterval={15} />\n      <Ink tone=\"muted\" style={s.hint}>24-hour clock, 15-minute steps.</Ink>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "InSheet",
+      "title": "In Sheet",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },\n  headText: { flexShrink: 1, gap: 2 },\n  title: { fontSize: 15, fontWeight: '400' },\n  meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },\n  hint: { fontSize: 12.5, textAlign: 'center' },\n  note: { paddingVertical: 10, alignItems: 'center' },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonOff: { opacity: 0.45 },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function InSheet() {\n  const [pickup, setPickup] = useState<TimeValue | null>({ hours: 18, minutes: 15 });\n  const [delivery, setDelivery] = useState<TimeValue | null>(null);\n  return (\n    <Card>\n      <Ink style={s.title}>Order #4821 · Green Basket</Ink>\n      <TimePicker presentation=\"sheet\" label=\"Pickup time\" title=\"When will you pick up?\" value={pickup} onChange={setPickup} minuteInterval={5} hour12 />\n      <TimePicker\n        presentation=\"sheet\"\n        variant=\"chips\"\n        label=\"Delivery slot\"\n        title=\"Choose a delivery slot\"\n        value={delivery}\n        onChange={setDelivery}\n        hour12\n        startTime=\"08:00\"\n        endTime=\"21:00\"\n        minuteInterval={60}\n        bookedTimes={['08:00', '12:00', '18:00']}\n        groupByPeriod\n        success={delivery ? 'Free delivery in this slot' : undefined}\n        helper=\"We'll text you when the driver is close.\"\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "ClockInSheet",
+      "title": "Clock In Sheet",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },\n  headText: { flexShrink: 1, gap: 2 },\n  title: { fontSize: 15, fontWeight: '400' },\n  meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },\n  hint: { fontSize: 12.5, textAlign: 'center' },\n  note: { paddingVertical: 10, alignItems: 'center' },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonOff: { opacity: 0.45 },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function ClockInSheet() {\n  const [start, setStart] = useState<TimeValue | null>({ hours: 9, minutes: 0 });\n  const [end, setEnd] = useState<TimeValue | null>(null);\n  return (\n    <Card>\n      <Ink style={s.title}>Focus block · Thursday</Ink>\n      <TimePicker presentation=\"sheet\" variant=\"clock\" label=\"Starts\" title=\"Start time\" value={start} onChange={setStart} hour12 />\n      <TimePicker\n        presentation=\"sheet\"\n        variant=\"clock\"\n        label=\"Ends\"\n        title=\"End time\"\n        value={end}\n        onChange={setEnd}\n        minuteInterval={5}\n        hour12\n        helper=\"Snaps to 5-minute steps.\"\n      />\n    </Card>\n  );\n}\n"
+    }
+  ]
+}

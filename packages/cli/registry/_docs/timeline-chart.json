@@ -1,0 +1,30 @@
+{
+  "name": "timeline-chart",
+  "category": "Charts",
+  "aliases": [],
+  "exportName": "TimelineChart",
+  "files": [
+    "src/components/charts/timeline-chart.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "{ label, start, end, progress? }[]",
+      "—",
+      "Tasks."
+    ],
+    [
+      "marker",
+      "{ value, label? }",
+      "—",
+      "Vertical marker."
+    ],
+    [
+      "formatTick",
+      "(v) => string",
+      "compact",
+      "Axis labels."
+    ]
+  ],
+  "examples": []
+}

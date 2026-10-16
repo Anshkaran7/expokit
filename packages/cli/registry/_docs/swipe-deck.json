@@ -1,0 +1,102 @@
+{
+  "name": "swipe-deck",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "SwipeDeck",
+  "files": [
+    "src/components/ui/swipe-deck.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "T[]",
+      "—",
+      "Items, one card each (top first)."
+    ],
+    [
+      "renderItem",
+      "(item: T, index: number) => ReactNode",
+      "—",
+      "Render a card."
+    ],
+    [
+      "keyExtractor",
+      "(item: T, index: number) => string",
+      "index",
+      "React key for each card."
+    ],
+    [
+      "height",
+      "number",
+      "380",
+      "Card height."
+    ],
+    [
+      "onSwipe",
+      "(direction, item, index) => void",
+      "—",
+      "Fires when a card leaves, with \"left\" or \"right\"."
+    ],
+    [
+      "index / onIndexChange",
+      "number / (index) => void",
+      "— / —",
+      "Controlled top card; a fresh batch (first key changed) starts from the top on its own."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Swiping off (e.g. out of likes)."
+    ],
+    [
+      "onEmpty",
+      "() => void",
+      "—",
+      "Fires once every card is gone."
+    ],
+    [
+      "renderEmpty",
+      "() => ReactNode",
+      "—",
+      "Shown when the deck is empty."
+    ],
+    [
+      "rightLabel / leftLabel",
+      "string | null",
+      "\"LIKE\" / \"NOPE\"",
+      "Stamp shown while dragging; null hides it."
+    ],
+    [
+      "rightColor / leftColor",
+      "string",
+      "theme success / danger",
+      "Stamp colours."
+    ],
+    [
+      "stack",
+      "number",
+      "2",
+      "Cards visible behind the top one."
+    ],
+    [
+      "radius",
+      "number",
+      "24",
+      "Corner radius of each card."
+    ],
+    [
+      "ref",
+      "{ swipe(direction), undo() }",
+      "—",
+      "Throw the top card from a button, or bring the last one back; reset() starts again from the first card."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view."
+    ]
+  ],
+  "examples": []
+}

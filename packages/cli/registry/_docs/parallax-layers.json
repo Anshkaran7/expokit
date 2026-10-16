@@ -1,0 +1,84 @@
+{
+  "name": "parallax-layers",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "ParallaxLayers",
+  "files": [
+    "src/components/ui/parallax-layers.tsx"
+  ],
+  "props": [
+    [
+      "children",
+      "ParallaxLayer[]",
+      "—",
+      "Layers, back to front."
+    ],
+    [
+      "height",
+      "number",
+      "260",
+      "Scene height."
+    ],
+    [
+      "travel",
+      "number",
+      "22",
+      "How far a depth-1 layer moves, in points."
+    ],
+    [
+      "tilt",
+      "number",
+      "8",
+      "Scene tilt in degrees; 0 for flat parallax."
+    ],
+    [
+      "idle",
+      "boolean",
+      "true",
+      "Drift on its own while untouched."
+    ],
+    [
+      "clip",
+      "boolean",
+      "true",
+      "Clip layers to the scene's rounded box."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Describes the scene for screen readers."
+    ],
+    [
+      "radius",
+      "number",
+      "24",
+      "Corner radius of the scene."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the scene."
+    ],
+    [
+      "ParallaxLayer.depth",
+      "number",
+      "0.5",
+      "0 stays put, 1 moves the full travel, negative moves the other way."
+    ],
+    [
+      "ParallaxLayer.scale",
+      "number",
+      "far layers grow slightly",
+      "Extra scale; far layers (depth ≤ 0.35) grow just enough to hide their edges."
+    ],
+    [
+      "ParallaxLayer.style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the layer (it fills the scene)."
+    ]
+  ],
+  "examples": []
+}

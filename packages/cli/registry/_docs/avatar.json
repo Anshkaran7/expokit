@@ -1,0 +1,203 @@
+{
+  "name": "avatar",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "Avatar",
+  "files": [
+    "src/components/ui/avatar.tsx"
+  ],
+  "props": [
+    [
+      "src",
+      "string",
+      "—",
+      "Image URL. Fades in over the initials; falls back to them on error."
+    ],
+    [
+      "name",
+      "string",
+      "—",
+      "Initials, the deterministic fallback colour and the accessibility label."
+    ],
+    [
+      "size",
+      "\"xs\" | \"sm\" | \"md\" | \"lg\" | \"xl\" | number",
+      "\"md\"",
+      "24 / 32 / 40 / 56 / 72pt, or any number."
+    ],
+    [
+      "shape",
+      "\"circle\" | \"rounded\"",
+      "\"circle\"",
+      "Circle or rounded square (follows the kit radius)."
+    ],
+    [
+      "fallback",
+      "\"soft\" | \"solid\" | \"gradient\"",
+      "\"soft\"",
+      "Soft tint with deep ink, flat fill, or an opt-in two-tone gradient."
+    ],
+    [
+      "status",
+      "\"online\" | \"away\" | \"busy\" | \"offline\"",
+      "—",
+      "Presence dot in a ring cut-out: filled, crescent, bar, hollow."
+    ],
+    [
+      "pulse",
+      "boolean",
+      "true when online",
+      "Soft pulse behind the dot (off with reduce motion)."
+    ],
+    [
+      "ring",
+      "\"none\" | \"story\" | \"accent\" | \"seen\"",
+      "\"none\"",
+      "Solid accent ring with a clear gap. \"seen\" = story + seen."
+    ],
+    [
+      "seen",
+      "boolean",
+      "false",
+      "Story watched: the ring cross-fades to a quiet hairline."
+    ],
+    [
+      "ringColors",
+      "string[]",
+      "sunset",
+      "Ring colour override; the first entry is used as a solid colour."
+    ],
+    [
+      "ringSpin",
+      "boolean",
+      "false",
+      "Broken ring that spins — a loading story (circle only)."
+    ],
+    [
+      "verified",
+      "boolean",
+      "false",
+      "Rosette seal with a check, bottom-right (bottom-left if a status dot is shown)."
+    ],
+    [
+      "badge",
+      "number | boolean",
+      "—",
+      "Notification count (99+), or true for a dot, top-right."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the avatar; cut-outs and group borders use it."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Ring and verified seal colour."
+    ],
+    [
+      "elevated",
+      "boolean",
+      "true for 72pt+",
+      "Soft drop shadow under the face."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Makes it a button with spring press feedback."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light haptic tick on press."
+    ],
+    [
+      "AvatarGroup.max",
+      "number",
+      "4",
+      "Avatars shown before the +N chip."
+    ],
+    [
+      "AvatarGroup.total",
+      "number",
+      "children count",
+      "Real total when larger than what you pass."
+    ],
+    [
+      "AvatarGroup.overlap",
+      "number",
+      "0.28",
+      "Overlap as a fraction of the size."
+    ],
+    [
+      "AvatarGroup.surface",
+      "string",
+      "theme background",
+      "Colour of the separating borders — match the parent."
+    ],
+    [
+      "AvatarGroup.animated",
+      "boolean",
+      "true",
+      "Staggered spring-in on mount."
+    ],
+    [
+      "AvatarGroup.onPressMore",
+      "() => void",
+      "—",
+      "Makes the +N chip a button."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the avatar root; AvatarGroup applies it to its row."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "ProfileHeader",
+      "title": "Profile Header",
+      "code": "import { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function ProfileHeader() {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View\n      style={{\n        alignItems: 'center',\n        gap: 12,\n        paddingVertical: 20,\n        paddingHorizontal: 16,\n        borderRadius: radius.xl,\n        backgroundColor: colors.card,\n        borderWidth: 1,\n        borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06),\n      }}\n    >\n      <Avatar\n        size={88}\n        src=\"https://i.pravatar.cc/240?img=47\"\n        name=\"Ava Rossi\"\n        ring=\"story\"\n        verified\n        surface={colors.card}\n        elevated\n      />\n      <View style={{ alignItems: 'center', gap: 2 }}>\n        <Text style={{ fontSize: 19, fontWeight: '400', letterSpacing: -0.3, color: colors.foreground }}>Ava Rossi</Text>\n        <Text style={{ fontSize: 14, color: colors.mutedForeground }}>Product designer · Milan</Text>\n      </View>\n      <View style={{ flexDirection: 'row', gap: 24, marginTop: 4 }}>\n        {[\n          ['248', 'Posts'],\n          ['12.4k', 'Followers'],\n          ['311', 'Following'],\n        ].map(([n, l]) => (\n          <View key={l} style={{ alignItems: 'center' }}>\n            <Text style={{ fontSize: 16, color: colors.foreground, fontVariant: ['tabular-nums'] }}>{n}</Text>\n            <Text style={{ fontSize: 12, color: colors.mutedForeground }}>{l}</Text>\n          </View>\n        ))}\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "ChatList",
+      "title": "Chat List",
+      "code": "import { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function ChatList() {\n  const { colors } = useKit();\n  const chats = [\n    { name: 'Noah Kim', src: 'https://i.pravatar.cc/150?img=59', status: 'online', msg: 'Pushed the fix — can you re-test?', time: '9:41', unread: 2 },\n    { name: 'Priya Patel', status: 'away', msg: 'Sounds good, see you at 3.', time: '9:12', unread: 0 },\n    { name: 'Diego Alvarez', src: 'https://i.pravatar.cc/150?img=12', status: 'busy', msg: 'In a call until noon', time: 'Mon', unread: 0 },\n    { name: 'Hannah Lee', status: 'offline', msg: 'Thanks for the notes!', time: 'Sun', unread: 0 },\n  ] as const;\n  return (\n    <View>\n      {chats.map((c, i) => (\n        <View\n          key={c.name}\n          style={{\n            flexDirection: 'row',\n            alignItems: 'center',\n            gap: 12,\n            paddingVertical: 10,\n            borderTopWidth: i ? 1 : 0,\n            borderTopColor: alpha(colors.foreground, 0.06),\n          }}\n        >\n          <Avatar size={48} name={c.name} src={'src' in c ? c.src : undefined} status={c.status} />\n          <View style={{ flex: 1, minWidth: 0 }}>\n            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>\n              <Text style={{ fontSize: 15, color: colors.foreground }}>{c.name}</Text>\n              <Text style={{ fontSize: 12, color: c.unread ? colors.accent : colors.mutedForeground }}>{c.time}</Text>\n            </View>\n            <Text numberOfLines={1} style={{ fontSize: 14, color: colors.mutedForeground, marginTop: 2 }}>\n              {c.msg}\n            </Text>\n          </View>\n        </View>\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Stories",
+      "title": "Stories",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Stories() {\n  const { colors } = useKit();\n  const [seen, setSeen] = useState<string[]>(['Theo']);\n  const people = [\n    { name: 'Kai Müller', short: 'Kai', img: 11 },\n    { name: 'Mila Novak', short: 'Mila', img: 25 },\n    { name: 'Theo Grant', short: 'Theo', img: 33 },\n    { name: 'Nora Ali', short: 'Nora', img: 41 },\n    { name: 'Sam Ortiz', short: 'Sam', img: 0 },\n    { name: 'Lucía Romero', short: 'Lucía', img: 44 },\n  ];\n  return (\n    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingRight: 8 }}>\n      {people.map((p, i) => (\n        <View key={p.short} style={{ alignItems: 'center', gap: 6 }}>\n          <Avatar\n            size=\"lg\"\n            src={p.img ? `https://i.pravatar.cc/150?img=${p.img}` : undefined}\n            name={p.name}\n            ring=\"story\"\n            seen={seen.includes(p.short)}\n            ringSpin={i === 1 && !seen.includes(p.short)}\n            onPress={() => setSeen((s) => (s.includes(p.short) ? s.filter((n) => n !== p.short) : [...s, p.short]))}\n          />\n          <Text style={{ fontSize: 12, color: seen.includes(p.short) ? colors.mutedForeground : colors.foreground }}>{p.short}</Text>\n        </View>\n      ))}\n    </ScrollView>\n  );\n}\n"
+    },
+    {
+      "name": "Group",
+      "title": "Group",
+      "code": "import { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Group() {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View style={{ gap: 14 }}>\n      <View\n        style={{\n          padding: 14,\n          gap: 12,\n          borderRadius: radius.lg,\n          backgroundColor: colors.card,\n          borderWidth: 1,\n          borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06),\n        }}\n      >\n        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>\n          <View>\n            <Text style={{ fontSize: 15, color: colors.foreground }}>Mobile launch</Text>\n            <Text style={{ fontSize: 13, color: colors.mutedForeground }}>Design · Engineering</Text>\n          </View>\n          <AvatarGroup max={4} total={9} surface={colors.card} size=\"sm\" onPressMore={() => {}}>\n            {[8, 16, 26, 36, 48].map((n, i) => (\n              <Avatar key={n} src={`https://i.pravatar.cc/150?img=${n}`} name={['Maya Chen', 'Leo Park', 'Ava Rossi', 'Noah Kim', 'Zoe Martin'][i]} />\n            ))}\n          </AvatarGroup>\n        </View>\n      </View>\n      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>\n        <AvatarGroup size=\"sm\" max={3} total={1284}>\n          <Avatar name=\"Ana Silva\" />\n          <Avatar name=\"Ben Carter\" />\n          <Avatar name=\"Chloe Dubois\" />\n        </AvatarGroup>\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>1,284 members</Text>\n      </View>\n      <AvatarGroup size=\"lg\" shape=\"rounded\" max={5}>\n        {['Priya Patel', 'Omar Haddad', 'Sven Larsen', 'Iris Okafor'].map((n) => (\n          <Avatar key={n} name={n} />\n        ))}\n      </AvatarGroup>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Fallbacks",
+      "title": "Fallbacks",
+      "code": "import { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\n\nexport default function Fallbacks() {\n  const names = ['Priya Patel', 'Diego Alvarez', 'Hannah Lee', 'Omar Haddad', 'Sven Larsen'];\n  return (\n    <View style={{ gap: 14 }}>\n      <View style={{ flexDirection: 'row', gap: 12 }}>\n        {names.map((n) => (\n          <Avatar key={n} name={n} size=\"lg\" />\n        ))}\n      </View>\n      <View style={{ flexDirection: 'row', gap: 12 }}>\n        {names.map((n) => (\n          <Avatar key={n} name={n} size=\"lg\" fallback=\"solid\" />\n        ))}\n      </View>\n      <View style={{ flexDirection: 'row', gap: 12 }}>\n        {names.slice(0, 3).map((n) => (\n          <Avatar key={n} name={n} size=\"lg\" shape=\"rounded\" fallback=\"gradient\" />\n        ))}\n        <Avatar size=\"lg\" shape=\"rounded\" src=\"https://example.invalid/broken.jpg\" name=\"Kenji Watanabe\" />\n        <Avatar size=\"lg\" />\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 12 }}>\n      <Avatar size=\"xs\" src=\"https://i.pravatar.cc/150?img=32\" name=\"Maya Chen\" />\n      <Avatar size=\"sm\" src=\"https://i.pravatar.cc/150?img=12\" name=\"Leo Park\" status=\"online\" />\n      <Avatar size=\"md\" name=\"Ava Rossi\" status=\"away\" />\n      <Avatar size=\"lg\" src=\"https://i.pravatar.cc/150?img=59\" name=\"Noah Kim\" verified />\n      <Avatar size=\"xl\" src=\"https://i.pravatar.cc/150?img=5\" name=\"Zoe Martin\" status=\"online\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Status",
+      "title": "Status",
+      "code": "import { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Status() {\n  const { colors } = useKit();\n  const rows = [\n    { name: 'Ethan Brooks', img: 15, status: 'online' },\n    { name: 'Lina Novak', img: 44, status: 'away' },\n    { name: 'Marcus Hill', img: 68, status: 'busy' },\n    { name: 'Iris Okafor', img: 0, status: 'offline' },\n  ] as const;\n  return (\n    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>\n      {rows.map((r) => (\n        <View key={r.name} style={{ alignItems: 'center', gap: 6 }}>\n          <Avatar size=\"lg\" src={r.img ? `https://i.pravatar.cc/150?img=${r.img}` : undefined} name={r.name} status={r.status} />\n          <Text style={{ fontSize: 12, color: colors.mutedForeground }}>{r.status[0].toUpperCase() + r.status.slice(1)}</Text>\n        </View>\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Badges",
+      "title": "Badges",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, ScrollView, Text, View } from 'react-native';\nimport { Avatar, AvatarGroup } from '@/components/ui/avatar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Badges() {\n  const { colors } = useKit();\n  const [count, setCount] = useState(3);\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 22 }}>\n      <Pressable accessibilityRole=\"button\" accessibilityLabel=\"Add a notification\" onPress={() => setCount((c) => c + 1)} style={{ alignItems: 'center', gap: 6 }}>\n        <Avatar size=\"lg\" src=\"https://i.pravatar.cc/150?img=22\" name=\"Maya Chen\" badge={count} />\n        <Text style={{ fontSize: 12, color: colors.mutedForeground }}>Tap +1</Text>\n      </Pressable>\n      <View style={{ alignItems: 'center', gap: 6 }}>\n        <Avatar size=\"lg\" src=\"https://i.pravatar.cc/150?img=9\" name=\"Leo Park\" badge={128} status=\"online\" />\n        <Text style={{ fontSize: 12, color: colors.mutedForeground }}>Mentions</Text>\n      </View>\n      <View style={{ alignItems: 'center', gap: 6 }}>\n        <Avatar size=\"lg\" name=\"Design Team\" shape=\"rounded\" badge verified />\n        <Text style={{ fontSize: 12, color: colors.mutedForeground }}>Workspace</Text>\n      </View>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "name": "radio-group",
+  "category": "Selection",
+  "aliases": [],
+  "exportName": "RadioGroup",
+  "files": [
+    "src/components/ui/radio-group.tsx"
+  ],
+  "props": [
+    [
+      "options",
+      "{ value, label, description?, icon?, hint?, disabled? }[]",
+      "—",
+      "The choices. `hint` is trailing text such as a price."
+    ],
+    [
+      "value / onValueChange",
+      "string",
+      "—",
+      "Controlled selection (or use defaultValue)."
+    ],
+    [
+      "defaultValue",
+      "string",
+      "—",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "variant",
+      "\"default\" | \"card\" | \"segmented-list\"",
+      "\"default\"",
+      "Radio dots, selectable cards or a grouped list with ticks."
+    ],
+    [
+      "direction",
+      "\"vertical\" | \"horizontal\"",
+      "\"vertical\"",
+      "Stack or lay out side by side (cards share the width)."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selected colour."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Disable the whole group (or per option)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the group container (the bordered card in the segmented-list variant)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "title": "Default",
+      "code": "import { RadioGroup } from '@/components/ui/radio-group';\n\nexport default function Default() {\n  return (\n    <RadioGroup\n      defaultValue=\"standard\"\n      options={[\n        { value: 'standard', label: 'Standard shipping', description: '4–6 business days · Free' },\n        { value: 'express', label: 'Express', description: '1–2 business days · ₹99' },\n        { value: 'pickup', label: 'Pick up in store', description: 'Ready in 2 hours' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Horizontal",
+      "title": "Horizontal",
+      "code": "import React, { useState } from 'react';\nimport { RadioGroup } from '@/components/ui/radio-group';\n\nexport default function Horizontal() {\n  const [size, setSize] = useState('m');\n  return (\n    <RadioGroup\n      direction=\"horizontal\"\n      value={size}\n      onValueChange={setSize}\n      accessibilityLabel=\"Cup size\"\n      options={[\n        { value: 's', label: 'Small' },\n        { value: 'm', label: 'Medium' },\n        { value: 'l', label: 'Large' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Cards",
+      "title": "Cards",
+      "code": "import { RadioGroup } from '@/components/ui/radio-group';\n\nexport default function Cards() {\n  return (\n    <RadioGroup\n      variant=\"card\"\n      defaultValue=\"pro\"\n      options={[\n        { value: 'starter', label: 'Starter', description: 'For side projects', hint: '₹0' },\n        { value: 'pro', label: 'Pro', description: 'Unlimited projects, priority support', hint: '₹499/mo' },\n        { value: 'team', label: 'Team', description: 'Shared workspaces and SSO', hint: '₹1,499/mo' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "CardsHorizontal",
+      "title": "Cards Horizontal",
+      "code": "import { Text } from 'react-native';\nimport { RadioGroup } from '@/components/ui/radio-group';\n\nexport default function CardsHorizontal() {\n  return (\n    <RadioGroup\n      variant=\"card\"\n      direction=\"horizontal\"\n      defaultValue=\"card\"\n      options={[\n        { value: 'card', label: 'Card', description: 'Visa ·· 4242', icon: <Text style={{ fontSize: 20 }}>💳</Text> },\n        { value: 'wallet', label: 'Wallet', description: 'Apple Pay', icon: <Text style={{ fontSize: 20 }}>📱</Text> },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "GroupedList",
+      "title": "Grouped List",
+      "code": "import { RadioGroup } from '@/components/ui/radio-group';\n\nexport default function GroupedList() {\n  return (\n    <RadioGroup\n      variant=\"segmented-list\"\n      defaultValue=\"system\"\n      accessibilityLabel=\"Appearance\"\n      options={[\n        { value: 'light', label: 'Light' },\n        { value: 'dark', label: 'Dark' },\n        { value: 'system', label: 'Automatic', description: 'Follows your device settings' },\n      ]}\n    />\n  );\n}\n"
+    }
+  ]
+}

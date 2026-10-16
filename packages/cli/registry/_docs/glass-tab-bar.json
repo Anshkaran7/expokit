@@ -1,0 +1,76 @@
+{
+  "name": "glass-tab-bar",
+  "category": "Glass",
+  "aliases": [
+    "liquid-glass-tabs",
+    "floating-tab-bar",
+    "ios-26-tab-bar"
+  ],
+  "exportName": "GlassTabBar",
+  "files": [
+    "src/components/ui/glass-tab-bar.tsx"
+  ],
+  "props": [
+    [
+      "tabs",
+      "{ key, label, icon, badge? }[]",
+      "—",
+      "Tabs, left to right. `icon` is a render function `({ color, size, focused }) => node`; `badge` (number | string) shows a red count bubble, hidden when 0 or ''."
+    ],
+    [
+      "value / defaultValue",
+      "string",
+      "first tab",
+      "Selected tab key (controlled / uncontrolled)."
+    ],
+    [
+      "onChange",
+      "(key: string) => void",
+      "—",
+      "Called when a different tab is pressed."
+    ],
+    [
+      "showLabels",
+      "boolean",
+      "true",
+      "Labels under the icons. Icons-only tabs get a slightly larger icon."
+    ],
+    [
+      "accent",
+      "string",
+      "kit accent (glass ink)",
+      "Selected icon and label colour — black on light glass, white on dark unless the kit accent is customised."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass, e.g. 'dark' over photos."
+    ],
+    [
+      "trailing",
+      "{ icon, onPress, label }",
+      "—",
+      "A separate circular glass button to the right (e.g. search), grouped with the bar so they melt together on iOS 26. `label` is its accessibility label."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on tab change, light tap on the trailing button."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style of the outer row. The bar does not position itself — place it (e.g. absolute, bottom: insets.bottom + 8)."
+    ],
+    [
+      "GLASS_TAB_BAR_HEIGHT",
+      "number",
+      "62",
+      "Exported height of the bar (and the trailing circle) — pad your scroll content by it."
+    ]
+  ],
+  "examples": []
+}

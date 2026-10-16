@@ -1,0 +1,18 @@
+{
+  "name": "spin-wheel",
+  "type": "component",
+  "title": "Spin Wheel",
+  "description": "A casino-grade \"spin & win\" wheel for coupons and rewards: glossy wedges in a gold rim of chasing lights, a 3D SPIN hub, and a flapper that ticks over every divider with haptics. Tap, flick or spin it from code — it keeps turning while your server picks the prize, then eases onto it and lights up the win.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

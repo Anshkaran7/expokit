@@ -1,0 +1,104 @@
+{
+  "name": "switch",
+  "category": "Selection",
+  "aliases": [],
+  "exportName": "Switch",
+  "files": [
+    "src/components/ui/switch.tsx"
+  ],
+  "props": [
+    [
+      "value / onValueChange",
+      "boolean",
+      "—",
+      "Controlled state (or use defaultValue)."
+    ],
+    [
+      "defaultValue",
+      "boolean",
+      "false",
+      "Initial state when uncontrolled."
+    ],
+    [
+      "variant",
+      "\"ios\" | \"material\" | \"icon\"",
+      "\"ios\"",
+      "Look of the track and thumb."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "24 / 31 / 38pt tall."
+    ],
+    [
+      "icon",
+      "\"theme\" | \"check\"",
+      "\"theme\"",
+      "Sun / moon or ✕ / check inside the thumb (variant=\"icon\")."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Turns it into a settings row with the switch on the right."
+    ],
+    [
+      "description",
+      "string",
+      "—",
+      "Secondary line under the label."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Track colour when on."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light tap when it flips."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the pressable — the switch itself, or the whole settings row when label is set."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "IOS",
+      "title": "IOS",
+      "code": "import { View } from 'react-native';\nimport { Switch } from '@/components/ui/switch';\n\nexport default function IOS() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>\n      <Switch defaultValue />\n      <Switch />\n      <Switch defaultValue accent=\"#22c55e\" />\n      <Switch defaultValue disabled />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Material",
+      "title": "Material",
+      "code": "import { View } from 'react-native';\nimport { Switch } from '@/components/ui/switch';\n\nexport default function Material() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>\n      <Switch variant=\"material\" defaultValue />\n      <Switch variant=\"material\" />\n      <Switch variant=\"material\" defaultValue />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Icons",
+      "title": "Icons",
+      "code": "import React, { useState } from 'react';\nimport { View } from 'react-native';\nimport { Switch } from '@/components/ui/switch';\n\nexport default function Icons() {\n  const [dark, setDark] = useState(false);\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>\n      <Switch variant=\"icon\" size=\"lg\" value={dark} onValueChange={setDark} accessibilityLabel=\"Dark mode\" />\n      <Switch variant=\"icon\" icon=\"check\" defaultValue accessibilityLabel=\"Auto-save\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "SettingsRows",
+      "title": "Settings Rows",
+      "code": "import { View } from 'react-native';\nimport { Switch } from '@/components/ui/switch';\nimport { useKit } from '@/lib/kit';\n\nexport default function SettingsRows() {\n  const { colors, radius } = useKit();\n  const rows = [\n    { label: 'Push notifications', description: 'Replies, mentions and direct messages.', on: true },\n    { label: 'Weekly digest', description: \"A summary of your team's activity every Monday.\" },\n    { label: 'Share usage data', description: 'Managed by your organisation.', disabled: true },\n  ];\n  return (\n    <View style={{ borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' }}>\n      {rows.map((r, i) => (\n        <Switch\n          key={r.label}\n          label={r.label}\n          description={r.description}\n          defaultValue={r.on}\n          disabled={r.disabled}\n          style={{ paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: i ? 1 : 0, borderColor: colors.border }}\n        />\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { View } from 'react-native';\nimport { Switch } from '@/components/ui/switch';\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>\n      <Switch size=\"sm\" defaultValue />\n      <Switch size=\"md\" defaultValue />\n      <Switch size=\"lg\" defaultValue />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

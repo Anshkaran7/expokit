@@ -1,0 +1,78 @@
+{
+  "name": "glass",
+  "category": "Glass",
+  "aliases": [],
+  "exportName": "GlassProvider",
+  "files": [
+    "src/components/ui/glass.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "'regular' | 'clear'",
+      "'regular'",
+      "Frosted, or more see-through for media behind."
+    ],
+    [
+      "tint",
+      "string",
+      "—",
+      "Colour washed into the glass, e.g. your accent for a selected state."
+    ],
+    [
+      "interactive",
+      "boolean",
+      "false",
+      "iOS 26: the glass shimmers and bounces under touch."
+    ],
+    [
+      "radius",
+      "number | 'full'",
+      "kit lg radius",
+      "Corner radius, or 'full' for pills and circles."
+    ],
+    [
+      "intensity",
+      "number",
+      "60",
+      "Blur strength 1–100 where blur is emulated."
+    ],
+    [
+      "edge / shadow",
+      "boolean",
+      "true / true",
+      "Specular rim + hairline edge, and the soft drop shadow (emulated glass)."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass, e.g. over a photo."
+    ],
+    [
+      "GlassGroup",
+      "{ spacing }",
+      "12",
+      "Shapes inside melt together on iOS 26 when closer than spacing."
+    ],
+    [
+      "GlassProvider / GlassBackdrop / GlassIsolate",
+      "wrappers",
+      "—",
+      "Android real blur: put the content behind the glass in GlassBackdrop, glass UI as its siblings. GlassIsolate opts a subtree (e.g. a Modal) out."
+    ],
+    [
+      "liquidGlass / useGlassInk()",
+      "boolean / hook",
+      "—",
+      "Whether native Liquid Glass is on; text colours that read on glass."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Size, padding and layout."
+    ]
+  ],
+  "examples": []
+}

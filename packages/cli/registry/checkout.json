@@ -1,0 +1,26 @@
+{
+  "name": "checkout",
+  "type": "block",
+  "title": "Checkout",
+  "description": "A premium checkout: product bag with quantity steppers, delivery cards, payment method, a collapsible promo code, a live summary and a sticky “Slide to pay” bar that ends on an order-placed screen.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "button",
+    "floating-input",
+    "slide-to-confirm",
+    "stepper"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/button.tsx",
+    "components/ui/floating-input.tsx",
+    "components/ui/slide-to-confirm.tsx",
+    "components/ui/stepper.tsx"
+  ],
+  "filesDir": null
+}

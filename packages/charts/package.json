@@ -1,0 +1,58 @@
+{
+  "name": "expo-charts",
+  "version": "2.0.0",
+  "description": "Animated, interactive charts for Expo and React Native, built on react-native-svg.",
+  "license": "MIT",
+  "author": "Karan (anshkaran7)",
+  "homepage": "https://expokit.karandev.in/docs/charts",
+  "keywords": [
+    "expo",
+    "react-native",
+    "charts",
+    "data-visualization",
+    "svg",
+    "line-chart",
+    "bar-chart",
+    "pie-chart"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.59.0",
+    "react-native-svg": ">=12.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "^5.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anshkaran7/expokit.git",
+    "directory": "packages/charts"
+  },
+  "bugs": {
+    "url": "https://github.com/Anshkaran7/expokit/issues"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "bottom-nav",
+  "type": "component",
+  "title": "Bottom Nav",
+  "description": "Bottom navigation in five looks — minimal dot, floating capsule, expanding pill, notched centre FAB and top indicator with a spotlight. A liquid indicator stretches between tabs (leading edge first, trailing edge catching up), icons morph from outline to filled with a spring and a lift, active labels rise in, badges pop, the solid accent action button glows softly, and every change ticks a haptic.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "bottom-nav/files"
+}

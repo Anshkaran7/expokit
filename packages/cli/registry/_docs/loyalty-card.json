@@ -1,0 +1,108 @@
+{
+  "name": "loyalty-card",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "LoyaltyCard",
+  "files": [
+    "src/components/ui/loyalty-card.tsx"
+  ],
+  "props": [
+    [
+      "brand",
+      "string",
+      "—",
+      "Programme name, top-left."
+    ],
+    [
+      "member",
+      "string",
+      "—",
+      "Member's name (bottom line)."
+    ],
+    [
+      "memberId",
+      "string",
+      "—",
+      "Shown on the back under the code."
+    ],
+    [
+      "tier",
+      "string",
+      "—",
+      "Tier pill, e.g. \"Gold\"."
+    ],
+    [
+      "points",
+      "number",
+      "—",
+      "Points balance (ignored with stamps)."
+    ],
+    [
+      "nextReward",
+      "{ at: number; label: string }",
+      "—",
+      "Draws progress toward the next reward."
+    ],
+    [
+      "stamps",
+      "{ filled: number; total: number; reward?: string }",
+      "—",
+      "Stamp card instead of points."
+    ],
+    [
+      "stampGlyph",
+      "string",
+      "\"✓\"",
+      "Glyph in a filled stamp (\"☕\")."
+    ],
+    [
+      "image",
+      "ImageSourcePropType",
+      "—",
+      "Card art — a photo of the shop, product or a texture."
+    ],
+    [
+      "renderCode",
+      "(memberId: string) => ReactNode",
+      "—",
+      "Draw a real scannable code on the back."
+    ],
+    [
+      "flipped / defaultFlipped / onFlip",
+      "boolean / boolean / (flipped) => void",
+      "— / false / —",
+      "Controlled or uncontrolled side."
+    ],
+    [
+      "tilt",
+      "boolean",
+      "true",
+      "Tilt toward the finger."
+    ],
+    [
+      "radius",
+      "number",
+      "18",
+      "Corner radius."
+    ],
+    [
+      "background",
+      "string",
+      "\"#2b1f17\"",
+      "Card colour when there is no image."
+    ],
+    [
+      "labels",
+      "{ ready?, more?, reward?, points?, toNext?, back? }",
+      "English",
+      "Every built-in string, for translation ({n} and {reward} are filled in)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root."
+    ]
+  ],
+  "examples": []
+}

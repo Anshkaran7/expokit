@@ -1,0 +1,17 @@
+{
+  "name": "tabs",
+  "type": "component",
+  "title": "Tabs",
+  "description": "Underline tabs with swipeable content panes. The underline is measured to each label and moves like liquid — leading edge first, trailing edge catching up — and follows your finger while you drag the panes, with rubber-band resistance at the ends. Count badges pop, the bar scrolls and centres the active tab once tabs overflow, and every change ticks a haptic.",
+  "tier": "free",
+  "dependencies": [
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "tabs/files"
+}

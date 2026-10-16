@@ -1,0 +1,11 @@
+{
+  "name": "expokit",
+  "private": true,
+  "description": "ExpoKit — animated, copy-paste UI components for Expo and React Native",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm test -w @anshkaran7/expo-kit"
+  }
+}

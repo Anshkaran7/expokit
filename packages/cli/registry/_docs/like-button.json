@@ -1,0 +1,72 @@
+{
+  "name": "like-button",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "LikeButton",
+  "files": [
+    "src/components/ui/like-button.tsx"
+  ],
+  "props": [
+    [
+      "liked / onChange",
+      "boolean",
+      "—",
+      "Controlled state (or use defaultLiked)."
+    ],
+    [
+      "defaultLiked",
+      "boolean",
+      "false",
+      "Initial state when uncontrolled; `count` is the count for this state."
+    ],
+    [
+      "variant",
+      "\"heart\" | \"star\" | \"bookmark\"",
+      "\"heart\"",
+      "Heart, star or bookmark icon; also picks the default liked colour and label."
+    ],
+    [
+      "count",
+      "number",
+      "—",
+      "Shows a rolling counter (1.2K formatting). Uncontrolled: the count for defaultLiked; the component adds the user's like."
+    ],
+    [
+      "size",
+      "number",
+      "26",
+      "Icon size."
+    ],
+    [
+      "color",
+      "string",
+      "danger / warning / accent",
+      "Liked colour (per variant default)."
+    ],
+    [
+      "particleColors",
+      "string[]",
+      "liked colour + theme",
+      "Colours of the burst dots."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Tap when liking."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Blocks presses."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the pressable row holding the icon and counter."
+    ]
+  ],
+  "examples": []
+}

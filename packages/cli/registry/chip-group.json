@@ -1,0 +1,17 @@
+{
+  "name": "chip-group",
+  "type": "component",
+  "title": "Chip Group",
+  "description": "Filter chips for single or multiple choice. A check mark draws itself in while the chip widens smoothly to make room and its colours cross-fade. Wrapping or horizontally scrolling.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "chip-group/files"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "cube-pager",
+  "type": "component",
+  "title": "Cube Pager",
+  "description": "Swipeable pages that turn like the faces of a cube — from the outside, the inside, or spinning in place. Follows your finger, carries flick momentum, rubber-bands at the ends and shades faces as they turn away. Great for stories and onboarding.",
+  "tier": "pro",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

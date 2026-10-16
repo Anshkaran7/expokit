@@ -1,0 +1,26 @@
+{
+  "name": "settings",
+  "type": "block",
+  "title": "Settings",
+  "description": "An iOS-style grouped settings screen: profile header with a Pro badge, System / Light / Dark picker, animated switches, chevron rows with details and a destructive sign-out row.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "avatar",
+    "badge",
+    "segmented-control",
+    "switch"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/avatar.tsx",
+    "components/ui/badge.tsx",
+    "components/ui/segmented-control.tsx",
+    "components/ui/switch.tsx"
+  ],
+  "filesDir": null
+}

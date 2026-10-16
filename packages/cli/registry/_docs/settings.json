@@ -1,0 +1,72 @@
+{
+  "name": "settings",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Settings",
+  "files": [
+    "src/components/blocks/settings.tsx"
+  ],
+  "props": [
+    [
+      "user",
+      "{ name, email, avatar?, plan? }",
+      "sample user",
+      "Profile header. plan shows a badge (e.g. 'Pro')."
+    ],
+    [
+      "values",
+      "SettingsValues",
+      "—",
+      "Controlled values: appearance, pushNotifications, emailDigest, haptics, faceId."
+    ],
+    [
+      "defaultValues",
+      "Partial<SettingsValues>",
+      "—",
+      "Initial values when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(values, key) => void",
+      "—",
+      "Called on every change with the full values and the key that changed."
+    ],
+    [
+      "onNavigate",
+      "(link: 'profile' | 'subscription' | 'privacy' | 'storage' | 'help' | 'feedback') => void",
+      "—",
+      "A chevron row or the profile header was pressed."
+    ],
+    [
+      "onSignOut",
+      "() => void",
+      "—",
+      "Pressed Sign out."
+    ],
+    [
+      "storageUsed",
+      "string",
+      "'1.2 GB'",
+      "Detail on the Data & storage row."
+    ],
+    [
+      "version",
+      "string",
+      "'Version 2.4.1 (412)'",
+      "Footer line. Empty string hides it."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Switch and badge colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

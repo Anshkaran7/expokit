@@ -1,0 +1,43 @@
+{
+  "name": "list-item",
+  "title": "List Item",
+  "tier": "free",
+  "category": "Display",
+  "isNew": true,
+  "description": "Settings, contacts and inbox rows: icon tiles, avatars with presence dots, subtitles, values, badges, checks and chevrons, with a UIKit-style press highlight that fades in fast and out slow. ListGroup gives you the iOS inset-grouped card with headers, footers and separators that line up with the text.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    ["title", "string", "—", "Main text (required)."],
+    ["subtitle", "string", "—", "One muted line under the title."],
+    ["description", "string", "—", "Longer muted text, clamped to numberOfLines."],
+    ["numberOfLines", "number", "2", "Lines of description shown."],
+    ["meta", "string", "—", "Small text at the end of the title row, e.g. a time."],
+    ["icon", "ListItemIconName | ({ color, size }) => ReactNode", "—", "Built-in glyph (user, bell, lock, shield, mail, card, help, logout, moon, globe, star, trash, settings, heart, phone, wifi) or your own, drawn in a rounded tile."],
+    ["iconColor", "string", "accent", "Tile colour (danger when destructive)."],
+    ["iconVariant", "\"filled\" | \"tinted\"", "\"filled\"", "White glyph on a solid tile, or coloured glyph on a soft tile."],
+    ["avatar", "{ src?, name?, color?, online? }", "—", "Round avatar with initials fallback and presence dot."],
+    ["leading", "ReactNode", "—", "Custom leading content (overrides icon / avatar)."],
+    ["value", "string", "—", "Muted value text on the right."],
+    ["badge", "boolean | number | string", "—", "Dot, count (99+) or short label pill."],
+    ["checked", "boolean", "—", "Accent check mark, for pickers."],
+    ["chevron", "boolean", "pressable", "Disclosure chevron; on by default for pressable rows without trailing / checked."],
+    ["trailing", "ReactNode", "—", "Any control on the right, e.g. a Switch."],
+    ["onPress / onLongPress", "() => void", "—", "Makes the row pressable with a fading highlight."],
+    ["destructive", "boolean", "false", "Red title, icon and highlight."],
+    ["disabled", "boolean", "false", "Dims and blocks presses."],
+    ["size", "\"sm\" | \"md\" | \"lg\"", "\"md\"", "44 / 52 / 68pt minimum height; icons and avatars scale."],
+    ["divider", "boolean", "auto in groups", "Hairline that starts past the leading slot."],
+    ["accent", "string", "theme accent", "Check, badge and default tile colour."],
+    ["titleStyle", "StyleProp<TextStyle>", "—", "E.g. bold for unread rows."],
+    ["style", "StyleProp<ViewStyle>", "—", "Style for the row; ListGroup / ListSection apply theirs to their root view."],
+    ["ListGroup header / footer", "string", "—", "Uppercase heading and muted note around the inset card."],
+    ["ListGroup background", "string", "colors.card", "Card colour."],
+    ["ListSection header / footer", "string", "—", "Plain, full-width section (contacts, inbox)."],
+    ["ListSection dividerAfterLast", "boolean", "false", "Draw the inset hairline under the last row too."]
+  ]
+}

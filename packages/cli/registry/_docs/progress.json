@@ -1,0 +1,132 @@
+{
+  "name": "progress",
+  "category": "Feedback",
+  "aliases": [],
+  "exportName": "Progress",
+  "files": [
+    "src/components/ui/progress.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"linear\" | \"circular\" | \"steps\"",
+      "\"linear\"",
+      "Horizontal bar, circular ring, or a row of segments."
+    ],
+    [
+      "value",
+      "number",
+      "—",
+      "0 → max (completed steps for steps). Omit for indeterminate."
+    ],
+    [
+      "max",
+      "number",
+      "100 (steps: steps)",
+      "Upper bound."
+    ],
+    [
+      "indeterminate",
+      "boolean",
+      "false",
+      "Comet sweep on the bar, spinning arc on the ring."
+    ],
+    [
+      "steps",
+      "number",
+      "4",
+      "Segment count for the steps variant."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Bar 4 / 8 / 12pt, ring 44 / 72 / 112pt."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Fill colour (solid); the track, glow and pulse are tints of it."
+    ],
+    [
+      "trackColor",
+      "string",
+      "subtle foreground",
+      "Track colour."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Caption above the bar or under the ring."
+    ],
+    [
+      "showValue",
+      "boolean",
+      "ring: true",
+      "Show the percentage (a drawn check once complete)."
+    ],
+    [
+      "formatValue",
+      "(value, max) => string",
+      "—",
+      "Custom value text (e.g. \"3 of 5\")."
+    ],
+    [
+      "celebrate",
+      "boolean",
+      "true",
+      "At max, flash the fill and turn the value into a drawn check."
+    ],
+    [
+      "striped",
+      "boolean",
+      "false",
+      "Animated diagonal stripes on the linear fill for processing states."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view of the bar, ring or step row."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Linear",
+      "title": "Linear",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Progress } from '@/components/ui/progress';\n\nexport default function Linear() {\n  const [value, setValue] = useState(32);\n  return (\n    <View style={{ gap: 18 }}>\n      <Progress value={value} label=\"Uploading trip-to-lisbon.mov\" showValue />\n      <Progress value={value} size=\"sm\" />\n      <Progress value={value} size=\"lg\" />\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        <Button size=\"sm\" variant=\"outline\" onPress={() => setValue((v) => Math.max(0, v - 20))}>\n          − 20\n        </Button>\n        <Button size=\"sm\" variant=\"outline\" onPress={() => setValue((v) => Math.min(100, v + 20))}>\n          + 20\n        </Button>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Download",
+      "title": "Download",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Progress } from '@/components/ui/progress';\nimport { useKit } from '@/lib/kit';\n\nexport default function Download() {\n  const { colors } = useKit();\n  const [mb, setMb] = useState(6);\n  useEffect(() => {\n    const id = setInterval(() => setMb((v) => (v >= 48 ? 0 : Math.min(48, v + 3.4))), 700);\n    return () => clearInterval(id);\n  }, []);\n  return (\n    <View style={{ gap: 6 }}>\n      <Progress\n        value={mb}\n        max={48}\n        label=\"Offline maps · Portugal\"\n        showValue\n        formatValue={(v, max) => `${v.toFixed(1)} of ${max} MB`}\n      />\n      <Text style={{ fontSize: 12, color: colors.mutedForeground }}>\n        {mb >= 48 ? 'Ready to use offline' : `4.8 MB/s · about ${Math.ceil((48 - mb) / 4.8)} s left`}\n      </Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Completion",
+      "title": "Completion",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Progress } from '@/components/ui/progress';\n\nexport default function Completion() {\n  const [value, setValue] = useState(0);\n  useEffect(() => {\n    if (value >= 100) return;\n    const id = setTimeout(() => setValue((v) => Math.min(100, v + 12 + Math.round(Math.random() * 10))), 450);\n    return () => clearTimeout(id);\n  }, [value]);\n  return (\n    <View style={{ gap: 18 }}>\n      <Progress value={value} label={value >= 100 ? 'Backup complete' : 'Backing up photos'} showValue />\n      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>\n        <Progress variant=\"circular\" size=\"md\" value={value} />\n        <Button size=\"sm\" variant=\"outline\" onPress={() => setValue(0)}>\n          Run again\n        </Button>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Indeterminate",
+      "title": "Indeterminate",
+      "code": "import { Text, View } from 'react-native';\nimport { Progress } from '@/components/ui/progress';\n\nexport default function Indeterminate() {\n  return (\n    <View style={{ gap: 18 }}>\n      <Progress indeterminate label=\"Connecting to Wi‑Fi printer\" />\n      <Progress value={64} striped label=\"Compressing video\" showValue />\n      <Progress indeterminate size=\"sm\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Spinning",
+      "title": "Spinning",
+      "code": "import { Text, View } from 'react-native';\nimport { Progress } from '@/components/ui/progress';\n\nexport default function Spinning() {\n  return (\n    <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>\n      <Progress variant=\"circular\" size=\"sm\" indeterminate />\n      <Progress variant=\"circular\" size=\"md\" indeterminate label=\"Restoring backup\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Circular",
+      "title": "Circular",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Progress } from '@/components/ui/progress';\n\nexport default function Circular() {\n  const [value, setValue] = useState(0);\n  useEffect(() => {\n    const id = setInterval(() => setValue((v) => (v >= 100 ? 0 : v + 25)), 1600);\n    return () => clearInterval(id);\n  }, []);\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-around' }}>\n      <Progress variant=\"circular\" size=\"sm\" value={value} />\n      <Progress variant=\"circular\" size=\"md\" value={72} label=\"iCloud storage\" />\n      <Progress variant=\"circular\" size=\"lg\" value={value} label=\"Move goal\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Steps",
+      "title": "Steps",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Progress } from '@/components/ui/progress';\n\nexport default function Steps() {\n  const [step, setStep] = useState(2);\n  return (\n    <View style={{ gap: 16 }}>\n      <Progress\n        variant=\"steps\"\n        steps={5}\n        value={step}\n        label={step >= 5 ? 'Profile ready' : 'Set up your profile'}\n        showValue\n        formatValue={(v, max) => `Step ${Math.min(max, v + 1)} of ${max}`}\n      />\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        <Button size=\"sm\" variant=\"outline\" onPress={() => setStep((s) => Math.max(0, s - 1))}>\n          Back\n        </Button>\n        <Button size=\"sm\" variant=\"accent\" onPress={() => setStep((s) => Math.min(5, s + 1))}>\n          Continue\n        </Button>\n      </View>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

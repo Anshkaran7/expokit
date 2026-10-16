@@ -1,0 +1,127 @@
+{
+  "name": "alert",
+  "category": "Feedback",
+  "aliases": [],
+  "exportName": "Alert",
+  "files": [
+    "src/components/ui/alert.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"info\" | \"success\" | \"warning\" | \"danger\"",
+      "\"info\"",
+      "Tone and living icon."
+    ],
+    [
+      "appearance",
+      "\"soft\" | \"outline\" | \"solid\" | \"accent-bar\"",
+      "\"soft\"",
+      "Card with a tone glow behind the icon, transparent with a hairline tone border, or filled with the solid tone. \"accent-bar\" is deprecated and renders as \"soft\"."
+    ],
+    [
+      "title",
+      "string",
+      "—",
+      "First line. Without a title (and without actions) the alert uses the compact single-line layout."
+    ],
+    [
+      "description",
+      "ReactNode",
+      "—",
+      "Supporting text."
+    ],
+    [
+      "action",
+      "{ label, onPress } | ReactNode",
+      "—",
+      "One action: a tone pill under the text, or an inline pill on the right in the compact layout."
+    ],
+    [
+      "actions",
+      "{ primary: { label, onPress }, secondary?: { label, onPress } }",
+      "—",
+      "Pill pair on the bottom row; primary is filled with the tone."
+    ],
+    [
+      "icon",
+      "ReactNode | false",
+      "living tone icon",
+      "Custom icon (shown in the halo) or none."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "false",
+      "Show a 28pt close button (44pt hit area) that collapses the alert."
+    ],
+    [
+      "duration",
+      "number (ms)",
+      "—",
+      "Auto-dismiss. A hairline drains along the bottom edge; pauses while pressed or hovered."
+    ],
+    [
+      "visible",
+      "boolean",
+      "—",
+      "Controlled visibility (animated)."
+    ],
+    [
+      "onDismiss",
+      "() => void",
+      "—",
+      "Called when closed by the button or when `duration` runs out."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "false",
+      "Notification haptic (success / warning / error) when the alert appears."
+    ],
+    [
+      "color",
+      "string",
+      "tone colour",
+      "Override the tone colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer animated wrapper (its height collapses on dismiss)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Soft",
+      "title": "Soft",
+      "code": "import { Text, View } from 'react-native';\nimport { Alert } from '@/components/ui/alert';\n\nexport default function Soft() {\n  return (\n    <View style={{ gap: 10 }}>\n      <Alert variant=\"info\" title=\"New sign-in method\" description=\"You can now use a passkey instead of your password.\" />\n      <Alert variant=\"success\" title=\"Payment received\" description=\"₹1,24,000 from Northwind Traders.\" />\n      <Alert variant=\"warning\" title=\"Storage almost full\" description=\"You've used 9.4 GB of your 10 GB plan.\" />\n      <Alert variant=\"danger\" title=\"Sync failed\" description=\"We couldn't reach the server. Your edits are saved on this device.\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Appearances",
+      "title": "Appearances",
+      "code": "import { Text, View } from 'react-native';\nimport { Alert } from '@/components/ui/alert';\n\nexport default function Appearances() {\n  return (\n    <View style={{ gap: 10 }}>\n      <Alert variant=\"info\" appearance=\"outline\" title=\"Scheduled maintenance\" description=\"Sunday 02:00–03:00 UTC.\" />\n      <Alert variant=\"danger\" appearance=\"outline\" title=\"2 failed sign-in attempts\" description=\"Chrome on Windows · Berlin, DE\" />\n      <Alert variant=\"success\" appearance=\"solid\" title=\"Profile published\" description=\"Anyone with the link can view it.\" />\n      <Alert variant=\"warning\" appearance=\"solid\" title=\"Trial ends in 3 days\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "WithActions",
+      "title": "With Actions",
+      "code": "import { Text, View } from 'react-native';\nimport { Alert } from '@/components/ui/alert';\n\nexport default function WithActions() {\n  return (\n    <View style={{ gap: 10 }}>\n      <Alert\n        variant=\"info\"\n        title=\"Update available\"\n        description=\"Version 3.2 is ready. Restart to finish installing.\"\n        actions={{ primary: { label: 'Restart', onPress: () => {} }, secondary: { label: 'Later', onPress: () => {} } }}\n      />\n      <Alert\n        variant=\"danger\"\n        title=\"Payment declined\"\n        description=\"Your Visa ending 4242 was declined. Pro features pause on May 12.\"\n        actions={{ primary: { label: 'Update card', onPress: () => {} }, secondary: { label: 'Contact bank', onPress: () => {} } }}\n        dismissible\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "AutoDismiss",
+      "title": "Auto Dismiss",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Alert } from '@/components/ui/alert';\nimport { Button } from '@/components/ui/button';\nimport { useKit } from '@/lib/kit';\n\nexport default function AutoDismiss() {\n  const { colors } = useKit();\n  const [visible, setVisible] = useState(true);\n  return (\n    <View style={{ gap: 12 }}>\n      <Alert\n        variant=\"success\"\n        title=\"Changes saved\"\n        description=\"Your team can see the new pricing page.\"\n        duration={6000}\n        dismissible\n        visible={visible}\n        onDismiss={() => setVisible(false)}\n      />\n      <Text style={{ fontSize: 14, color: colors.mutedForeground }}>Closes in 6 s. Touch and hold to pause the timer.</Text>\n      <Button size=\"sm\" variant=\"outline\" style={{ alignSelf: 'flex-start' }} disabled={visible} onPress={() => setVisible(true)}>\n        Show again\n      </Button>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Dismissible",
+      "title": "Dismissible",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Alert } from '@/components/ui/alert';\nimport { Button } from '@/components/ui/button';\nimport { useKit } from '@/lib/kit';\n\nexport default function Dismissible() {\n  const { colors } = useKit();\n  const [visible, setVisible] = useState(true);\n  return (\n    <View style={{ gap: 12 }}>\n      <Alert\n        variant=\"success\"\n        title=\"Backup complete\"\n        description=\"2,184 photos were saved to iCloud.\"\n        dismissible\n        visible={visible}\n        onDismiss={() => setVisible(false)}\n      />\n      <Text style={{ fontSize: 14, color: colors.mutedForeground }}>Content below glides up when the alert collapses.</Text>\n      <Button size=\"sm\" variant=\"outline\" style={{ alignSelf: 'flex-start' }} disabled={visible} onPress={() => setVisible(true)}>\n        Show again\n      </Button>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Compact",
+      "title": "Compact",
+      "code": "import { Text, View } from 'react-native';\nimport { Alert } from '@/components/ui/alert';\n\nexport default function Compact() {\n  return (\n    <View style={{ gap: 10 }}>\n      <Alert variant=\"info\" description=\"Prices include VAT where applicable.\" />\n      <Alert variant=\"warning\" description=\"You're offline.\" action={{ label: 'Retry', onPress: () => {} }} />\n      <Alert variant=\"success\" description=\"Link copied to clipboard.\" dismissible />\n      <Alert variant=\"danger\" appearance=\"outline\" description=\"This action can't be undone.\" icon={false} />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

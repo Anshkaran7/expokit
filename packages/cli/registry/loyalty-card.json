@@ -1,0 +1,23 @@
+{
+  "name": "loyalty-card",
+  "type": "component",
+  "title": "Loyalty Card",
+  "description": "A membership or loyalty card on a photo of your shop — points and tier with progress to the next reward, or a stamp card with white stamps. It tilts toward your finger and flips on tap to a member code for the till.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "tilt-card",
+    "flip-card",
+    "ticket-shape"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/tilt-card.tsx",
+    "components/ui/flip-card.tsx",
+    "lib/ticket-shape.tsx"
+  ],
+  "filesDir": null
+}

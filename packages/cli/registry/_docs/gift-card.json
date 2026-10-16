@@ -1,0 +1,108 @@
+{
+  "name": "gift-card",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "GiftCard",
+  "files": [
+    "src/components/ui/gift-card.tsx"
+  ],
+  "props": [
+    [
+      "amount",
+      "string",
+      "—",
+      "Formatted amount, e.g. \"₹2,000\"."
+    ],
+    [
+      "brand",
+      "string",
+      "—",
+      "Store / brand, top-left."
+    ],
+    [
+      "message",
+      "string",
+      "—",
+      "Short note on the front."
+    ],
+    [
+      "from / to",
+      "string",
+      "—",
+      "Who sent it and who it's for."
+    ],
+    [
+      "code",
+      "string",
+      "—",
+      "Redeem code, revealed on the back (grouped in fours)."
+    ],
+    [
+      "validity",
+      "string",
+      "—",
+      "Expiry line on the back."
+    ],
+    [
+      "onCopy",
+      "(code: string) => void",
+      "—",
+      "Shows a Copy button — wire it to expo-clipboard."
+    ],
+    [
+      "image",
+      "ImageSourcePropType",
+      "deep plum",
+      "Card art — a photo or texture (require() or { uri })."
+    ],
+    [
+      "tone",
+      "\"light\" | \"dark\"",
+      "\"light\"",
+      "Light text for dark art, dark text for pale art."
+    ],
+    [
+      "redeemed",
+      "boolean",
+      "false",
+      "Dim the card with a Redeemed label."
+    ],
+    [
+      "flipped / defaultFlipped / onFlip",
+      "boolean / boolean / (flipped) => void",
+      "— / false / —",
+      "Controlled or uncontrolled side."
+    ],
+    [
+      "tilt",
+      "boolean",
+      "true",
+      "Tilt toward the finger."
+    ],
+    [
+      "radius",
+      "number",
+      "18",
+      "Corner radius."
+    ],
+    [
+      "background",
+      "string",
+      "\"#2a1630\"",
+      "Card colour when there is no image."
+    ],
+    [
+      "labels",
+      "{ tag?, for?, from?, redeemed?, code?, back?, copy?, copied? }",
+      "English",
+      "Every built-in string, for translation."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root."
+    ]
+  ],
+  "examples": []
+}

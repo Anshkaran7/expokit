@@ -1,0 +1,131 @@
+{
+  "name": "dialog",
+  "title": "Dialog",
+  "tier": "free",
+  "category": "Overlays",
+  "previewHeight": 560,
+  "description": "A centred alert dialog: the scrim fades in while the card springs from 0.92 to full size, with an optional living tone icon that draws itself in a glowing halo. Modern pill buttons or iOS hairline buttons, side by side or stacked; danger-coloured destructive confirms with a warning haptic, async spinners, a prompt field, and a shake when the confirm is invalid. Use Action Sheet for bottom actions.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "open / defaultOpen",
+      "boolean",
+      "false",
+      "Controlled / uncontrolled visibility."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called on scrim tap, back, Escape and actions."
+    ],
+    [
+      "variant",
+      "\"default\" | \"destructive\"",
+      "\"default\"",
+      "Destructive adds a warning icon, a danger confirm and a warning haptic on open. The old \"sheet\" value is deprecated and renders as default."
+    ],
+    [
+      "tone",
+      "\"info\" | \"success\" | \"warning\" | \"danger\"",
+      "—",
+      "Living icon in a halo above the title with a soft glow of its colour; success / warning open with a matching haptic."
+    ],
+    [
+      "appearance",
+      "\"modern\" | \"ios\"",
+      "\"modern\"",
+      "Pill buttons, or iOS full-width text buttons split by hairlines."
+    ],
+    [
+      "title / description",
+      "string",
+      "—",
+      "Heading and body copy."
+    ],
+    [
+      "prompt",
+      "{ defaultValue?, value?, onChangeText?, placeholder?, secureTextEntry?, keyboardType?, maxLength?, … }",
+      "—",
+      "Adds a text field (a prompt dialog). Its text is passed to onConfirm / onPress; Return submits."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Error text under the field or description."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Custom content above the actions."
+    ],
+    [
+      "actions",
+      "{ label, onPress?, role?, disabled? }[]",
+      "Cancel + Confirm",
+      "Buttons. role: primary | default | destructive | cancel. onPress(value) may return a promise (spinner) or false (stays open and shakes)."
+    ],
+    [
+      "confirmLabel / cancelLabel",
+      "string / string | null",
+      "\"Continue\" / \"Cancel\"",
+      "Labels for the default buttons; cancelLabel null leaves a single button."
+    ],
+    [
+      "onConfirm / onCancel",
+      "(value) => void | false | Promise · () => void",
+      "—",
+      "Handlers for the default buttons (onCancel also fires on scrim, back and Escape)."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Spinner on the confirm button; other buttons and dismissal are disabled."
+    ],
+    [
+      "actionsLayout",
+      "\"auto\" | \"row\" | \"stack\"",
+      "\"auto\"",
+      "Two short buttons side by side, otherwise stacked with Cancel last."
+    ],
+    [
+      "icon",
+      "ReactNode | false",
+      "tone icon",
+      "Custom node inside the halo, or false to hide it."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Close on scrim tap, back and Escape."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Warning on open for destructive dialogs, success for success, error on shake."
+    ],
+    [
+      "accent",
+      "string",
+      "theme primary (accent in ios)",
+      "Colour of the primary action."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Card style."
+    ]
+  ]
+}

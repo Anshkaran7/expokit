@@ -1,0 +1,117 @@
+{
+  "name": "badge",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "BadgeIcon",
+  "files": [
+    "src/components/ui/badge.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"solid\" | \"soft\" | \"outline\" | \"dot\"",
+      "\"soft\"",
+      "Filled, tinted, bordered, or a neutral outline with a coloured leading dot."
+    ],
+    [
+      "tone",
+      "\"neutral\" | \"accent\" | \"success\" | \"warning\" | \"danger\"",
+      "\"neutral\"",
+      "Semantic colour."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "20 / 24 / 28pt tall."
+    ],
+    [
+      "color",
+      "string",
+      "—",
+      "Custom colour (overrides tone)."
+    ],
+    [
+      "icon",
+      "ReactNode",
+      "—",
+      "Shown before the label."
+    ],
+    [
+      "shape",
+      "\"pill\" | \"rounded\"",
+      "\"pill\"",
+      "Corner style."
+    ],
+    [
+      "pulse",
+      "boolean",
+      "false",
+      "Pulsing dot for live states (dot variant)."
+    ],
+    [
+      "NotificationBadge.count",
+      "number",
+      "0",
+      "Number shown; 0 hides it."
+    ],
+    [
+      "NotificationBadge.showZero",
+      "boolean",
+      "false",
+      "Keep the badge visible (showing 0) when count is 0."
+    ],
+    [
+      "NotificationBadge.max",
+      "number",
+      "99",
+      "Shows \"99+\" above this."
+    ],
+    [
+      "NotificationBadge.dot",
+      "boolean",
+      "false",
+      "Dot only, no number."
+    ],
+    [
+      "NotificationBadge.children",
+      "ReactNode",
+      "—",
+      "Element the badge is pinned to (top-right)."
+    ],
+    [
+      "NotificationBadge.offset",
+      "[number, number]",
+      "[0, 0]",
+      "Nudge from the corner."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the badge pill; NotificationBadge applies it to the anchor wrapper or bare bubble wrapper."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Variants",
+      "title": "Variants",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Badge, BadgeIcon, BadgeIconTile, NotificationBadge } from '@/components/ui/badge';\n\nconst TONES = ['neutral', 'accent', 'success', 'warning', 'danger'] as const;\n\nexport default function Variants() {\n  return (\n    <View style={{ gap: 10 }}>\n      {(['solid', 'soft', 'outline', 'dot'] as const).map((variant) => (\n        <View key={variant} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>\n          {TONES.map((tone) => (\n            <Badge key={tone} variant={variant} tone={tone}>\n              {tone[0].toUpperCase() + tone.slice(1)}\n            </Badge>\n          ))}\n        </View>\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Statuses",
+      "title": "Statuses",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Badge, BadgeIcon, BadgeIconTile, NotificationBadge } from '@/components/ui/badge';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Statuses() {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>\n      <Badge variant=\"dot\" tone=\"success\" pulse>Live</Badge>\n      <Badge variant=\"soft\" tone=\"success\" icon={<BadgeIcon name=\"package\" color={colors.success} size={14} />}>Paid</Badge>\n      <Badge variant=\"soft\" tone=\"warning\">Pending review</Badge>\n      <Badge variant=\"outline\" tone=\"danger\">Overdue</Badge>\n      <Badge variant=\"solid\" tone=\"accent\" shape=\"rounded\">PRO</Badge>\n      <Badge variant=\"soft\" tone=\"accent\" icon={<BadgeIcon name=\"heart\" color={colors.accent} size={14} />}>Saved</Badge>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Badge, BadgeIcon, BadgeIconTile, NotificationBadge } from '@/components/ui/badge';\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>\n      <Badge size=\"sm\" tone=\"accent\">Small</Badge>\n      <Badge size=\"md\" tone=\"accent\">Medium</Badge>\n      <Badge size=\"lg\" tone=\"accent\">Large</Badge>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Notifications",
+      "title": "Notifications",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { Badge, BadgeIcon, BadgeIconTile, NotificationBadge } from '@/components/ui/badge';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Notifications() {\n  const { colors, radius } = useKit();\n  const [count, setCount] = useState(3);\n  return (\n    <View style={{ gap: 18 }}>\n      <View style={{ flexDirection: 'row', gap: 26 }}>\n        <NotificationBadge count={count}>\n          <BadgeIconTile name=\"bell\" backgroundColor={alpha(colors.accent, 0.12)} color={colors.accent} />\n        </NotificationBadge>\n        <NotificationBadge count={count * 37} tone=\"accent\">\n          <BadgeIconTile name=\"message\" backgroundColor={alpha(colors.accent, 0.1)} color={colors.accent} />\n        </NotificationBadge>\n        <NotificationBadge count={count} dot tone=\"success\">\n          <BadgeIconTile name=\"package\" backgroundColor={alpha(colors.success, 0.12)} color={colors.success} />\n        </NotificationBadge>\n      </View>\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        {[\n          ['+ New', () => setCount((c) => c + 1)],\n          ['Mark all read', () => setCount(0)],\n        ].map(([label, onPress]) => (\n          <Pressable\n            key={label as string}\n            onPress={onPress as () => void}\n            style={{ paddingHorizontal: 14, height: 36, borderRadius: radius.capsule(36), justifyContent: 'center', backgroundColor: colors.muted }}\n          >\n            <Text style={{ fontWeight: '400', color: colors.foreground }}>{label as string}</Text>\n          </Pressable>\n        ))}\n      </View>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

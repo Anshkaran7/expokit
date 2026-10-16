@@ -1,0 +1,22 @@
+{
+  "name": "glass-button",
+  "type": "component",
+  "title": "Glass Button",
+  "description": "Liquid Glass buttons and toolbars. GlassButton: label, icon or both in three sizes (icon-only is a circle), plain monochrome glass or tinted glass for the primary action, a spring press and a light haptic — real interactive Liquid Glass on iOS 26, blur everywhere else. GlassToolbar: icon buttons in one glass capsule with hairline separators, or a floating cluster of glass circles that melt into each other on iOS 26, with an active state for tools and toggles.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-glass-effect",
+    "expo-blur",
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "glass"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/glass.tsx"
+  ],
+  "filesDir": null
+}

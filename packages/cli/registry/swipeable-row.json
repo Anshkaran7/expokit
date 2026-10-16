@@ -1,0 +1,15 @@
+{
+  "name": "swipeable-row",
+  "type": "component",
+  "title": "Swipeable Row",
+  "description": "Mail-style list row: drag sideways to reveal actions that fan out and grow with your finger. A full swipe stretches the edge action across the row and fires it — destructive ones slide away and collapse the row. PanResponder only, so it works with a mouse on the web too.",
+  "tier": "pro",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

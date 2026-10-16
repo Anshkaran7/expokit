@@ -1,0 +1,137 @@
+{
+  "name": "payment-card",
+  "title": "Payment Card",
+  "tier": "free",
+  "category": "3D",
+  "description": "A realistic bank card on any photo or texture — gold or silver EMV chip, contactless mark, embossed number and the real Visa / Mastercard / Amex / RuPay marks. It tilts toward your finger with a moving reflection and flips on tap to the back: magnetic stripe, signature panel with the CVV and a hologram. Frozen state for card controls.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "tilt-card",
+    "flip-card"
+  ],
+  "props": [
+    [
+      "number",
+      "string",
+      "—",
+      "Card number (spaces ok). Masked to the last 4 unless masked={false}."
+    ],
+    [
+      "name",
+      "string",
+      "—",
+      "Cardholder name."
+    ],
+    [
+      "expiry",
+      "string",
+      "—",
+      "Expiry, e.g. \"09/29\"."
+    ],
+    [
+      "cvv",
+      "string",
+      "—",
+      "Shown on the back."
+    ],
+    [
+      "brand",
+      "\"visa\" | \"mastercard\" | \"amex\" | \"rupay\" | \"none\"",
+      "\"visa\"",
+      "Brand mark; Amex numbers group 4-6-5."
+    ],
+    [
+      "bank",
+      "string",
+      "—",
+      "Issuer name, top-left."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Small label top-right (\"Debit\", \"Platinum\")."
+    ],
+    [
+      "image",
+      "ImageSourcePropType",
+      "brushed graphite",
+      "Card art — a photo or texture (require() or { uri }). Soft, blurred photos look premium."
+    ],
+    [
+      "tone",
+      "\"light\" | \"dark\"",
+      "\"light\"",
+      "Light text for dark art, dark text for pale art."
+    ],
+    [
+      "chip",
+      "\"gold\" | \"silver\"",
+      "\"gold\"",
+      "EMV chip finish."
+    ],
+    [
+      "masked",
+      "boolean",
+      "true",
+      "Hide every digit but the last four (any card length)."
+    ],
+    [
+      "flipped",
+      "boolean",
+      "—",
+      "Controlled side (true = back)."
+    ],
+    [
+      "defaultFlipped",
+      "boolean",
+      "false",
+      "Uncontrolled initial side."
+    ],
+    [
+      "onFlip",
+      "(flipped: boolean) => void",
+      "—",
+      "Fires when tapped."
+    ],
+    [
+      "tilt",
+      "boolean",
+      "true",
+      "Tilt toward the finger."
+    ],
+    [
+      "flippable",
+      "boolean",
+      "true",
+      "Tap flips the card. false makes a still card (no tilt, no taps) for use inside something tappable, e.g. a CardStack; a controlled flipped still turns it."
+    ],
+    [
+      "frozen",
+      "boolean",
+      "false",
+      "Dim the card with a Frozen label and ignore taps."
+    ],
+    [
+      "radius",
+      "number",
+      "16",
+      "Corner radius — a real card's corner at phone size."
+    ],
+    [
+      "labels",
+      "{ cardholder?, validThru?, frozen?, legal?, back?, accessibility? }",
+      "English",
+      "Every built-in string, for translation ({bank} and {last4} are filled in)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width, margins)."
+    ]
+  ]
+}

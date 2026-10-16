@@ -1,0 +1,156 @@
+{
+  "name": "drawer",
+  "title": "Drawer",
+  "tier": "free",
+  "category": "Overlays",
+  "previewHeight": 620,
+  "isNew": true,
+  "description": "Side navigation drawer that springs in over a fading scrim — or, with variant=\"push\", shrinks the screen into a rounded 0.92 card and slides it aside like modern mail apps. Swipe in from the edge, drag closed from anywhere on the panel with velocity and rubber-banding, and build the panel from DrawerProfile (soft initials avatar, presence, account switcher), DrawerItems with a spring-in accent-tinted active pill and popping count badges, divided section headings and a DrawerFooter meter. Flat theme colours, hairline edges and soft shadows; haptics throughout.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "content",
+      "ReactNode",
+      "—",
+      "Panel content (usually DrawerItems); scrolls between header and footer."
+    ],
+    [
+      "header / footer",
+      "ReactNode",
+      "—",
+      "Pinned above / below the content (DrawerProfile, DrawerHeader, DrawerFooter…)."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "The screen the drawer belongs to. Enables edge swipe and push; without children the drawer opens in a Modal."
+    ],
+    [
+      "open / defaultOpen",
+      "boolean",
+      "false",
+      "Controlled / uncontrolled visibility."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called on drags, scrim tap, Android back and Escape."
+    ],
+    [
+      "side",
+      "\"left\" | \"right\"",
+      "\"left\"",
+      "Edge the drawer slides from."
+    ],
+    [
+      "width",
+      "number | `${number}%`",
+      "\"80%\"",
+      "Panel width in points or percent of the container (max 360)."
+    ],
+    [
+      "variant",
+      "\"overlay\" | \"push\"",
+      "\"overlay\"",
+      "Slide over a dimmed screen, or shrink the screen to a rounded 0.92 card and slide it aside (inline only)."
+    ],
+    [
+      "edgeSwipe",
+      "boolean",
+      "true",
+      "Swipe in from the edge to open (needs children). Taps in the edge zone still reach the screen."
+    ],
+    [
+      "edgeWidth",
+      "number",
+      "24",
+      "Width of the edge-swipe zone."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Close on scrim tap and drag."
+    ],
+    [
+      "scaleContent",
+      "boolean",
+      "true",
+      "Overlay variant: scale the screen behind to 0.96 with rounded corners while open (inline)."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light impact on open; DrawerItems tick on press."
+    ],
+    [
+      "topInset / bottomInset",
+      "number",
+      "platform estimate",
+      "Space above the header / below the footer — pass safe-area insets for exact values."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "\"Navigation drawer\"",
+      "Panel label."
+    ],
+    [
+      "style / panelStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container / panel style."
+    ],
+    [
+      "DrawerProfile",
+      "{ name, email?, src?, status?, layout?: 'row' | 'stacked', onPress?, accessory? }",
+      "—",
+      "Account block: soft solid initials (or image) avatar with presence dot, name and email; pressable as an account / workspace switcher."
+    ],
+    [
+      "DrawerHeader",
+      "{ title?, subtitle?, leading?, showClose?, onClose? }",
+      "—",
+      "Title chrome for the header slot."
+    ],
+    [
+      "DrawerItem",
+      "{ label, icon?, badge?, badgeTone?, active?, tone?, onPress?, closeOnPress?, accent?, haptics?, trailing?, disabled? }",
+      "—",
+      "Nav row with a spring-in accent-tinted active pill, popping icon and count badge (neutral plain count / accent tinted pill / danger solid pill); tone=\"danger\" for Log out."
+    ],
+    [
+      "DrawerSection",
+      "{ title, trailing?, divider? }",
+      "—",
+      "Quiet heading between groups with a hairline divider above (divider={false} for the first group) and an optional trailing node."
+    ],
+    [
+      "DrawerFooter",
+      "{ label, detail?, icon?, progress?, onPress?, trailing? }",
+      "—",
+      "Compact footer row, e.g. a storage meter."
+    ],
+    [
+      "DrawerIcon",
+      "{ name, size?, color?, strokeWidth? }",
+      "—",
+      "The drawer's line icons, for menu buttons and headers."
+    ],
+    [
+      "useDrawer()",
+      "() => { open, setOpen, toggle, close }",
+      "—",
+      "Control the surrounding Drawer from inside it."
+    ]
+  ]
+}

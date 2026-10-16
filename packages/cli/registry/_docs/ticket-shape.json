@@ -1,0 +1,11 @@
+{
+  "name": "ticket-shape",
+  "category": null,
+  "aliases": [],
+  "exportName": "TicketStamp",
+  "files": [
+    "src/lib/ticket-shape.tsx"
+  ],
+  "props": [],
+  "examples": []
+}

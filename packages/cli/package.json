@@ -1,0 +1,46 @@
+{
+  "name": "@anshkaran7/expo-kit",
+  "version": "0.1.3",
+  "description": "shadcn-style CLI for Expo — add native UI blocks and components to your app",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "expo-kit": "bin/expo-kit.js"
+  },
+  "files": [
+    "bin",
+    "registry",
+    "schema",
+    "README.md"
+  ],
+  "keywords": [
+    "expo",
+    "react-native",
+    "cli",
+    "ui",
+    "shadcn",
+    "liquid-glass",
+    "native-tabs",
+    "expo-router"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "homepage": "https://expokit.karandev.in",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anshkaran7/expokit.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/Anshkaran7/expokit/issues"
+  },
+  "author": "anshkaran7",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "prepublishOnly": "echo 'Publish @anshkaran7/expo-kit from the private ExpoKit monorepo.' && exit 1"
+  }
+}

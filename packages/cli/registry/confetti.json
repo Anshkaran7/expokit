@@ -1,0 +1,15 @@
+{
+  "name": "confetti",
+  "type": "component",
+  "title": "Confetti",
+  "description": "Confetti for the moments that deserve it — a coupon applied, a reward revealed, an order placed. Pieces fly on real arcs (launch, gravity, air drag) and flutter as they fall; one native-driven animation moves them all. Cannons, rain or a pop under your finger; respects Reduce Motion.",
+  "tier": "free",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "confetti/files"
+}

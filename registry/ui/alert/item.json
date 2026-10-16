@@ -1,0 +1,101 @@
+{
+  "name": "alert",
+  "title": "Alert",
+  "tier": "free",
+  "category": "Feedback",
+  "description": "Inline banner with a living icon that draws itself inside a halo, a soft light-leak glow of its tone, and primary + secondary actions. Optional auto-dismiss shows the time left as a hairline draining along the bottom (pauses while touched), and on dismiss it collapses smoothly so content below glides up.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "button"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"info\" | \"success\" | \"warning\" | \"danger\"",
+      "\"info\"",
+      "Tone and living icon."
+    ],
+    [
+      "appearance",
+      "\"soft\" | \"outline\" | \"solid\" | \"accent-bar\"",
+      "\"soft\"",
+      "Card with a tone glow behind the icon, transparent with a hairline tone border, or filled with the solid tone. \"accent-bar\" is deprecated and renders as \"soft\"."
+    ],
+    [
+      "title",
+      "string",
+      "—",
+      "First line. Without a title (and without actions) the alert uses the compact single-line layout."
+    ],
+    [
+      "description",
+      "ReactNode",
+      "—",
+      "Supporting text."
+    ],
+    [
+      "action",
+      "{ label, onPress } | ReactNode",
+      "—",
+      "One action: a tone pill under the text, or an inline pill on the right in the compact layout."
+    ],
+    [
+      "actions",
+      "{ primary: { label, onPress }, secondary?: { label, onPress } }",
+      "—",
+      "Pill pair on the bottom row; primary is filled with the tone."
+    ],
+    [
+      "icon",
+      "ReactNode | false",
+      "living tone icon",
+      "Custom icon (shown in the halo) or none."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "false",
+      "Show a 28pt close button (44pt hit area) that collapses the alert."
+    ],
+    [
+      "duration",
+      "number (ms)",
+      "—",
+      "Auto-dismiss. A hairline drains along the bottom edge; pauses while pressed or hovered."
+    ],
+    [
+      "visible",
+      "boolean",
+      "—",
+      "Controlled visibility (animated)."
+    ],
+    [
+      "onDismiss",
+      "() => void",
+      "—",
+      "Called when closed by the button or when `duration` runs out."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "false",
+      "Notification haptic (success / warning / error) when the alert appears."
+    ],
+    [
+      "color",
+      "string",
+      "tone colour",
+      "Override the tone colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer animated wrapper (its height collapses on dismiss)."
+    ]
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "name": "wheel-list",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "WheelList",
+  "files": [
+    "src/components/ui/wheel-list.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "T[]",
+      "—",
+      "Rows."
+    ],
+    [
+      "getLabel",
+      "(item: T) => string",
+      "String(item)",
+      "Text for default rows."
+    ],
+    [
+      "renderItem",
+      "({ item, index, active }) => ReactNode",
+      "—",
+      "Custom row; `active` is the row in the band."
+    ],
+    [
+      "value",
+      "number",
+      "—",
+      "Controlled selected index."
+    ],
+    [
+      "defaultValue",
+      "number",
+      "0",
+      "Uncontrolled initial index."
+    ],
+    [
+      "onValueChange",
+      "(index: number, item: T) => void",
+      "—",
+      "Fires as the selection changes."
+    ],
+    [
+      "itemHeight",
+      "number",
+      "44",
+      "Row height."
+    ],
+    [
+      "visible",
+      "number",
+      "5",
+      "Rows visible at once (odd numbers centre the band)."
+    ],
+    [
+      "curve",
+      "number",
+      "22",
+      "Degrees each row curves away from the band."
+    ],
+    [
+      "bandColor",
+      "string",
+      "faint foreground",
+      "Selection band colour."
+    ],
+    [
+      "textColor",
+      "string",
+      "theme foreground",
+      "Text colour of default rows — white on a photo or dark panel."
+    ],
+    [
+      "fadeColor",
+      "string",
+      "—",
+      "Colour of the surface behind the wheel; rows fade into it top and bottom."
+    ],
+    [
+      "align",
+      "\"left\" | \"center\" | \"right\"",
+      "\"center\"",
+      "Text alignment for default rows."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "What the wheel picks, for screen readers."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width)."
+    ]
+  ],
+  "examples": []
+}

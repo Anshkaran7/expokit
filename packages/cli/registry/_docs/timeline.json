@@ -1,0 +1,156 @@
+{
+  "name": "timeline",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "Timeline",
+  "files": [
+    "src/components/ui/timeline.tsx"
+  ],
+  "props": [
+    [
+      "items",
+      "TimelineItem[]",
+      "—",
+      "{ key?, title, description?, time?, status?, icon?, avatar?, image?, images?, tags?, links?, content? } per event."
+    ],
+    [
+      "items[].status",
+      "\"done\" | \"current\" | \"upcoming\" | \"error\"",
+      "\"done\"",
+      "Filled with a drawn check · pulsing · hollow on a dotted track · red with a drawn ✕."
+    ],
+    [
+      "items[].icon",
+      "TimelineIconName | ({ color, size }) => ReactNode",
+      "—",
+      "cart, package, truck, home, rocket, bug, star, chat, tag, user, or your own glyph in a larger dot (done/failed get a mini check/✕ badge)."
+    ],
+    [
+      "items[].avatar",
+      "{ src?, name }",
+      "—",
+      "Avatar (initials fallback) instead of a dot."
+    ],
+    [
+      "items[].image",
+      "string | { uri, aspectRatio? }",
+      "—",
+      "Photo under the text, rounded, fades in when loaded (16:9 by default)."
+    ],
+    [
+      "items[].images",
+      "(string | { uri, aspectRatio? })[]",
+      "—",
+      "Photo gallery: 1-up at its ratio, 2-up side by side, 3-up one large + two stacked (+N for more). Rounded, fades in."
+    ],
+    [
+      "items[].tags",
+      "string[]",
+      "—",
+      "Small accent chips under the text."
+    ],
+    [
+      "items[].links",
+      "{ label, onPress }[]",
+      "—",
+      "Tappable accent links under the text."
+    ],
+    [
+      "items[].content",
+      "ReactNode",
+      "—",
+      "Rich content under the description: a card, quote, tags or buttons."
+    ],
+    [
+      "variant",
+      "\"default\" | \"compact\" | \"card\" | \"scroll\"",
+      "\"default\"",
+      "Roomy rows · small dots on one line · each event on a card (current one tinted) · renders its own scroll view and fills the line as you scroll (give it a height)."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Done / current dots and the filled line."
+    ],
+    [
+      "checks",
+      "boolean",
+      "true",
+      "Draw a check in done dots."
+    ],
+    [
+      "animated",
+      "boolean",
+      "true",
+      "Staggered entrance + connector fill, or the scroll-driven fill (off with reduce motion: everything shows filled)."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the rail — fills hollow dots and mini badge cut-outs."
+    ],
+    [
+      "header",
+      "ReactNode",
+      "—",
+      "scroll: shown above the timeline inside the scroll view."
+    ],
+    [
+      "footer",
+      "ReactNode",
+      "—",
+      "scroll: shown below the timeline inside the scroll view."
+    ],
+    [
+      "contentContainerStyle",
+      "StyleProp<ViewStyle>",
+      "{ paddingVertical: 12 }",
+      "scroll: the scroll view's content container."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style — for variant=\"scroll\" this is the scroll view, so set a height."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "OrderTracking",
+      "title": "Order Tracking",
+      "code": "import { Text, View } from 'react-native';\nimport { Timeline } from '@/components/ui/timeline';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function OrderTracking() {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View style={{ gap: 18 }}>\n      <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>\n        <View style={{ gap: 2 }}>\n          <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>ORDER #4821</Text>\n          <Text style={{ fontSize: 20, letterSpacing: -0.4, color: colors.foreground }}>Arriving today</Text>\n        </View>\n        <View\n          style={{\n            paddingHorizontal: 10,\n            paddingVertical: 4,\n            borderRadius: radius.capsule(24),\n            backgroundColor: alpha(colors.accent, dark ? 0.2 : 0.1),\n          }}\n        >\n          <Text style={{ fontSize: 12.5, color: colors.accent }}>by 6 PM</Text>\n        </View>\n      </View>\n      <Timeline\n        items={[\n          { title: 'Ordered', time: 'Mon 9:12', description: 'Paid with Apple Pay · 2 items', icon: 'cart' },\n          { title: 'Packed', time: 'Tue 16:40', description: 'Left the Rotterdam warehouse', icon: 'package' },\n          {\n            title: 'Out for delivery',\n            time: '11:05',\n            description: 'Jonas is 6 stops away in a white van',\n            icon: 'truck',\n            status: 'current',\n          },\n          { title: 'Delivered', time: 'Est. 17:30', description: 'Leave at the front door if no one answers', icon: 'home', status: 'upcoming' },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Activity",
+      "title": "Activity",
+      "code": "import { Text, View } from 'react-native';\nimport { Timeline } from '@/components/ui/timeline';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Activity() {\n  const { colors, radius, dark } = useKit();\n  return (\n    <Timeline\n      items={[\n        {\n          title: 'Priya Shah commented',\n          time: '2m',\n          avatar: { name: 'Priya Shah', src: 'https://i.pravatar.cc/120?img=32' },\n          status: 'current',\n          content: (\n            <View\n              style={{\n                padding: 12,\n                borderRadius: radius.md,\n                backgroundColor: alpha(colors.foreground, dark ? 0.06 : 0.035),\n              }}\n            >\n              <Text style={{ fontSize: 14, lineHeight: 20, color: colors.foreground }}>\n                Love the new onboarding — can we try the shorter headline on step two?\n              </Text>\n            </View>\n          ),\n        },\n        {\n          title: 'Marco Bianchi uploaded 3 photos',\n          time: '1h',\n          description: 'Moodboard · Autumn campaign',\n          avatar: { name: 'Marco Bianchi', src: 'https://i.pravatar.cc/120?img=15' },\n          image: { uri: 'https://picsum.photos/id/1043/800/450', aspectRatio: 16 / 9 },\n        },\n        {\n          title: 'Lena Fischer shared a file',\n          time: '3h',\n          avatar: { name: 'Lena Fischer' },\n          content: (\n            <View\n              style={{\n                flexDirection: 'row',\n                alignItems: 'center',\n                gap: 12,\n                padding: 12,\n                borderRadius: radius.md,\n                borderWidth: 1,\n                borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06),\n                backgroundColor: colors.card,\n              }}\n            >\n              <View\n                style={{\n                  width: 36,\n                  height: 36,\n                  borderRadius: radius.sm,\n                  backgroundColor: alpha(colors.danger, 0.12),\n                  alignItems: 'center',\n                  justifyContent: 'center',\n                }}\n              >\n                <Text style={{ fontSize: 11, color: colors.danger }}>PDF</Text>\n              </View>\n              <View style={{ flex: 1 }}>\n                <Text numberOfLines={1} style={{ fontSize: 14, color: colors.foreground }}>Q4 brand guidelines.pdf</Text>\n                <Text style={{ fontSize: 12.5, color: colors.mutedForeground }}>4.2 MB · 18 pages</Text>\n              </View>\n            </View>\n          ),\n        },\n        { title: 'Nightly build failed', time: 'Yesterday', description: 'iOS · Signing certificate expired', status: 'error', icon: 'bug' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Release",
+      "title": "Release",
+      "code": "import { Text, View } from 'react-native';\nimport { Timeline } from '@/components/ui/timeline';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Release() {\n  const { colors, radius, dark } = useKit();\n  return (\n    <Timeline\n      variant=\"card\"\n      items={[\n        { title: 'v3.0 — Widgets', time: 'Next week', description: 'Home-screen widgets for iOS and Android.', icon: 'rocket', status: 'upcoming' },\n        {\n          title: 'v2.4 — Offline mode',\n          time: 'Oct 8',\n          description: 'Edit notes without a connection; changes sync when you are back online.',\n          icon: 'star',\n          status: 'current',\n          content: (\n            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>\n              {['New', 'Sync', 'iOS', 'Android'].map((t) => (\n                <View\n                  key={t}\n                  style={{\n                    paddingHorizontal: 9,\n                    paddingVertical: 3,\n                    borderRadius: radius.capsule(22),\n                    backgroundColor: alpha(colors.accent, dark ? 0.2 : 0.1),\n                  }}\n                >\n                  <Text style={{ fontSize: 12, color: colors.accent }}>{t}</Text>\n                </View>\n              ))}\n            </View>\n          ),\n        },\n        { title: 'v2.3.2 — Fixes', time: 'Sep 29', description: 'Fixed a crash when sharing large PDFs.', icon: 'bug' },\n        { title: 'v2.3 — Shared folders', time: 'Sep 12', description: 'Invite people to a folder and edit together.', icon: 'user' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Compact",
+      "title": "Compact",
+      "code": "import { Timeline } from '@/components/ui/timeline';\n\nexport default function Compact() {\n  return (\n    <Timeline\n      variant=\"compact\"\n      items={[\n        { title: 'Account created', time: '09:00' },\n        { title: 'Email verified', time: '09:02' },\n        { title: 'Profile completed', time: '09:10', status: 'current' },\n        { title: 'First project', status: 'upcoming' },\n        { title: 'Invite your team', status: 'upcoming' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "Support",
+      "title": "Support",
+      "code": "import { Text, View } from 'react-native';\nimport { Avatar } from '@/components/ui/avatar';\nimport { Timeline } from '@/components/ui/timeline';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Support() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 14 }}>\n      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>\n        <Avatar size=\"sm\" name=\"Support\" status=\"online\" />\n        <Text style={{ fontSize: 15, color: colors.foreground }}>Refund request #RF-2207</Text>\n      </View>\n      <Timeline\n        variant=\"compact\"\n        accent={colors.success}\n        items={[\n          { title: 'Request received', time: 'Oct 9' },\n          { title: 'Return label sent', time: 'Oct 9' },\n          { title: 'Card refund declined', time: 'Oct 12', status: 'error' },\n          { title: 'Refund to store credit', time: 'Now', status: 'current' },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Journey",
+      "title": "Journey",
+      "code": "import { Text, View } from 'react-native';\nimport { Timeline } from '@/components/ui/timeline';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst pic = (seed: string) => `https://picsum.photos/seed/${seed}/600/400`;\n\nexport default function Journey() {\n  const { colors } = useKit();\n  return (\n    <Timeline\n      variant=\"scroll\"\n      style={{ height: 560 }}\n      header={\n        <View style={{ gap: 2, paddingBottom: 20 }}>\n          <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>12 DAYS · 1,140 KM</Text>\n          <Text style={{ fontSize: 22, letterSpacing: -0.5, color: colors.foreground }}>Our journey through Portugal</Text>\n        </View>\n      }\n      items={[\n        { title: 'Landed in Lisbon', time: 'Day 1', description: 'Late flight, pastel de nata at the airport, tram 28 into Alfama before the rain.', images: [{ uri: pic('lisbon'), aspectRatio: 3 / 2 }], tags: ['Lisbon'] },\n        { title: 'Lost in Alfama', time: 'Day 2', description: 'Stairs, tiles, a fado bar that only had six chairs. We stayed until two.', images: [pic('alfama'), pic('tiles')] },\n        { title: 'Sintra day trip', time: 'Day 3', description: 'Fog on Pena Palace in the morning, sun in the Moorish castle by noon.', images: [pic('sintra'), pic('palace'), pic('forest'), pic('castle')] },\n        { title: 'Rented the car', time: 'Day 4', description: 'A tiny Fiat with a stubborn second gear. Named it Rosa.' },\n        { title: 'Comporta beaches', time: 'Day 5', description: 'Rice fields on one side, empty dunes on the other.', images: [{ uri: pic('dunes'), aspectRatio: 16 / 9 }], tags: ['Beach', 'Alentejo'] },\n        { title: 'Évora', time: 'Day 6', description: 'Roman temple at sunset and the quietest night of the trip.', images: [pic('evora'), pic('temple'), pic('plains')] },\n        { title: 'Wine in the Alentejo', time: 'Day 7', description: 'A cellar tour that turned into lunch with the owner’s family. Ordered a case home.' },\n        { title: 'Down to the Algarve', time: 'Day 8', description: 'Benagil caves by kayak — go early, the tour boats arrive at ten.', images: [pic('caves'), pic('kayak')], links: [{ label: 'Kayak rental we used', onPress: () => {} }] },\n        { title: 'Lagos', time: 'Day 9', description: 'Cliff walk to Ponta da Piedade and grilled sardines at the harbour.', images: [{ uri: pic('lagos'), aspectRatio: 3 / 2 }] },\n        { title: 'Long drive north', time: 'Day 10', description: 'Six hours, two coffee stops, one wrong turn into a cork forest.' },\n        { title: 'Porto', time: 'Day 11', status: 'current', description: 'Ribeira, the bridge at blue hour, port lodges across the river.', images: [pic('porto'), pic('bridge'), pic('river')], tags: ['Now'] },\n        { title: 'Douro Valley', time: 'Day 12', status: 'upcoming', description: 'Train along the river to Pinhão, then home.' },\n      ]}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "DeliveryScroll",
+      "title": "Delivery Scroll",
+      "code": "import { Text, View } from 'react-native';\nimport { Timeline } from '@/components/ui/timeline';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst pic = (seed: string) => `https://picsum.photos/seed/${seed}/600/400`;\n\nexport default function DeliveryScroll() {\n  const { colors } = useKit();\n  return (\n    <Timeline\n      variant=\"scroll\"\n      style={{ height: 560 }}\n      header={\n        <View style={{ gap: 2, paddingBottom: 20 }}>\n          <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>PARCEL DHL 4471 9902 31</Text>\n          <Text style={{ fontSize: 20, letterSpacing: -0.4, color: colors.foreground }}>Out for delivery</Text>\n        </View>\n      }\n      items={[\n        { title: 'Order placed', time: 'Oct 6 · 18:22', description: 'Walnut desk lamp, linen shade · paid with Visa', icon: 'cart' },\n        { title: 'Payment confirmed', time: 'Oct 6 · 18:23', icon: 'tag' },\n        { title: 'Packed', time: 'Oct 7 · 10:40', description: 'Double-boxed with paper padding. Photo from the packing station:', icon: 'package', images: [{ uri: pic('parcel'), aspectRatio: 3 / 2 }] },\n        { title: 'Handed to carrier', time: 'Oct 7 · 16:05', description: 'Picked up from the Leipzig warehouse', icon: 'truck' },\n        { title: 'Left the sorting hub', time: 'Oct 8 · 02:14', description: 'Hauptumschlagbasis Leipzig', icon: 'truck' },\n        { title: 'Arrived in the Netherlands', time: 'Oct 9 · 07:50', description: 'Customs cleared, no fees due', icon: 'home' },\n        { title: 'Delivery attempt failed', time: 'Oct 10 · 14:31', description: 'No one home and no safe place. A card was left in the mailbox.', status: 'error', icon: 'home' },\n        { title: 'Rescheduled', time: 'Oct 10 · 19:02', description: 'You picked Monday, 12:00–18:00', icon: 'chat' },\n        { title: 'Out for delivery', time: '11:05', description: 'Jonas is 6 stops away in a white van', icon: 'truck', status: 'current', links: [{ label: 'Track on map', onPress: () => {} }] },\n        { title: 'Delivered', time: 'Est. 15:30', description: 'Leave at the front door if no one answers', icon: 'home', status: 'upcoming' },\n        { title: 'Rate your delivery', status: 'upcoming', icon: 'star' },\n      ]}\n    />\n  );\n}\n"
+    }
+  ]
+}

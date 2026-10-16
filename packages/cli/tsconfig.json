@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "jsx": "react-native",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["registry/liquidglass-tab/files/src/*"],
+      "react": ["../../expo-kit/node_modules/@types/react"],
+      "@expo/vector-icons": ["../../expo-kit/node_modules/@expo/vector-icons"],
+      "@expo/vector-icons/*": ["../../expo-kit/node_modules/@expo/vector-icons/*"],
+      "*": ["../../expo-kit/node_modules/*"]
+    }
+  },
+  "include": ["registry/**/*.ts", "registry/**/*.tsx"]
+}

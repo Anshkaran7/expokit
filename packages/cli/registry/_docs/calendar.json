@@ -1,0 +1,182 @@
+{
+  "name": "calendar",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "Calendar",
+  "files": [
+    "src/components/ui/calendar.tsx"
+  ],
+  "props": [
+    [
+      "mode",
+      "'single' | 'range' | 'multiple'",
+      "'single'",
+      "Selection model; decides the value type."
+    ],
+    [
+      "value",
+      "Date | { start, end } | Date[] | null",
+      "—",
+      "Controlled selection (Date for single, DateRange for range, Date[] for multiple)."
+    ],
+    [
+      "defaultValue",
+      "same as value",
+      "null",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(value) => void",
+      "—",
+      "Fires on every tap. Range fires { start, end: null } first, then both ends."
+    ],
+    [
+      "month",
+      "Date",
+      "—",
+      "Controlled visible month (any date inside it)."
+    ],
+    [
+      "defaultMonth",
+      "Date",
+      "selection or today",
+      "Month shown first when uncontrolled."
+    ],
+    [
+      "onMonthChange",
+      "(month: Date) => void",
+      "—",
+      "Called with the first day of the month navigated to."
+    ],
+    [
+      "weekStartsOn",
+      "0 | 1",
+      "0",
+      "0 = Sunday, 1 = Monday."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "BCP 47 locale for month and weekday names."
+    ],
+    [
+      "minDate",
+      "Date",
+      "—",
+      "Earliest selectable day; also limits navigation."
+    ],
+    [
+      "maxDate",
+      "Date",
+      "—",
+      "Latest selectable day; also limits navigation."
+    ],
+    [
+      "isDateDisabled",
+      "(date: Date) => boolean",
+      "—",
+      "Disable individual days (booked, holidays, weekends)."
+    ],
+    [
+      "markedDates",
+      "Record<string, string | string[]>",
+      "—",
+      "Up to three coloured dots under each day, keyed by toDateKey(date) (YYYY-MM-DD)."
+    ],
+    [
+      "highlightedDates",
+      "Record<string, string>",
+      "—",
+      "Fills whole days with a colour (birthdays, shifts, people), keyed by toDateKey(date). Text switches to a readable colour on top."
+    ],
+    [
+      "variant",
+      "'tiles' | 'minimal'",
+      "'tiles'",
+      "tiles puts every day of the month on a soft tile; minimal shows bare numbers with a hover / press circle."
+    ],
+    [
+      "weekdayFormat",
+      "'narrow' | 'short'",
+      "'narrow'",
+      "Weekday header as single letters (M T W) or short names (Mon Tue Wed), via Intl."
+    ],
+    [
+      "showTodayButton",
+      "boolean",
+      "true",
+      "Shows a Today pill in the header whenever another month is on screen; tapping it jumps back."
+    ],
+    [
+      "showOutsideDays",
+      "boolean",
+      "false",
+      "Show faded days of the neighbouring months (tapping one navigates there)."
+    ],
+    [
+      "showToday",
+      "boolean",
+      "true",
+      "Ring and tint today."
+    ],
+    [
+      "fixedWeeks",
+      "boolean",
+      "false",
+      "Always render six week rows so the height never changes."
+    ],
+    [
+      "monthPicker",
+      "boolean",
+      "true",
+      "Tap the title for a month grid, tap again for a year grid."
+    ],
+    [
+      "max",
+      "number",
+      "—",
+      "Most dates selectable in multiple mode."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selection, band and today colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container style."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Single",
+      "title": "Single",
+      "code": "import React, { useMemo, useState } from 'react';\nimport { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst today = startOfDay(new Date());\n\nconst day = (d: Date | null) => (d ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '—');\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]} {...rest} />;\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  title: { fontSize: 15, fontWeight: '400' },\n  summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },\n  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },\n  col: { flex: 1, gap: 2 },\n  muted: { fontSize: 13 },\n  strong: { fontSize: 15, fontWeight: '400' },\n  pill: { paddingHorizontal: 10, paddingVertical: 6 },\n  pillText: { fontSize: 13, fontWeight: '400' },\n  legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 6, justifyContent: 'center' },\n  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },\n  dot: { width: 8, height: 8, borderRadius: 4 },\n});\n\nexport default function Single() {\n  const [date, setDate] = useState<Date>(addDays(today, 3));\n  return (\n    <Card>\n      <Ink style={s.title}>Delivery day</Ink>\n      <Calendar value={date} onChange={setDate} minDate={today} />\n      <View style={s.summary}>\n        <Ink tone=\"muted\" style={s.muted}>Arriving</Ink>\n        <Ink style={s.strong}>{day(date)}</Ink>\n      </View>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Range",
+      "title": "Range",
+      "code": "import React, { useMemo, useState } from 'react';\nimport { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst today = startOfDay(new Date());\n\nconst day = (d: Date | null) => (d ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '—');\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]} {...rest} />;\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  title: { fontSize: 15, fontWeight: '400' },\n  summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },\n  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },\n  col: { flex: 1, gap: 2 },\n  muted: { fontSize: 13 },\n  strong: { fontSize: 15, fontWeight: '400' },\n  pill: { paddingHorizontal: 10, paddingVertical: 6 },\n  pillText: { fontSize: 13, fontWeight: '400' },\n  legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 6, justifyContent: 'center' },\n  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },\n  dot: { width: 8, height: 8, borderRadius: 4 },\n});\n\nexport default function Range() {\n  const [stay, setStay] = useState<DateRange>({ start: addDays(today, 4), end: addDays(today, 8) });\n  const { colors, radius } = useKit();\n  const nights = stay.start && stay.end ? Math.round((stay.end.getTime() - stay.start.getTime()) / 86400000) : 0;\n  return (\n    <Card>\n      <Ink style={s.title}>Your stay · Lisbon</Ink>\n      <Calendar mode=\"range\" value={stay} onChange={setStay} minDate={today} />\n      <View style={s.row}>\n        <View style={s.col}>\n          <Ink tone=\"muted\" style={s.muted}>Check-in</Ink>\n          <Ink style={s.strong}>{day(stay.start)}</Ink>\n        </View>\n        <View style={s.col}>\n          <Ink tone=\"muted\" style={s.muted}>Check-out</Ink>\n          <Ink style={s.strong}>{stay.end ? day(stay.end) : 'Select a date'}</Ink>\n        </View>\n        <View style={[s.pill, { opacity: nights ? 1 : 0.4, backgroundColor: alpha(colors.accent, 0.14), borderRadius: radius.capsule(30) }]}>\n          <Text style={[s.pillText, { color: colors.accent }]}>{nights ? `${nights} night${nights > 1 ? 's' : ''}` : '0 nights'}</Text>\n        </View>\n      </View>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Marked",
+      "title": "Marked",
+      "code": "import React, { useMemo, useState } from 'react';\nimport { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst today = startOfDay(new Date());\n\nconst day = (d: Date | null) => (d ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '—');\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]} {...rest} />;\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst MEETING = '#38bdf8';\n\nconst BIRTHDAY = '#f472b6';\n\nconst TRIP = '#f59e0b';\n\nconst DONE = '#22c55e';\n\nconst DUE = '#ef4444';\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  title: { fontSize: 15, fontWeight: '400' },\n  summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },\n  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },\n  col: { flex: 1, gap: 2 },\n  muted: { fontSize: 13 },\n  strong: { fontSize: 15, fontWeight: '400' },\n  pill: { paddingHorizontal: 10, paddingVertical: 6 },\n  pillText: { fontSize: 13, fontWeight: '400' },\n  legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 6, justifyContent: 'center' },\n  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },\n  dot: { width: 8, height: 8, borderRadius: 4 },\n});\n\nexport default function Marked() {\n  const [date, setDate] = useState<Date>(today);\n  const { highlights, marks } = useMemo(() => {\n    const y = today.getFullYear();\n    const m = today.getMonth();\n    const k = (d: number) => toDateKey(new Date(y, m, d));\n    return {\n      // Whole-day fills: who / what owns the day.\n      highlights: { [k(2)]: MEETING, [k(14)]: BIRTHDAY, [k(18)]: TRIP, [k(21)]: MEETING, [k(31)]: BIRTHDAY },\n      // Dots underneath: smaller things on that day.\n      marks: { [k(3)]: DONE, [k(8)]: DUE, [k(12)]: DONE, [k(17)]: DONE, [k(22)]: [DONE, DUE], [k(26)]: DUE },\n    };\n  }, []);\n  return (\n    <Card>\n      <Ink style={s.title}>Schedule</Ink>\n      <Calendar value={date} onChange={setDate} highlightedDates={highlights} markedDates={marks} weekStartsOn={1} />\n      <View style={s.legend}>\n        {[\n          ['Meeting', MEETING],\n          ['Birthday', BIRTHDAY],\n          ['Trip', TRIP],\n          ['Done', DONE],\n          ['Due', DUE],\n        ].map(([label, color]) => (\n          <View key={label} style={s.legendItem}>\n            <View style={[s.dot, { backgroundColor: color }]} />\n            <Ink tone=\"muted\" style={s.muted}>{label}</Ink>\n          </View>\n        ))}\n      </View>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Booking",
+      "title": "Booking",
+      "code": "import React, { useMemo, useState } from 'react';\nimport { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst today = startOfDay(new Date());\n\nconst day = (d: Date | null) => (d ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '—');\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]} {...rest} />;\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  title: { fontSize: 15, fontWeight: '400' },\n  summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },\n  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },\n  col: { flex: 1, gap: 2 },\n  muted: { fontSize: 13 },\n  strong: { fontSize: 15, fontWeight: '400' },\n  pill: { paddingHorizontal: 10, paddingVertical: 6 },\n  pillText: { fontSize: 13, fontWeight: '400' },\n  legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 6, justifyContent: 'center' },\n  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },\n  dot: { width: 8, height: 8, borderRadius: 4 },\n});\n\nexport default function Booking() {\n  const booked = useMemo(() => new Set([2, 5, 6, 11, 19].map((n) => toDateKey(addDays(today, n)))), []);\n  const [date, setDate] = useState<Date | null>(null);\n  return (\n    <Card>\n      <Ink style={s.title}>Book a consultation</Ink>\n      <Calendar\n        value={date}\n        onChange={setDate}\n        minDate={today}\n        maxDate={addDays(today, 45)}\n        isDateDisabled={(d) => d.getDay() === 0 || booked.has(toDateKey(d))}\n        showOutsideDays\n        fixedWeeks\n      />\n      <Ink tone=\"muted\" style={s.muted}>\n        {date ? `Next: choose a time on ${day(date)}` : 'Faded days are fully booked or closed on Sundays.'}\n      </Ink>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "WeekStartsMonday",
+      "title": "Week Starts Monday",
+      "code": "import React, { useMemo, useState } from 'react';\nimport { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst today = startOfDay(new Date());\n\nconst day = (d: Date | null) => (d ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '—');\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]} {...rest} />;\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },\n  title: { fontSize: 15, fontWeight: '400' },\n  summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },\n  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },\n  col: { flex: 1, gap: 2 },\n  muted: { fontSize: 13 },\n  strong: { fontSize: 15, fontWeight: '400' },\n  pill: { paddingHorizontal: 10, paddingVertical: 6 },\n  pillText: { fontSize: 13, fontWeight: '400' },\n  legend: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 14, rowGap: 6, justifyContent: 'center' },\n  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },\n  dot: { width: 8, height: 8, borderRadius: 4 },\n});\n\nexport default function WeekStartsMonday() {\n  const [days, setDays] = useState<Date[]>([addDays(today, 1), addDays(today, 3)]);\n  return (\n    <Card>\n      <Ink style={s.title}>Training days · pick up to 3</Ink>\n      <Calendar mode=\"multiple\" value={days} onChange={setDays} max={3} weekStartsOn={1} locale=\"en-GB\" showOutsideDays />\n      <Ink tone=\"muted\" style={s.muted}>{days.length ? days.map((d) => day(d)).join('  ·  ') : 'No sessions planned'}</Ink>\n    </Card>\n  );\n}\n"
+    }
+  ]
+}

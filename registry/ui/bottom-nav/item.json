@@ -1,0 +1,94 @@
+{
+  "name": "bottom-nav",
+  "title": "Bottom Nav",
+  "tier": "free",
+  "category": "Navigation",
+  "isNew": true,
+  "description": "Bottom navigation in five looks — minimal dot, floating capsule, expanding pill, notched centre FAB and top indicator with a spotlight. A liquid indicator stretches between tabs (leading edge first, trailing edge catching up), icons morph from outline to filled with a spring and a lift, active labels rise in, badges pop, the solid accent action button glows softly, and every change ticks a haptic.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "aliases": [
+    "bottom-tabs",
+    "tab-bar",
+    "bottom-bar"
+  ],
+  "props": [
+    [
+      "items",
+      "{ key, label, icon, badge?, action? }[]",
+      "—",
+      "Tabs. `icon` is a built-in name (home, explore, search, projects, saved, profile, inbox, activity, analytics, message, work, browse, library, music, create) or a render function `({ color, size, active }) => node` — called for both the outline (`active: false`) and filled (`active: true`) states so it can morph."
+    ],
+    [
+      "value / defaultValue",
+      "string",
+      "first tab",
+      "Active tab key (controlled / uncontrolled)."
+    ],
+    [
+      "onValueChange",
+      "(key: string) => void",
+      "—",
+      "Called when a tab is pressed."
+    ],
+    [
+      "onAction",
+      "(key: string) => void",
+      "—",
+      "Called when an `action: true` item (e.g. Create) is pressed. Action items render as a solid accent button and never become active."
+    ],
+    [
+      "variant",
+      "\"minimal\" | \"floating\" | \"pill\" | \"center-fab\" | \"indicator\"",
+      "\"minimal\"",
+      "Look. Deprecated values still render: `glass`, `neumorphic`, `dock`, `curved` → `floating`; `gradient`, `outline` → `pill`."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Active colour and the action button fill."
+    ],
+    [
+      "gradient",
+      "[string, string]",
+      "none (solid accent)",
+      "Opt-in two-colour gradient for the action button."
+    ],
+    [
+      "showLabels",
+      "boolean",
+      "true",
+      "Show labels. `floating` and `pill` reveal only the active label; the others show all."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "0",
+      "Extra bottom padding — pass `useSafeAreaInsets().bottom` when the bar sits at the screen edge."
+    ],
+    [
+      "homeIndicator",
+      "boolean",
+      "minimal",
+      "Draw the iOS home-indicator line."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on tab change, light impact on the action button."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style of the bar (the outer shadow view for `floating`)."
+    ]
+  ]
+}

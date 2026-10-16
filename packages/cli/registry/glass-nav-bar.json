@@ -1,0 +1,21 @@
+{
+  "name": "glass-nav-bar",
+  "type": "component",
+  "title": "Glass Nav Bar",
+  "description": "The iOS 26 top bar in Liquid Glass: a centred title, a round glass back button and round glass actions that melt together on iOS 26. Wire it to a ScrollView with useGlassNavScroll() and the bar starts transparent, its glass fading in as content slides under it, while an optional large title shrinks and collapses into the bar — all on the native driver. Real Liquid Glass on iOS 26, blur on older iOS, Android and web.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-glass-effect",
+    "expo-blur",
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "glass"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/glass.tsx"
+  ],
+  "filesDir": null
+}

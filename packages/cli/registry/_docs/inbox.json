@@ -1,0 +1,72 @@
+{
+  "name": "inbox",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Inbox",
+  "files": [
+    "src/components/blocks/inbox.tsx"
+  ],
+  "props": [
+    [
+      "messages",
+      "{ id, from, avatar?, subject, preview, time, unread?, mentioned?, online? }[]",
+      "6 sample threads",
+      "Initial threads. Archive / delete / read state is kept locally."
+    ],
+    [
+      "title",
+      "string",
+      "'Inbox'",
+      "Screen heading."
+    ],
+    [
+      "defaultFilter",
+      "'all' | 'unread' | 'mentions'",
+      "'all'",
+      "Initially selected filter chip."
+    ],
+    [
+      "onOpen",
+      "(message) => void",
+      "—",
+      "A row was tapped (it is marked read)."
+    ],
+    [
+      "onArchive",
+      "(message) => void",
+      "—",
+      "Swiped / tapped Archive."
+    ],
+    [
+      "onDelete",
+      "(message) => void",
+      "—",
+      "Swiped / tapped Delete."
+    ],
+    [
+      "onToggleRead",
+      "(message, unread: boolean) => void",
+      "—",
+      "Marked read or unread."
+    ],
+    [
+      "onCompose",
+      "() => void",
+      "—",
+      "Shows a compose button in the header when set."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Chip, badge, search focus and time colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

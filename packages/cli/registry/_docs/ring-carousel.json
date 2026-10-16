@@ -1,0 +1,102 @@
+{
+  "name": "ring-carousel",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "RingCarousel",
+  "files": [
+    "src/components/ui/ring-carousel.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "T[]",
+      "—",
+      "Items, one card each."
+    ],
+    [
+      "renderItem",
+      "({ item, index, active }) => ReactNode",
+      "—",
+      "Render a card. `active` is true for the card facing you."
+    ],
+    [
+      "keyExtractor",
+      "(item: T, index: number) => string",
+      "index",
+      "React key for each card."
+    ],
+    [
+      "itemWidth",
+      "number",
+      "170",
+      "Card width."
+    ],
+    [
+      "itemHeight",
+      "number",
+      "230",
+      "Card height."
+    ],
+    [
+      "spacing",
+      "number",
+      "360 / count (≤ 45)",
+      "Degrees between neighbours."
+    ],
+    [
+      "autoplay",
+      "boolean | number",
+      "false",
+      "Turn every 3s (or N ms); pauses while touched."
+    ],
+    [
+      "index",
+      "number",
+      "—",
+      "Controlled front card."
+    ],
+    [
+      "defaultIndex",
+      "number",
+      "0",
+      "Uncontrolled initial front card."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "Fires when the front card changes."
+    ],
+    [
+      "onPress",
+      "(item: T, index: number) => void",
+      "—",
+      "Tap on the front card."
+    ],
+    [
+      "pagination",
+      "boolean",
+      "true",
+      "Dots under the ring."
+    ],
+    [
+      "accent",
+      "string",
+      "theme foreground",
+      "Active dot colour."
+    ],
+    [
+      "radius",
+      "number",
+      "18",
+      "Corner radius of each card."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view."
+    ]
+  ],
+  "examples": []
+}

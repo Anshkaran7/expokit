@@ -1,0 +1,17 @@
+{
+  "name": "otp-input",
+  "type": "component",
+  "title": "OTP Input",
+  "description": "One-time-code cells that size themselves to fit any width. The active cell glows with a soft focus halo and a blinking caret, digits pop in on a spring, a pasted code fills every cell, errors shake the row and success pulses across the cells with a drawn check.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "otp-input/files"
+}

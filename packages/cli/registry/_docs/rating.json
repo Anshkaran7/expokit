@@ -1,0 +1,90 @@
+{
+  "name": "rating",
+  "category": "Selection",
+  "aliases": [],
+  "exportName": "Rating",
+  "files": [
+    "src/components/ui/rating.tsx"
+  ],
+  "props": [
+    [
+      "value / onValueChange",
+      "number",
+      "—",
+      "Controlled value (or use defaultValue)."
+    ],
+    [
+      "defaultValue",
+      "number",
+      "0",
+      "Initial value when uncontrolled."
+    ],
+    [
+      "max",
+      "number",
+      "5",
+      "Number of icons."
+    ],
+    [
+      "allowHalf",
+      "boolean",
+      "false",
+      "Half-icon precision when tapping or dragging."
+    ],
+    [
+      "readOnly",
+      "boolean",
+      "false",
+      "Display only; fractional values (4.3) fill partially."
+    ],
+    [
+      "clearable",
+      "boolean",
+      "false",
+      "Tap the current value again to reset to 0."
+    ],
+    [
+      "icon",
+      "\"star\" | \"heart\"",
+      "\"star\"",
+      "Star or heart icons; heart switches the default fill to danger."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\" | number",
+      "\"md\"",
+      "18 / 28 / 40pt, or any number."
+    ],
+    [
+      "accent",
+      "string",
+      "warning / danger",
+      "Fill colour."
+    ],
+    [
+      "gap",
+      "number",
+      "20% of size",
+      "Space between icons."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick for every step while tapping or dragging."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks input."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the row of icons."
+    ]
+  ],
+  "examples": []
+}

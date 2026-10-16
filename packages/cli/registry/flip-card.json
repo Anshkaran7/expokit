@@ -1,0 +1,15 @@
+{
+  "name": "flip-card",
+  "type": "component",
+  "title": "Flip Card",
+  "description": "Two-sided card that turns over in 3D on tap — it lifts toward you half-way and its shadow narrows as it goes edge-on, like a real card. Flips left/right or top/bottom, controlled or uncontrolled, and swaps faces exactly at 90° so Android never flickers.",
+  "tier": "free",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "flip-card/files"
+}

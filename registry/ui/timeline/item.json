@@ -1,0 +1,125 @@
+{
+  "name": "timeline",
+  "title": "Timeline",
+  "tier": "free",
+  "category": "Display",
+  "isNew": true,
+  "description": "Vertical timeline for order tracking, activity feeds, travel logs and release history, in the preview's solid accent colour. Items rise in, then the connector fills down to the current step: done dots draw their check as the line arrives, the current dot pulses, upcoming dots stay hollow on a dotted track, and failures draw a red cross. The scroll variant ties the fill to the scroll position, lighting each node as the line reaches it. Entries can carry photo galleries, tags and links.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "avatar"
+  ],
+  "props": [
+    [
+      "items",
+      "TimelineItem[]",
+      "—",
+      "{ key?, title, description?, time?, status?, icon?, avatar?, image?, images?, tags?, links?, content? } per event."
+    ],
+    [
+      "items[].status",
+      "\"done\" | \"current\" | \"upcoming\" | \"error\"",
+      "\"done\"",
+      "Filled with a drawn check · pulsing · hollow on a dotted track · red with a drawn ✕."
+    ],
+    [
+      "items[].icon",
+      "TimelineIconName | ({ color, size }) => ReactNode",
+      "—",
+      "cart, package, truck, home, rocket, bug, star, chat, tag, user, or your own glyph in a larger dot (done/failed get a mini check/✕ badge)."
+    ],
+    [
+      "items[].avatar",
+      "{ src?, name }",
+      "—",
+      "Avatar (initials fallback) instead of a dot."
+    ],
+    [
+      "items[].image",
+      "string | { uri, aspectRatio? }",
+      "—",
+      "Photo under the text, rounded, fades in when loaded (16:9 by default)."
+    ],
+    [
+      "items[].images",
+      "(string | { uri, aspectRatio? })[]",
+      "—",
+      "Photo gallery: 1-up at its ratio, 2-up side by side, 3-up one large + two stacked (+N for more). Rounded, fades in."
+    ],
+    [
+      "items[].tags",
+      "string[]",
+      "—",
+      "Small accent chips under the text."
+    ],
+    [
+      "items[].links",
+      "{ label, onPress }[]",
+      "—",
+      "Tappable accent links under the text."
+    ],
+    [
+      "items[].content",
+      "ReactNode",
+      "—",
+      "Rich content under the description: a card, quote, tags or buttons."
+    ],
+    [
+      "variant",
+      "\"default\" | \"compact\" | \"card\" | \"scroll\"",
+      "\"default\"",
+      "Roomy rows · small dots on one line · each event on a card (current one tinted) · renders its own scroll view and fills the line as you scroll (give it a height)."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Done / current dots and the filled line."
+    ],
+    [
+      "checks",
+      "boolean",
+      "true",
+      "Draw a check in done dots."
+    ],
+    [
+      "animated",
+      "boolean",
+      "true",
+      "Staggered entrance + connector fill, or the scroll-driven fill (off with reduce motion: everything shows filled)."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the rail — fills hollow dots and mini badge cut-outs."
+    ],
+    [
+      "header",
+      "ReactNode",
+      "—",
+      "scroll: shown above the timeline inside the scroll view."
+    ],
+    [
+      "footer",
+      "ReactNode",
+      "—",
+      "scroll: shown below the timeline inside the scroll view."
+    ],
+    [
+      "contentContainerStyle",
+      "StyleProp<ViewStyle>",
+      "{ paddingVertical: 12 }",
+      "scroll: the scroll view's content container."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style — for variant=\"scroll\" this is the scroll view, so set a height."
+    ]
+  ]
+}

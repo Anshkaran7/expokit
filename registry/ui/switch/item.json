@@ -1,0 +1,82 @@
+{
+  "name": "switch",
+  "title": "Switch",
+  "tier": "free",
+  "category": "Selection",
+  "description": "A toggle whose thumb stretches toward the other side while you hold it (squash & stretch), drags across under your finger and throws a soft halo as it springs over, while the track cross-fades. iOS, Material 3 and sun/moon icon looks.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "value / onValueChange",
+      "boolean",
+      "—",
+      "Controlled state (or use defaultValue)."
+    ],
+    [
+      "defaultValue",
+      "boolean",
+      "false",
+      "Initial state when uncontrolled."
+    ],
+    [
+      "variant",
+      "\"ios\" | \"material\" | \"icon\"",
+      "\"ios\"",
+      "Look of the track and thumb."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "24 / 31 / 38pt tall."
+    ],
+    [
+      "icon",
+      "\"theme\" | \"check\"",
+      "\"theme\"",
+      "Sun / moon or ✕ / check inside the thumb (variant=\"icon\")."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Turns it into a settings row with the switch on the right."
+    ],
+    [
+      "description",
+      "string",
+      "—",
+      "Secondary line under the label."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Track colour when on."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light tap when it flips."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the pressable — the switch itself, or the whole settings row when label is set."
+    ]
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "slide-to-confirm",
+  "type": "component",
+  "title": "Slide to Confirm",
+  "description": "Slide-to-pay track: drag the thumb and a glowing trail follows it towards a target that lights up, with haptic ticks along the way. Every look follows the accent as one solid colour (with an opt-in gradient variant); success draws a check, a failed onConfirm shakes the track and slides back.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

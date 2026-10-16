@@ -1,0 +1,147 @@
+{
+  "name": "textarea",
+  "title": "Textarea",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "Multiline field that glides taller line by line between minRows and maxRows, with a floating label, a focus halo, animated error / success states, a counter that morphs into a progress ring (amber at 90%, red at the limit) and a toolbar slot for chat composers.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "\u2014",
+      "Rests on the first line, floats onto the border on focus."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch); placeholder shows inside."
+    ],
+    [
+      "variant",
+      "\"outlined\" | \"filled\"",
+      "\"outlined\"",
+      "Field style."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "14 / 16 / 18px text; line height and padding scale too."
+    ],
+    [
+      "minRows / maxRows",
+      "number",
+      "3 / 8",
+      "Grows smoothly between these, then scrolls."
+    ],
+    [
+      "maxLength",
+      "number",
+      "\u2014",
+      "Character limit; enables the counter."
+    ],
+    [
+      "enforceMaxLength",
+      "boolean",
+      "true",
+      "false makes the limit soft: typing past it turns the counter red and negative."
+    ],
+    [
+      "showCount",
+      "boolean",
+      "true when maxLength",
+      "Counter that becomes a ring in the last 20%."
+    ],
+    [
+      "toolbar",
+      "ReactNode",
+      "\u2014",
+      "Row inside the bottom edge \u2014 attach, emoji, send."
+    ],
+    [
+      "error",
+      "string",
+      "\u2014",
+      "Red state, icon + message that slides in, one shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "\u2014",
+      "Green border + animated check; a string is shown as the message."
+    ],
+    [
+      "helper",
+      "string",
+      "\u2014",
+      "Hint under the field."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus border and halo colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the field (paints the label notch)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "\u2014",
+      "Style for the outer wrapper around the field and footer (the one that shakes)."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "\u2014",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). height is ignored: the box grows with minRows / maxRows."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "The typed text \u2014 fontSize, lineHeight, fontWeight, color, fontFamily. Row height follows lineHeight (or scales with fontSize)."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "Label in both modes (floating and above). color is the resting colour \u2014 focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "Helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "counterStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "Counter text (42/280 and the characters-left number); warning / danger still win near the limit."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour."
+    ],
+    [
+      "\u2026TextInputProps",
+      "",
+      "",
+      "value, defaultValue, onChangeText, placeholder, \u2026"
+    ]
+  ]
+}

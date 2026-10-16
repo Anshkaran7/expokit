@@ -1,0 +1,11 @@
+{
+  "name": "kpi-card",
+  "category": null,
+  "aliases": [],
+  "exportName": "KpiCard",
+  "files": [
+    "src/components/charts/kpi-card.tsx"
+  ],
+  "props": [],
+  "examples": []
+}

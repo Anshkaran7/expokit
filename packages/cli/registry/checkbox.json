@@ -1,0 +1,17 @@
+{
+  "name": "checkbox",
+  "type": "component",
+  "title": "Checkbox",
+  "description": "The tick draws itself in, the box squishes on press and a ring bursts out. Labels, descriptions and to-do strike-through.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "checkbox/files"
+}

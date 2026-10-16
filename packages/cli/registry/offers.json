@@ -1,0 +1,24 @@
+{
+  "name": "offers",
+  "type": "block",
+  "title": "Offers",
+  "description": "An “Apply coupon” screen people enjoy: type a code or tap Apply, see what each coupon saves on this cart, locked offers say how much more to add, and applying one drops a saving banner — with confetti. A 3D holographic coupon leads, category chips filter, and a footer shows what's left to pay.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "coupon",
+    "confetti"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/tilt-card.tsx",
+    "components/ui/flip-card.tsx",
+    "lib/ticket-shape.tsx",
+    "components/ui/coupon.tsx",
+    "components/ui/confetti.tsx"
+  ],
+  "filesDir": null
+}

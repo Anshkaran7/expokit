@@ -1,0 +1,70 @@
+{
+  "name": "password-input",
+  "title": "Password Input",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "Floating-label password field with an eye / eye-off toggle that cross-fades and spins, a spring-filled strength meter that shifts colour with the score, a live requirements checklist that ticks itself off, and a confirm mode that says when passwords match.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "floating-input"
+  ],
+  "props": [
+    [
+      "strength",
+      "boolean",
+      "true",
+      "Show the animated strength meter."
+    ],
+    [
+      "score",
+      "(pw) => 0\u20134",
+      "built-in",
+      "Custom strength scorer."
+    ],
+    [
+      "requirements",
+      "{ label, test }[] | boolean",
+      "\u2014",
+      "Checklist under the field; true uses DEFAULT_PASSWORD_REQUIREMENTS (8+ chars, upper & lower, number, symbol)."
+    ],
+    [
+      "confirmOf",
+      "string",
+      "\u2014",
+      "Confirm-password mode: shows match / mismatch once the user types."
+    ],
+    [
+      "matchMessage / mismatchMessage",
+      "string",
+      "\"Passwords match\" / \"Passwords don't match\"",
+      "Copy for confirm mode."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Passed to FloatingInput: set to false to put the label above the field (no notch) and show placeholder inside."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Eye / eye-off toggle and clear button colour."
+    ],
+    [
+      "fieldStyle / inputStyle / labelStyle / messageStyle / counterStyle",
+      "StyleProp",
+      "\u2014",
+      "Style slots passed straight to FloatingInput \u2014 see Floating Input."
+    ],
+    [
+      "\u2026FloatingInputProps",
+      "",
+      "",
+      "Every Floating Input prop (error, success, size, variant, \u2026)."
+    ]
+  ]
+}

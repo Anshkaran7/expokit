@@ -1,0 +1,111 @@
+{
+  "name": "card",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "Card",
+  "files": [
+    "src/components/ui/card.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"default\" | \"outline\" | \"elevated\"",
+      "\"default\"",
+      "Surface style. Glass is translucent with a light edge — place it over colour or imagery."
+    ],
+    [
+      "onPress / onLongPress",
+      "(e) => void",
+      "—",
+      "Makes the card a button with a spring press."
+    ],
+    [
+      "pressable",
+      "boolean",
+      "false",
+      "Spring press without an onPress."
+    ],
+    [
+      "highlight",
+      "\"none\" | \"spotlight\" | \"border\"",
+      "\"none\"",
+      "Radial glow that tracks the finger, or an accent border that glows in."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Highlight colour."
+    ],
+    [
+      "padding",
+      "number",
+      "18",
+      "Inner padding."
+    ],
+    [
+      "gap",
+      "number",
+      "14",
+      "Space between sections."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks presses."
+    ],
+    [
+      "Card.Header action",
+      "ReactNode",
+      "—",
+      "Element pinned to the header's top-right."
+    ],
+    [
+      "Card.Title / Description numberOfLines",
+      "number",
+      "—",
+      "Clamp the text to this many lines with an ellipsis."
+    ],
+    [
+      "Card.Content / Footer",
+      "{ children, style? }",
+      "—",
+      "Plain section view / bottom row of actions (row, 10pt gap); `style` overrides either."
+    ],
+    [
+      "Card.Media source / height",
+      "ImageSource / number",
+      "— / 168",
+      "Full-bleed image; place it first."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the card surface (merged after the variant background, border and radius)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "title": "Default",
+      "code": "import { Text, View } from 'react-native';\nimport { Card } from '@/components/ui/card';\nimport { Button } from '@/components/ui/button';\nimport { useKit } from '@/lib/kit';\n\nexport default function Default() {\n  const { colors } = useKit();\n  return (\n    <Card>\n      <Card.Header action={<Text style={{ fontSize: 18, color: colors.mutedForeground }}>⋯</Text>}>\n        <Card.Title>Invite your team</Card.Title>\n        <Card.Description>Collaborators can edit boards, leave comments and see version history.</Card.Description>\n      </Card.Header>\n      <Card.Content>\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>3 of 10 seats used on the Starter plan</Text>\n      </Card.Content>\n      <Card.Footer>\n        <Button variant=\"outline\" size=\"sm\">Copy link</Button>\n        <Button variant=\"accent\" size=\"sm\">Send invites</Button>\n      </Card.Footer>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Variants",
+      "title": "Variants",
+      "code": "import { Text, View } from 'react-native';\nimport { Card } from '@/components/ui/card';\n\nexport default function Variants() {\n  return (\n    <View style={{ gap: 12 }}>\n      {(['default', 'outline', 'elevated'] as const).map((variant) => (\n        <Card key={variant} variant={variant} padding={16}>\n          <Card.Header>\n            <Card.Title>{variant[0].toUpperCase() + variant.slice(1)}</Card.Title>\n            <Card.Description>variant=&quot;{variant}&quot;</Card.Description>\n          </Card.Header>\n        </Card>\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Spotlight",
+      "title": "Spotlight",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Card } from '@/components/ui/card';\nimport { useKit } from '@/lib/kit';\n\nexport default function Spotlight() {\n  const { colors } = useKit();\n  const [opened, setOpened] = useState(0);\n  return (\n    <Card variant=\"elevated\" highlight=\"spotlight\" onPress={() => setOpened((n) => n + 1)} accessibilityLabel=\"Open Kyoto guide\">\n      <Card.Media source={{ uri: 'https://picsum.photos/seed/kyoto/600/400' }} height={150} />\n      <Card.Header>\n        <Card.Title>Kyoto in autumn</Card.Title>\n        <Card.Description numberOfLines={2}>Temples, maple-lined paths and the best matcha spots — a 4-day walking guide.</Card.Description>\n      </Card.Header>\n      <Card.Footer>\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>12 min read · opened {opened}×</Text>\n      </Card.Footer>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "SelectablePlans",
+      "title": "Selectable Plans",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Card } from '@/components/ui/card';\nimport { useKit } from '@/lib/kit';\n\nexport default function SelectablePlans() {\n  const { colors } = useKit();\n  const [plan, setPlan] = useState('pro');\n  const plans = [\n    { id: 'starter', name: 'Starter', price: 'Free', note: 'For side projects' },\n    { id: 'pro', name: 'Pro', price: '₹499/mo', note: 'Unlimited boards and history' },\n    { id: 'team', name: 'Team', price: '₹1,499/mo', note: 'Roles, SSO and audit log' },\n  ];\n  return (\n    <View style={{ gap: 10 }}>\n      {plans.map((p) => (\n        <Card\n          key={p.id}\n          variant=\"outline\"\n          padding={16}\n          highlight=\"border\"\n          onPress={() => setPlan(p.id)}\n          accessibilityLabel={`${p.name} plan`}\n          style={plan === p.id ? { borderColor: colors.accent, borderWidth: 1.5 } : undefined}\n        >\n          <Card.Header action={<Text style={{ fontWeight: '400', color: plan === p.id ? colors.accent : colors.mutedForeground }}>{p.price}</Text>}>\n            <Card.Title>{p.name}</Card.Title>\n            <Card.Description>{p.note}</Card.Description>\n          </Card.Header>\n        </Card>\n      ))}\n    </View>\n  );\n}\n"
+    }
+  ]
+}

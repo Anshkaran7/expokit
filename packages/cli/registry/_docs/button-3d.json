@@ -1,0 +1,122 @@
+{
+  "name": "button-3d",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "Button3D",
+  "files": [
+    "src/components/ui/button-3d.tsx"
+  ],
+  "props": [
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Label, a single glyph (circle buttons) or custom content."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Fires on tap."
+    ],
+    [
+      "appearance",
+      "\"auto\" | \"light\" | \"dark\" | \"glass\"",
+      "\"auto\"",
+      "Keycap material; auto is light on dark screens and dark on light ones. Glass is for buttons on photos."
+    ],
+    [
+      "color",
+      "string",
+      "—",
+      "A custom face colour instead of a material, e.g. your brand colour."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Height and text size (36 / 46 / 56)."
+    ],
+    [
+      "shape",
+      "\"rounded\" | \"pill\" | \"circle\"",
+      "\"rounded\"",
+      "Keycap, pill or round icon button."
+    ],
+    [
+      "depth",
+      "number",
+      "4 / 5 / 6 by size",
+      "Edge height in points."
+    ],
+    [
+      "icon",
+      "ReactNode",
+      "—",
+      "Shown before the label."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretch to the parent's width."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Show a spinner and ignore taps."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dim the button and ignore taps."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light haptic tap on press (iOS / Android)."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Label for screen readers (needed for icon-only buttons)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width, margins)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "OnPhoto",
+      "title": "On Photo",
+      "code": "import React, { useState } from 'react';\nimport { Image, Text, View } from 'react-native';\nimport { Button3D } from '@/components/ui/button-3d';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). `blur` gives soft, abstract art. */\nconst photo = (id: number, w: number, h: number, blur = false) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}${blur ? '?blur=10' : ''}` });\n\n/** A screen title, as it sits above the content in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function OnPhoto() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 18 }}>\n      <Header\n        title=\"Good morning, Maya\"\n        sub=\"Your trip starts in 3 days\"\n        right={\n          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }}>\n            <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>MP</Text>\n          </View>\n        }\n      />\n      <View style={{ height: 440, borderRadius: 28, overflow: 'hidden', backgroundColor: '#1a2a22' }}>\n        <Image alt=\"\" source={photo(1039, 700, 880)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />\n        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.28)' }} />\n        <View style={{ flex: 1, justifyContent: 'flex-end', padding: 22, gap: 16 }}>\n          <View>\n            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 }}>OREGON · 3 DAYS</Text>\n            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Multnomah Falls</Text>\n            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2 }}>Waterfalls, old-growth forest and a lodge by the river</Text>\n          </View>\n          <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>\n            <Button3D appearance=\"glass\" size=\"lg\" shape=\"pill\" style={{ flex: 1 }} block>\n              Start the trip\n            </Button3D>\n            <Button3D appearance=\"glass\" size=\"lg\" shape=\"circle\" accessibilityLabel=\"Save\">\n              ♡\n            </Button3D>\n            <Button3D appearance=\"glass\" size=\"lg\" shape=\"circle\" accessibilityLabel=\"Share\">\n              ↗\n            </Button3D>\n          </View>\n        </View>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Keypad",
+      "title": "Keypad",
+      "code": "import React, { useState } from 'react';\nimport { Image, Text, View } from 'react-native';\nimport { Button3D } from '@/components/ui/button-3d';\nimport { useKit } from '@/lib/kit';\n\nexport default function Keypad() {\n  const { colors } = useKit();\n  const [pin, setPin] = useState('');\n  const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];\n  return (\n    <View style={{ gap: 26, alignItems: 'center' }}>\n      <View style={{ alignItems: 'center', gap: 4 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>Enter passcode</Text>\n        <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>to unlock Northwind</Text>\n      </View>\n      <View style={{ flexDirection: 'row', gap: 14 }}>\n        {[0, 1, 2, 3].map((i) => (\n          <View key={i} style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: i < pin.length ? colors.foreground : colors.border }} />\n        ))}\n      </View>\n      <View style={{ width: 252, flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>\n        {keys.map((k, i) =>\n          k ? (\n            <Button3D\n              key={k}\n              appearance=\"light\"\n              size=\"lg\"\n              style={{ width: 76 }}\n              accessibilityLabel={k === '⌫' ? 'Delete' : k}\n              onPress={() => setPin((p) => (k === '⌫' ? p.slice(0, -1) : (p + k).slice(0, 4)))}\n            >\n              {k}\n            </Button3D>\n          ) : (\n            <View key={`gap-${i}`} style={{ width: 76 }} />\n          )\n        )}\n      </View>\n      <Text style={{ color: colors.mutedForeground, fontSize: 13, fontWeight: '500' }}>Forgot passcode?</Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Checkout",
+      "title": "Checkout",
+      "code": "import React, { useState } from 'react';\nimport { Image, Text, View } from 'react-native';\nimport { Button3D } from '@/components/ui/button-3d';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). `blur` gives soft, abstract art. */\nconst photo = (id: number, w: number, h: number, blur = false) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}${blur ? '?blur=10' : ''}` });\n\n/** A screen title, as it sits above the content in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Checkout() {\n  const { colors } = useKit();\n  const [busy, setBusy] = useState(false);\n  const items = [\n    { img: 766, name: 'House blend beans', detail: '250 g · ×2', price: '₹880' },\n    { img: 1060, name: 'Pour-over filters', detail: 'Pack of 100', price: '₹120' },\n  ];\n  const line = (label: string, value: string, strong = false) => (\n    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>\n      <Text style={{ color: strong ? colors.foreground : colors.mutedForeground, fontSize: strong ? 16 : 14, fontWeight: strong ? '700' : '400' }}>{label}</Text>\n      <Text style={{ color: colors.foreground, fontSize: strong ? 16 : 14, fontWeight: strong ? '700' : '500' }}>{value}</Text>\n    </View>\n  );\n  return (\n    <View style={{ gap: 18 }}>\n      <Header title=\"Checkout\" sub=\"2 items · arrives tomorrow\" />\n      <View style={{ gap: 12 }}>\n        {items.map((it) => (\n          <View key={it.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n            <Image alt=\"\" source={photo(it.img, 120, 120)} style={{ width: 52, height: 52, borderRadius: 12, backgroundColor: colors.muted }} />\n            <View style={{ flex: 1 }}>\n              <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '600' }}>{it.name}</Text>\n              <Text style={{ color: colors.mutedForeground, fontSize: 12 }}>{it.detail}</Text>\n            </View>\n            <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '600' }}>{it.price}</Text>\n          </View>\n        ))}\n      </View>\n      <View style={{ gap: 8, paddingTop: 14, borderTopWidth: 1, borderTopColor: colors.border }}>\n        {line('Subtotal', '₹1,000')}\n        {line('Express delivery', '₹240')}\n        {line('Total', '₹1,240', true)}\n      </View>\n      <View style={{ gap: 12 }}>\n        <Button3D\n          block\n          size=\"lg\"\n          loading={busy}\n          onPress={() => {\n            setBusy(true);\n            setTimeout(() => setBusy(false), 1500);\n          }}\n        >\n          Pay ₹1,240\n        </Button3D>\n        <Button3D block size=\"md\" color={colors.muted}>\n          Add a promo code\n        </Button3D>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Keycaps",
+      "title": "Keycaps",
+      "code": "import React, { useState } from 'react';\nimport { Image, Text, View } from 'react-native';\nimport { Button3D } from '@/components/ui/button-3d';\nimport { useKit } from '@/lib/kit';\n\n/** A screen title, as it sits above the content in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Keycaps() {\n  const row = (keys: [string, number?][], appearance: 'light' | 'dark') => (\n    <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>\n      {keys.map(([k, w]) => (\n        <Button3D key={k} appearance={appearance} size=\"lg\" style={{ width: w ?? 56 }} accessibilityLabel={k}>\n          {k}\n        </Button3D>\n      ))}\n    </View>\n  );\n  return (\n    <View style={{ gap: 22 }}>\n      <Header title=\"Keycaps\" sub=\"Press and hold a key to feel it sink\" />\n      <View style={{ gap: 12 }}>\n        {row([['esc', 64], ['Q'], ['W'], ['E'], ['R']], 'light')}\n        {row([['⌘', 64], ['A'], ['S'], ['D'], ['F']], 'dark')}\n        {row([['space', 196], ['↵', 92]], 'light')}\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Materials",
+      "title": "Materials",
+      "code": "import React, { useState } from 'react';\nimport { Image, Text, View } from 'react-native';\nimport { Button3D } from '@/components/ui/button-3d';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). `blur` gives soft, abstract art. */\nconst photo = (id: number, w: number, h: number, blur = false) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}${blur ? '?blur=10' : ''}` });\n\n/** A screen title, as it sits above the content in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Materials() {\n  return (\n    <View style={{ gap: 18 }}>\n      <Header title=\"Materials\" sub=\"Light, dark, frosted glass — or any colour\" />\n      <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'center' }}>\n        <Button3D appearance=\"light\">Light</Button3D>\n        <Button3D appearance=\"dark\">Dark</Button3D>\n        <Button3D color=\"#ff5a5f\">Custom</Button3D>\n      </View>\n      <View style={{ borderRadius: 22, overflow: 'hidden', padding: 18, alignItems: 'center', backgroundColor: '#3a2b55' }}>\n        <Image alt=\"\" source={photo(888, 300, 160, true)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />\n        <View style={{ flexDirection: 'row', gap: 10 }}>\n          <Button3D appearance=\"glass\">Glass</Button3D>\n          <Button3D appearance=\"glass\" shape=\"pill\">\n            On any photo\n          </Button3D>\n        </View>\n      </View>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

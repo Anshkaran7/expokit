@@ -1,0 +1,72 @@
+{
+  "name": "swipeable-row",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "SwipeableRow",
+  "files": [
+    "src/components/ui/swipeable-row.tsx"
+  ],
+  "props": [
+    [
+      "leftActions",
+      "SwipeAction[]",
+      "[]",
+      "Revealed by swiping right; the first is the edge (full-swipe) action."
+    ],
+    [
+      "rightActions",
+      "SwipeAction[]",
+      "[]",
+      "Revealed by swiping left; the last is the edge (full-swipe) action."
+    ],
+    [
+      "SwipeAction",
+      "{ label, color, icon?, onPress?, destructive? }",
+      "—",
+      "destructive collapses the row before calling onPress."
+    ],
+    [
+      "actionWidth",
+      "number",
+      "76",
+      "Width of each action when resting open."
+    ],
+    [
+      "fullSwipe",
+      "boolean",
+      "true",
+      "Swiping past half the row fires the edge action."
+    ],
+    [
+      "closeOnActionPress",
+      "boolean",
+      "true",
+      "Spring closed after an action is tapped."
+    ],
+    [
+      "onOpen / onClose",
+      "(side) => void / () => void",
+      "—",
+      "Open state callbacks."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Turns swiping off."
+    ],
+    [
+      "contentStyle",
+      "StyleProp<ViewStyle>",
+      "theme background",
+      "Style of the sliding foreground — keep its background opaque."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer row that holds the actions behind the sliding content."
+    ]
+  ],
+  "examples": []
+}

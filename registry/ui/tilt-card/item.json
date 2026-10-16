@@ -1,0 +1,123 @@
+{
+  "name": "tilt-card",
+  "title": "Tilt Card",
+  "tier": "free",
+  "category": "3D",
+  "description": "A card that tilts toward your finger in 3D — it lifts, its shadow slides away from the light and a reflection (or a rainbow holo sheen) glides across it. Give it a photo (`image`), float content in TiltLayers, and add TiltFoil seals that shimmer as it leans.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Content (sets the card's size). Wrap parts in <TiltLayer depth> to float them."
+    ],
+    [
+      "image",
+      "ImageSourcePropType",
+      "—",
+      "Photo that fills the card behind the content."
+    ],
+    [
+      "shade",
+      "number",
+      "0.6",
+      "Darkens the bottom of the photo so white text stays readable (0–1)."
+    ],
+    [
+      "maxTilt",
+      "number",
+      "12",
+      "Tilt in degrees at the card's edge."
+    ],
+    [
+      "pressScale",
+      "number",
+      "1.03",
+      "Scale while touched."
+    ],
+    [
+      "glare",
+      "\"soft\" | \"sharp\" | \"holo\" | \"none\"",
+      "\"soft\"",
+      "Light reflection that follows your finger. \"holo\" adds a rainbow foil sheen that shifts as the card leans."
+    ],
+    [
+      "glareClip",
+      "{ x, y, width, height }[]",
+      "whole card",
+      "Where the reflection may fall (card points) — for cards with cut-outs, so light never shows over a hole."
+    ],
+    [
+      "perspective",
+      "number",
+      "800",
+      "Depth of the effect — smaller is more dramatic."
+    ],
+    [
+      "idle",
+      "boolean",
+      "false",
+      "Slowly sway while untouched."
+    ],
+    [
+      "radius",
+      "number",
+      "20",
+      "Corner radius."
+    ],
+    [
+      "shadow",
+      "boolean",
+      "true",
+      "Soft shadow under the card that shifts as it tilts."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Turn touch tilting off."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Fires on a tap (not after a drag)."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Label for screen readers."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the card (width, margins)."
+    ],
+    [
+      "TiltLayer.depth",
+      "number",
+      "0.5",
+      "How far a layer floats above the card (negative sinks below)."
+    ],
+    [
+      "TiltFoil",
+      "{ children?, radius?, base?, style? }",
+      "—",
+      "A holographic foil patch (seal, sticker, strip) whose rainbow shifts as the card leans."
+    ],
+    [
+      "useTilt()",
+      "() => { tx, ty, press, width, height } | null",
+      "—",
+      "The card's live tilt values (native-driver friendly) for your own effects."
+    ]
+  ]
+}

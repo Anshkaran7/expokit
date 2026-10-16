@@ -1,0 +1,140 @@
+{
+  "name": "search-bar",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "SearchBar",
+  "files": [
+    "src/components/ui/search-bar.tsx"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"default\" | \"filled\" | \"minimal\"",
+      "\"default\"",
+      "Outlined pill, iOS grey field, or a round icon that expands into a field."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "34 / 44 / 56pt tall; font, icons, padding and radius scale too."
+    ],
+    [
+      "value / defaultValue / onChangeText",
+      "string",
+      "—",
+      "Controlled or uncontrolled query."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Crossfades the magnifier into a spinning arc."
+    ],
+    [
+      "showCancel",
+      "boolean",
+      "true (false for minimal)",
+      "Slide a Cancel button in while searching."
+    ],
+    [
+      "cancelLabel",
+      "string",
+      "\"Cancel\"",
+      "Cancel button text."
+    ],
+    [
+      "onCancel",
+      "() => void",
+      "—",
+      "After Cancel clears the query and blurs."
+    ],
+    [
+      "onClear",
+      "() => void",
+      "—",
+      "After the clear button empties the query."
+    ],
+    [
+      "align",
+      "\"left\" | \"right\"",
+      "\"left\"",
+      "Minimal only: where the collapsed icon rests."
+    ],
+    [
+      "suggestions",
+      "{ key, label, hint?, icon?: 'recent' | 'trending' | 'search' }[]",
+      "—",
+      "Shown in a dropdown panel while focused; the matching text is bolded."
+    ],
+    [
+      "onSelectSuggestion",
+      "(item) => void",
+      "—",
+      "Called after a suggestion is picked (the query is set to its label)."
+    ],
+    [
+      "filterSuggestions",
+      "boolean",
+      "true",
+      "Filter suggestions by the query. Turn off to filter them yourself."
+    ],
+    [
+      "maxSuggestions",
+      "number",
+      "6",
+      "Most rows shown in the panel."
+    ],
+    [
+      "trailing",
+      "ReactNode",
+      "—",
+      "Rendered inside the field on the right, e.g. a filter or mic button."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus ring, caret and Cancel colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view around the field, cancel button and suggestions."
+    ],
+    [
+      "…TextInputProps",
+      "",
+      "",
+      "placeholder, onSubmitEditing, autoFocus, …"
+    ]
+  ],
+  "examples": [
+    {
+      "name": "WithSuggestions",
+      "title": "With Suggestions",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';\nimport { alpha, useKit } from '@/lib/kit';\n\nconst SUGGESTIONS: SearchSuggestion[] = [\n  { key: 'r1', label: 'Noise cancelling headphones', icon: 'recent' },\n  { key: 'r2', label: 'Running shoes', icon: 'recent' },\n  { key: 't1', label: 'Mechanical keyboard', icon: 'trending', hint: 'Trending' },\n  { key: 't2', label: 'Standing desk', icon: 'trending', hint: '2.1k searches' },\n  { key: 's1', label: 'Wireless charger', hint: 'Electronics' },\n  { key: 's2', label: 'Coffee grinder', hint: 'Kitchen' },\n];\n\nexport default function WithSuggestions() {\n  const { colors } = useKit();\n  const [query, setQuery] = useState('');\n  const [picked, setPicked] = useState<string | null>(null);\n  return (\n    // Reserve room for the open list, so the bar stays put when suggestions drop down below it.\n    <View style={{ gap: 10, minHeight: 400 }}>\n      <SearchBar\n        value={query}\n        onChangeText={setQuery}\n        placeholder=\"Search products\"\n        suggestions={SUGGESTIONS}\n        maxSuggestions={5}\n        onSelectSuggestion={(item) => setPicked(item.label)}\n      />\n      <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{picked ? `Showing results for “${picked}”` : 'Tap the field to see recent and trending searches'}</Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "LiveResults",
+      "title": "Live Results",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';\nimport { alpha, useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst CONTACTS = [\n  { name: 'Aarav Mehta', role: 'Design lead' },\n  { name: 'Priya Nair', role: 'Product manager' },\n  { name: 'Rohan Kapoor', role: 'iOS engineer' },\n  { name: 'Sara Ali', role: 'Marketing' },\n  { name: 'Vikram Rao', role: 'Backend engineer' },\n];\n\nexport default function LiveResults() {\n  const { colors } = useKit();\n  const [query, setQuery] = useState('');\n  const [loading, setLoading] = useState(false);\n  useEffect(() => {\n    if (!query) return setLoading(false);\n    setLoading(true);\n    const id = setTimeout(() => setLoading(false), 600);\n    return () => clearTimeout(id);\n  }, [query]);\n  const q = query.trim().toLowerCase();\n  const results = CONTACTS.filter((c) => c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q));\n  return (\n    <Card>\n      <SearchBar variant=\"filled\" value={query} onChangeText={setQuery} loading={loading} placeholder=\"Search people\" />\n      {loading ? (\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>Searching your team…</Text>\n      ) : results.length ? (\n        results.slice(0, 4).map((c) => (\n          <View key={c.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: alpha(colors.accent, 0.16), alignItems: 'center', justifyContent: 'center' }}>\n              <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{c.name.split(' ').map((p) => p[0]).join('')}</Text>\n            </View>\n            <View>\n              <Text style={{ fontSize: 15, fontWeight: '400', color: colors.foreground }}>{c.name}</Text>\n              <Text style={{ fontSize: 12.5, color: colors.mutedForeground }}>{c.role}</Text>\n            </View>\n          </View>\n        ))\n      ) : (\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>No one matches “{query}”</Text>\n      )}\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Minimal",
+      "title": "Minimal",
+      "code": "import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';\nimport { alpha, useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nexport default function Minimal() {\n  const { colors } = useKit();\n  return (\n    <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <Text style={{ fontSize: 22, fontWeight: '400', letterSpacing: -0.4, color: colors.foreground }}>Inbox</Text>\n      <SearchBar variant=\"minimal\" align=\"right\" placeholder=\"Search mail\" style={{ flex: 1 }} />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "WithFilter",
+      "title": "With Filter",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction FilterButton({ count, onPress }: { count: number; onPress: () => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <Pressable\n      onPress={onPress}\n      hitSlop={8}\n      accessibilityRole=\"button\"\n      accessibilityLabel={`Filters, ${count} active`}\n      style={{ height: 32, paddingHorizontal: 10, borderRadius: radius.capsule(32), backgroundColor: count ? colors.accent : colors.muted, flexDirection: 'row', alignItems: 'center', gap: 6 }}\n    >\n      <View style={{ gap: 3, alignItems: 'center' }}>\n        {[14, 10, 6].map((w) => (\n          <View key={w} style={{ width: w, height: 2, borderRadius: 1, backgroundColor: count ? colors.accentForeground : colors.mutedForeground }} />\n        ))}\n      </View>\n      {count ? <Text style={{ fontSize: 12.5, fontWeight: '400', color: colors.accentForeground }}>{count}</Text> : null}\n    </Pressable>\n  );\n}\n\nexport default function WithFilter() {\n  const { colors } = useKit();\n  const [count, setCount] = useState(2);\n  return (\n    <View style={{ gap: 10 }}>\n      <SearchBar\n        placeholder=\"Stays in Goa\"\n        showCancel={false}\n        trailing={<FilterButton count={count} onPress={() => setCount((c) => (c + 1) % 4)} />}\n      />\n      <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{count ? `${count} filters · Pool, Under ₹8,000` : 'No filters applied'}</Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native';\nimport { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function Sizes() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 14 }}>\n      {(['sm', 'md', 'lg'] as const).map((size, i) => (\n        <View key={size} style={{ gap: 6 }}>\n          <Text style={{ fontSize: 12, fontWeight: '400', color: colors.mutedForeground }}>{['Small', 'Medium', 'Large'][i]}</Text>\n          <SearchBar size={size} variant={i === 1 ? 'default' : 'filled'} defaultValue=\"Coffee near me\" showCancel={false} />\n        </View>\n      ))}\n    </View>\n  );\n}\n"
+    }
+  ]
+}

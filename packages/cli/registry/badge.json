@@ -1,0 +1,17 @@
+{
+  "name": "badge",
+  "type": "component",
+  "title": "Badge",
+  "description": "Status labels in solid, soft, outline and dot styles across five tones — plus NotificationBadge with BadgeIconTile/BadgeIcon anchors (or your own children), spring-in counts, and pop on change.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "badge/files"
+}

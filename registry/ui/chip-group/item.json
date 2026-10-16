@@ -1,0 +1,93 @@
+{
+  "name": "chip-group",
+  "title": "Chip Group",
+  "tier": "free",
+  "category": "Selection",
+  "description": "Filter chips for single or multiple choice. A check mark draws itself in while the chip widens smoothly to make room and its colours cross-fade. Wrapping or horizontally scrolling.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "options",
+      "(string | { value, label?, icon?, count?, disabled? })[]",
+      "—",
+      "Plain strings or objects with label, icon, count and per-chip disabled."
+    ],
+    [
+      "multiple",
+      "boolean",
+      "false",
+      "Allow several selected chips."
+    ],
+    [
+      "value / onValueChange",
+      "string[]",
+      "—",
+      "Controlled selection (or use defaultValue). Single mode reports [] or [value]."
+    ],
+    [
+      "defaultValue",
+      "string[]",
+      "[]",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "deselectable",
+      "boolean",
+      "true",
+      "Single mode: tapping the selected chip clears it."
+    ],
+    [
+      "variant",
+      "\"solid\" | \"outline\" | \"soft\"",
+      "\"solid\"",
+      "Selected look: filled accent, accent border with a faint tint, or soft accent tint."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "30 / 36 / 42pt tall."
+    ],
+    [
+      "scrollable",
+      "boolean",
+      "false",
+      "One horizontally scrolling row instead of wrapping."
+    ],
+    [
+      "contentInset",
+      "number",
+      "0",
+      "Scroll-row edge padding that bleeds into your screen gutter."
+    ],
+    [
+      "showCheck",
+      "boolean",
+      "true",
+      "Morph a check in front of the label when selected."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selected colour."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims every chip and blocks presses (or set disabled per option)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the wrapping row (the ScrollView when scrollable)."
+    ]
+  ]
+}

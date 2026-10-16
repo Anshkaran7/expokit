@@ -1,0 +1,111 @@
+{
+  "name": "otp-input",
+  "title": "OTP Input",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "One-time-code cells that size themselves to fit any width. The active cell glows with a soft focus halo and a blinking caret, digits pop in on a spring, a pasted code fills every cell, errors shake the row and success pulses across the cells with a drawn check.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "length",
+      "number",
+      "6",
+      "Number of cells."
+    ],
+    [
+      "value / onChangeText",
+      "string",
+      "—",
+      "Controlled code (digits only). Pasting a longer string fills every cell."
+    ],
+    [
+      "onComplete",
+      "(code) => void",
+      "—",
+      "Called when every cell is filled."
+    ],
+    [
+      "variant",
+      "\"box\" | \"underline\" | \"pill\"",
+      "\"box\"",
+      "Rounded box cells, underline bars, or round pill cells."
+    ],
+    [
+      "error",
+      "boolean",
+      "false",
+      "Shakes the row and turns it the danger colour."
+    ],
+    [
+      "errorText",
+      "string",
+      "—",
+      "Message (with icon) shown under the cells while `error` is set."
+    ],
+    [
+      "success",
+      "boolean",
+      "false",
+      "Success colour with a staggered pulse across the cells."
+    ],
+    [
+      "successText",
+      "string",
+      "—",
+      "Message with an animated check shown while `success` is set."
+    ],
+    [
+      "helperText",
+      "string",
+      "—",
+      "Hint shown under the cells otherwise."
+    ],
+    [
+      "separatorAfter",
+      "number",
+      "—",
+      "Draw a dash after this many cells, e.g. 3 → 123 – 456."
+    ],
+    [
+      "maxCellSize",
+      "number",
+      "52",
+      "Largest cell width; cells shrink to fit the row and never overflow."
+    ],
+    [
+      "secure",
+      "boolean",
+      "false",
+      "Dots instead of digits."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and blocks input."
+    ],
+    [
+      "autoFocus",
+      "boolean",
+      "false",
+      "Focus on mount."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Active cell colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view around the cells and message."
+    ]
+  ]
+}

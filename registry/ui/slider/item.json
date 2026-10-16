@@ -1,0 +1,129 @@
+{
+  "name": "slider",
+  "title": "Slider",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "A slider that feels native on iPhone and Android: thumb and fill ride the native driver, the thumb swells under your finger, tap the track to seek, and values spring-snap to the step. Thin iOS track, a Control-Center style bar with an icon that inverts as the fill passes, a stepped track with ticks, and two-thumb range mode with an optional histogram.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "value / defaultValue",
+      "number | [number, number]",
+      "min / [min, max]",
+      "Controlled or uncontrolled. A number, or [from, to] when range is set (typed by the range prop)."
+    ],
+    [
+      "onValueChange",
+      "(value) => void",
+      "—",
+      "Fires when the stepped value changes (drag, tap, icon or accessibility action)."
+    ],
+    [
+      "onSlidingStart / onSlidingComplete",
+      "(value) => void",
+      "—",
+      "Drag lifecycle."
+    ],
+    [
+      "min / max / step",
+      "number",
+      "0 / 100 / 1",
+      "Bounds and snap interval (0 = continuous). Coarse steps spring between positions; fine ones follow the finger and snap on release."
+    ],
+    [
+      "range",
+      "boolean",
+      "false",
+      "Two thumbs selecting a span; value becomes [from, to]."
+    ],
+    [
+      "variant",
+      "\"default\" | \"bar\" | \"stepped\"",
+      "\"default\"",
+      "Thin track + round thumb, a tall Control-Center bar with no thumb, or a track with a tick at every step."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Scales track, thumb, bar height and text. Hit area is always ≥ 44pt."
+    ],
+    [
+      "marks",
+      "boolean | (number | { value, label })[]",
+      "stepped: true",
+      "Ticks at every step, or custom values with labels under the track."
+    ],
+    [
+      "showValue",
+      "\"drag\" | \"always\" | \"never\"",
+      "\"drag\" (bar: \"never\")",
+      "Value tooltip above the thumb. On a bar, \"always\" shows the value inside the bar instead."
+    ],
+    [
+      "formatValue",
+      "(value) => string",
+      "—",
+      "Text for the tooltip, labels and accessibility value."
+    ],
+    [
+      "showMinMax / minLabel / maxLabel",
+      "boolean / string / string",
+      "—",
+      "Labels under both ends of the track (formatted min / max by default)."
+    ],
+    [
+      "icon",
+      "SliderIconName | ReactNode | (color) => ReactNode",
+      "—",
+      "Bar only: icon inside the bar that changes colour as the fill passes over it."
+    ],
+    [
+      "leftIcon / rightIcon",
+      "SliderIconName | ReactNode | (color) => ReactNode",
+      "—",
+      "Icon beside the track. Built-ins ('volume-low', 'volume-high', 'volume-off', 'sun-low', 'sun-high', 'minus', 'plus') step the value when tapped."
+    ],
+    [
+      "thickFill",
+      "boolean",
+      "false",
+      "Default variant: draws the fill thicker than the track."
+    ],
+    [
+      "histogram / histogramHeight",
+      "number[] / number",
+      "— / 44",
+      "Bars above the track; bars inside the selection use the accent."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims and ignores touches."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Fill colour."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Announced with the adjustable role; range thumbs get “minimum” / “maximum”."
+    ],
+    [
+      "style / trackStyle / fillStyle / thumbStyle / labelStyle",
+      "StyleProp",
+      "—",
+      "Root, inactive track, active fill, thumb and value text."
+    ]
+  ]
+}

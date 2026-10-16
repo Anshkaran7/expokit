@@ -1,0 +1,21 @@
+{
+  "name": "glass-search-bar",
+  "type": "component",
+  "title": "Glass Search Bar",
+  "description": "iOS 26 floating search pill on Liquid Glass. The pill swells a touch on focus, a clear button pops in with text, and an optional round glass cancel button (or a Cancel capsule) splits off beside it — grouped, so on iOS 26 the two melt together as it springs in. Leading / trailing slots fit a custom icon or a mic button. Real Liquid Glass on iOS 26, blur or frosted glass everywhere else.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-glass-effect",
+    "expo-blur",
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit",
+    "glass"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/glass.tsx"
+  ],
+  "filesDir": null
+}

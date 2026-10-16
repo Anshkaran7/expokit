@@ -1,0 +1,30 @@
+{
+  "name": "inbox",
+  "type": "block",
+  "title": "Inbox",
+  "description": "A messaging inbox: search, All / Unread / Mentions filter chips with counts, swipeable rows to archive, delete or mark read, unread count badges and a friendly empty state.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "avatar",
+    "badge",
+    "button",
+    "chip-group",
+    "search-bar",
+    "swipeable-row"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/avatar.tsx",
+    "components/ui/badge.tsx",
+    "components/ui/button.tsx",
+    "components/ui/chip-group.tsx",
+    "components/ui/search-bar.tsx",
+    "components/ui/swipeable-row.tsx"
+  ],
+  "filesDir": null
+}

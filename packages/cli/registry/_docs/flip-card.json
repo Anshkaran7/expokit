@@ -1,0 +1,111 @@
+{
+  "name": "flip-card",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "FlipCard",
+  "files": [
+    "src/components/ui/flip-card.tsx"
+  ],
+  "props": [
+    [
+      "front",
+      "ReactNode",
+      "—",
+      "First face. Sets the card's size."
+    ],
+    [
+      "back",
+      "ReactNode",
+      "—",
+      "Second face, filling the same box."
+    ],
+    [
+      "flipped",
+      "boolean",
+      "—",
+      "Controlled side — true shows the back."
+    ],
+    [
+      "defaultFlipped",
+      "boolean",
+      "false",
+      "Uncontrolled initial side."
+    ],
+    [
+      "onFlip",
+      "(flipped: boolean) => void",
+      "—",
+      "Fires when tapped."
+    ],
+    [
+      "direction",
+      "\"horizontal\" | \"vertical\"",
+      "\"horizontal\"",
+      "Turn around the vertical or the horizontal axis."
+    ],
+    [
+      "trigger",
+      "\"press\" | \"none\"",
+      "\"press\"",
+      "Flip on tap, or only through `flipped`."
+    ],
+    [
+      "perspective",
+      "number",
+      "1000",
+      "Depth of the effect — smaller is more dramatic."
+    ],
+    [
+      "radius",
+      "number",
+      "20",
+      "Corner radius of both faces."
+    ],
+    [
+      "shadow",
+      "boolean",
+      "true",
+      "Soft shadow that narrows as the card turns edge-on."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "—",
+      "Label for screen readers."
+    ],
+    [
+      "labels",
+      "{ toBack?: string; toFront?: string }",
+      "English hints",
+      "Screen-reader hints for each side."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width, margins)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Polaroid",
+      "title": "Polaroid",
+      "code": "import React, { useState } from 'react';\nimport { Image, Platform, Pressable, Text, View } from 'react-native';\nimport { FlipCard } from '@/components/ui/flip-card';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). */\nconst photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });\n\nconst hand = Platform.select({ ios: 'Noteworthy', android: 'casual', default: '\"Bradley Hand\", \"Segoe Print\", cursive' });\n\n/** A screen title, as it sits above the card in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Polaroid() {\n  const { colors } = useKit();\n  const paper = { width: 240, padding: 12, paddingBottom: 0, backgroundColor: '#f7f5f0' } as const;\n  return (\n    <View style={{ gap: 26 }}>\n      <Header title=\"Memories\" sub=\"Lisbon · June 2025 · 24 photos\" />\n      <FlipCard\n      radius={6}\n      accessibilityLabel=\"Polaroid of a Lisbon tram\"\n      style={{ alignSelf: 'center', transform: [{ rotate: '-2deg' }] }}\n      front={\n        <View style={paper}>\n          <Image alt=\"\" source={photo(419, 480, 480)} style={{ width: 216, height: 216, backgroundColor: '#ddd' }} />\n          <Text style={{ fontFamily: hand, fontSize: 19, color: '#2b2b2b', textAlign: 'center', paddingVertical: 14 }}>Lisbon, June ’25</Text>\n        </View>\n      }\n      back={\n        <View style={[paper, { flex: 1, padding: 22, backgroundColor: '#efe9dc', justifyContent: 'space-between' }]}>\n          <Text style={{ fontFamily: hand, fontSize: 18, lineHeight: 27, color: '#2f2a22' }}>\n            Tram 28 all the way up to Graça. Pastéis de nata still warm. Best trip yet — come back next year?\n          </Text>\n          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>\n            <Text style={{ fontFamily: hand, fontSize: 16, color: '#5b5245' }}>— M.</Text>\n            <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1.5, borderColor: '#b04a3a', borderRadius: 4, transform: [{ rotate: '6deg' }] }}>\n              <Text style={{ color: '#b04a3a', fontSize: 10, fontWeight: '800', letterSpacing: 1 }}>LISBOA · 14 JUN</Text>\n            </View>\n          </View>\n        </View>\n      }\n      />\n      <Text style={{ color: colors.mutedForeground, fontSize: 13, textAlign: 'center' }}>Tap the photo to read the note on the back</Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Recipe",
+      "title": "Recipe",
+      "code": "import React, { useState } from 'react';\nimport { Image, Platform, Pressable, Text, View } from 'react-native';\nimport { FlipCard } from '@/components/ui/flip-card';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). */\nconst photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });\n\n/** Smooth darkening toward the bottom of a photo, made from thin bands. */\nfunction Scrim({ height = '55%', max = 0.75 }: { height?: `${number}%` | number; max?: number }) {\n  const steps = 40; // fine steps: coarse ones read as faint lines on iOS\n  return (\n    <View pointerEvents=\"none\" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height }}>\n      {Array.from({ length: steps }, (_, i) => (\n        <View key={i} style={{ flex: 1, backgroundColor: `rgba(0,0,0,${(max * ((i + 0.5) / steps) ** 1.6).toFixed(3)})` }} />\n      ))}\n    </View>\n  );\n}\n\n/** A screen title, as it sits above the card in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Recipe() {\n  const { colors } = useKit();\n  const items = ['3 parsnips, halved', '2 red onions, quartered', '4 carrots', 'Parsley & dill', 'Olive oil, salt, cracked pepper'];\n  return (\n    <View style={{ gap: 16 }}>\n      <Header title=\"Tonight’s dinner\" sub=\"Picked for you · vegetarian\" />\n      <FlipCard\n      radius={22}\n      accessibilityLabel=\"Roasted root vegetables recipe\"\n      front={\n        <View style={{ height: 260, backgroundColor: '#222' }}>\n          <Image alt=\"\" source={photo(292, 720, 520)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />\n          <Scrim />\n          <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18, gap: 2 }}>\n            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>45 MIN · SERVES 4</Text>\n            <Text style={{ color: '#fff', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 }}>Roasted roots</Text>\n            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Tap for ingredients</Text>\n          </View>\n        </View>\n      }\n      back={\n        <View style={{ flex: 1, padding: 20, backgroundColor: '#f6f1e7', gap: 10 }}>\n          <Text style={{ color: '#3b3226', fontSize: 12, fontWeight: '800', letterSpacing: 1.2 }}>INGREDIENTS</Text>\n          {items.map((it) => (\n            <View key={it} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(59,50,38,0.12)' }}>\n              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#c9a227' }} />\n              <Text style={{ color: '#3b3226', fontSize: 15 }}>{it}</Text>\n            </View>\n          ))}\n        </View>\n      }\n      />\n      <View style={{ flexDirection: 'row', gap: 8 }}>\n        {['45 min', 'Serves 4', '520 kcal'].map((t) => (\n          <View key={t} style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 12, backgroundColor: colors.muted }}>\n            <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>{t}</Text>\n          </View>\n        ))}\n      </View>\n      <Pressable accessibilityRole=\"button\" style={{ alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary }}>\n        <Text style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Start cooking</Text>\n      </Pressable>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Profile",
+      "title": "Profile",
+      "code": "import React, { useState } from 'react';\nimport { Image, Platform, Pressable, Text, View } from 'react-native';\nimport { FlipCard } from '@/components/ui/flip-card';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). */\nconst photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });\n\n/** Smooth darkening toward the bottom of a photo, made from thin bands. */\nfunction Scrim({ height = '55%', max = 0.75 }: { height?: `${number}%` | number; max?: number }) {\n  const steps = 40; // fine steps: coarse ones read as faint lines on iOS\n  return (\n    <View pointerEvents=\"none\" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height }}>\n      {Array.from({ length: steps }, (_, i) => (\n        <View key={i} style={{ flex: 1, backgroundColor: `rgba(0,0,0,${(max * ((i + 0.5) / steps) ** 1.6).toFixed(3)})` }} />\n      ))}\n    </View>\n  );\n}\n\n/** A screen title, as it sits above the card in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Profile() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 20 }}>\n      <Header title=\"Design team\" sub=\"Tap a card to see their year\" />\n      <FlipCard\n      radius={24}\n      accessibilityLabel=\"Ana Lima, lead designer\"\n      style={{ alignSelf: 'center', width: 250 }}\n      front={\n        <View style={{ height: 320, backgroundColor: '#222' }}>\n          <Image alt=\"\" source={photo(1027, 500, 640)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />\n          <Scrim />\n          <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18 }}>\n            <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.4 }}>Ana Lima</Text>\n            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>Lead designer · Lisbon</Text>\n          </View>\n        </View>\n      }\n      back={\n        <View style={{ flex: 1, padding: 22, backgroundColor: '#141416', justifyContent: 'space-between' }}>\n          <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: '700', letterSpacing: 1.2 }}>THIS YEAR</Text>\n          {[\n            ['Projects shipped', '24'],\n            ['Design reviews', '138'],\n            ['Mentees', '6'],\n          ].map(([k, v]) => (\n            <View key={k}>\n              <Text style={{ color: '#fff', fontSize: 34, fontWeight: '800', letterSpacing: -1 }}>{v}</Text>\n              <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>{k}</Text>\n            </View>\n          ))}\n        </View>\n      }\n      />\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        <Pressable accessibilityRole=\"button\" style={{ flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary }}>\n          <Text style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Message Ana</Text>\n        </Pressable>\n        <Pressable accessibilityRole=\"button\" style={{ flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.muted }}>\n          <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '600' }}>View work</Text>\n        </Pressable>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Flashcard",
+      "title": "Flashcard",
+      "code": "import React, { useState } from 'react';\nimport { Image, Platform, Pressable, Text, View } from 'react-native';\nimport { FlipCard } from '@/components/ui/flip-card';\nimport { useKit } from '@/lib/kit';\n\n/** Any photo works (`require()` or a URL). */\nconst photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });\n\n/** Smooth darkening toward the bottom of a photo, made from thin bands. */\nfunction Scrim({ height = '55%', max = 0.75 }: { height?: `${number}%` | number; max?: number }) {\n  const steps = 40; // fine steps: coarse ones read as faint lines on iOS\n  return (\n    <View pointerEvents=\"none\" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height }}>\n      {Array.from({ length: steps }, (_, i) => (\n        <View key={i} style={{ flex: 1, backgroundColor: `rgba(0,0,0,${(max * ((i + 0.5) / steps) ** 1.6).toFixed(3)})` }} />\n      ))}\n    </View>\n  );\n}\n\n/** A screen title, as it sits above the card in your app. */\nfunction Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {\n  const { colors } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>\n      <View style={{ flex: 1 }}>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '700', letterSpacing: -0.4 }}>{title}</Text>\n        {sub ? <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 2 }}>{sub}</Text> : null}\n      </View>\n      {right}\n    </View>\n  );\n}\n\nexport default function Flashcard() {\n  const { colors } = useKit();\n  const [flipped, setFlipped] = useState(false);\n  return (\n    <View style={{ gap: 14 }}>\n      <Header\n        title=\"Spanish · Fruit\"\n        sub=\"12 cards left today\"\n        right={<Text style={{ color: colors.mutedForeground, fontSize: 13, fontWeight: '600' }}>8 / 20</Text>}\n      />\n      <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.muted, marginBottom: 6 }}>\n        <View style={{ width: '40%', height: 6, borderRadius: 3, backgroundColor: colors.success }} />\n      </View>\n      <FlipCard\n        radius={22}\n        flipped={flipped}\n        onFlip={setFlipped}\n        accessibilityLabel=\"Flashcard\"\n        front={\n          <View style={{ height: 240, backgroundColor: '#3a0d10' }}>\n            <Image alt=\"\" source={photo(1080, 720, 400)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />\n            <Scrim max={0.8} />\n            <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18 }}>\n              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>SPANISH</Text>\n              <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800' }}>la fresa</Text>\n            </View>\n          </View>\n        }\n        back={\n          <View style={{ flex: 1, padding: 20, backgroundColor: colors.card, justifyContent: 'center', gap: 6 }}>\n            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>ENGLISH</Text>\n            <Text style={{ color: colors.foreground, fontSize: 30, fontWeight: '800' }}>the strawberry</Text>\n            <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>“Me encantan las fresas con nata.”</Text>\n          </View>\n        }\n      />\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        {['Again', 'Good', 'Easy'].map((label) => (\n          <Pressable\n            key={label}\n            onPress={() => setFlipped((f) => !f)}\n            accessibilityRole=\"button\"\n            style={{ flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12, backgroundColor: colors.muted }}\n          >\n            <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '600' }}>{label}</Text>\n          </Pressable>\n        ))}\n      </View>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

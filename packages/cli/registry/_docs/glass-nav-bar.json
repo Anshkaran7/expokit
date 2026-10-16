@@ -1,0 +1,78 @@
+{
+  "name": "glass-nav-bar",
+  "category": "Glass",
+  "aliases": [],
+  "exportName": "GlassNavBar",
+  "files": [
+    "src/components/ui/glass-nav-bar.tsx"
+  ],
+  "props": [
+    [
+      "title",
+      "string",
+      "—",
+      "Centred bar title (and the large title when largeTitle is on)."
+    ],
+    [
+      "largeTitle",
+      "boolean",
+      "false",
+      "Big title under the bar that scrolls away while the small centred title fades in. Needs scrollY."
+    ],
+    [
+      "scrollY",
+      "Animated.Value",
+      "—",
+      "Your scroll view's offset (useGlassNavScroll). The glass fades in over ~40pt as content passes under the bar; without it the bar is solid glass."
+    ],
+    [
+      "onBack",
+      "() => void",
+      "—",
+      "Shows a round glass back button with a chevron."
+    ],
+    [
+      "backLabel",
+      "string",
+      "—",
+      "Text beside the chevron (the button becomes a pill) and its accessibility label; \"Back\" otherwise."
+    ],
+    [
+      "actions",
+      "{ key, icon, onPress, accessibilityLabel }[]",
+      "[]",
+      "Round glass buttons on the right, grouped so they merge on iOS 26."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass and ink, e.g. over a photo."
+    ],
+    [
+      "topInset",
+      "number",
+      "0",
+      "Space above the bar for the status bar — pass your safe-area top inset."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the bar container, which pins to the top of its parent."
+    ],
+    [
+      "useGlassNavScroll(listener?)",
+      "hook → { scrollY, onScroll }",
+      "—",
+      "Native-driver Animated.event for an Animated.ScrollView / FlatList (scrollEventThrottle 16)."
+    ],
+    [
+      "GLASS_NAV_HEIGHT / glassNavInset({ largeTitle, topInset })",
+      "number / function",
+      "54",
+      "Bar row height, and the full height the bar covers — use it as your content's paddingTop."
+    ]
+  ],
+  "examples": []
+}

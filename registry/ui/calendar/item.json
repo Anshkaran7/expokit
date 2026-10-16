@@ -1,0 +1,160 @@
+{
+  "name": "calendar",
+  "title": "Calendar",
+  "tier": "free",
+  "category": "Inputs",
+  "isNew": true,
+  "description": "A month calendar for single dates, continuous ranges or multiple picks. Months slide in from the direction you travel (chevrons or a swipe), the title flips to a month / year grid, selected days pop with a spring and ranges draw one band with rounded ends that wraps across weeks. Locale-aware weekday and month names via Intl, Sunday or Monday weeks, min / max / custom disabled days, a today ring, coloured event dots and whole-day colour highlights. Day tiles follow the kit radius — square at 0, circles from 16 up.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "mode",
+      "'single' | 'range' | 'multiple'",
+      "'single'",
+      "Selection model; decides the value type."
+    ],
+    [
+      "value",
+      "Date | { start, end } | Date[] | null",
+      "—",
+      "Controlled selection (Date for single, DateRange for range, Date[] for multiple)."
+    ],
+    [
+      "defaultValue",
+      "same as value",
+      "null",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(value) => void",
+      "—",
+      "Fires on every tap. Range fires { start, end: null } first, then both ends."
+    ],
+    [
+      "month",
+      "Date",
+      "—",
+      "Controlled visible month (any date inside it)."
+    ],
+    [
+      "defaultMonth",
+      "Date",
+      "selection or today",
+      "Month shown first when uncontrolled."
+    ],
+    [
+      "onMonthChange",
+      "(month: Date) => void",
+      "—",
+      "Called with the first day of the month navigated to."
+    ],
+    [
+      "weekStartsOn",
+      "0 | 1",
+      "0",
+      "0 = Sunday, 1 = Monday."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "BCP 47 locale for month and weekday names."
+    ],
+    [
+      "minDate",
+      "Date",
+      "—",
+      "Earliest selectable day; also limits navigation."
+    ],
+    [
+      "maxDate",
+      "Date",
+      "—",
+      "Latest selectable day; also limits navigation."
+    ],
+    [
+      "isDateDisabled",
+      "(date: Date) => boolean",
+      "—",
+      "Disable individual days (booked, holidays, weekends)."
+    ],
+    [
+      "markedDates",
+      "Record<string, string | string[]>",
+      "—",
+      "Up to three coloured dots under each day, keyed by toDateKey(date) (YYYY-MM-DD)."
+    ],
+    [
+      "highlightedDates",
+      "Record<string, string>",
+      "—",
+      "Fills whole days with a colour (birthdays, shifts, people), keyed by toDateKey(date). Text switches to a readable colour on top."
+    ],
+    [
+      "variant",
+      "'tiles' | 'minimal'",
+      "'tiles'",
+      "tiles puts every day of the month on a soft tile; minimal shows bare numbers with a hover / press circle."
+    ],
+    [
+      "weekdayFormat",
+      "'narrow' | 'short'",
+      "'narrow'",
+      "Weekday header as single letters (M T W) or short names (Mon Tue Wed), via Intl."
+    ],
+    [
+      "showTodayButton",
+      "boolean",
+      "true",
+      "Shows a Today pill in the header whenever another month is on screen; tapping it jumps back."
+    ],
+    [
+      "showOutsideDays",
+      "boolean",
+      "false",
+      "Show faded days of the neighbouring months (tapping one navigates there)."
+    ],
+    [
+      "showToday",
+      "boolean",
+      "true",
+      "Ring and tint today."
+    ],
+    [
+      "fixedWeeks",
+      "boolean",
+      "false",
+      "Always render six week rows so the height never changes."
+    ],
+    [
+      "monthPicker",
+      "boolean",
+      "true",
+      "Tap the title for a month grid, tap again for a year grid."
+    ],
+    [
+      "max",
+      "number",
+      "—",
+      "Most dates selectable in multiple mode."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selection, band and today colour."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container style."
+    ]
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "slider",
+  "type": "component",
+  "title": "Slider",
+  "description": "A slider that feels native on iPhone and Android: thumb and fill ride the native driver, the thumb swells under your finger, tap the track to seek, and values spring-snap to the step. Thin iOS track, a Control-Center style bar with an icon that inverts as the fill passes, a stepped track with ticks, and two-thumb range mode with an optional histogram.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "slider/files"
+}

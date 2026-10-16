@@ -1,0 +1,24 @@
+{
+  "name": "pagination-dots",
+  "title": "Pagination Dots",
+  "tier": "free",
+  "category": "Display",
+  "isNew": true,
+  "description": "Page indicator for carousels and onboarding that follows your finger: hand it a live scroll position and the active dot stretches into a pill that pours into the next one, dots scale, segments fill, or the page number rolls. Tap a dot to jump; VoiceOver can swipe through pages.",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    ["count", "number", "—", "Number of pages."],
+    ["index", "number", "0", "Active page; changes spring the indicator across."],
+    ["progress", "Animated.Value | AnimatedInterpolation | number", "—", "Live page position (e.g. Animated.divide(scrollX, width)) for smooth tracking while swiping. Use useNativeDriver: false for the 'dots' variant."],
+    ["variant", "\"dots\" | \"scale\" | \"line\" | \"numbers\"", "\"dots\"", "Stretching pill · growing dot · filling segments · rolling \"2 / 5\"."],
+    ["size", "\"sm\" | \"md\" | \"lg\"", "\"md\"", "6 / 8 / 10pt dots."],
+    ["onPress", "(index: number) => void", "—", "Makes dots tappable (44pt hit area) and enables accessibility increment / decrement."],
+    ["accent", "string", "theme accent", "Active colour."],
+    ["inactiveColor", "string", "18% foreground", "Inactive dot colour."],
+    ["accessibilityLabel", "string", "\"Page\"", "Announced with \"2 of 5\"."],
+    ["style", "StyleProp<ViewStyle>", "—", "Style for the row of dots (the numbers pill or line track in those variants)."]
+  ]
+}

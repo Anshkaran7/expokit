@@ -1,0 +1,176 @@
+{
+  "name": "coupon",
+  "category": "Coupons",
+  "aliases": [],
+  "exportName": "Coupon",
+  "files": [
+    "src/components/ui/coupon.tsx"
+  ],
+  "props": [
+    [
+      "value",
+      "string",
+      "—",
+      "The headline: \"50%\", \"₹200\", \"FREE\", \"BOGO\"."
+    ],
+    [
+      "unit / prefix",
+      "string",
+      "—",
+      "Under / above the value: \"OFF\", \"FLAT\", \"UP TO\"."
+    ],
+    [
+      "title / description",
+      "string",
+      "—",
+      "What the offer is and its conditions."
+    ],
+    [
+      "code",
+      "string",
+      "—",
+      "Promo code in a dashed chip — tap to copy when onCopy is set."
+    ],
+    [
+      "brand / logo",
+      "string / ReactNode",
+      "—",
+      "Who it's from."
+    ],
+    [
+      "expires",
+      "string",
+      "—",
+      "Expiry line (\"Valid till 31 Dec\")."
+    ],
+    [
+      "expiresAt",
+      "Date | number",
+      "—",
+      "Live countdown (\"Ends in 05:42:10\"); turns expired when it passes."
+    ],
+    [
+      "terms",
+      "string[]",
+      "—",
+      "Shown on the back — the T&C link turns the coupon over."
+    ],
+    [
+      "status",
+      "\"available\" | \"applied\" | \"used\" | \"expired\" | \"locked\"",
+      "\"available\"",
+      "Applied shows a green ring; used / expired dim with a stamp; locked goes grey."
+    ],
+    [
+      "lockedHint",
+      "string",
+      "—",
+      "Why it's locked (\"Add ₹120 more to unlock\")."
+    ],
+    [
+      "theme",
+      "\"sunset\" | \"candy\" | \"ocean\" | \"lime\" | \"gold\" | \"fire\" | \"neon\" | \"ink\" | \"paper\" | \"holo\" | CouponTheme",
+      "\"sunset\"",
+      "Preset, or { fill, ink, accent?, body?, bodyInk?, pattern? } — fill can be a gradient."
+    ],
+    [
+      "pattern",
+      "\"none\" | \"dots\" | \"stripes\" | \"grid\" | \"waves\" | \"sunburst\" | \"confetti\"",
+      "theme's",
+      "Texture on the value panel."
+    ],
+    [
+      "layout",
+      "\"horizontal\" | \"vertical\"",
+      "\"horizontal\"",
+      "Value panel on the left, or on top."
+    ],
+    [
+      "variant",
+      "\"ticket\" | \"stamp\" | \"receipt\" | \"scallop\" | \"cutout\"",
+      "\"ticket\"",
+      "Outline: notches, perforations, torn zigzag ends, wavy edges, or a dashed cut-here line."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Compact for long lists, large for a hero."
+    ],
+    [
+      "shine",
+      "boolean",
+      "false",
+      "A light sweep across the value panel every few seconds."
+    ],
+    [
+      "tilt / holo / idle",
+      "boolean",
+      "false",
+      "3D tilt toward the finger; rainbow foil sheen; slow sway at rest."
+    ],
+    [
+      "onCopy",
+      "(code) => void",
+      "—",
+      "Called from the code chip — wire it to expo-clipboard."
+    ],
+    [
+      "onApply",
+      "() => void",
+      "—",
+      "Shows the Apply button."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Tap on the coupon itself (open details, select it)."
+    ],
+    [
+      "flipped / defaultFlipped / onFlip",
+      "boolean / boolean / (flipped) => void",
+      "— / false / —",
+      "Controlled or uncontrolled side."
+    ],
+    [
+      "labels",
+      "{ copy?, copied?, apply?, applied?, used?, expired?, locked?, endsIn?, terms?, termsTitle?, back? }",
+      "English",
+      "Every built-in string, for translation."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Width, margins."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Hero",
+      "title": "Hero",
+      "code": "import React, { useRef, useState } from 'react';\nimport { Image, Pressable, Text, View } from 'react-native';\nimport { Confetti, type ConfettiHandle } from '@/components/ui/confetti';\nimport { Coupon } from '@/components/ui/coupon';\nimport { useKit } from '@/lib/kit';\n\nconst logo = (id: number) => <Image alt=\"\" source={{ uri: `https://picsum.photos/id/${id}/64/64` }} style={{ width: 18, height: 18, borderRadius: 5 }} />;\n\nexport default function Hero() {\n  const { colors } = useKit();\n  const [applied, setApplied] = useState(false);\n  const confetti = useRef<ConfettiHandle>(null);\n  return (\n    <View style={{ gap: 14, paddingVertical: 8 }}>\n      <View>\n        <Text style={{ color: colors.foreground, fontSize: 22, fontWeight: '800', letterSpacing: -0.5 }}>Just for you</Text>\n        <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>Tilt the coupon · tap T&C to flip it</Text>\n      </View>\n      <Coupon\n        tilt\n        holo\n        idle\n        shine\n        theme=\"candy\"\n        size=\"lg\"\n        brand=\"Glow Beauty\"\n        logo={logo(64)}\n        prefix=\"Flat\"\n        value=\"50%\"\n        unit=\"Off\"\n        title=\"Your first order, on us\"\n        description=\"Up to ₹300 off on skincare & makeup\"\n        code=\"GLOW50\"\n        expires=\"Valid till 31 Dec\"\n        terms={['Min. order ₹699', 'Once per account', 'Not valid on gift cards', 'Can’t be combined with other offers']}\n        status={applied ? 'applied' : 'available'}\n        onCopy={() => {}}\n        onApply={() => {\n          setApplied(true);\n          confetti.current?.burst();\n        }}\n      />\n      {applied ? (\n        <Pressable onPress={() => setApplied(false)} accessibilityRole=\"button\" style={{ alignSelf: 'center', padding: 8 }}>\n          <Text style={{ color: colors.mutedForeground, fontSize: 13, fontWeight: '600' }}>Remove coupon</Text>\n        </Pressable>\n      ) : null}\n      <Confetti ref={confetti} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "OffersList",
+      "title": "Offers List",
+      "code": "import React, { useRef, useState } from 'react';\nimport { Image, Pressable, Text, View } from 'react-native';\nimport { Coupon } from '@/components/ui/coupon';\nimport { useKit } from '@/lib/kit';\n\nconst logo = (id: number) => <Image alt=\"\" source={{ uri: `https://picsum.photos/id/${id}/64/64` }} style={{ width: 18, height: 18, borderRadius: 5 }} />;\n\nexport default function OffersList() {\n  const { colors } = useKit();\n  const [applied, setApplied] = useState<string | null>('SWIGGY60');\n  const [soon] = useState(() => Date.now() + 2 * 3600_000 + 14 * 60_000);\n  return (\n    <View style={{ gap: 14 }}>\n      <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: '800' }}>Offers for you</Text>\n      <Coupon\n        theme=\"fire\"\n        brand=\"Swiggy\"\n        logo={logo(292)}\n        value=\"60%\"\n        unit=\"Off\"\n        title=\"Up to ₹120 on your next meal\"\n        code=\"SWIGGY60\"\n        expiresAt={soon}\n        status={applied === 'SWIGGY60' ? 'applied' : 'available'}\n        onCopy={() => {}}\n        onApply={() => setApplied('SWIGGY60')}\n      />\n      <Coupon\n        theme=\"ocean\"\n        variant=\"stamp\"\n        brand=\"HDFC Bank\"\n        prefix=\"Instant\"\n        value=\"₹250\"\n        unit=\"Off\"\n        title=\"On HDFC credit cards\"\n        description=\"Orders above ₹1,500\"\n        code=\"HDFC250\"\n        status={applied === 'HDFC250' ? 'applied' : 'available'}\n        onCopy={() => {}}\n        onApply={() => setApplied('HDFC250')}\n      />\n      <Coupon\n        theme=\"lime\"\n        variant=\"receipt\"\n        brand=\"BigBasket\"\n        value=\"FREE\"\n        unit=\"Delivery\"\n        title=\"Free delivery on groceries\"\n        code=\"FREEDEL\"\n        status=\"locked\"\n        lockedHint=\"Add ₹120 more to unlock\"\n        onApply={() => {}}\n      />\n      <Coupon theme=\"ink\" variant=\"scallop\" brand=\"Myntra\" value=\"BOGO\" unit=\"Deal\" title=\"Buy 1 get 1 on tees\" code=\"BOGOTEE\" status=\"expired\" onApply={() => {}} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Shapes",
+      "title": "Shapes",
+      "code": "import { Image, Pressable, Text, View } from 'react-native';\nimport { Coupon } from '@/components/ui/coupon';\n\nexport default function Shapes() {\n  return (\n    <View style={{ gap: 14 }}>\n      <Coupon size=\"sm\" theme=\"sunset\" variant=\"ticket\" value=\"30%\" unit=\"Off\" title=\"Ticket — classic notches\" code=\"TICKET30\" onCopy={() => {}} />\n      <Coupon size=\"sm\" theme=\"ocean\" variant=\"stamp\" value=\"₹99\" unit=\"Off\" title=\"Stamp — perforated edges\" code=\"STAMP99\" onCopy={() => {}} />\n      <Coupon size=\"sm\" theme=\"gold\" variant=\"receipt\" value=\"2X\" unit=\"Points\" title=\"Receipt — torn zigzag ends\" code=\"RECEIPT2X\" onCopy={() => {}} />\n      <Coupon size=\"sm\" theme=\"candy\" variant=\"scallop\" value=\"FREE\" unit=\"Gift\" title=\"Scallop — wavy edges\" code=\"SCALLOP\" onCopy={() => {}} />\n      <Coupon size=\"sm\" theme=\"paper\" variant=\"cutout\" value=\"25%\" unit=\"Off\" title=\"Cut-out — clip along the line\" code=\"CLIPME25\" onCopy={() => {}} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Grid",
+      "title": "Grid",
+      "code": "import { Image, Pressable, Text, View } from 'react-native';\nimport { Coupon } from '@/components/ui/coupon';\n\nexport default function Grid() {\n  const offers = [\n    { theme: 'neon' as const, brand: 'Paytm', value: '₹100', unit: 'Cashback', title: 'On UPI payments', code: 'PAYTM100' },\n    { theme: 'gold' as const, brand: 'Amex', value: '10%', unit: 'Off', title: 'Weekend dining', code: 'AMEX10' },\n    { theme: 'sunset' as const, brand: 'Zomato', value: '₹75', unit: 'Off', title: 'Orders above ₹299', code: 'ZOMATO75' },\n    { theme: 'holo' as const, brand: 'Nykaa', value: '3X', unit: 'Points', title: 'This weekend only', code: 'NYKAA3X' },\n  ];\n  return (\n    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>\n      {offers.map((o) => (\n        <Coupon key={o.code} {...o} layout=\"vertical\" size=\"sm\" variant={o.theme === 'gold' ? 'stamp' : 'ticket'} onCopy={() => {}} style={{ width: '47%', flexGrow: 1 }} />\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "FlashSale",
+      "title": "Flash Sale",
+      "code": "import React, { useRef, useState } from 'react';\nimport { Image, Pressable, Text, View } from 'react-native';\nimport { Coupon } from '@/components/ui/coupon';\nimport { useKit } from '@/lib/kit';\n\nexport default function FlashSale() {\n  const { colors } = useKit();\n  const [ends, setEnds] = useState(() => Date.now() + 47_000);\n  return (\n    <View style={{ gap: 14 }}>\n      <Coupon\n        theme=\"sunset\"\n        layout=\"vertical\"\n        size=\"lg\"\n        shine\n        brand=\"Flash sale\"\n        prefix=\"Extra\"\n        value=\"70%\"\n        unit=\"Off\"\n        title=\"Sneakers · next 47 seconds\"\n        description=\"Ends when the timer does — no extensions\"\n        code=\"FLASH70\"\n        expiresAt={ends}\n        onCopy={() => {}}\n        onApply={() => {}}\n      />\n      <Pressable onPress={() => setEnds(Date.now() + 47_000)} accessibilityRole=\"button\" style={{ alignSelf: 'center', padding: 8 }}>\n        <Text style={{ color: colors.mutedForeground, fontSize: 13, fontWeight: '600' }}>Restart timer</Text>\n      </Pressable>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

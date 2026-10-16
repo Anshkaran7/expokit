@@ -1,0 +1,118 @@
+{
+  "name": "glass-button",
+  "category": "Glass",
+  "aliases": [
+    "liquid-glass-button",
+    "glass-toolbar",
+    "floating-controls"
+  ],
+  "exportName": "GlassButton",
+  "files": [
+    "src/components/ui/glass-button.tsx"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "—",
+      "Button text. Leave it out (with an icon) for a circular icon button."
+    ],
+    [
+      "icon",
+      "ReactNode",
+      "—",
+      "Icon before the label. `useGlassButtonInk({ variant, tint, scheme })` returns the colour to draw it in."
+    ],
+    [
+      "size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Height 36 / 44 / 52; icon-only buttons are circles of that size. `GLASS_ICON_SIZE[size]` is the matching icon size."
+    ],
+    [
+      "variant",
+      "'glass' | 'tinted'",
+      "'glass'",
+      "Plain monochrome glass, or glass washed with `tint` — the label switches to black or white to stay readable."
+    ],
+    [
+      "tint",
+      "string",
+      "kit accent",
+      "Wash colour for the tinted variant."
+    ],
+    [
+      "scheme",
+      "'light' | 'dark'",
+      "kit theme",
+      "Force light or dark glass, e.g. 'dark' over photos."
+    ],
+    [
+      "onPress / disabled",
+      "() => void / boolean",
+      "— / false",
+      "Press handler; disabled dims the button and blocks presses."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light impact on press."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "label",
+      "Required for icon-only buttons."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Outer style: margins, position, width or flex (buttons hug their content by default)."
+    ],
+    [
+      "GlassToolbar items",
+      "{ key, icon, label, onPress?, active?, disabled? }[]",
+      "—",
+      "Icon buttons. `icon` is a node or `({ color, size, active }) => node`; `label` is the accessibility label; `active` draws a soft bubble in the accent colour."
+    ],
+    [
+      "GlassToolbar size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Item size, 36 / 44 / 52."
+    ],
+    [
+      "GlassToolbar floating",
+      "boolean",
+      "false",
+      "A cluster of separate glass circles (melting together on iOS 26) instead of one capsule."
+    ],
+    [
+      "GlassToolbar direction",
+      "'row' | 'column'",
+      "'row'",
+      "Lay items out horizontally or vertically (map-style controls)."
+    ],
+    [
+      "GlassToolbar separators / gap",
+      "boolean / number",
+      "true / 8",
+      "Hairlines between capsule items; space between floating circles."
+    ],
+    [
+      "GlassToolbar accent",
+      "string",
+      "kit accent (glass ink)",
+      "Colour of active items."
+    ],
+    [
+      "GlassToolbar scheme / haptics / accessibilityLabel / style",
+      "—",
+      "kit theme / true / — / —",
+      "As on GlassButton; accessibilityLabel names the toolbar."
+    ]
+  ],
+  "examples": []
+}

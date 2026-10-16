@@ -1,0 +1,90 @@
+{
+  "name": "action-sheet",
+  "title": "Action Sheet",
+  "tier": "free",
+  "category": "Overlays",
+  "previewHeight": 560,
+  "isNew": true,
+  "description": "An iOS-quality action sheet: grouped rounded cards with hairline separators, an optional title and message, and a separate Cancel card. It springs up over a fading scrim and follows your finger anywhere on the sheet — fling or pull past a third to dismiss, pulling up rubber-bands. Rows highlight on touch with a selection haptic; icons, destructive and disabled options; plus a Material list and a share-sheet grid.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "open / defaultOpen",
+      "boolean",
+      "false",
+      "Controlled / uncontrolled visibility."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called on actions, Cancel, backdrop tap, drag-down, back and Escape."
+    ],
+    [
+      "actions",
+      "{ label, icon?, destructive?, disabled?, color?, onPress? }[]",
+      "—",
+      "The options. `icon` is a built-in name (camera, image, trash, reply, forward, copy, pin, edit, share, link, mail, …) or a node; destructive rows use the danger colour; return false from onPress to stay open; `color` tints grid tiles."
+    ],
+    [
+      "title / message",
+      "string",
+      "—",
+      "Header text above the actions."
+    ],
+    [
+      "cancelLabel",
+      "string | null",
+      "\"Cancel\"",
+      "Separate cancel button; null hides it."
+    ],
+    [
+      "onCancel",
+      "() => void",
+      "—",
+      "Called on Cancel, backdrop tap and drag-to-dismiss."
+    ],
+    [
+      "variant",
+      "\"inset\" | \"list\" | \"grid\"",
+      "\"inset\"",
+      "iOS grouped cards (text-only rows centred in the accent; rows with icons read like a menu), Material edge-to-edge list with a drag handle, or share-sheet tiles."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "platform safe inset",
+      "Padding above the home indicator; pass useSafeAreaInsets().bottom for the device."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Colour of text-only actions and Cancel in the inset variant."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Close on scrim tap, drag, back and Escape. When false the sheet only rubber-bands."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light impact on open, selection tick when an action is picked."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet container style."
+    ]
+  ]
+}

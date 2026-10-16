@@ -1,0 +1,161 @@
+{
+  "name": "toast",
+  "category": "Feedback",
+  "aliases": [],
+  "exportName": "ToastProvider",
+  "files": [
+    "src/components/ui/toast.tsx"
+  ],
+  "props": [
+    [
+      "toast(title, options?)",
+      "(string, ToastOptions) => id",
+      "—",
+      "Global API. Also toast.success / error / warning / info / loading / promise / dismiss(id?)."
+    ],
+    [
+      "ToastProvider / useToast()",
+      "context",
+      "—",
+      "Scoped store: wrap UI + <Toaster />, call useToast() instead of the global toast()."
+    ],
+    [
+      "options.description",
+      "string",
+      "—",
+      "Second line."
+    ],
+    [
+      "options.action",
+      "{ label, onPress }",
+      "—",
+      "Inline button (dismisses after press)."
+    ],
+    [
+      "options.icon",
+      "ReactNode | false",
+      "type icon",
+      "Replace the type icon, or false for none."
+    ],
+    [
+      "options.duration",
+      "number",
+      "Toaster duration",
+      "ms before auto-dismiss; Infinity to keep."
+    ],
+    [
+      "options.id",
+      "string",
+      "auto",
+      "Reuse to update a toast in place."
+    ],
+    [
+      "options.toaster",
+      "string",
+      "—",
+      "Target a <Toaster id>."
+    ],
+    [
+      "<Toaster> position",
+      "\"top\" | \"bottom\"",
+      "\"bottom\"",
+      "Edge the stack sits on (island always sits top-centre)."
+    ],
+    [
+      "<Toaster> variant",
+      "\"default\" | \"rich\" | \"minimal\" | \"island\"",
+      "\"default\"",
+      "Cards with a tone glow, cards filled with the solid tone, compact inverted pills, or a black Dynamic Island capsule that springs open, morphs between toasts (tap to expand, swipe up to dismiss)."
+    ],
+    [
+      "<Toaster> duration",
+      "number",
+      "4000",
+      "Default auto-dismiss in ms."
+    ],
+    [
+      "<Toaster> visibleToasts",
+      "number",
+      "3",
+      "Cards visible in the stack."
+    ],
+    [
+      "<Toaster> expand",
+      "boolean",
+      "false",
+      "Always fanned out."
+    ],
+    [
+      "<Toaster> offset / gap",
+      "number",
+      "16 (island 10) / 10",
+      "Edge distance and fan-out spacing. No safe-area dependency: pass insets.top + 8 to clear a notch."
+    ],
+    [
+      "<Toaster> closeButton",
+      "boolean",
+      "false",
+      "✕ on every toast."
+    ],
+    [
+      "<Toaster> id",
+      "string",
+      "—",
+      "Only show toasts sent with { toaster: id }."
+    ],
+    [
+      "<Toaster> haptics",
+      "boolean",
+      "true",
+      "Success / warning / error notification haptic when a toast appears or resolves."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the <Toaster> host that fills the screen and positions the stack."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Default",
+      "title": "Default",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 };\n\nexport default function Default() {\n  const to = { toaster: 'demo-default' };\n  return (\n    <Frame>\n      <View style={row}>\n        <Button\n          size=\"sm\"\n          variant=\"accent\"\n          onPress={() => toast('Event created', { ...to, description: 'Friday, June 14 at 9:00 AM' })}\n        >\n          Default\n        </Button>\n        <Button\n          size=\"sm\"\n          variant=\"outline\"\n          onPress={() => toast.success('Changes saved', { ...to, description: 'Synced to all your devices.' })}\n        >\n          Success\n        </Button>\n        <Button size=\"sm\" variant=\"outline\" onPress={() => toast.warning('Storage almost full', { ...to, description: '92% of 15 GB used.' })}>\n          Warning\n        </Button>\n        <Button size=\"sm\" variant=\"outline\" onPress={() => toast.error('Could not reach server', to)}>\n          Error\n        </Button>\n      </View>\n      <Toaster id=\"demo-default\" />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "RichColors",
+      "title": "Rich Colors",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 };\n\nexport default function RichColors() {\n  const { colors } = useKit();\n  const to = { toaster: 'demo-rich' };\n  return (\n    <Frame>\n      <View style={row}>\n        <Button\n          size=\"sm\"\n          variant=\"soft\"\n          color={colors.success}\n          onPress={() => toast.success('Payment received', { ...to, description: '₹18,500 from Acme Inc.' })}\n        >\n          Success\n        </Button>\n        <Button\n          size=\"sm\"\n          variant=\"soft\"\n          color={colors.danger}\n          onPress={() => toast.error('Card declined', { ...to, description: 'Try another payment method.' })}\n        >\n          Error\n        </Button>\n        <Button size=\"sm\" variant=\"soft\" color={colors.warning} onPress={() => toast.warning('You are offline', { ...to, description: 'Changes will sync when you reconnect.' })}>\n          Warning\n        </Button>\n        <Button size=\"sm\" variant=\"soft\" onPress={() => toast.info('New version available', { ...to, description: 'Restart to update to 4.2.' })}>\n          Info\n        </Button>\n      </View>\n      <Toaster id=\"demo-rich\" variant=\"rich\" />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "Island",
+      "title": "Island",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 };\n\nconst wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));\n\nexport default function Island() {\n  const to = { toaster: 'demo-island' };\n  return (\n    <Frame style={{ justifyContent: 'flex-end' }}>\n      <View style={row}>\n        <Button\n          size=\"sm\"\n          variant=\"secondary\"\n          onPress={() => toast.success('AirPods connected', { ...to, description: 'Battery 84% · Case 100%' })}\n        >\n          Success\n        </Button>\n        <Button\n          size=\"sm\"\n          variant=\"secondary\"\n          onPress={() =>\n            toast.error('Payment failed', {\n              ...to,\n              description: 'Your card ending 4242 was declined by the bank. Update your billing details to keep Pro.',\n              action: { label: 'Update', onPress: () => toast.info('Opening billing…', to) },\n            })\n          }\n        >\n          Error\n        </Button>\n        <Button\n          size=\"sm\"\n          variant=\"secondary\"\n          onPress={() =>\n            toast.promise(wait(2200), { loading: 'Sending to Maya…', success: 'Photo sent', error: 'Could not send' }, to)\n          }\n        >\n          Promise\n        </Button>\n        <Button\n          size=\"sm\"\n          variant=\"secondary\"\n          onPress={() => toast('Maya Chen', { ...to, description: 'Running 5 min late, grab us a table?' })}\n        >\n          Message\n        </Button>\n      </View>\n      <Toaster id=\"demo-island\" variant=\"island\" />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "PromiseMorph",
+      "title": "Promise Morph",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 };\n\nconst wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));\n\nconst fail = (ms: number) => new Promise<void>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));\n\nexport default function PromiseMorph() {\n  const to = { toaster: 'demo-promise' };\n  return (\n    <Frame>\n      <View style={row}>\n        <Button\n          size=\"sm\"\n          variant=\"accent\"\n          onPress={() =>\n            toast.promise(\n              wait(1800),\n              { loading: 'Uploading report.pdf…', success: 'Report uploaded', error: 'Upload failed' },\n              { ...to, description: 'Q3 board pack · 4.2 MB' },\n            )\n          }\n        >\n          Upload (succeeds)\n        </Button>\n        <Button\n          size=\"sm\"\n          variant=\"outline\"\n          onPress={() =>\n            toast\n              .promise(\n                fail(1800),\n                { loading: 'Publishing release…', success: 'Release published', error: 'Publish failed: build timed out' },\n                to,\n              )\n              .catch(() => {})\n          }\n        >\n          Publish (fails)\n        </Button>\n      </View>\n      <Toaster id=\"demo-promise\" />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "Minimal",
+      "title": "Minimal",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 };\n\nexport default function Minimal() {\n  const to = { toaster: 'demo-minimal' };\n  return (\n    <Frame style={{ justifyContent: 'flex-end' }}>\n      <View style={row}>\n        <Button size=\"sm\" variant=\"secondary\" onPress={() => toast('Copied to clipboard', to)}>\n          Copy link\n        </Button>\n        <Button size=\"sm\" variant=\"secondary\" onPress={() => toast.success('Added to favourites', to)}>\n          Favourite\n        </Button>\n        <Button size=\"sm\" variant=\"secondary\" onPress={() => toast.loading('Syncing…', { ...to, id: 'sync', duration: 1500 })}>\n          Sync\n        </Button>\n      </View>\n      <Toaster id=\"demo-minimal\" variant=\"minimal\" position=\"top\" />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "WithAction",
+      "title": "With Action",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nexport default function WithAction() {\n  const to = { toaster: 'demo-action' };\n  return (\n    <Frame>\n      <Button\n        variant=\"destructive\"\n        size=\"sm\"\n        style={{ alignSelf: 'flex-start' }}\n        onPress={() =>\n          toast('Conversation archived', {\n            ...to,\n            description: 'Moved 12 messages to Archive.',\n            action: { label: 'Undo', onPress: () => toast.success('Conversation restored', to) },\n          })\n        }\n      >\n        Archive chat\n      </Button>\n      <Toaster id=\"demo-action\" closeButton duration={6000} />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "Expanded",
+      "title": "Expanded",
+      "code": "import React, { useRef } from 'react';\nimport { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nexport default function Expanded() {\n  const to = { toaster: 'demo-expanded' };\n  const messages = [\n    () => toast.info('Maya joined #design', to),\n    () => toast.success('Build #1824 passed', { ...to, description: 'main · 3m 12s' }),\n    () => toast('Invoice INV-0042 sent', to),\n    () => toast.warning('Disk usage at 85%', to),\n  ];\n  const n = useRef(0);\n  return (\n    <Frame style={{ justifyContent: 'flex-end' }}>\n      <Button size=\"sm\" style={{ alignSelf: 'flex-start' }} onPress={() => messages[n.current++ % messages.length]()}>\n        Send notification\n      </Button>\n      <Toaster id=\"demo-expanded\" position=\"top\" expand visibleToasts={3} gap={8} />\n    </Frame>\n  );\n}\n"
+    },
+    {
+      "name": "WithProvider",
+      "title": "With Provider",
+      "code": "import { StyleSheet, View, type ViewProps } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';\nimport { useKit } from '@/lib/kit';\n\n/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Frame({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        {\n          height: 300,\n          overflow: 'hidden',\n          padding: 16,\n          backgroundColor: colors.card,\n          borderColor: colors.border,\n          borderWidth: StyleSheet.hairlineWidth,\n          borderRadius: radius.xl,\n        },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 };\n\nfunction ProviderDemo() {\n  const toast = useToast();\n  return (\n    <Frame>\n      <View style={row}>\n        <Button\n          size=\"sm\"\n          variant=\"outline\"\n          onPress={() => toast.success('Draft saved', { description: 'Only this Toaster sees it.' })}\n        >\n          Save draft\n        </Button>\n        <Button size=\"sm\" variant=\"outline\" onPress={() => toast('Reminder set for 6:00 PM')}>\n          Remind me\n        </Button>\n      </View>\n      <Toaster />\n    </Frame>\n  );\n}\n\nexport default function WithProvider() {\n  return (\n    <ToastProvider>\n      <ProviderDemo />\n    </ToastProvider>\n  );\n}\n"
+    }
+  ]
+}

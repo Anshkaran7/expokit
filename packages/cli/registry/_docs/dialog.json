@@ -1,0 +1,162 @@
+{
+  "name": "dialog",
+  "category": "Overlays",
+  "aliases": [],
+  "exportName": "Dialog",
+  "files": [
+    "src/components/ui/dialog.tsx"
+  ],
+  "props": [
+    [
+      "open / defaultOpen",
+      "boolean",
+      "false",
+      "Controlled / uncontrolled visibility."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called on scrim tap, back, Escape and actions."
+    ],
+    [
+      "variant",
+      "\"default\" | \"destructive\"",
+      "\"default\"",
+      "Destructive adds a warning icon, a danger confirm and a warning haptic on open. The old \"sheet\" value is deprecated and renders as default."
+    ],
+    [
+      "tone",
+      "\"info\" | \"success\" | \"warning\" | \"danger\"",
+      "—",
+      "Living icon in a halo above the title with a soft glow of its colour; success / warning open with a matching haptic."
+    ],
+    [
+      "appearance",
+      "\"modern\" | \"ios\"",
+      "\"modern\"",
+      "Pill buttons, or iOS full-width text buttons split by hairlines."
+    ],
+    [
+      "title / description",
+      "string",
+      "—",
+      "Heading and body copy."
+    ],
+    [
+      "prompt",
+      "{ defaultValue?, value?, onChangeText?, placeholder?, secureTextEntry?, keyboardType?, maxLength?, … }",
+      "—",
+      "Adds a text field (a prompt dialog). Its text is passed to onConfirm / onPress; Return submits."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Error text under the field or description."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Custom content above the actions."
+    ],
+    [
+      "actions",
+      "{ label, onPress?, role?, disabled? }[]",
+      "Cancel + Confirm",
+      "Buttons. role: primary | default | destructive | cancel. onPress(value) may return a promise (spinner) or false (stays open and shakes)."
+    ],
+    [
+      "confirmLabel / cancelLabel",
+      "string / string | null",
+      "\"Continue\" / \"Cancel\"",
+      "Labels for the default buttons; cancelLabel null leaves a single button."
+    ],
+    [
+      "onConfirm / onCancel",
+      "(value) => void | false | Promise · () => void",
+      "—",
+      "Handlers for the default buttons (onCancel also fires on scrim, back and Escape)."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Spinner on the confirm button; other buttons and dismissal are disabled."
+    ],
+    [
+      "actionsLayout",
+      "\"auto\" | \"row\" | \"stack\"",
+      "\"auto\"",
+      "Two short buttons side by side, otherwise stacked with Cancel last."
+    ],
+    [
+      "icon",
+      "ReactNode | false",
+      "tone icon",
+      "Custom node inside the halo, or false to hide it."
+    ],
+    [
+      "dismissible",
+      "boolean",
+      "true",
+      "Close on scrim tap, back and Escape."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Warning on open for destructive dialogs, success for success, error on shake."
+    ],
+    [
+      "accent",
+      "string",
+      "theme primary (accent in ios)",
+      "Colour of the primary action."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Card style."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Basic",
+      "title": "Basic",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\n\nexport default function Basic() {\n  const [open, setOpen] = useState(false);\n  return (\n    <View style={{ alignItems: 'center' }}>\n      <Button variant=\"accent\" onPress={() => setOpen(true)}>\n        Enable notifications\n      </Button>\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        tone=\"info\"\n        title=\"Turn on notifications?\"\n        description=\"Get a heads-up when someone mentions you, replies to your post or shares a file.\"\n        cancelLabel=\"Not now\"\n        confirmLabel=\"Allow\"\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Destructive",
+      "title": "Destructive",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\nimport { useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function Destructive() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [status, setStatus] = useState('');\n  return (\n    <View style={{ alignItems: 'center', gap: 10 }}>\n      <Button variant=\"destructive\" onPress={() => setOpen(true)}>\n        Delete project\n      </Button>\n      {status ? <Text style={muted}>{status}</Text> : null}\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        variant=\"destructive\"\n        title=\"Delete “Mobile redesign”?\"\n        description=\"This permanently removes the project, its 48 files and all comments. This can't be undone.\"\n        confirmLabel=\"Delete\"\n        onConfirm={() =>\n          new Promise<void>((resolve) =>\n            setTimeout(() => {\n              setStatus('“Mobile redesign” was deleted');\n              resolve();\n            }, 1200),\n          )\n        }\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "WithForm",
+      "title": "With Form",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\nimport { useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function WithForm() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [name, setName] = useState('Q3 roadmap');\n  const [error, setError] = useState('');\n  return (\n    <View style={{ alignItems: 'center', gap: 10 }}>\n      <Button variant=\"secondary\" onPress={() => setOpen(true)}>\n        Rename board\n      </Button>\n      <Text style={muted}>Board: {name}</Text>\n      <Dialog\n        open={open}\n        onOpenChange={(next) => {\n          setOpen(next);\n          setError('');\n        }}\n        title=\"Rename board\"\n        description=\"Everyone with access will see the new name.\"\n        prompt={{ defaultValue: name, placeholder: 'Board name', maxLength: 40, onChangeText: () => setError('') }}\n        error={error}\n        confirmLabel=\"Save\"\n        onConfirm={(value) => {\n          const next = value.trim();\n          if (!next) {\n            setError('Give the board a name.');\n            return false;\n          }\n          setName(next);\n        }}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "PaymentSent",
+      "title": "Payment Sent",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\n\nexport default function PaymentSent() {\n  const [open, setOpen] = useState(false);\n  return (\n    <View style={{ alignItems: 'center' }}>\n      <Button variant=\"accent\" onPress={() => setOpen(true)}>\n        Send ₹1,850\n      </Button>\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        tone=\"success\"\n        title=\"Payment sent\"\n        description=\"₹1,850 is on its way to Lena Fischer for “Dinner at Tasca”. She'll get it in a few seconds.\"\n        cancelLabel={null}\n        confirmLabel=\"Done\"\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "SignOut",
+      "title": "Sign Out",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\nimport { useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function SignOut() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  const [status, setStatus] = useState('iOS-style hairline buttons');\n  return (\n    <View style={{ alignItems: 'center', gap: 10 }}>\n      <Button variant=\"outline\" onPress={() => setOpen(true)}>\n        Sign out\n      </Button>\n      <Text style={muted}>{status}</Text>\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        appearance=\"ios\"\n        title=\"Sign out of Northwind?\"\n        description=\"Offline drafts on this device will be removed.\"\n        actions={[\n          { label: 'Cancel', role: 'cancel' },\n          { label: 'Sign out', role: 'destructive', onPress: () => setStatus('Signed out') },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "ThreeActions",
+      "title": "Three Actions",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\n\nexport default function ThreeActions() {\n  const [open, setOpen] = useState(false);\n  return (\n    <View style={{ alignItems: 'center' }}>\n      <Button variant=\"outline\" onPress={() => setOpen(true)}>\n        Close document\n      </Button>\n      <Dialog\n        open={open}\n        onOpenChange={setOpen}\n        appearance=\"ios\"\n        title=\"Save changes to “Pitch deck”?\"\n        description=\"Your edits will be lost if you don't save them.\"\n        actions={[\n          { label: 'Save', role: 'primary' },\n          { label: \"Don't save\", role: 'destructive' },\n          { label: 'Cancel', role: 'cancel' },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "ActionSheetDemo",
+      "title": "Action Sheet Demo",
+      "code": "import React, { useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { ActionSheet } from '@/components/ui/action-sheet';\nimport { Button } from '@/components/ui/button';\nimport { Dialog } from '@/components/ui/dialog';\nimport { useKit } from '@/lib/kit';\n\nfunction useMuted() {\n  const { colors } = useKit();\n  return { fontSize: 13, color: colors.mutedForeground, textAlign: 'center' as const };\n}\n\nexport default function ActionSheetDemo() {\n  const muted = useMuted();\n  const [open, setOpen] = useState(false);\n  return (\n    <View style={{ alignItems: 'center', gap: 8 }}>\n      <Button variant=\"outline\" onPress={() => setOpen(true)}>\n        Change profile photo\n      </Button>\n      <Text style={muted}>Bottom choices live in Action Sheet — not Dialog.</Text>\n      <ActionSheet\n        open={open}\n        onOpenChange={setOpen}\n        title=\"Profile photo\"\n        message=\"Your photo is visible to everyone in your workspace.\"\n        actions={[\n          { label: 'Take photo' },\n          { label: 'Choose from library' },\n          { label: 'Remove photo', destructive: true },\n        ]}\n      />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "kit",
+  "title": "Kit theme",
+  "description": "Design tokens, KitProvider and motion presets shared by every ExpoKit component.",
+  "dependencies": []
+}

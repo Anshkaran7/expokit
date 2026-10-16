@@ -1,0 +1,18 @@
+{
+  "name": "radio-group",
+  "type": "component",
+  "title": "Radio Group",
+  "description": "Pick one of many. The dot springs in with a ripple, selectable cards light their border and pop a check badge that draws itself, and the grouped iOS-style list draws a tick beside the chosen row.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "radio-group/files"
+}

@@ -1,0 +1,70 @@
+{
+  "name": "radio-group",
+  "title": "Radio Group",
+  "tier": "free",
+  "category": "Selection",
+  "description": "Pick one of many. The dot springs in with a ripple, selectable cards light their border and pop a check badge that draws itself, and the grouped iOS-style list draws a tick beside the chosen row.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "options",
+      "{ value, label, description?, icon?, hint?, disabled? }[]",
+      "—",
+      "The choices. `hint` is trailing text such as a price."
+    ],
+    [
+      "value / onValueChange",
+      "string",
+      "—",
+      "Controlled selection (or use defaultValue)."
+    ],
+    [
+      "defaultValue",
+      "string",
+      "—",
+      "Initial selection when uncontrolled."
+    ],
+    [
+      "variant",
+      "\"default\" | \"card\" | \"segmented-list\"",
+      "\"default\"",
+      "Radio dots, selectable cards or a grouped list with ticks."
+    ],
+    [
+      "direction",
+      "\"vertical\" | \"horizontal\"",
+      "\"vertical\"",
+      "Stack or lay out side by side (cards share the width)."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Selected colour."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick on change."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Disable the whole group (or per option)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the group container (the bordered card in the segmented-list variant)."
+    ]
+  ]
+}

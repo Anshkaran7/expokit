@@ -1,0 +1,120 @@
+{
+  "name": "fab",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "Fab",
+  "files": [
+    "src/components/ui/fab.tsx"
+  ],
+  "props": [
+    [
+      "actions",
+      "{ label, icon, onPress?, color? }[]",
+      "—",
+      "Speed-dial items, bottom → top (arc: first → last). icon can be a node or ({ color }) => node; with color the icon colour contrasts automatically. Omit for a plain FAB."
+    ],
+    [
+      "onPress",
+      "() => void",
+      "—",
+      "Called when there are no actions."
+    ],
+    [
+      "icon",
+      "ReactNode | ({ color }) => ReactNode",
+      "plus",
+      "Main icon (rotates 135° when open). A function is re-coloured as the button turns neutral when open."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Makes it an extended FAB (icon + label)."
+    ],
+    [
+      "extended",
+      "boolean",
+      "true",
+      "Set false (e.g. while scrolling) to collapse the label into a circle."
+    ],
+    [
+      "open / onOpenChange",
+      "boolean",
+      "—",
+      "Controlled speed dial (or use defaultOpen)."
+    ],
+    [
+      "defaultOpen",
+      "boolean",
+      "false",
+      "Speed dial starts open when uncontrolled."
+    ],
+    [
+      "layout",
+      "\"list\" | \"arc\"",
+      "\"list\"",
+      "Labelled column, or mini buttons fanned out on a quarter circle (half circle for bottom-center). Arc hides the chips; labels stay as accessibility labels."
+    ],
+    [
+      "position",
+      "\"bottom-right\" | \"bottom-left\" | \"bottom-center\"",
+      "\"bottom-right\"",
+      "Corner of the parent it sits in."
+    ],
+    [
+      "variant",
+      "\"accent\" | \"gradient\" | \"tonal\" | \"primary\" | \"secondary\"",
+      "\"accent\"",
+      "accent: solid fill + same-colour glow; gradient: opt-in two-tone; tonal: soft tinted surface; primary / secondary: theme surfaces."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Main button 40, 56 or 64pt (speed-dial buttons 36 / 42 / 46pt)."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Tint for accent, gradient and tonal; glow, foreground (and the opt-in gradient stops) are derived from it."
+    ],
+    [
+      "backdrop",
+      "boolean",
+      "true",
+      "Dim the parent while open; tap to close."
+    ],
+    [
+      "pulse",
+      "boolean",
+      "false",
+      "Looping attention ring (skipped with Reduce Motion), e.g. for empty-state calls to action."
+    ],
+    [
+      "offset",
+      "number",
+      "20",
+      "Distance from the parent's edges."
+    ],
+    [
+      "rotate",
+      "boolean",
+      "true",
+      "Rotate the icon into × when open."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Tap on toggle."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the absolutely positioned stack holding the main button and list actions."
+    ]
+  ],
+  "examples": []
+}

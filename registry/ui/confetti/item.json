@@ -1,0 +1,21 @@
+{
+  "name": "confetti",
+  "title": "Confetti",
+  "tier": "free",
+  "category": "Coupons",
+  "isNew": true,
+  "description": "Confetti for the moments that deserve it — a coupon applied, a reward revealed, an order placed. Pieces fly on real arcs (launch, gravity, air drag) and flutter as they fall; one native-driven animation moves them all. Cannons, rain or a pop under your finger; respects Reduce Motion.",
+  "dependencies": [],
+  "registryDependencies": ["kit"],
+  "props": [
+    ["count", "number", "80", "Pieces per burst (max 160)."],
+    ["colors", "string[]", "vivid mix", "Piece colours."],
+    ["origin", "\"top\" | \"center\" | \"bottom\"", "\"bottom\"", "Rain from the top, pop outward, or two cannons from the bottom corners."],
+    ["duration", "number", "2600", "How long a burst lasts, in ms."],
+    ["trigger", "unknown", "—", "Fire a burst whenever this value changes — no ref needed."],
+    ["autoplay", "boolean", "false", "Fire once on mount."],
+    ["onDone", "() => void", "—", "A burst finished."],
+    ["ref.burst(options?)", "{ origin?, x?, y?, count?, colors? }", "—", "Fire a burst (they can overlap); x / y place a center burst."],
+    ["style", "StyleProp<ViewStyle>", "fills its parent", "The overlay never takes touches."]
+  ]
+}

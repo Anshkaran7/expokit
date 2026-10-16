@@ -1,0 +1,120 @@
+{
+  "name": "search-results",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "SearchResults",
+  "files": [
+    "src/components/blocks/search-results.tsx"
+  ],
+  "props": [
+    [
+      "results",
+      "{ id, title, subtitle?, rating, reviews?, price, distance?, freeDelivery?, open?, color?, icon? }[]",
+      "6 coffee results (₹)",
+      "Results for the current query. Filtered and sorted locally."
+    ],
+    [
+      "defaultQuery",
+      "string",
+      "'coffee'",
+      "Initial query in the field and the result count. Empty shows Recent and Trending."
+    ],
+    [
+      "totalCount",
+      "number",
+      "128",
+      "Backend total shown while no filter is active."
+    ],
+    [
+      "loading",
+      "boolean",
+      "false",
+      "Skeleton rows and a spinning search icon."
+    ],
+    [
+      "filters",
+      "('price' | 'rating' | 'free-delivery' | 'open')[]",
+      "—",
+      "Controlled quick filters."
+    ],
+    [
+      "defaultFilters",
+      "SearchFilter[]",
+      "[]",
+      "Initial filters when uncontrolled."
+    ],
+    [
+      "onFiltersChange",
+      "(filters) => void",
+      "—",
+      "Chips or the sheet changed the filters."
+    ],
+    [
+      "recentSearches / trendingSearches",
+      "string[]",
+      "3 / 4 samples",
+      "Shown while the field is empty (recent as rows with Clear, trending as chips). Submitted searches join Recent."
+    ],
+    [
+      "onSearch",
+      "(query: string) => void",
+      "—",
+      "Submitted from the keyboard, a recent / trending search or a no-results chip."
+    ],
+    [
+      "onSelect",
+      "(result) => void",
+      "—",
+      "A result row was tapped."
+    ],
+    [
+      "onClearRecent",
+      "() => void",
+      "—",
+      "Clear next to Recent was tapped."
+    ],
+    [
+      "autoFocus",
+      "boolean",
+      "false",
+      "Focus the field on mount."
+    ],
+    [
+      "currency",
+      "string",
+      "'₹'",
+      "Symbol placed before prices by the default formatter (Indian digit grouping, decimals only when non-zero)."
+    ],
+    [
+      "formatPrice",
+      "(amount) => string",
+      "'₹1,23,456'",
+      "Money formatter for rows, chips and the slider. Overrides currency — use for Intl, other grouping or suffix symbols like '12,50 €'."
+    ],
+    [
+      "maxPrice",
+      "number",
+      "2000",
+      "Top of the price-range slider; the top value reads as \"and up\"."
+    ],
+    [
+      "tintedThumbnails",
+      "boolean",
+      "false",
+      "Tint thumbnails with each result's color instead of the neutral default."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Active chip, slider and button colour (black in light, white in dark by default)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "examples": []
+}

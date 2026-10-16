@@ -1,0 +1,153 @@
+{
+  "name": "floating-input",
+  "title": "Floating Input",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "The label starts as the placeholder and glides onto the border when you focus \u2014 a soft accent halo blooms around the field, errors shake in with an icon, valid values pop a spring check. Prefix/suffix, clear button, counter and three variants whose indicator grows from the centre.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "\u2014",
+      "Placeholder that floats onto the border."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch) and show placeholder inside; filled and underline work too."
+    ],
+    [
+      "variant",
+      "\"outlined\" | \"filled\" | \"underline\"",
+      "\"outlined\"",
+      "Notched outline, rounded filled, or bare underline (filled/underline bars grow from the centre on focus)."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "44 / 54 / 64pt \u2014 font, padding, radius and icons scale too."
+    ],
+    [
+      "error",
+      "string",
+      "\u2014",
+      "Red state, icon + message that slides in, one shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "\u2014",
+      "Green border + animated check; a string is shown as the message."
+    ],
+    [
+      "helper",
+      "string",
+      "\u2014",
+      "Hint under the field."
+    ],
+    [
+      "prefix / suffix",
+      "string",
+      "\u2014",
+      "Inline text like \"₹\", \"+91\", \"INR\" \u2014 fades in when the label floats."
+    ],
+    [
+      "counter",
+      "boolean",
+      "false",
+      "Shows length/maxLength under the field (needs maxLength)."
+    ],
+    [
+      "left / right",
+      "ReactNode",
+      "\u2014",
+      "Icons or adornments inside the field."
+    ],
+    [
+      "clearable",
+      "boolean",
+      "false",
+      "Animated SVG clear button while there's text."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus border, halo and label colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the field (paints the notch)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "\u2014",
+      "Style for the outer wrapper around the field and message line (the one that shakes)."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "\u2014",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "The typed text \u2014 fontSize, fontWeight, color, letterSpacing, fontFamily."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "Label in both modes (floating and above). color is the resting colour \u2014 focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "Helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "prefixStyle / suffixStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "Prefix / suffix text (still fades in with the label)."
+    ],
+    [
+      "counterStyle",
+      "StyleProp<TextStyle>",
+      "\u2014",
+      "The length/maxLength counter; turns danger at the limit regardless."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour (floatingLabel={false})."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Clear button colour at rest."
+    ],
+    [
+      "\u2026TextInputProps",
+      "",
+      "",
+      "Everything TextInput accepts."
+    ]
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "skeleton",
+  "type": "component",
+  "title": "Skeleton",
+  "description": "Loading placeholders where one soft, 20°-angled light band sweeps the whole screen as a single wave (or blocks brighten top-to-bottom, or gently pulse), all from one shared native-driver clock and static under reduce motion. Text, avatar, media, list, feed card and full-screen Nav composites, plus Skeleton.Reveal: the skeleton dissolves, content rises in child by child and the height glides between the two.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "skeleton/files"
+}

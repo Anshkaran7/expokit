@@ -1,0 +1,114 @@
+{
+  "name": "spin-wheel",
+  "category": "Coupons",
+  "aliases": [],
+  "exportName": "SpinWheel",
+  "files": [
+    "src/components/ui/spin-wheel.tsx"
+  ],
+  "props": [
+    [
+      "segments",
+      "{ label, sublabel?, color?, textColor?, weight? }[]",
+      "—",
+      "2–16 prizes, clockwise from the pointer. Long labels shrink or wrap to fit; weight sets the odds of a random pick (0 never wins at random)."
+    ],
+    [
+      "palette",
+      "string[]",
+      "vivid 8-colour set",
+      "Fills for segments without a color; the text picks black or white to read on each."
+    ],
+    [
+      "size",
+      "number",
+      "width, up to 340",
+      "Diameter in points."
+    ],
+    [
+      "turns",
+      "number",
+      "6",
+      "Full turns before it lands (a harder flick adds a few)."
+    ],
+    [
+      "duration",
+      "number",
+      "4200",
+      "Length of a spin in ms: a fast launch, a long slow crawl and a tiny settle."
+    ],
+    [
+      "getResult",
+      "() => number | Promise<number>",
+      "—",
+      "Decide the prize (e.g. on your server). The wheel keeps spinning while the promise is pending, then lands on it. Without it, weight picks at random."
+    ],
+    [
+      "onSpinStart",
+      "() => void",
+      "—",
+      "A spin began (tap, flick or ref)."
+    ],
+    [
+      "onSpinEnd",
+      "(index, segment) => void",
+      "—",
+      "The wheel landed; the winning wedge glows until the next spin."
+    ],
+    [
+      "onSpinError",
+      "(error) => void",
+      "—",
+      "getResult threw, rejected or gave an invalid index; the wheel coasts to a stop with no winner."
+    ],
+    [
+      "rimColor",
+      "string",
+      "\"#d9a62e\" (gold)",
+      "Metal of the rim, pins and dividers."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Hub button and pointer colour."
+    ],
+    [
+      "spinLabel",
+      "string",
+      "\"SPIN\"",
+      "Hub button label."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Ignore taps, flicks and ref.spin(); dims the hub and the lights."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "A tick per divider, a tap on the hub and a success buzz on landing."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "\"Prize wheel\"",
+      "Screen-reader name; the prizes and the result are read after it, and the result is announced."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view (margins)."
+    ],
+    [
+      "ref",
+      "{ spin(index?): void; reset(): void }",
+      "—",
+      "Spin from your own button (optionally onto a fixed index), or cancel and turn back to the start."
+    ]
+  ],
+  "examples": []
+}

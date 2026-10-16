@@ -1,0 +1,24 @@
+{
+  "name": "ticket-card",
+  "type": "component",
+  "title": "Ticket",
+  "description": "A ticket that feels like one — a boarding pass with a flight path, or an admit-one concert and cinema ticket. Real cut-out notches the screen shows through, a perforated stub with a scan code, seven themes from paper to neon, a holographic badge that shimmers as it tilts, a rubber stamp that thumps down, a flip to a big code and notes — and a stub you can swipe off along the tear line.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "tilt-card",
+    "flip-card",
+    "ticket-shape"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/tilt-card.tsx",
+    "components/ui/flip-card.tsx",
+    "lib/ticket-shape.tsx"
+  ],
+  "filesDir": null
+}

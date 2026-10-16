@@ -1,0 +1,36 @@
+{
+  "name": "waterfall",
+  "category": "Charts",
+  "aliases": [],
+  "exportName": "WaterfallChart",
+  "files": [
+    "src/components/charts/waterfall.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "{ label, value, total? }[]",
+      "—",
+      "Steps."
+    ],
+    [
+      "increaseColor / decreaseColor / totalColor",
+      "string",
+      "theme",
+      "Colours."
+    ],
+    [
+      "radius",
+      "number",
+      "4",
+      "Corners."
+    ],
+    [
+      "showLabels",
+      "boolean",
+      "true",
+      "Change labels."
+    ]
+  ],
+  "examples": []
+}

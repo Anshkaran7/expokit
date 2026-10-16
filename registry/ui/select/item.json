@@ -1,0 +1,220 @@
+{
+  "name": "select",
+  "title": "Select",
+  "tier": "free",
+  "category": "Inputs",
+  "previewHeight": 560,
+  "description": "A form field with a floating label and a glowing focus halo that opens a dropdown anchored right under it — matching its width, preferring below, flipping above only when there's clearly no room, re-placing itself on resize / rotation / keyboard, and scrolling inside when long — or, with presentation=\"sheet\", a drag-to-dismiss bottom sheet (a dialog on wide screens). The chevron turns, rows carry icons, descriptions, groups and disabled states, the chosen row gets a springy accent check, search highlights matches with a \"No results\" state, multiple mode adds checkboxes and removable chips that pop in and collapse out smoothly (overflow rolls into a \"+N\" chip, the footer count rolls too), and on web arrow keys, Enter and Escape drive the menu.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "options",
+      "(T | { label, value, description?, icon?, group?, disabled? })[]",
+      "—",
+      "Plain values or rich options; `group` adds section headings."
+    ],
+    [
+      "value / defaultValue",
+      "T | null",
+      "null",
+      "Controlled or uncontrolled selection."
+    ],
+    [
+      "onValueChange",
+      "(value, option) => void",
+      "—",
+      "Called when a row is chosen."
+    ],
+    [
+      "multiple",
+      "boolean",
+      "false",
+      "Checkbox rows; the menu stays open while toggling, with Clear / Done in its footer. The field shows animated chips plus a \"+N\" overflow chip."
+    ],
+    [
+      "values / defaultValues",
+      "T[]",
+      "[]",
+      "Controlled or uncontrolled selection in multiple mode."
+    ],
+    [
+      "onValuesChange",
+      "(values, options) => void",
+      "—",
+      "Called whenever a row is toggled in multiple mode."
+    ],
+    [
+      "maxChips",
+      "number",
+      "2",
+      "Selections shown as chips; the rest collapse into a \"+N\" chip (0 shows a single \"N selected\" chip)."
+    ],
+    [
+      "removableChips",
+      "boolean",
+      "true",
+      "Show a ✕ on each chip in the field to remove it without opening the menu."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Floating label / placeholder."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch) and show placeholder inside."
+    ],
+    [
+      "placeholder",
+      "string",
+      "\"Select…\"",
+      "Shown in the field while open with nothing selected."
+    ],
+    [
+      "presentation",
+      "\"dropdown\" | \"sheet\"",
+      "\"dropdown\"",
+      "Anchored dropdown under the field (flips above when needed) or a bottom sheet (dialog when wide)."
+    ],
+    [
+      "variant",
+      "\"dropdown\" | \"sheet\"",
+      "—",
+      "Deprecated alias of `presentation`."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Trigger height (44 / 54 / 64, matching FloatingInput), text, padding, radius and chevron size."
+    ],
+    [
+      "searchable",
+      "boolean",
+      "false",
+      "Filter field above the options with highlighted matches and an empty state."
+    ],
+    [
+      "searchPlaceholder",
+      "string",
+      "\"Search\"",
+      "Placeholder of the filter field."
+    ],
+    [
+      "emptyText",
+      "string",
+      "—",
+      "Hint under \"No results\" when the search matches nothing."
+    ],
+    [
+      "title",
+      "string",
+      "label",
+      "Sheet heading (sheet presentation only)."
+    ],
+    [
+      "error / helper",
+      "string",
+      "—",
+      "Message under the field; errors shake once."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims to 50% and blocks opening."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus, label and check colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the field (paints the label notch)."
+    ],
+    [
+      "minMenuWidth",
+      "number",
+      "200",
+      "Minimum dropdown width; otherwise it matches the field."
+    ],
+    [
+      "maxMenuHeight",
+      "number",
+      "320",
+      "Dropdown height cap before it scrolls (it also shrinks to the room on screen)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer wrapper around the trigger field and message (the one that shakes)."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Selected value / placeholder text in the trigger (single mode)."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Label in both modes (floating and above). color is the resting colour — focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Helper / error text. color applies to the helper; errors stay danger."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour in the trigger."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Chevron colour at rest (accent while open)."
+    ],
+    [
+      "menuStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Dropdown / sheet panel — background, border, radius, padding, shadow (transform and opacity are animated)."
+    ],
+    [
+      "optionStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Each option row — padding, minHeight, radius, background (press / keyboard highlight still show)."
+    ],
+    [
+      "optionTextStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Each option's label text."
+    ]
+  ]
+}

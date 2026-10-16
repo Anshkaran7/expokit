@@ -1,0 +1,35 @@
+{
+  "name": "stepper",
+  "title": "Stepper",
+  "tier": "free",
+  "category": "Inputs",
+  "description": "Quantity control whose number rolls — each changed digit slides out as the new one slides in, up or down with the change. Airbnb-style outline, an iOS-style filled capsule, a compact row control, and a DoorDash-style cart button that springs open from a single + into − 1 + (with a trash can at 1). Buttons spring on press, hold to repeat with acceleration, and pushing past a limit gives a little bump.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    ["value / defaultValue", "number", "min or 0", "Controlled or uncontrolled value."],
+    ["onValueChange", "(value) => void", "—", "Called on every step."],
+    ["min / max", "number", "0 / ∞", "Limits; the matching button dims and a press past it bumps the number."],
+    ["step", "number", "1", "Increment (decimals are respected, e.g. 0.5)."],
+    ["variant", "\"outline\" | \"filled\" | \"cart\" | \"compact\"", "\"outline\"", "Round outlined buttons, one tinted capsule, an accent cart button that collapses to + at 0, or small tinted buttons. Old names still work: default → outline, pill / segmented → filled, vertical → filled + vertical."],
+    ["size", "\"sm\" | \"md\" | \"lg\"", "\"md\"", "32 / 36 / 44pt buttons (touch area always ≥ 44pt); the number and icons scale too. compact is always 28pt."],
+    ["orientation", "\"horizontal\" | \"vertical\"", "\"horizontal\"", "Stack + / number / − (outline, filled, compact)."],
+    ["format", "(value) => string", "—", "Display format, e.g. currency; every changed character rolls."],
+    ["suffix", "string | (value) => string", "—", "Muted unit after the number: \"kg\", or (n) => n === 1 ? \"night\" : \"nights\"."],
+    ["addLabel", "string", "—", "cart: text beside the + while collapsed, e.g. \"Add\"."],
+    ["repeat", "boolean", "true", "Hold to keep stepping, speeding up."],
+    ["label", "string", "—", "Title on the left; the control moves to the right edge."],
+    ["description", "string", "—", "Muted line under the label."],
+    ["disabled", "boolean", "false", "Dims and blocks the control."],
+    ["accent", "string", "theme accent", "Icons (filled, compact), press tint (outline), fill (cart)."],
+    ["iconColor", "string", "—", "Overrides the − / + icon colour."],
+    ["accessibilityLabel", "string", "label", "Read by screen readers; the control is adjustable (swipe up / down)."],
+    ["style", "StyleProp<ViewStyle>", "—", "The control, or the whole row when label / description is set."],
+    ["buttonStyle", "StyleProp<ViewStyle>", "—", "Applied to each − / + button."],
+    ["valueStyle", "StyleProp<TextStyle>", "—", "Applied to the number (fontSize, colour, weight)."]
+  ]
+}

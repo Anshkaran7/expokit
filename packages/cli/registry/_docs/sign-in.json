@@ -1,0 +1,198 @@
+{
+  "name": "sign-in",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "SignIn",
+  "files": [
+    "src/components/blocks/sign-in.tsx"
+  ],
+  "props": [
+    [
+      "methods",
+      "('apple' | 'google' | 'microsoft' | 'github' | 'phone' | 'email')[]",
+      "['apple', 'google', 'phone', 'email']",
+      "Options in display order. OAuth ones render as 'Continue with X'; phone / email open their step. Exactly one of phone / email and no OAuth skips the welcome step."
+    ],
+    [
+      "emailMode",
+      "'password' | 'code' | 'magic-link'",
+      "'password'",
+      "What follows the email step: a password, a one-time email code, or a magic link + 'Check your inbox'."
+    ],
+    [
+      "mode / defaultMode",
+      "'sign-in' | 'sign-up'",
+      "'sign-in'",
+      "Controlled / initial mode. Sign-up shows 'Create account' and a password strength meter."
+    ],
+    [
+      "onModeChange",
+      "(mode) => void",
+      "—",
+      "The footer 'Sign up' / 'Sign in' link toggled the mode."
+    ],
+    [
+      "initialStep",
+      "'welcome' | 'phone' | 'otp' | 'email' | 'password' | 'email-code' | 'check-email' | 'forgot'",
+      "'welcome'",
+      "Step to open on mount (demos, deep links). Back still walks a sensible stack."
+    ],
+    [
+      "defaultPhone",
+      "string",
+      "''",
+      "Prefill the number (digits; a leading dial code is stripped)."
+    ],
+    [
+      "defaultEmail",
+      "string",
+      "''",
+      "Prefill the email field."
+    ],
+    [
+      "countryCode",
+      "string",
+      "'+91'",
+      "Selected dial code. +91 formats as '98765 43210' and needs 10 digits; others accept 7–15."
+    ],
+    [
+      "countries",
+      "{ code, dial, flag? }[]",
+      "IN, US, GB, AE, SG, AU",
+      "Dial-code picker list (tap the chip). One entry hides the picker."
+    ],
+    [
+      "otpLength",
+      "number",
+      "6",
+      "Digits in the one-time code."
+    ],
+    [
+      "resendSeconds",
+      "number",
+      "30",
+      "Countdown before 'Resend code' / 'Resend' is available."
+    ],
+    [
+      "onOAuth",
+      "(provider) => void | Promise",
+      "—",
+      "OAuth button pressed. Spinner while pending; resolve → onSuccess, throw → message shown inline."
+    ],
+    [
+      "onSendPhoneCode",
+      "(fullPhone: string) => void | Promise",
+      "—",
+      "Send an SMS code to the E.164 number ('+919876543210'). Resolve to open the code step; also used by Resend."
+    ],
+    [
+      "onVerifyPhoneCode",
+      "(fullPhone, code) => void | Promise",
+      "—",
+      "Called when the cells fill. Resolve → success state then onSuccess; throw → error on the cells."
+    ],
+    [
+      "onEmailPassword",
+      "({ email, password, mode }) => void | Promise",
+      "—",
+      "Password step submitted. Resolve → onSuccess; throw → message under the field."
+    ],
+    [
+      "onSendEmailCode",
+      "(email) => void | Promise",
+      "—",
+      "emailMode 'code': send the code. Resolve to open the code step."
+    ],
+    [
+      "onVerifyEmailCode",
+      "(email, code) => void | Promise",
+      "—",
+      "emailMode 'code': check the code. Resolve → onSuccess."
+    ],
+    [
+      "onSendMagicLink",
+      "(email) => void | Promise",
+      "—",
+      "emailMode 'magic-link': send the link. Resolve to show 'Check your inbox'."
+    ],
+    [
+      "onForgotPassword",
+      "(email) => void | Promise",
+      "—",
+      "'Send reset link' pressed on the forgot step. Resolve to show 'Check your inbox'."
+    ],
+    [
+      "onSuccess",
+      "() => void",
+      "—",
+      "Called after any successful final step (OAuth, code verified, email + password)."
+    ],
+    [
+      "onBack",
+      "() => void",
+      "—",
+      "Shows a back button on the first step."
+    ],
+    [
+      "onTerms / onPrivacy",
+      "() => void",
+      "—",
+      "Make 'Terms' / 'Privacy Policy' in the legal line tappable."
+    ],
+    [
+      "appName",
+      "string",
+      "'Northwind'",
+      "Used in the default title and the logo initial."
+    ],
+    [
+      "logo",
+      "ReactNode",
+      "monochrome initial mark",
+      "Replace the welcome logo."
+    ],
+    [
+      "title",
+      "string",
+      "`Welcome to ${appName}`",
+      "Welcome heading."
+    ],
+    [
+      "subtitle",
+      "string",
+      "'Sign in to continue.'",
+      "Line under the welcome heading."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Primary buttons, links and focus rings (black in light, white in dark by default)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ],
+    [
+      "error / onDismissError",
+      "string / () => void",
+      "—",
+      "Controlled error shown on the current step; onDismissError fires when the user edits or navigates."
+    ],
+    [
+      "onSignUp",
+      "() => void",
+      "—",
+      "Pressed 'Sign up' — called instead of toggling the mode."
+    ],
+    [
+      "onSubmit / onSocial / providers",
+      "deprecated",
+      "—",
+      "Aliases of onEmailPassword / onOAuth; providers (apple / google) sets the OAuth part of methods when methods isn't given."
+    ]
+  ],
+  "examples": []
+}

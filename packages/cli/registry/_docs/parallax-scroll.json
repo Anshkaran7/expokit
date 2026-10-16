@@ -1,0 +1,186 @@
+{
+  "name": "parallax-scroll",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "ParallaxScrollView",
+  "files": [
+    "src/components/ui/parallax-scroll.tsx"
+  ],
+  "props": [
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "The screen's content, under the header."
+    ],
+    [
+      "header",
+      "ReactNode",
+      "—",
+      "Fills the header area: a photo, a map, a gallery (wins over headerImage)."
+    ],
+    [
+      "headerImage",
+      "ImageSourcePropType",
+      "—",
+      "Shortcut for a full-bleed header photo."
+    ],
+    [
+      "headerAccessibilityLabel",
+      "string",
+      "—",
+      "Describes headerImage for screen readers (skipped when omitted)."
+    ],
+    [
+      "headerHeight",
+      "number",
+      "300",
+      "Header height, including the part under the status bar."
+    ],
+    [
+      "headerSpeed",
+      "number",
+      "0.5",
+      "How the header moves while scrolling up: 0 scrolls with the content, 1 stays pinned while the content slides over it."
+    ],
+    [
+      "stretch",
+      "boolean",
+      "true",
+      "iOS: pulling down stretches the header to fill the gap, anchored at the top. Turn off with a refreshControl."
+    ],
+    [
+      "headerOverlay",
+      "ReactNode",
+      "—",
+      "Pinned to the bottom of the header (a title over the photo); lifts and fades as it scrolls away, over a bottom scrim."
+    ],
+    [
+      "title",
+      "string",
+      "—",
+      "Ready-made top bar (theme background, hairline, centred title) that fades in once the header has scrolled under it."
+    ],
+    [
+      "bar",
+      "ReactNode",
+      "—",
+      "Your own bar instead: fills the bar area (topInset included) and fades in the same way. Decorative — buttons go in barLeft / barRight."
+    ],
+    [
+      "barLeft / barRight",
+      "ReactNode",
+      "—",
+      "Buttons pinned to the bar, visible over the photo too: each child sits on a round theme-coloured bubble that melts into the bar. Pass an array for several."
+    ],
+    [
+      "barHeight",
+      "number",
+      "52",
+      "Height of the bar row, below topInset."
+    ],
+    [
+      "topInset",
+      "number",
+      "0",
+      "Space above the bar for the status bar / notch — pass your safe-area top inset."
+    ],
+    [
+      "contentContainerStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the content under the header (padding, gap, background — theme background by default)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer frame (size, margins, radius). Fills its parent by default."
+    ],
+    [
+      "onScroll",
+      "(e) => void",
+      "—",
+      "JS handler called alongside the native parallax event. For UI-thread effects use useParallaxScroll().scroll instead of your own Animated.event."
+    ],
+    [
+      "ref",
+      "Ref<ScrollView>",
+      "—",
+      "Forwarded to the scroll view, so you can call scrollTo."
+    ],
+    [
+      "…ScrollView props",
+      "ScrollViewProps",
+      "—",
+      "Everything else is passed to the scroll view (vertical only): refreshControl, onScrollEndDrag, nestedScrollEnabled…"
+    ],
+    [
+      "ParallaxImage.source",
+      "ImageSourcePropType",
+      "—",
+      "The photo."
+    ],
+    [
+      "ParallaxImage.height",
+      "number",
+      "200",
+      "Frame height."
+    ],
+    [
+      "ParallaxImage.speed",
+      "number",
+      "0.3",
+      "How much slower than its frame the photo moves: 0 still, 1 fixed on screen, negative the other way."
+    ],
+    [
+      "ParallaxImage.radius",
+      "number",
+      "radius.lg",
+      "Corner radius of the frame."
+    ],
+    [
+      "ParallaxImage.scrim",
+      "boolean",
+      "on with children",
+      "Bottom gradient so white text reads on the photo."
+    ],
+    [
+      "ParallaxImage.children",
+      "ReactNode",
+      "—",
+      "Content over the photo, aligned to the bottom (a caption, a tag)."
+    ],
+    [
+      "ParallaxImage.accessibilityLabel",
+      "string",
+      "—",
+      "Describes the photo for screen readers."
+    ],
+    [
+      "ParallaxImage.style / imageStyle",
+      "StyleProp<ViewStyle> / StyleProp<ImageStyle>",
+      "—",
+      "Style for the frame / for the photo itself."
+    ],
+    [
+      "ParallaxView.speed",
+      "number",
+      "0.2",
+      "Offset relative to the scroll: positive lags behind the content, negative leads it."
+    ],
+    [
+      "ParallaxView.children / style",
+      "ReactNode / StyleProp<ViewStyle>",
+      "—",
+      "What drifts, and its style (the transform is taken by the parallax)."
+    ],
+    [
+      "useParallaxScroll()",
+      "() => { scroll, viewport, contentHeight, contentRef } | null",
+      "—",
+      "The live scroll offset (native-driver friendly), viewport size and content size for your own effects; null outside a ParallaxScrollView."
+    ]
+  ],
+  "examples": []
+}

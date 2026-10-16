@@ -1,0 +1,17 @@
+{
+  "name": "search-bar",
+  "type": "component",
+  "title": "Search Bar",
+  "description": "Search field with a soft focus halo: the magnifier pops on focus, Cancel slides in as the field springs narrower, the clear button scales in and a spinning arc shows loading. Suggestions drop down in an animated panel with recent / trending icons and the matching text in bold; a trailing slot fits a filter or mic button. The minimal variant expands from a round icon.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "search-bar/files"
+}

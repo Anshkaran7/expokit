@@ -1,0 +1,174 @@
+{
+  "name": "ticket-card",
+  "category": "3D",
+  "aliases": [],
+  "exportName": "TicketCard",
+  "files": [
+    "src/components/ui/ticket-card.tsx"
+  ],
+  "props": [
+    [
+      "brand / logo",
+      "string / ReactNode",
+      "—",
+      "Operator, venue or brand (and its logo), top-left."
+    ],
+    [
+      "badge",
+      "string",
+      "—",
+      "Chip top-right (\"VIP\", \"Business\") — on holographic foil when holo."
+    ],
+    [
+      "eyebrow",
+      "string",
+      "—",
+      "Small line above the title or route (\"Boarding pass · TP 1043\")."
+    ],
+    [
+      "title / subtitle",
+      "string",
+      "—",
+      "Event name and details (omit for a route pass)."
+    ],
+    [
+      "from / to",
+      "{ code: string; detail?: string }",
+      "—",
+      "Route endpoints; a dashed flight path runs between them."
+    ],
+    [
+      "duration",
+      "string",
+      "—",
+      "Under the flight path (\"7h 25m\")."
+    ],
+    [
+      "transport",
+      "\"flight\" | \"train\" | \"bus\" | \"boat\"",
+      "\"flight\"",
+      "Icon riding the flight path."
+    ],
+    [
+      "fields",
+      "{ label: string; value: string; span?: number }[]",
+      "[]",
+      "Details grid that wraps onto more rows; span widens a field."
+    ],
+    [
+      "columns",
+      "number",
+      "up to 4",
+      "Columns in the details grid."
+    ],
+    [
+      "code",
+      "string",
+      "—",
+      "Printed in the stub and shown big on the back. Omit for a ticket without a stub."
+    ],
+    [
+      "codeType",
+      "\"qr\" | \"barcode\"",
+      "\"qr\"",
+      "Look-alike code style — use renderCode for a scannable one."
+    ],
+    [
+      "renderCode",
+      "(code: string, size: number) => ReactNode",
+      "—",
+      "Draw a real code (e.g. react-native-qrcode-svg)."
+    ],
+    [
+      "notes",
+      "string | string[]",
+      "—",
+      "Lines on the back: terms, baggage, gate notes."
+    ],
+    [
+      "image",
+      "ImageSourcePropType",
+      "—",
+      "Header photo (vertical) or full-bleed art (horizontal)."
+    ],
+    [
+      "layout",
+      "\"vertical\" | \"horizontal\"",
+      "\"vertical\"",
+      "Pass with the stub below, or admit-one ticket with the stub on the right."
+    ],
+    [
+      "theme",
+      "\"midnight\" | \"paper\" | \"aurora\" | \"sunset\" | \"neon\" | \"royal\" | \"mint\" | TicketTheme",
+      "\"midnight\"",
+      "Preset, or { fill, stub?, ink, soft?, accent, pattern? } — fill can be a gradient."
+    ],
+    [
+      "tone",
+      "\"dark\" | \"light\"",
+      "—",
+      "Shorthand for theme: midnight / paper."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Route line, badge and stamp colour."
+    ],
+    [
+      "holo",
+      "boolean",
+      "false",
+      "Rainbow foil glare and a holographic badge."
+    ],
+    [
+      "stamp / stampColor",
+      "string / string",
+      "— / accent",
+      "Rubber stamp across the ticket (\"CHECKED IN\"); thumps in when set."
+    ],
+    [
+      "onTear",
+      "() => void",
+      "—",
+      "Enables swiping the stub off along the tear line; called once it's gone."
+    ],
+    [
+      "torn",
+      "boolean",
+      "—",
+      "Controlled torn state (the stub is gone, the torn edge stays)."
+    ],
+    [
+      "flipped / defaultFlipped / onFlip",
+      "boolean / boolean / (flipped) => void",
+      "— / false / —",
+      "Controlled or uncontrolled side (tap to flip)."
+    ],
+    [
+      "tilt",
+      "boolean",
+      "true",
+      "Tilt toward the finger; false for long lists."
+    ],
+    [
+      "radius",
+      "number",
+      "22",
+      "Corner radius."
+    ],
+    [
+      "labels",
+      "{ scan?, admit?, tear?, back? }",
+      "English",
+      "Every built-in string, for translation."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root (width, margins)."
+    ]
+  ],
+  "examples": []
+}

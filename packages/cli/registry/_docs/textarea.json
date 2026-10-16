@@ -1,0 +1,175 @@
+{
+  "name": "textarea",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "Textarea",
+  "files": [
+    "src/components/ui/textarea.tsx"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "—",
+      "Rests on the first line, floats onto the border on focus."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch); placeholder shows inside."
+    ],
+    [
+      "variant",
+      "\"outlined\" | \"filled\"",
+      "\"outlined\"",
+      "Field style."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "14 / 16 / 18px text; line height and padding scale too."
+    ],
+    [
+      "minRows / maxRows",
+      "number",
+      "3 / 8",
+      "Grows smoothly between these, then scrolls."
+    ],
+    [
+      "maxLength",
+      "number",
+      "—",
+      "Character limit; enables the counter."
+    ],
+    [
+      "enforceMaxLength",
+      "boolean",
+      "true",
+      "false makes the limit soft: typing past it turns the counter red and negative."
+    ],
+    [
+      "showCount",
+      "boolean",
+      "true when maxLength",
+      "Counter that becomes a ring in the last 20%."
+    ],
+    [
+      "toolbar",
+      "ReactNode",
+      "—",
+      "Row inside the bottom edge — attach, emoji, send."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Red state, icon + message that slides in, one shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "—",
+      "Green border + animated check; a string is shown as the message."
+    ],
+    [
+      "helper",
+      "string",
+      "—",
+      "Hint under the field."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus border and halo colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Colour behind the field (paints the label notch)."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer wrapper around the field and footer (the one that shakes)."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). height is ignored: the box grows with minRows / maxRows."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "The typed text — fontSize, lineHeight, fontWeight, color, fontFamily. Row height follows lineHeight (or scales with fontSize)."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Label in both modes (floating and above). color is the resting colour — focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "counterStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Counter text (42/280 and the characters-left number); warning / danger still win near the limit."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour."
+    ],
+    [
+      "…TextInputProps",
+      "",
+      "",
+      "value, defaultValue, onChangeText, placeholder, …"
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Composer",
+      "title": "Composer",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { Textarea } from '@/components/ui/textarea';\nimport { useKit } from '@/lib/kit';\n\nfunction ToolButton({ glyph, label }: { glyph: string; label: string }) {\n  const { colors } = useKit();\n  return (\n    <Pressable\n      accessibilityRole=\"button\"\n      accessibilityLabel={label}\n      hitSlop={6}\n      style={{ width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.muted }}\n    >\n      <Text style={{ fontSize: 17, fontWeight: '400', color: colors.mutedForeground }}>{glyph}</Text>\n    </Pressable>\n  );\n}\n\nexport default function Composer() {\n  const { colors, radius } = useKit();\n  const [draft, setDraft] = useState('');\n  const [sent, setSent] = useState<string[]>(['Are we still on for the design review at 3?']);\n  const canSend = draft.trim().length > 0;\n  const send = () => {\n    if (!canSend) return;\n    setSent((s) => [...s.slice(-1), draft.trim()]);\n    setDraft('');\n  };\n  return (\n    <View style={{ gap: 10 }}>\n      {sent.map((m, i) => (\n        <View\n          key={i}\n          style={{ alignSelf: 'flex-end', maxWidth: '80%', backgroundColor: colors.accent, borderRadius: radius.scale(18), paddingHorizontal: 14, paddingVertical: 9 }}\n        >\n          <Text style={{ color: colors.accentForeground, fontSize: 15 }}>{m}</Text>\n        </View>\n      ))}\n      <Textarea\n        placeholder=\"Message Alex…\"\n        value={draft}\n        onChangeText={setDraft}\n        minRows={1}\n        maxRows={5}\n        toolbar={\n          <>\n            <ToolButton glyph=\"+\" label=\"Attach a file\" />\n            <ToolButton glyph=\"@\" label=\"Mention someone\" />\n            <View style={{ flex: 1 }} />\n            <Pressable\n              onPress={send}\n              disabled={!canSend}\n              accessibilityRole=\"button\"\n              accessibilityLabel=\"Send message\"\n              hitSlop={6}\n              style={{\n                height: 32,\n                paddingHorizontal: 14,\n                borderRadius: radius.capsule(32),\n                alignItems: 'center',\n                justifyContent: 'center',\n                backgroundColor: colors.accent,\n                opacity: canSend ? 1 : 0.4,\n              }}\n            >\n              <Text style={{ color: colors.accentForeground, fontSize: 14, fontWeight: '400' }}>Send ↑</Text>\n            </Pressable>\n          </>\n        }\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Review",
+      "title": "Review",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { Textarea } from '@/components/ui/textarea';\nimport { useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nexport default function Review() {\n  const [review, setReview] = useState('Great coffee, but');\n  const length = review.trim().length;\n  return (\n    <Card title=\"Rate Blue Bottle, Hayes Valley\" subtitle=\"Reviews are public and show your first name.\">\n      <Textarea\n        label=\"Your review\"\n        value={review}\n        onChangeText={setReview}\n        maxLength={200}\n        enforceMaxLength={false}\n        minRows={3}\n        error={length > 0 && length < 20 ? 'Tell us a little more — at least 20 characters' : length > 200 ? 'Keep it under 200 characters' : undefined}\n        success={length >= 20 && length <= 200 ? 'Thanks — that will really help others' : undefined}\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Feedback",
+      "title": "Feedback",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { Textarea } from '@/components/ui/textarea';\nimport { useKit } from '@/lib/kit';\n\nfunction Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={{\n        padding: 16,\n        gap: 12,\n        borderRadius: radius.xl,\n        borderWidth: StyleSheet.hairlineWidth,\n        borderColor: colors.border,\n        backgroundColor: colors.card,\n      }}\n    >\n      <View style={{ gap: 2, marginBottom: 2 }}>\n        <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>\n        {subtitle ? <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{subtitle}</Text> : null}\n      </View>\n      {children}\n    </View>\n  );\n}\n\nexport default function Feedback() {\n  return (\n    <Card title=\"Send feedback\" subtitle=\"Goes straight to the product team.\">\n      <Textarea\n        variant=\"filled\"\n        label=\"What could be better?\"\n        defaultValue=\"Dark mode on the invoices page is a little too low-contrast for me.\"\n        helper=\"Screenshots help — attach them in the next step.\"\n        minRows={3}\n        maxRows={6}\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "CharacterLimit",
+      "title": "Character Limit",
+      "code": "import { Textarea } from '@/components/ui/textarea';\n\nexport default function CharacterLimit() {\n  return (\n    <Textarea\n      label=\"What's happening?\"\n      maxLength={140}\n      defaultValue=\"Shipping the new ExpoKit inputs today — focus halos, animated checks and fields that glide taller as you type.\"\n      minRows={3}\n    />\n  );\n}\n"
+    },
+    {
+      "name": "States",
+      "title": "States",
+      "code": "import { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { Textarea } from '@/components/ui/textarea';\n\nexport default function States() {\n  return (\n    <View style={{ gap: 16 }}>\n      <Textarea label=\"Delivery instructions\" minRows={2} defaultValue=\"Leave it with the concierge, code 4417.\" success=\"Saved for next time\" />\n      <Textarea label=\"Notes for the courier\" minRows={2} editable={false} defaultValue=\"Locked while the order is out for delivery.\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { Textarea } from '@/components/ui/textarea';\n\nexport default function Sizes() {\n  return (\n    <View style={{ gap: 14 }}>\n      <Textarea size=\"sm\" label=\"Small · 14px\" minRows={1} defaultValue=\"Compact comment box\" />\n      <Textarea size=\"md\" label=\"Medium · 16px\" minRows={1} defaultValue=\"The default for forms\" />\n      <Textarea size=\"lg\" label=\"Large · 18px\" minRows={1} defaultValue=\"Journaling and long-form\" />\n    </View>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "name": "date-picker",
+  "category": "Inputs",
+  "aliases": [],
+  "exportName": "DatePicker",
+  "files": [
+    "src/components/ui/date-picker.tsx"
+  ],
+  "props": [
+    [
+      "label",
+      "string",
+      "—",
+      "Rests in the field, floats onto the border when open or filled."
+    ],
+    [
+      "floatingLabel",
+      "boolean",
+      "true",
+      "Set to false to put the label above the field as static text (no notch) and show placeholder inside."
+    ],
+    [
+      "mode",
+      "'single' | 'range'",
+      "'single'",
+      "One date or a start / end range."
+    ],
+    [
+      "value",
+      "Date | { start, end } | null",
+      "—",
+      "Controlled value."
+    ],
+    [
+      "defaultValue",
+      "Date | { start, end } | null",
+      "null",
+      "Initial value when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(value) => void",
+      "—",
+      "Called with the committed date / range, or null when cleared."
+    ],
+    [
+      "presentation",
+      "'auto' | 'sheet' | 'dialog' | 'popover'",
+      "'auto'",
+      "auto: bottom sheet on phones, centred dialog from 640pt wide · sheet: always a bottom sheet with drag-to-dismiss · dialog: always a centred modal · popover: drops under the field."
+    ],
+    [
+      "presets",
+      "boolean | { label, value | () => value }[]",
+      "—",
+      "true adds built-in shortcuts (Today, Next 7 days, Next weekend, This month…); or pass your own."
+    ],
+    [
+      "confirm",
+      "boolean",
+      "false",
+      "Stage picks behind Clear / Done; otherwise picking (or finishing a range) closes the picker."
+    ],
+    [
+      "clearable",
+      "boolean",
+      "false",
+      "Show an × in the field that clears the value."
+    ],
+    [
+      "format",
+      "(date: Date) => string",
+      "—",
+      "Custom formatter for each date shown in the field."
+    ],
+    [
+      "formatOptions",
+      "Intl.DateTimeFormatOptions",
+      "{ day, month: 'short', year }",
+      "Intl options for the field text."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "Locale for the field and the calendar."
+    ],
+    [
+      "size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Field height 46 / 56 / 66 and type size."
+    ],
+    [
+      "placeholder",
+      "string",
+      "—",
+      "Shown in the field while open with nothing picked, and in the sheet header."
+    ],
+    [
+      "title",
+      "string",
+      "label",
+      "Sheet heading."
+    ],
+    [
+      "minDate / maxDate",
+      "Date",
+      "—",
+      "Selectable bounds; presets outside them are disabled."
+    ],
+    [
+      "isDateDisabled",
+      "(date: Date) => boolean",
+      "—",
+      "Disable individual days."
+    ],
+    [
+      "markedDates",
+      "Record<string, string | string[]>",
+      "—",
+      "Event dots, passed to Calendar."
+    ],
+    [
+      "weekStartsOn",
+      "0 | 1",
+      "0",
+      "First day of the week."
+    ],
+    [
+      "showOutsideDays",
+      "boolean",
+      "false",
+      "Show neighbouring-month days in the grid."
+    ],
+    [
+      "error",
+      "string",
+      "—",
+      "Red border, icon message and one shake."
+    ],
+    [
+      "success",
+      "boolean | string",
+      "—",
+      "Success border and check; a string is shown under the field."
+    ],
+    [
+      "helper",
+      "string",
+      "—",
+      "Hint under the field."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Dims the field and blocks opening."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Focus, halo and selection colour."
+    ],
+    [
+      "surface",
+      "string",
+      "theme background",
+      "Background behind the field (the label notch uses it)."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Called when the picker opens or closes."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container style."
+    ],
+    [
+      "fieldStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "The bordered box: background, border width / colour, radius, height, padding. Wins over the computed style; a borderColor replaces the resting border only (focus, error and success colours still show). A numeric height / borderRadius re-centres the label and resizes the halo."
+    ],
+    [
+      "inputStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "The formatted date text in the trigger."
+    ],
+    [
+      "labelStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Label in both modes (floating and above). color is the resting colour — focus (accent), error and success still take over; fontSize sets the resting size, it floats at the same ratio and the notch follows its width."
+    ],
+    [
+      "messageStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Helper / error / success text. color applies to the helper; error and success keep their tone colour."
+    ],
+    [
+      "placeholderTextColor",
+      "string",
+      "theme mutedForeground",
+      "Placeholder colour in the trigger."
+    ],
+    [
+      "iconColor",
+      "string",
+      "theme mutedForeground",
+      "Calendar icon and clear × colour at rest (calendar turns accent while open)."
+    ],
+    [
+      "menuStyle",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Sheet / dialog / popover panel — background, border, radius, padding, shadow (transform and opacity are animated)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Birthday",
+      "title": "Birthday",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { DatePicker, type DatePickerPresentation, type DateRange } from '@/components/ui/date-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());\n\ntype Opens = Exclude<DatePickerPresentation, 'auto'>;\n\nconst OPENS: { key: Opens; label: string }[] = [\n  { key: 'sheet', label: 'Sheet' },\n  { key: 'dialog', label: 'Modal' },\n  { key: 'popover', label: 'Popover' },\n];\n\n/** Card header with a compact switch for how the picker opens. */\nfunction Header({ title, opens, onOpens }: { title: string; opens: Opens; onOpens: (o: Opens) => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <View style={s.header}>\n      <Text style={[s.title, { color: colors.foreground }]} numberOfLines={1}>\n        {title}\n      </Text>\n      <View style={[s.switch, { backgroundColor: colors.muted, borderRadius: radius.md }]} accessibilityRole=\"radiogroup\">\n        {OPENS.map((o) => {\n          const on = o.key === opens;\n          return (\n            <Pressable\n              key={o.key}\n              onPress={() => onOpens(o.key)}\n              accessibilityRole=\"radio\"\n              accessibilityState={{ checked: on }}\n              accessibilityLabel={`Open as ${o.label}`}\n              style={[s.switchItem, { borderRadius: Math.max(0, radius.md - 3) }, on && { backgroundColor: colors.background }]}\n            >\n              <Text style={[s.switchText, { color: on ? colors.foreground : colors.mutedForeground }]}>{o.label}</Text>\n            </Pressable>\n          );\n        })}\n      </View>\n    </View>\n  );\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 14 },\n  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },\n  title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },\n  switch: { flexDirection: 'row', padding: 3 },\n  switchItem: { height: 28, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },\n  switchText: { fontSize: 12.5, fontWeight: '400' },\n  label: { fontSize: 12, fontWeight: '400', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: -6 },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Birthday() {\n  const [date, setDate] = useState<Date | null>(new Date(1994, 5, 12));\n  const age = date ? Math.floor((today.getTime() - date.getTime()) / (365.25 * 86400000)) : null;\n  const [opens, setOpens] = useState<Opens>('sheet');\n  return (\n    <Card>\n      <Header title=\"Profile\" opens={opens} onOpens={setOpens} />\n      <DatePicker\n        key={opens}\n        presentation={opens}\n        label=\"Date of birth\"\n        value={date}\n        onChange={setDate}\n        maxDate={today}\n        formatOptions={{ day: 'numeric', month: 'long', year: 'numeric' }}\n        helper={age !== null ? `You're ${age}. Tap the month title to jump years.` : 'Used to personalise your plan.'}\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "TripDates",
+      "title": "Trip Dates",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { DatePicker, type DatePickerPresentation, type DateRange } from '@/components/ui/date-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());\n\ntype Opens = Exclude<DatePickerPresentation, 'auto'>;\n\nconst OPENS: { key: Opens; label: string }[] = [\n  { key: 'sheet', label: 'Sheet' },\n  { key: 'dialog', label: 'Modal' },\n  { key: 'popover', label: 'Popover' },\n];\n\n/** Card header with a compact switch for how the picker opens. */\nfunction Header({ title, opens, onOpens }: { title: string; opens: Opens; onOpens: (o: Opens) => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <View style={s.header}>\n      <Text style={[s.title, { color: colors.foreground }]} numberOfLines={1}>\n        {title}\n      </Text>\n      <View style={[s.switch, { backgroundColor: colors.muted, borderRadius: radius.md }]} accessibilityRole=\"radiogroup\">\n        {OPENS.map((o) => {\n          const on = o.key === opens;\n          return (\n            <Pressable\n              key={o.key}\n              onPress={() => onOpens(o.key)}\n              accessibilityRole=\"radio\"\n              accessibilityState={{ checked: on }}\n              accessibilityLabel={`Open as ${o.label}`}\n              style={[s.switchItem, { borderRadius: Math.max(0, radius.md - 3) }, on && { backgroundColor: colors.background }]}\n            >\n              <Text style={[s.switchText, { color: on ? colors.foreground : colors.mutedForeground }]}>{o.label}</Text>\n            </Pressable>\n          );\n        })}\n      </View>\n    </View>\n  );\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 14 },\n  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },\n  title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },\n  switch: { flexDirection: 'row', padding: 3 },\n  switchItem: { height: 28, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },\n  switchText: { fontSize: 12.5, fontWeight: '400' },\n  label: { fontSize: 12, fontWeight: '400', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: -6 },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function TripDates() {\n  const [trip, setTrip] = useState<DateRange | null>(null);\n  const nights = trip?.start && trip.end ? Math.round((trip.end.getTime() - trip.start.getTime()) / 86400000) : 0;\n  const [opens, setOpens] = useState<Opens>('dialog');\n  return (\n    <Card>\n      <Header title=\"Trip · Kyoto\" opens={opens} onOpens={setOpens} />\n      <DatePicker\n        key={opens}\n        presentation={opens}\n        mode=\"range\"\n        label=\"Check-in – Check-out\"\n        title=\"When are you travelling?\"\n        placeholder=\"Add dates\"\n        value={trip}\n        onChange={setTrip}\n        presets\n        confirm\n        clearable\n        minDate={today}\n        success={nights ? `${nights} night${nights > 1 ? 's' : ''} · free cancellation until 48h before` : undefined}\n      />\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Deadline",
+      "title": "Deadline",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { DatePicker, type DatePickerPresentation, type DateRange } from '@/components/ui/date-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\nconst today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());\n\ntype Opens = Exclude<DatePickerPresentation, 'auto'>;\n\nconst OPENS: { key: Opens; label: string }[] = [\n  { key: 'sheet', label: 'Sheet' },\n  { key: 'dialog', label: 'Modal' },\n  { key: 'popover', label: 'Popover' },\n];\n\n/** Card header with a compact switch for how the picker opens. */\nfunction Header({ title, opens, onOpens }: { title: string; opens: Opens; onOpens: (o: Opens) => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <View style={s.header}>\n      <Text style={[s.title, { color: colors.foreground }]} numberOfLines={1}>\n        {title}\n      </Text>\n      <View style={[s.switch, { backgroundColor: colors.muted, borderRadius: radius.md }]} accessibilityRole=\"radiogroup\">\n        {OPENS.map((o) => {\n          const on = o.key === opens;\n          return (\n            <Pressable\n              key={o.key}\n              onPress={() => onOpens(o.key)}\n              accessibilityRole=\"radio\"\n              accessibilityState={{ checked: on }}\n              accessibilityLabel={`Open as ${o.label}`}\n              style={[s.switchItem, { borderRadius: Math.max(0, radius.md - 3) }, on && { backgroundColor: colors.background }]}\n            >\n              <Text style={[s.switchText, { color: on ? colors.foreground : colors.mutedForeground }]}>{o.label}</Text>\n            </Pressable>\n          );\n        })}\n      </View>\n    </View>\n  );\n}\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 14 },\n  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },\n  title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },\n  switch: { flexDirection: 'row', padding: 3 },\n  switchItem: { height: 28, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },\n  switchText: { fontSize: 12.5, fontWeight: '400' },\n  label: { fontSize: 12, fontWeight: '400', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: -6 },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Deadline() {\n  const { colors, radius } = useKit();\n  const [due, setDue] = useState<Date | null>(null);\n  const [submitted, setSubmitted] = useState(false);\n  const [opens, setOpens] = useState<Opens>('popover');\n  return (\n    <Card>\n      <Header title=\"New task\" opens={opens} onOpens={setOpens} />\n      <DatePicker\n        key={opens}\n        presentation={opens}\n        label=\"Due date\"\n        value={due}\n        onChange={setDue}\n        minDate={today}\n        isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}\n        presets={[\n          { label: 'Tomorrow', value: () => new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1) },\n          { label: 'End of month', value: () => new Date(today.getFullYear(), today.getMonth() + 1, 0) },\n        ]}\n        error={submitted && !due ? 'Pick a due date so the team can plan around it' : undefined}\n        helper=\"Weekdays only.\"\n      />\n      <Pressable\n        onPress={() => setSubmitted(true)}\n        style={({ pressed }) => [s.button, { backgroundColor: colors.accent, borderRadius: radius.md, opacity: pressed ? 0.85 : 1 }]}\n        accessibilityRole=\"button\"\n      >\n        <Text style={[s.buttonText, { color: colors.accentForeground }]}>Create task</Text>\n      </Pressable>\n    </Card>\n  );\n}\n"
+    },
+    {
+      "name": "Sizes",
+      "title": "Sizes",
+      "code": "import { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-native';\nimport { DatePicker, type DatePickerPresentation, type DateRange } from '@/components/ui/date-picker';\nimport { useKit } from '@/lib/kit';\n\n/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */\nfunction Card({ style, ...rest }: ViewProps) {\n  const { colors, radius } = useKit();\n  return (\n    <View\n      style={[\n        s.card,\n        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },\n        style,\n      ]}\n      {...rest}\n    />\n  );\n}\n\n/** Text in the kit's ink: `tone=\"muted\"` for secondary copy. */\nfunction Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {\n  const { colors } = useKit();\n  return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;\n}\n\nconst today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());\n\nconst s = StyleSheet.create({\n  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 14 },\n  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },\n  title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },\n  switch: { flexDirection: 'row', padding: 3 },\n  switchItem: { height: 28, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },\n  switchText: { fontSize: 12.5, fontWeight: '400' },\n  label: { fontSize: 12, fontWeight: '400', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: -6 },\n  button: { height: 46, alignItems: 'center', justifyContent: 'center' },\n  buttonText: { fontSize: 15, fontWeight: '400' },\n});\n\nexport default function Sizes() {\n  const d = new Date(today.getFullYear(), today.getMonth(), 24);\n  return (\n    <Card>\n      <Ink tone=\"muted\" style={s.label}>Small</Ink>\n      <DatePicker size=\"sm\" label=\"Invoice date\" defaultValue={d} />\n      <Ink tone=\"muted\" style={s.label}>Medium</Ink>\n      <DatePicker size=\"md\" label=\"Invoice date\" defaultValue={d} />\n      <Ink tone=\"muted\" style={s.label}>Large</Ink>\n      <DatePicker size=\"lg\" label=\"Invoice date\" defaultValue={d} />\n      <Ink tone=\"muted\" style={s.label}>Disabled</Ink>\n      <DatePicker disabled label=\"Invoice date\" defaultValue={d} />\n    </Card>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "progress-steps",
+  "title": "Progress Steps",
+  "tier": "free",
+  "category": "Navigation",
+  "isNew": true,
+  "description": "Multi-step progress for checkout and onboarding. Completed steps pop and draw their check, the current step glows with a breathing ring, upcoming steps stay hollow; advance and the connector pours the accent into the next step with a selection tick. Horizontal with labels, vertical with descriptions, or a compact \"Step 2 of 4\" segmented bar.",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "steps",
+      "(string | { label, description? })[]",
+      "—",
+      "Step labels with optional descriptions (vertical, and two short lines in horizontal)."
+    ],
+    [
+      "current",
+      "number",
+      "—",
+      "Active step index. Earlier steps are complete; steps.length marks all done."
+    ],
+    [
+      "errorStep",
+      "number",
+      "—",
+      "A failed step, drawn red with \"!\"."
+    ],
+    [
+      "variant",
+      "\"horizontal\" | \"vertical\" | \"bar\"",
+      "\"horizontal\"",
+      "Nodes with labels · vertical list with descriptions · compact header and segmented bar."
+    ],
+    [
+      "onStepPress",
+      "(index: number) => void",
+      "—",
+      "Makes steps tappable, e.g. to jump back."
+    ],
+    [
+      "pressableSteps",
+      "\"all\" | \"completed\"",
+      "\"all\"",
+      "Which steps onStepPress applies to; \"completed\" only lets people go back."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick whenever current changes."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Solid colour of completed steps, connectors and the current ring; halos and tracks are tints of it."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the step row / column (the bar container in the bar variant)."
+    ]
+  ]
+}

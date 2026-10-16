@@ -1,0 +1,92 @@
+{
+  "name": "progress-steps",
+  "category": "Navigation",
+  "aliases": [],
+  "exportName": "ProgressSteps",
+  "files": [
+    "src/components/ui/progress-steps.tsx"
+  ],
+  "props": [
+    [
+      "steps",
+      "(string | { label, description? })[]",
+      "—",
+      "Step labels with optional descriptions (vertical, and two short lines in horizontal)."
+    ],
+    [
+      "current",
+      "number",
+      "—",
+      "Active step index. Earlier steps are complete; steps.length marks all done."
+    ],
+    [
+      "errorStep",
+      "number",
+      "—",
+      "A failed step, drawn red with \"!\"."
+    ],
+    [
+      "variant",
+      "\"horizontal\" | \"vertical\" | \"bar\"",
+      "\"horizontal\"",
+      "Nodes with labels · vertical list with descriptions · compact header and segmented bar."
+    ],
+    [
+      "onStepPress",
+      "(index: number) => void",
+      "—",
+      "Makes steps tappable, e.g. to jump back."
+    ],
+    [
+      "pressableSteps",
+      "\"all\" | \"completed\"",
+      "\"all\"",
+      "Which steps onStepPress applies to; \"completed\" only lets people go back."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Selection tick whenever current changes."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Solid colour of completed steps, connectors and the current ring; halos and tracks are tints of it."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the step row / column (the bar container in the bar variant)."
+    ]
+  ],
+  "examples": [
+    {
+      "name": "Checkout",
+      "title": "Checkout",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ProgressSteps } from '@/components/ui/progress-steps';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Buttons({ step, max, set, last = 'Place order' }: { step: number; max: number; set: (n: number) => void; last?: string }) {\n  const { colors, radius } = useKit();\n  const done = step >= max;\n  return (\n    <View style={{ flexDirection: 'row', gap: 10 }}>\n      <Pressable\n        onPress={() => set(Math.max(0, step - 1))}\n        disabled={step === 0}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: alpha(colors.foreground, pressed ? 0.1 : 0.05),\n          alignItems: 'center',\n          justifyContent: 'center',\n          opacity: step === 0 ? 0.4 : 1,\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.foreground }}>Back</Text>\n      </Pressable>\n      <Pressable\n        onPress={() => set(done ? 0 : step + 1)}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1.5,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: colors.accent,\n          alignItems: 'center',\n          justifyContent: 'center',\n          transform: [{ scale: pressed ? 0.98 : 1 }],\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.accentForeground }}>\n          {done ? 'Start over' : step === max - 1 ? last : 'Continue'}\n        </Text>\n      </Pressable>\n    </View>\n  );\n}\n\nexport default function Checkout() {\n  const { colors } = useKit();\n  const [step, setStep] = useState(1);\n  const copy = [\n    '2 items · ₹2,798',\n    'Delivering to 14 Rua das Flores, Lisbon',\n    'Visa ending 4242',\n    'Arrives Thursday, 16 October',\n  ];\n  return (\n    <View style={{ gap: 22 }}>\n      <ProgressSteps\n        steps={['Cart', 'Shipping', 'Payment', 'Review']}\n        current={step}\n        pressableSteps=\"completed\"\n        onStepPress={setStep}\n      />\n      <Text style={{ fontSize: 14, textAlign: 'center', color: colors.mutedForeground }}>\n        {step >= 4 ? 'Order #4821 placed — receipt sent to amelia@hart.studio' : copy[step]}\n      </Text>\n      <Buttons step={step} max={4} set={setStep} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Onboarding",
+      "title": "Onboarding",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ProgressSteps } from '@/components/ui/progress-steps';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Buttons({ step, max, set, last = 'Place order' }: { step: number; max: number; set: (n: number) => void; last?: string }) {\n  const { colors, radius } = useKit();\n  const done = step >= max;\n  return (\n    <View style={{ flexDirection: 'row', gap: 10 }}>\n      <Pressable\n        onPress={() => set(Math.max(0, step - 1))}\n        disabled={step === 0}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: alpha(colors.foreground, pressed ? 0.1 : 0.05),\n          alignItems: 'center',\n          justifyContent: 'center',\n          opacity: step === 0 ? 0.4 : 1,\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.foreground }}>Back</Text>\n      </Pressable>\n      <Pressable\n        onPress={() => set(done ? 0 : step + 1)}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1.5,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: colors.accent,\n          alignItems: 'center',\n          justifyContent: 'center',\n          transform: [{ scale: pressed ? 0.98 : 1 }],\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.accentForeground }}>\n          {done ? 'Start over' : step === max - 1 ? last : 'Continue'}\n        </Text>\n      </Pressable>\n    </View>\n  );\n}\n\nexport default function Onboarding() {\n  const [step, setStep] = useState(2);\n  return (\n    <View style={{ gap: 20 }}>\n      <ProgressSteps\n        variant=\"vertical\"\n        current={step}\n        pressableSteps=\"completed\"\n        onStepPress={setStep}\n        steps={[\n          { label: 'Create your account', description: 'Signed up with amelia@hart.studio' },\n          { label: 'Verify your email', description: 'Confirmed with a 6-digit code.' },\n          { label: 'Connect your bank', description: 'Read-only access. You can disconnect any time.' },\n          { label: 'Set your first budget', description: 'Pick categories and a monthly limit.' },\n        ]}\n      />\n      <Buttons step={step} max={4} set={setStep} last=\"Finish setup\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Compact",
+      "title": "Compact",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ProgressSteps } from '@/components/ui/progress-steps';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Buttons({ step, max, set, last = 'Place order' }: { step: number; max: number; set: (n: number) => void; last?: string }) {\n  const { colors, radius } = useKit();\n  const done = step >= max;\n  return (\n    <View style={{ flexDirection: 'row', gap: 10 }}>\n      <Pressable\n        onPress={() => set(Math.max(0, step - 1))}\n        disabled={step === 0}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: alpha(colors.foreground, pressed ? 0.1 : 0.05),\n          alignItems: 'center',\n          justifyContent: 'center',\n          opacity: step === 0 ? 0.4 : 1,\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.foreground }}>Back</Text>\n      </Pressable>\n      <Pressable\n        onPress={() => set(done ? 0 : step + 1)}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1.5,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: colors.accent,\n          alignItems: 'center',\n          justifyContent: 'center',\n          transform: [{ scale: pressed ? 0.98 : 1 }],\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.accentForeground }}>\n          {done ? 'Start over' : step === max - 1 ? last : 'Continue'}\n        </Text>\n      </Pressable>\n    </View>\n  );\n}\n\nexport default function Compact() {\n  const [step, setStep] = useState(1);\n  return (\n    <View style={{ gap: 20 }}>\n      <ProgressSteps variant=\"bar\" steps={['Shipping address', 'Delivery options', 'Payment', 'Review order']} current={step} />\n      <Buttons step={step} max={4} set={setStep} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "WithDescriptions",
+      "title": "With Descriptions",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { ProgressSteps } from '@/components/ui/progress-steps';\nimport { alpha, useKit } from '@/lib/kit';\n\nfunction Buttons({ step, max, set, last = 'Place order' }: { step: number; max: number; set: (n: number) => void; last?: string }) {\n  const { colors, radius } = useKit();\n  const done = step >= max;\n  return (\n    <View style={{ flexDirection: 'row', gap: 10 }}>\n      <Pressable\n        onPress={() => set(Math.max(0, step - 1))}\n        disabled={step === 0}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: alpha(colors.foreground, pressed ? 0.1 : 0.05),\n          alignItems: 'center',\n          justifyContent: 'center',\n          opacity: step === 0 ? 0.4 : 1,\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.foreground }}>Back</Text>\n      </Pressable>\n      <Pressable\n        onPress={() => set(done ? 0 : step + 1)}\n        accessibilityRole=\"button\"\n        style={({ pressed }) => ({\n          flex: 1.5,\n          height: 48,\n          borderRadius: radius.capsule(48),\n          backgroundColor: colors.accent,\n          alignItems: 'center',\n          justifyContent: 'center',\n          transform: [{ scale: pressed ? 0.98 : 1 }],\n        })}\n      >\n        <Text style={{ fontSize: 15, color: colors.accentForeground }}>\n          {done ? 'Start over' : step === max - 1 ? last : 'Continue'}\n        </Text>\n      </Pressable>\n    </View>\n  );\n}\n\nexport default function WithDescriptions() {\n  const [step, setStep] = useState(1);\n  return (\n    <View style={{ gap: 22 }}>\n      <ProgressSteps\n        current={step}\n        steps={[\n          { label: 'Profile', description: 'Name, photo' },\n          { label: 'Workspace', description: 'Invite team' },\n          { label: 'Plan', description: 'Free or Pro' },\n        ]}\n      />\n      <Buttons step={step} max={3} set={setStep} last=\"Create workspace\" />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "WithError",
+      "title": "With Error",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { ProgressSteps } from '@/components/ui/progress-steps';\nimport { alpha, useKit } from '@/lib/kit';\n\nexport default function WithError() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 14 }}>\n      <ProgressSteps steps={['Upload', 'Verify', 'Approve', 'Publish']} current={1} errorStep={1} />\n      <Text style={{ fontSize: 13, lineHeight: 18, color: colors.mutedForeground, textAlign: 'center' }}>\n        ID photo was blurry — retake it to continue.\n      </Text>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "polar-area",
+  "type": "chart",
+  "title": "Polar Area",
+  "description": "Nightingale rose: equal-angle slices where the radius shows the value. Tap a petal for its value. Built on expo-charts.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-charts",
+    "react-native-svg"
+  ],
+  "registryDependencies": [],
+  "sharedFiles": [],
+  "filesDir": null
+}

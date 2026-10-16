@@ -1,0 +1,22 @@
+{
+  "name": "glass-sheet",
+  "type": "component",
+  "title": "Glass Sheet",
+  "description": "iOS 26 floating glass sheet. Detached by default — it floats inset from the screen edges with big rounded corners — or docked edge-to-edge. It springs up over a fading dim, follows your finger from the grabber or the content, settles on the snap point projected from your release velocity (a fling down dismisses) with a haptic tick, and sizes itself to its content when no snap points are given; taller content scrolls. Real Liquid Glass on iOS 26, material blur on older iOS and web, a readable frosted surface on Android.",
+  "tier": "pro",
+  "dependencies": [
+    "expo-glass-effect",
+    "expo-blur",
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "glass"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/glass.tsx"
+  ],
+  "filesDir": null
+}

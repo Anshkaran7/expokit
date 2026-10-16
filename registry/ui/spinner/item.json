@@ -1,0 +1,63 @@
+{
+  "name": "spinner",
+  "title": "Spinner",
+  "tier": "free",
+  "category": "Feedback",
+  "description": "A comet arc whose tail fades out and breathes as it spins (native rotation), or a soft staggered wave of dots. Optional faint track and a visible label with an animated ellipsis.",
+  "dependencies": [
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "variant",
+      "\"ring\" | \"dots\"",
+      "\"ring\"",
+      "Indicator style."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\" | \"xl\" | number",
+      "\"md\"",
+      "16 / 24 / 36 / 52pt, or any number."
+    ],
+    [
+      "color",
+      "string",
+      "theme accent",
+      "Indicator colour."
+    ],
+    [
+      "speed",
+      "number",
+      "1",
+      "Speed multiplier."
+    ],
+    [
+      "label",
+      "string",
+      "\"Loading\"",
+      "Accessibility label; shown on screen when labelPosition is set."
+    ],
+    [
+      "labelPosition",
+      "\"none\" | \"right\" | \"bottom\"",
+      "\"none\"",
+      "Show the label beside or under the spinner, with an animated ellipsis."
+    ],
+    [
+      "track",
+      "boolean",
+      "false",
+      "Faint full circle behind the ring."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view (the square, or the spinner + label row/column)."
+    ]
+  ]
+}

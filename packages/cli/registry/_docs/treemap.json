@@ -1,0 +1,30 @@
+{
+  "name": "treemap",
+  "category": "Charts",
+  "aliases": [],
+  "exportName": "TreemapChart",
+  "files": [
+    "src/components/charts/treemap.tsx"
+  ],
+  "props": [
+    [
+      "data",
+      "{ label, value, color? }[]",
+      "—",
+      "Tiles."
+    ],
+    [
+      "gap / radius",
+      "number",
+      "3 / 8",
+      "Tile spacing & corners."
+    ],
+    [
+      "colors",
+      "string[]",
+      "theme palette",
+      "Tile colours."
+    ]
+  ],
+  "examples": []
+}

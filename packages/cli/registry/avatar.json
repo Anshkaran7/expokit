@@ -1,0 +1,18 @@
+{
+  "name": "avatar",
+  "type": "component",
+  "title": "Avatar",
+  "description": "Photo that fades in over soft tinted initials (hue hashed from the name, ink picked for contrast), presence dots, notification badges and a verified seal cut into the edge, a gapped story ring that cross-fades to “seen”, and an AvatarGroup with cut-out borders, a +N chip and a staggered spring-in.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "avatar/files"
+}
