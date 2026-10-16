@@ -49,6 +49,12 @@ Installation, live previews, props, theming and AI setup for every component:
 This repository is a read-only mirror of ExpoKit, so pull requests are closed automatically. Found a bug or want a
 component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choose).
 
+## Community
+
+- X: [@expo_kit](https://x.com/expo_kit)
+- Instagram: [@expokit.in](https://www.instagram.com/expokit.in/)
+- Email: [work@karandev.in](mailto:work@karandev.in)
+
 ## License
 
 [MIT](LICENSE) © Karan (anshkaran7)
