@@ -1,6 +1,6 @@
 name: Release
 
-# Creates a GitHub Release (and tag) for @anshkaran7/expo-kit and expo-charts once the version in
+# Creates a GitHub Release (and tag) for @expokit/cli and expo-charts once the version in
 # packages/*/package.json is published on npm — never for a version that only exists in the repo.
 # Runs after every sync, every 6 hours (so a publish shows up without a push) and on demand.
 on:

@@ -12,7 +12,7 @@
   <br>
   <a href="https://expokit.karandev.in">Website</a> ·
   <a href="https://expokit.karandev.in/docs">Docs</a> ·
-  <a href="https://www.npmjs.com/package/@anshkaran7/expo-kit">CLI on npm</a> ·
+  <a href="https://www.npmjs.com/package/@expokit/cli">CLI on npm</a> ·
   <a href="https://www.npmjs.com/package/expo-charts">expo-charts on npm</a>
 </p>
 
@@ -32,7 +32,7 @@ into your app. You get readable, typed files you own and can change however you 
 | Folder | What |
 | --- | --- |
 | `registry/` | The free components, charts and templates — each with its source, props (`item.json`) and demos |
-| `packages/cli` | `@anshkaran7/expo-kit`, the CLI that adds components to your app |
+| `packages/cli` | `@expokit/cli`, the CLI that adds components to your app |
 | `packages/charts` | `expo-charts`, animated and interactive charts |
 | `skills/`, `.claude-plugin/` | The ExpoKit skill and Claude Code plugin |
 

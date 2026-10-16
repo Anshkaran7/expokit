@@ -13,7 +13,7 @@ import path from 'node:path';
 /** Newest first; we answer with the client's version when we know it, else our newest. */
 export const PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 
-const PACKAGE = '@anshkaran7/expo-kit';
+const PACKAGE = '@expokit/cli';
 const TYPES = ['component', 'chart', 'block', 'template', 'lib'];
 
 const INSTRUCTIONS = `ExpoKit is a shadcn-style kit of copy-paste UI for Expo / React Native (iOS + Android first).

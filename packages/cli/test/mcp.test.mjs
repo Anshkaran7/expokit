@@ -69,7 +69,7 @@ test('mcp: search, view (aliases, props, examples, source) and add command', asy
   assert.match(button, /## Props/);
   assert.match(button, /## Examples/);
   assert.match(button, /### src\/components\/ui\/button\.tsx/);
-  assert.match(text(replies[4]), /npx @anshkaran7\/expo-kit@latest add button glass-sheet/);
+  assert.match(text(replies[4]), /npx @expokit\/cli@latest add button glass-sheet/);
   assert.match(text(replies[4]), /PRO: glass-sheet needs/);
   const pro = text(replies[5]);
   assert.match(pro, /## Props/);
@@ -118,7 +118,7 @@ function runCli(args, cwd) {
   return { ...res, out: `${res.stdout}${res.stderr}` };
 }
 
-const SERVER = { command: 'npx', args: ['-y', '@anshkaran7/expo-kit@latest', 'mcp'] };
+const SERVER = { command: 'npx', args: ['-y', '@expokit/cli@latest', 'mcp'] };
 
 test('mcp init --client claude merges into an existing .mcp.json', () => {
   const dir = project();

@@ -11,11 +11,11 @@ package to import from, and you should never re-implement a component that ExpoK
 ## Workflow
 
 1. **Find the item.** If the `expokit` MCP server is connected, call `search_items` (or `list_items`), then `view_item`
-   for props, the import line and examples. Without it, run `npx @anshkaran7/expo-kit@latest add --list`, or read
+   for props, the import line and examples. Without it, run `npx @expokit/cli@latest add --list`, or read
    https://expokit.karandev.in/llms.txt.
 2. **Add it** from the app's root folder (where `package.json` is):
    ```bash
-   npx @anshkaran7/expo-kit@latest add <name> [<name>...]
+   npx @expokit/cli@latest add <name> [<name>...]
    ```
    The first run also does `init`: it writes `components.json`, adds the `@/*` path alias to `tsconfig.json`, copies
    files to `src/components/ui/` (or `components/ui/` without `src/`), copies the shared theme `lib/kit.tsx`, and runs
@@ -43,7 +43,7 @@ import { KitProvider } from '@/lib/kit';
 ## Pro items
 
 Items marked PRO need an ExpoKit Pro plan. If `add` says "not logged in", ask the user to run
-`npx @anshkaran7/expo-kit@latest login` themselves (token from https://expokit.karandev.in/account). Never ask
+`npx @expokit/cli@latest login` themselves (token from https://expokit.karandev.in/account). Never ask
 for the token in chat, and don't write a look-alike of a Pro component instead.
 
 ## Don'ts

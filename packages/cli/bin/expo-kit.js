@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * expo-kit CLI — shadcn-style add for Expo / React Native
- * Usage: npx @anshkaran7/expo-kit@latest init
- *        npx @anshkaran7/expo-kit@latest add liquidglass-tab
- *        npx @anshkaran7/expo-kit@latest doctor
- *        npx @anshkaran7/expo-kit@latest login      (Pro items)
- *        npx @anshkaran7/expo-kit@latest mcp        (MCP server for AI assistants)
+ * Usage: npx @expokit/cli@latest init
+ *        npx @expokit/cli@latest add liquidglass-tab
+ *        npx @expokit/cli@latest doctor
+ *        npx @expokit/cli@latest login      (Pro items)
+ *        npx @expokit/cli@latest mcp        (MCP server for AI assistants)
  */
 
 import { spawnSync } from 'node:child_process';
@@ -394,7 +394,7 @@ async function fetchRemoteItem(name, { unknownLocally = false } = {}) {
     fail(
       `"${name}" is a Pro item and you're not logged in.\n` +
         `  1. Create a token at ${SITE_URL}/account\n` +
-        `  2. Run: npx @anshkaran7/expo-kit@latest login`
+        `  2. Run: npx @expokit/cli@latest login`
     );
   }
   if (status === 401) {
@@ -403,7 +403,7 @@ async function fetchRemoteItem(name, { unknownLocally = false } = {}) {
   if (status === 403) {
     fail(`"${name}" needs ExpoKit Pro, and your account doesn't have it yet. Upgrade at ${SITE_URL}/pricing.`);
   }
-  if (status === 404) fail(`"${name}" was not found on ${SITE_URL}. Update the CLI: npx @anshkaran7/expo-kit@latest add ${name}`);
+  if (status === 404) fail(`"${name}" was not found on ${SITE_URL}. Update the CLI: npx @expokit/cli@latest add ${name}`);
   fail(`Couldn't download "${name}" from ${SITE_URL} (HTTP ${status}${body?.message ? `: ${body.message}` : ''}).`);
 }
 
@@ -777,7 +777,7 @@ function cmdInit(cwd, flags) {
   log(`Created components.json (${layout} layout)`);
 
   ensureExpoRouterMain(projectRoot, false);
-  log('Done. Add items with: npx @anshkaran7/expo-kit add <name>');
+  log('Done. Add items with: npx @expokit/cli add <name>');
 }
 
 async function cmdAdd(args, cwd) {
@@ -894,7 +894,7 @@ async function cmdAdd(args, cwd) {
     console.log('  • Run: npx expo-kit doctor');
     console.log('  • Build a dev client: npx expo run:ios (iOS 26 shows real Liquid Glass,');
     console.log('    iOS 18 and older, Android and web get the glass fallback bar)');
-    console.log('  • After package updates: npx @anshkaran7/expo-kit@latest update');
+    console.log('  • After package updates: npx @expokit/cli@latest update');
   } else {
     const folder = ['ui', 'blocks', 'charts'].find((f) =>
       fs.existsSync(path.join(filesRoot, 'src', 'components', f, `${resolved}.tsx`))
@@ -916,7 +916,7 @@ async function cmdUpdate(args, cwd) {
 
   const configPath = path.join(projectRoot, 'components.json');
   if (!fs.existsSync(configPath)) {
-    fail('No components.json — run: npx @anshkaran7/expo-kit@latest init');
+    fail('No components.json — run: npx @expokit/cli@latest init');
   }
 
   const config = loadConfig(projectRoot);
@@ -924,7 +924,7 @@ async function cmdUpdate(args, cwd) {
   const targets = name ? [resolveRegistryName(name)] : detectInstalledTemplates(projectRoot, config);
 
   if (!targets.length) {
-    fail('No templates found. Run: npx @anshkaran7/expo-kit@latest add liquidglass-tab');
+    fail('No templates found. Run: npx @expokit/cli@latest add liquidglass-tab');
   }
 
   if (flags.force) {
@@ -941,7 +941,7 @@ async function cmdUpdate(args, cwd) {
   for (const resolved of targets) {
     if (resolved !== 'liquidglass-tab') {
       warn(
-        `Smart update only supports liquidglass-tab today. For "${resolved}" run: npx @anshkaran7/expo-kit@latest add ${resolved} --force`
+        `Smart update only supports liquidglass-tab today. For "${resolved}" run: npx @expokit/cli@latest add ${resolved} --force`
       );
       continue;
     }
@@ -964,7 +964,7 @@ async function cmdUpdate(args, cwd) {
 
   console.log('');
   log('Update complete. Reload Metro or rebuild the native app to see changes.');
-  log('To overwrite tabs.ts too: npx @anshkaran7/expo-kit@latest update --force');
+  log('To overwrite tabs.ts too: npx @expokit/cli@latest update --force');
 }
 
 function cmdDoctor(cwd) {
@@ -1004,7 +1004,7 @@ function cmdDoctor(cwd) {
       const pkgVersion = getPackageVersion();
       if (installedVersion && installedVersion !== pkgVersion) {
         warn(
-          `Template is ${installedVersion}, CLI is ${pkgVersion} — run: npx @anshkaran7/expo-kit@latest update`
+          `Template is ${installedVersion}, CLI is ${pkgVersion} — run: npx @expokit/cli@latest update`
         );
         issues += 1;
       } else if (installedVersion) {
@@ -1050,7 +1050,7 @@ function cmdDoctor(cwd) {
 // mcp: MCP server for AI assistants (bin/mcp.mjs) + `mcp init --client <name>`
 // ---------------------------------------------------------------------------
 
-const MCP_SERVER = { command: 'npx', args: ['-y', '@anshkaran7/expo-kit@latest', 'mcp'] };
+const MCP_SERVER = { command: 'npx', args: ['-y', '@expokit/cli@latest', 'mcp'] };
 
 /** Project config file each client reads, and how our server entry goes into it. */
 const MCP_CLIENTS = {
@@ -1061,7 +1061,7 @@ const MCP_CLIENTS = {
 
 const CODEX_TOML = `[mcp_servers.expokit]
 command = "npx"
-args = ["-y", "@anshkaran7/expo-kit@latest", "mcp"]`;
+args = ["-y", "@expokit/cli@latest", "mcp"]`;
 
 async function cmdMcp(args, cwd) {
   if (args[0] !== 'init') {
@@ -1117,23 +1117,23 @@ function printHelp() {
 expo-kit — copy-paste Expo UI (shadcn-style)
 
 Usage:
-  npx @anshkaran7/expo-kit@latest init
-  npx @anshkaran7/expo-kit@latest add <name...> [--dry-run] [--force]
-  npx @anshkaran7/expo-kit@latest update [name] [--dry-run] [--force]
-  npx @anshkaran7/expo-kit@latest doctor
-  npx @anshkaran7/expo-kit@latest add --list
-  npx @anshkaran7/expo-kit@latest login [--token <token>]
-  npx @anshkaran7/expo-kit@latest logout
-  npx @anshkaran7/expo-kit@latest whoami
-  npx @anshkaran7/expo-kit@latest mcp
-  npx @anshkaran7/expo-kit@latest mcp init --client <claude|cursor|vscode|codex>
+  npx @expokit/cli@latest init
+  npx @expokit/cli@latest add <name...> [--dry-run] [--force]
+  npx @expokit/cli@latest update [name] [--dry-run] [--force]
+  npx @expokit/cli@latest doctor
+  npx @expokit/cli@latest add --list
+  npx @expokit/cli@latest login [--token <token>]
+  npx @expokit/cli@latest logout
+  npx @expokit/cli@latest whoami
+  npx @expokit/cli@latest mcp
+  npx @expokit/cli@latest mcp init --client <claude|cursor|vscode|codex>
 
 Examples:
-  npx @anshkaran7/expo-kit@latest add liquidglass-tab --dry-run
-  npx @anshkaran7/expo-kit@latest add liquidglass-tab --force
-  npx @anshkaran7/expo-kit@latest update
-  npx @anshkaran7/expo-kit@latest update liquidglass-tab
-  npx @anshkaran7/expo-kit@latest doctor
+  npx @expokit/cli@latest add liquidglass-tab --dry-run
+  npx @expokit/cli@latest add liquidglass-tab --force
+  npx @expokit/cli@latest update
+  npx @expokit/cli@latest update liquidglass-tab
+  npx @expokit/cli@latest doctor
 
 Note: expo-kit copies files into your app (like shadcn). npm updates do NOT
 auto-sync — run \`update\` after upgrading the package.

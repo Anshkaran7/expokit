@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Used by release.yml: for each package, tag + GitHub Release "<tag>@<version>" when that version is on npm and
+# Used by release.yml: for each package, tag + GitHub Release "<name>@<version>" (e.g. @expokit/cli@0.2.0) when that version is on npm and
 # has no release yet. DRY_RUN=1 prints what it would do.
 set -euo pipefail
 
 release() {
-  local dir=$1 tag=$2 paths=$3
+  local dir=$1 paths=$2
   local name version
   name=$(node -p "require('./$dir/package.json').name")
   version=$(node -p "require('./$dir/package.json').version")
-  local full="$tag@$version"
+  local full="$name@$version"
 
   if git rev-parse -q --verify "refs/tags/$full" >/dev/null; then
     echo "$full: already released"
@@ -20,7 +20,7 @@ release() {
   fi
 
   local previous notes
-  previous=$(git tag --list "$tag@*" --sort=-v:refname | head -1)
+  previous=$(git tag --list "$name@*" --sort=-v:refname | head -1)
   notes=$(mktemp)
   {
     echo "\`$name@$version\` — [npm](https://www.npmjs.com/package/$name/v/$version)"
@@ -48,5 +48,5 @@ release() {
   echo "$full: released"
 }
 
-release packages/cli expo-kit "packages/cli registry"
-release packages/charts expo-charts "packages/charts"
+release packages/cli "packages/cli registry"
+release packages/charts "packages/charts"

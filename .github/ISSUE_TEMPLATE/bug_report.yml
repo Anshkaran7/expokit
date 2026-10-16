@@ -33,6 +33,6 @@ body:
     id: versions
     attributes:
       label: Versions
-      placeholder: Expo SDK 57, react-native 0.86, @anshkaran7/expo-kit 0.1.3
+      placeholder: Expo SDK 57, react-native 0.86, @expokit/cli 0.1.3
     validations:
       required: true

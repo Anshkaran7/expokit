@@ -1,5 +1,5 @@
 {
-  "name": "@anshkaran7/expo-kit",
+  "name": "@expokit/cli",
   "version": "0.2.0",
   "description": "shadcn-style CLI for Expo — add native UI blocks and components to your app",
   "license": "MIT",
@@ -41,6 +41,6 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "prepublishOnly": "echo 'Publish @anshkaran7/expo-kit from the private ExpoKit monorepo.' && exit 1"
+    "prepublishOnly": "echo 'Publish @expokit/cli from the private ExpoKit monorepo.' && exit 1"
   }
 }
