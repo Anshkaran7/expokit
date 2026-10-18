@@ -1,0 +1,18 @@
+{
+  "name": "stateful-button",
+  "type": "component",
+  "title": "Stateful Button",
+  "description": "A button that walks through idle, loading, success and error: the label rolls letter by letter to the next text while the width springs to fit it. A spinner, a self-drawing check or a shaking cross grows in beside the label, and it drives itself when onPress returns a Promise.",
+  "tier": "free",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "stateful-button/files"
+}

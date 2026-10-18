@@ -1,0 +1,184 @@
+{
+  "name": "stateful-button",
+  "category": "Buttons",
+  "aliases": [
+    "loading-button",
+    "async-button",
+    "status-button"
+  ],
+  "exportName": "StatefulButton",
+  "files": [
+    "src/components/ui/stateful-button.tsx"
+  ],
+  "summary": "Button whose label rolls and width springs through loading, success and error.",
+  "props": [
+    [
+      "children",
+      "string",
+      "—",
+      "Label while idle."
+    ],
+    [
+      "state",
+      "\"idle\" | \"loading\" | \"success\" | \"error\"",
+      "—",
+      "Controlled state. Omit it to let a Promise from onPress drive the button."
+    ],
+    [
+      "onPress",
+      "() => void | Promise<unknown>",
+      "—",
+      "Resolve → success, reject → error, then back to idle (when state is not set)."
+    ],
+    [
+      "loadingText",
+      "string",
+      "children",
+      "Label while loading."
+    ],
+    [
+      "successText",
+      "string",
+      "\"Done\"",
+      "Label after success."
+    ],
+    [
+      "errorText",
+      "string",
+      "\"Failed\"",
+      "Label after an error."
+    ],
+    [
+      "variant",
+      "\"primary\" | \"secondary\" | \"outline\" | \"ghost\"",
+      "\"primary\"",
+      "Idle look; success and error tint it green / red."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "36 / 46 / 54pt tall."
+    ],
+    [
+      "color",
+      "string",
+      "theme primary",
+      "Tint for the idle look."
+    ],
+    [
+      "resetAfter",
+      "number",
+      "1600",
+      "ms the result shows before returning to idle (self-driving only)."
+    ],
+    [
+      "minLoading",
+      "number",
+      "500",
+      "Minimum ms of spinner (self-driving only)."
+    ],
+    [
+      "onStateChange",
+      "(state) => void",
+      "—",
+      "Called on every state change."
+    ],
+    [
+      "pill",
+      "boolean",
+      "false",
+      "Fully rounded ends."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretch to the parent's width (no width animation)."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Blocks presses and dims the button."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Taps on press, success and error."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "current label",
+      "Override what screen readers hear."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Style for the label letters."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer wrapper (margins, alignment)."
+    ]
+  ],
+  "behavior": [
+    [
+      "Touch",
+      "Springs to 96% on press; at least 44pt tall to touch (hitSlop on the small size). Presses are ignored while loading and, when self-driving, until it returns to idle."
+    ],
+    [
+      "Motion",
+      "Label letters roll on the native driver; width, colour and the check / cross stroke spring or ease on the JS driver on separate views."
+    ],
+    [
+      "Reduced motion",
+      "Labels crossfade instead of rolling and the width changes instantly."
+    ],
+    [
+      "Haptics",
+      "Light tap on press, success / error notification on the result (expo-haptics; turn off with haptics={false})."
+    ],
+    [
+      "Screen readers",
+      "Button role with busy and disabled state; every new label (Saving…, Saved, Failed) is announced."
+    ],
+    [
+      "Platforms",
+      "iOS, Android and web."
+    ]
+  ],
+  "usage": "import { StatefulButton } from '@/components/ui/stateful-button';\n\n<StatefulButton loadingText=\"Saving…\" successText=\"Saved\" onPress={() => save()}>\n  Save changes\n</StatefulButton>\n\n<StatefulButton state={state} errorText=\"Retry\">Upload</StatefulButton>",
+  "examples": [
+    {
+      "name": "SaveChanges",
+      "title": "Save Changes",
+      "code": "import { StatefulButton, type StatefulButtonState } from '@/components/ui/stateful-button';\n\nconst sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));\n\nexport default function SaveChanges() {\n  return (\n    <StatefulButton loadingText=\"Saving…\" successText=\"Saved\" onPress={() => sleep(1200)}>\n      Save changes\n    </StatefulButton>\n  );\n}\n"
+    },
+    {
+      "name": "PaymentRetry",
+      "title": "Payment Retry",
+      "code": "import React, { useRef, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { StatefulButton, type StatefulButtonState } from '@/components/ui/stateful-button';\nimport { useKit } from '@/lib/kit';\n\nconst sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));\n\nexport default function PaymentRetry() {\n  const { colors } = useKit();\n  const attempts = useRef(0);\n  const [note, setNote] = useState('First attempt is declined, the retry goes through.');\n  return (\n    <View style={{ gap: 10 }}>\n      <StatefulButton\n        block\n        size=\"lg\"\n        loadingText=\"Processing…\"\n        successText=\"Paid ₹1,299\"\n        errorText=\"Card declined\"\n        onPress={async () => {\n          attempts.current += 1;\n          await sleep(1300);\n          if (attempts.current % 2 === 1) {\n            setNote('Declined by the bank. Tap again to retry.');\n            throw new Error('declined');\n          }\n          setNote('Payment received.');\n        }}\n      >\n        Pay ₹1,299\n      </StatefulButton>\n      <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{note}</Text>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Controlled",
+      "title": "Controlled",
+      "code": "import React, { useRef, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { StatefulButton, type StatefulButtonState } from '@/components/ui/stateful-button';\nimport { useKit } from '@/lib/kit';\n\nconst ORDER: StatefulButtonState[] = ['idle', 'loading', 'success', 'error'];\n\nexport default function Controlled() {\n  const { colors, radius } = useKit();\n  const [state, setState] = useState<StatefulButtonState>('idle');\n  return (\n    <View style={{ gap: 14 }}>\n      <StatefulButton state={state} loadingText=\"Uploading\" successText=\"Uploaded\" errorText=\"Retry upload\">\n        Upload\n      </StatefulButton>\n      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>\n        {ORDER.map((s) => (\n          <Text\n            key={s}\n            accessibilityRole=\"button\"\n            accessibilityState={{ selected: s === state }}\n            onPress={() => setState(s)}\n            style={{\n              paddingHorizontal: 12,\n              paddingVertical: 8,\n              borderRadius: radius.capsule(34),\n              overflow: 'hidden',\n              fontSize: 13,\n              color: s === state ? colors.accentForeground : colors.foreground,\n              backgroundColor: s === state ? colors.accent : colors.muted,\n            }}\n          >\n            {s}\n          </Text>\n        ))}\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "VariantsAndSizes",
+      "title": "Variants And Sizes",
+      "code": "import { Text, View } from 'react-native';\nimport { StatefulButton, type StatefulButtonState } from '@/components/ui/stateful-button';\n\nconst sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));\n\nexport default function VariantsAndSizes() {\n  return (\n    <View style={{ gap: 12 }}>\n      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>\n        <StatefulButton onPress={() => sleep(1000)}>Publish</StatefulButton>\n        <StatefulButton variant=\"secondary\" onPress={() => sleep(1000)}>Sync</StatefulButton>\n        <StatefulButton variant=\"outline\" onPress={() => sleep(1000)}>Export</StatefulButton>\n        <StatefulButton variant=\"ghost\" onPress={() => sleep(1000)}>Archive</StatefulButton>\n      </View>\n      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>\n        <StatefulButton size=\"sm\" pill onPress={() => sleep(1000)}>Small</StatefulButton>\n        <StatefulButton size=\"md\" pill onPress={() => sleep(1000)}>Medium</StatefulButton>\n        <StatefulButton size=\"lg\" pill onPress={() => sleep(1000)}>Large</StatefulButton>\n      </View>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "FollowToggle",
+      "title": "Follow Toggle",
+      "code": "import React, { useRef, useState } from 'react';\nimport { Text, View } from 'react-native';\nimport { StatefulButton, type StatefulButtonState } from '@/components/ui/stateful-button';\nimport { useKit } from '@/lib/kit';\n\nconst sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));\n\nexport default function FollowToggle() {\n  const { colors } = useKit();\n  const [following, setFollowing] = useState(false);\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>\n      <View style={{ flexShrink: 1 }}>\n        <Text style={{ fontSize: 16, fontWeight: '600', color: colors.foreground }}>Expo</Text>\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>@expo · 214K followers</Text>\n      </View>\n      <StatefulButton\n        pill\n        size=\"sm\"\n        variant=\"secondary\"\n        successText={following ? 'Following' : 'Unfollowed'}\n        resetAfter={900}\n        onPress={async () => {\n          await sleep(700);\n          setFollowing((f) => !f);\n        }}\n      >\n        {following ? 'Following' : 'Follow'}\n      </StatefulButton>\n    </View>\n  );\n}\n"
+    }
+  ]
+}

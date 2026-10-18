@@ -1,0 +1,163 @@
+{
+  "name": "stateful-button",
+  "title": "Stateful Button",
+  "tier": "free",
+  "category": "Buttons",
+  "description": "A button that walks through idle, loading, success and error: the label rolls letter by letter to the next text while the width springs to fit it. A spinner, a self-drawing check or a shaking cross grows in beside the label, and it drives itself when onPress returns a Promise.",
+  "summary": "Button whose label rolls and width springs through loading, success and error.",
+  "usage": "import { StatefulButton } from '@/components/ui/stateful-button';\n\n<StatefulButton loadingText=\"Saving…\" successText=\"Saved\" onPress={() => save()}>\n  Save changes\n</StatefulButton>\n\n<StatefulButton state={state} errorText=\"Retry\">Upload</StatefulButton>",
+  "behavior": [
+    [
+      "Touch",
+      "Springs to 96% on press; at least 44pt tall to touch (hitSlop on the small size). Presses are ignored while loading and, when self-driving, until it returns to idle."
+    ],
+    [
+      "Motion",
+      "Label letters roll on the native driver; width, colour and the check / cross stroke spring or ease on the JS driver on separate views."
+    ],
+    [
+      "Reduced motion",
+      "Labels crossfade instead of rolling and the width changes instantly."
+    ],
+    [
+      "Haptics",
+      "Light tap on press, success / error notification on the result (expo-haptics; turn off with haptics={false})."
+    ],
+    [
+      "Screen readers",
+      "Button role with busy and disabled state; every new label (Saving…, Saved, Failed) is announced."
+    ],
+    [
+      "Platforms",
+      "iOS, Android and web."
+    ]
+  ],
+  "aliases": [
+    "loading-button",
+    "async-button",
+    "status-button"
+  ],
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "children",
+      "string",
+      "—",
+      "Label while idle."
+    ],
+    [
+      "state",
+      "\"idle\" | \"loading\" | \"success\" | \"error\"",
+      "—",
+      "Controlled state. Omit it to let a Promise from onPress drive the button."
+    ],
+    [
+      "onPress",
+      "() => void | Promise<unknown>",
+      "—",
+      "Resolve → success, reject → error, then back to idle (when state is not set)."
+    ],
+    [
+      "loadingText",
+      "string",
+      "children",
+      "Label while loading."
+    ],
+    [
+      "successText",
+      "string",
+      "\"Done\"",
+      "Label after success."
+    ],
+    [
+      "errorText",
+      "string",
+      "\"Failed\"",
+      "Label after an error."
+    ],
+    [
+      "variant",
+      "\"primary\" | \"secondary\" | \"outline\" | \"ghost\"",
+      "\"primary\"",
+      "Idle look; success and error tint it green / red."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "36 / 46 / 54pt tall."
+    ],
+    [
+      "color",
+      "string",
+      "theme primary",
+      "Tint for the idle look."
+    ],
+    [
+      "resetAfter",
+      "number",
+      "1600",
+      "ms the result shows before returning to idle (self-driving only)."
+    ],
+    [
+      "minLoading",
+      "number",
+      "500",
+      "Minimum ms of spinner (self-driving only)."
+    ],
+    [
+      "onStateChange",
+      "(state) => void",
+      "—",
+      "Called on every state change."
+    ],
+    [
+      "pill",
+      "boolean",
+      "false",
+      "Fully rounded ends."
+    ],
+    [
+      "block",
+      "boolean",
+      "false",
+      "Stretch to the parent's width (no width animation)."
+    ],
+    [
+      "disabled",
+      "boolean",
+      "false",
+      "Blocks presses and dims the button."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Taps on press, success and error."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "current label",
+      "Override what screen readers hear."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "Style for the label letters."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the outer wrapper (margins, alignment)."
+    ]
+  ]
+}
