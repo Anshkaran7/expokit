@@ -39,9 +39,6 @@ Everything else — live previews, props, installation, theming, Pro, AI / MCP s
 - **Free components need no network** — they ship inside this package. Pro components are downloaded over HTTPS from
   expokit.karandev.in; your token is stored readable only by you, sent only to that site and never through a redirect.
 - **Runs one command:** `npx expo install` for the packages a component needs.
-- **Verifiable releases** — versions after 0.2.0 are built and published by
-  [GitHub Actions](https://github.com/Anshkaran7/expokit/actions/workflows/publish.yml) with npm provenance. Check
-  them with `npm audit signatures`.
 
 Report a vulnerability privately: [SECURITY.md](https://github.com/Anshkaran7/expokit/blob/main/SECURITY.md).
 

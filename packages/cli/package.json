@@ -45,7 +45,6 @@
     "access": "public"
   },
   "scripts": {
-    "test": "node --test test/*.test.mjs",
-    "prepublishOnly": "node -e \"if (!process.env.GITHUB_ACTIONS) { console.error('Publish @expokit/cli with the Publish workflow (npm provenance), not by hand.'); process.exit(1) }\""
+    "test": "node --test test/*.test.mjs"
   }
 }
