@@ -1,0 +1,112 @@
+{
+  "name": "text-animation",
+  "title": "Text Animation",
+  "tier": "free",
+  "category": "Motion",
+  "description": "Five text effects in one component: words rising on a soft spring, a looping shimmer for \"Thinking…\" states, letters rolling between values, a glyph scramble and a typewriter with a caret. Everything staggers letter by letter on the native driver, and screen readers still hear one clean string.",
+  "summary": "Reveal, shimmer, cascade, scramble and typewriter text effects.",
+  "usage": "import { AnimatedText } from '@/components/ui/text-animation';\n\n<AnimatedText textStyle={{ fontSize: 28, fontWeight: '600' }}>\n  Ship native apps that feel alive.\n</AnimatedText>\n\n<AnimatedText variant=\"shimmer\">Thinking…</AnimatedText>\n<AnimatedText variant=\"cascade\">{status}</AnimatedText>",
+  "behavior": [
+    [
+      "Motion",
+      "Reveal, shimmer and cascade run one native-driver clock per animation with spring curves pre-sampled into interpolations; scramble and typewriter use a light JS timer. Text wraps by word."
+    ],
+    [
+      "Reduced motion",
+      "Shows the final text immediately; shimmer stays static and the typewriter caret is hidden."
+    ],
+    [
+      "Screen readers",
+      "The whole string is one text element; the per-letter views are hidden. Cascade and typewriter announce new text when it changes (typewriter once streaming settles)."
+    ],
+    [
+      "Platforms",
+      "iOS, Android and web. Arabic, Hebrew, Indic, Thai and other connected scripts animate a word at a time so shaping is never broken; right-to-left text flows from the right."
+    ]
+  ],
+  "aliases": [
+    "text-effect",
+    "animated-text",
+    "typewriter",
+    "shimmer-text",
+    "scramble-text"
+  ],
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "children",
+      "string",
+      "—",
+      "The text to animate."
+    ],
+    [
+      "variant",
+      "\"reveal\" | \"shimmer\" | \"cascade\" | \"scramble\" | \"typewriter\"",
+      "\"reveal\"",
+      "Which effect to play."
+    ],
+    [
+      "trigger",
+      "\"mount\" | \"change\"",
+      "\"change\" for cascade / typewriter, else \"mount\"",
+      "Animate once on mount, or also every time the text changes. A typewriter keeps typing when the new text extends the old (streaming)."
+    ],
+    [
+      "delay",
+      "number",
+      "0",
+      "ms before the first animation."
+    ],
+    [
+      "stagger",
+      "number",
+      "70 reveal · 80 shimmer · 28 cascade · 45 scramble · 32 typewriter",
+      "ms between words (reveal) or letters. Shimmer: ms of sweep per letter."
+    ],
+    [
+      "speed",
+      "number",
+      "1",
+      "Speed multiplier: 2 plays twice as fast."
+    ],
+    [
+      "color",
+      "string",
+      "theme foreground",
+      "Text colour."
+    ],
+    [
+      "caret",
+      "boolean",
+      "true",
+      "Blinking caret for the typewriter."
+    ],
+    [
+      "replayKey",
+      "string | number",
+      "—",
+      "Change it to replay the animation."
+    ],
+    [
+      "onComplete",
+      "() => void",
+      "—",
+      "Called when an animation finishes (not for the looping shimmer)."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "fontSize, fontWeight, lineHeight, letterSpacing, textAlign… for every letter."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view."
+    ]
+  ]
+}

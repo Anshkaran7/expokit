@@ -1,0 +1,15 @@
+{
+  "name": "text-animation",
+  "type": "component",
+  "title": "Text Animation",
+  "description": "Five text effects in one component: words rising on a soft spring, a looping shimmer for \"Thinking…\" states, letters rolling between values, a glyph scramble and a typewriter with a caret. Everything staggers letter by letter on the native driver, and screen readers still hear one clean string.",
+  "tier": "free",
+  "dependencies": [],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "text-animation/files"
+}

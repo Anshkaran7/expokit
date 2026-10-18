@@ -1,0 +1,141 @@
+{
+  "name": "text-animation",
+  "category": "Motion",
+  "aliases": [
+    "text-effect",
+    "animated-text",
+    "typewriter",
+    "shimmer-text",
+    "scramble-text"
+  ],
+  "exportName": "AnimatedText",
+  "files": [
+    "src/components/ui/text-animation.tsx"
+  ],
+  "summary": "Reveal, shimmer, cascade, scramble and typewriter text effects.",
+  "props": [
+    [
+      "children",
+      "string",
+      "—",
+      "The text to animate."
+    ],
+    [
+      "variant",
+      "\"reveal\" | \"shimmer\" | \"cascade\" | \"scramble\" | \"typewriter\"",
+      "\"reveal\"",
+      "Which effect to play."
+    ],
+    [
+      "trigger",
+      "\"mount\" | \"change\"",
+      "\"change\" for cascade / typewriter, else \"mount\"",
+      "Animate once on mount, or also every time the text changes. A typewriter keeps typing when the new text extends the old (streaming)."
+    ],
+    [
+      "delay",
+      "number",
+      "0",
+      "ms before the first animation."
+    ],
+    [
+      "stagger",
+      "number",
+      "70 reveal · 80 shimmer · 28 cascade · 45 scramble · 32 typewriter",
+      "ms between words (reveal) or letters. Shimmer: ms of sweep per letter."
+    ],
+    [
+      "speed",
+      "number",
+      "1",
+      "Speed multiplier: 2 plays twice as fast."
+    ],
+    [
+      "color",
+      "string",
+      "theme foreground",
+      "Text colour."
+    ],
+    [
+      "caret",
+      "boolean",
+      "true",
+      "Blinking caret for the typewriter."
+    ],
+    [
+      "replayKey",
+      "string | number",
+      "—",
+      "Change it to replay the animation."
+    ],
+    [
+      "onComplete",
+      "() => void",
+      "—",
+      "Called when an animation finishes (not for the looping shimmer)."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "fontSize, fontWeight, lineHeight, letterSpacing, textAlign… for every letter."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the root view."
+    ]
+  ],
+  "behavior": [
+    [
+      "Motion",
+      "Reveal, shimmer and cascade run one native-driver clock per animation with spring curves pre-sampled into interpolations; scramble and typewriter use a light JS timer. Text wraps by word."
+    ],
+    [
+      "Reduced motion",
+      "Shows the final text immediately; shimmer stays static and the typewriter caret is hidden."
+    ],
+    [
+      "Screen readers",
+      "The whole string is one text element; the per-letter views are hidden. Cascade and typewriter announce new text when it changes (typewriter once streaming settles)."
+    ],
+    [
+      "Platforms",
+      "iOS, Android and web. Arabic, Hebrew, Indic, Thai and other connected scripts animate a word at a time so shaping is never broken; right-to-left text flows from the right."
+    ]
+  ],
+  "usage": "import { AnimatedText } from '@/components/ui/text-animation';\n\n<AnimatedText textStyle={{ fontSize: 28, fontWeight: '600' }}>\n  Ship native apps that feel alive.\n</AnimatedText>\n\n<AnimatedText variant=\"shimmer\">Thinking…</AnimatedText>\n<AnimatedText variant=\"cascade\">{status}</AnimatedText>",
+  "examples": [
+    {
+      "name": "Reveal",
+      "title": "Reveal",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { AnimatedText } from '@/components/ui/text-animation';\nimport { useKit } from '@/lib/kit';\n\nfunction Chip({ label, onPress }: { label: string; onPress: () => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <Pressable\n      accessibilityRole=\"button\"\n      onPress={onPress}\n      hitSlop={4}\n      style={{ height: 36, paddingHorizontal: 14, borderRadius: radius.capsule(36), justifyContent: 'center', alignSelf: 'flex-start', backgroundColor: colors.muted }}\n    >\n      <Text style={{ color: colors.foreground, fontSize: 14 }}>{label}</Text>\n    </Pressable>\n  );\n}\n\nexport default function Reveal() {\n  const [run, setRun] = useState(0);\n  return (\n    <View style={{ gap: 16 }}>\n      <AnimatedText replayKey={run} textStyle={{ fontSize: 30, fontWeight: '600', letterSpacing: -0.8, lineHeight: 36 }}>\n        Ship native apps that feel alive.\n      </AnimatedText>\n      <Chip label=\"Replay\" onPress={() => setRun((r) => r + 1)} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Thinking",
+      "title": "Thinking",
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { AnimatedText } from '@/components/ui/text-animation';\nimport { useKit } from '@/lib/kit';\n\nexport default function Thinking() {\n  const { colors, radius } = useKit();\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.lg, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>\n      <View style={{ width: 28, height: 28, borderRadius: radius.capsule(28), backgroundColor: colors.accent }} />\n      <AnimatedText variant=\"shimmer\" textStyle={{ fontSize: 16 }}>\n        Thinking…\n      </AnimatedText>\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "DeployStatus",
+      "title": "Deploy Status",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { AnimatedText } from '@/components/ui/text-animation';\nimport { useKit } from '@/lib/kit';\n\nfunction Chip({ label, onPress }: { label: string; onPress: () => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <Pressable\n      accessibilityRole=\"button\"\n      onPress={onPress}\n      hitSlop={4}\n      style={{ height: 36, paddingHorizontal: 14, borderRadius: radius.capsule(36), justifyContent: 'center', alignSelf: 'flex-start', backgroundColor: colors.muted }}\n    >\n      <Text style={{ color: colors.foreground, fontSize: 14 }}>{label}</Text>\n    </Pressable>\n  );\n}\n\nconst STATUSES = ['Queued', 'Building', 'Deploying', 'Live'];\n\nexport default function DeployStatus() {\n  const { colors, radius } = useKit();\n  const [i, setI] = useState(0);\n  const status = STATUSES[i];\n  const live = status === 'Live';\n  return (\n    <View style={{ gap: 16 }}>\n      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>\n        <View style={{ width: 10, height: 10, borderRadius: radius.capsule(10), backgroundColor: live ? colors.success : colors.warning }} />\n        <Text style={{ fontSize: 17, color: colors.mutedForeground }}>expokit.dev</Text>\n        <AnimatedText variant=\"cascade\" color={live ? colors.success : colors.foreground} textStyle={{ fontSize: 17, fontWeight: '600' }}>\n          {status}\n        </AnimatedText>\n      </View>\n      <Chip label=\"Next status\" onPress={() => setI((n) => (n + 1) % STATUSES.length)} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Scramble",
+      "title": "Scramble",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { AnimatedText } from '@/components/ui/text-animation';\nimport { useKit } from '@/lib/kit';\n\nfunction Chip({ label, onPress }: { label: string; onPress: () => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <Pressable\n      accessibilityRole=\"button\"\n      onPress={onPress}\n      hitSlop={4}\n      style={{ height: 36, paddingHorizontal: 14, borderRadius: radius.capsule(36), justifyContent: 'center', alignSelf: 'flex-start', backgroundColor: colors.muted }}\n    >\n      <Text style={{ color: colors.foreground, fontSize: 14 }}>{label}</Text>\n    </Pressable>\n  );\n}\n\nexport default function Scramble() {\n  const { colors, font } = useKit();\n  const [run, setRun] = useState(0);\n  return (\n    <View style={{ gap: 16 }}>\n      <View style={{ gap: 4 }}>\n        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>Your referral code</Text>\n        <AnimatedText variant=\"scramble\" replayKey={run} textStyle={{ fontSize: 28, fontWeight: '600', letterSpacing: 2, fontFamily: font.mono }}>\n          SPRING-7Q2X\n        </AnimatedText>\n      </View>\n      <Chip label=\"Generate again\" onPress={() => setRun((r) => r + 1)} />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Streaming",
+      "title": "Streaming",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { AnimatedText } from '@/components/ui/text-animation';\nimport { useKit } from '@/lib/kit';\n\nfunction Chip({ label, onPress }: { label: string; onPress: () => void }) {\n  const { colors, radius } = useKit();\n  return (\n    <Pressable\n      accessibilityRole=\"button\"\n      onPress={onPress}\n      hitSlop={4}\n      style={{ height: 36, paddingHorizontal: 14, borderRadius: radius.capsule(36), justifyContent: 'center', alignSelf: 'flex-start', backgroundColor: colors.muted }}\n    >\n      <Text style={{ color: colors.foreground, fontSize: 14 }}>{label}</Text>\n    </Pressable>\n  );\n}\n\nconst ANSWER =\n  'Spring animations feel natural because they keep momentum: a flick carries its speed into the motion, and nothing stops dead.';\n\nexport default function Streaming() {\n  const { colors, radius } = useKit();\n  const [text, setText] = useState('');\n  const [run, setRun] = useState(0);\n  useEffect(() => {\n    // Simulates tokens arriving from a model, a few words at a time.\n    const words = ANSWER.split(' ');\n    let n = 0;\n    const id = setInterval(() => {\n      n = Math.min(words.length, n + 1 + Math.floor(Math.random() * 3));\n      setText(words.slice(0, n).join(' '));\n      if (n >= words.length) clearInterval(id);\n    }, 260);\n    return () => clearInterval(id);\n  }, [run]);\n  return (\n    <View style={{ gap: 16 }}>\n      <View style={{ padding: 14, borderRadius: radius.lg, backgroundColor: colors.muted }}>\n        <AnimatedText key={run} variant=\"typewriter\" textStyle={{ fontSize: 16, lineHeight: 23 }}>\n          {text}\n        </AnimatedText>\n      </View>\n      <Chip\n        label=\"Ask again\"\n        onPress={() => {\n          setText('');\n          setRun((r) => r + 1);\n        }}\n      />\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Hero",
+      "title": "Hero",
+      "code": "import React, { useEffect, useState } from 'react';\nimport { Pressable, Text, View } from 'react-native';\nimport { AnimatedText } from '@/components/ui/text-animation';\nimport { useKit } from '@/lib/kit';\n\nexport default function Hero() {\n  const { colors } = useKit();\n  const [run, setRun] = useState(0);\n  return (\n    <Pressable accessibilityRole=\"button\" accessibilityHint=\"Replays the animation\" onPress={() => setRun((r) => r + 1)} style={{ alignItems: 'center', gap: 10, paddingVertical: 12 }}>\n      <AnimatedText variant=\"scramble\" replayKey={run} color={colors.accent} style={{ alignSelf: 'stretch' }} textStyle={{ fontSize: 13, fontWeight: '600', letterSpacing: 1.5, textAlign: 'center' }}>\n        NEW IN EXPOKIT\n      </AnimatedText>\n      <AnimatedText replayKey={run} delay={250} style={{ alignSelf: 'stretch' }} textStyle={{ fontSize: 34, fontWeight: '700', letterSpacing: -1, lineHeight: 40, textAlign: 'center' }}>\n        Motion your users can feel\n      </AnimatedText>\n      <AnimatedText variant=\"typewriter\" replayKey={run} delay={900} caret={false} style={{ alignSelf: 'stretch' }} color={colors.mutedForeground} textStyle={{ fontSize: 15, textAlign: 'center' }}>\n        Tap anywhere to play it again.\n      </AnimatedText>\n    </Pressable>\n  );\n}\n"
+    }
+  ]
+}
