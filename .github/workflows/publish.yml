@@ -1,0 +1,78 @@
+name: Publish
+
+# Publishes @expokit/cli or expo-charts to npm from this public repo with npm trusted publishing (OIDC): no npm token
+# is stored anywhere, and npm attaches a provenance attestation that ties the tarball to this run and commit
+# ("Built and signed on GitHub Actions" on npmjs.com; check it with `npm audit signatures`).
+#
+# Run it by hand once the version bump has synced here: Actions → Publish → Run workflow (or, from the private
+# monorepo, `npm run publish:cli` / `npm run publish:charts`). release.yml then tags it and writes the GitHub Release.
+#
+# One-time setup on npmjs.com, for each package: Settings → Trusted publishing → GitHub Actions, organization or user
+# Anshkaran7, repository expokit, workflow publish.yml, environment npm. Then, under Publishing access, pick
+# "Require two-factor authentication and disallow tokens" — this workflow keeps working, leaked tokens can't publish.
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to publish
+        required: true
+        type: choice
+        options: [cli, charts]
+
+permissions: {}
+
+concurrency:
+  group: publish-${{ inputs.package }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment (Settings → Environments → npm) to approve every publish.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write # OIDC token for trusted publishing + provenance
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24 # ships npm 11 — trusted publishing needs npm >= 11.5.1
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false # never restore a cache into a publish job
+
+      - name: Pick the package
+        id: pkg
+        env:
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          case "$PACKAGE" in
+            cli) dir=packages/cli ;;
+            charts) dir=packages/charts ;;
+            *) echo "::error::Unknown package: $PACKAGE"; exit 1 ;;
+          esac
+          name=$(node -p "require('./$dir/package.json').name")
+          version=$(node -p "require('./$dir/package.json').version")
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "::error::$name@$version is already on npm — bump the version in the private monorepo and let it sync first."
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Publishing $name@$version from $GITHUB_SHA"
+
+      - run: npm ci --no-audit --no-fund
+      - name: Verify registry signatures of installed packages
+        run: npm audit signatures
+      - name: Test
+        run: |
+          npm test
+          npm run typecheck
+          npm run build -w expo-charts
+
+      - name: Publish with provenance
+        env:
+          NAME: ${{ steps.pkg.outputs.name }}
+        run: npm publish -w "$NAME" --access public --provenance

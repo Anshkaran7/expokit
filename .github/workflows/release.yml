@@ -2,16 +2,18 @@ name: Release
 
 # Creates a GitHub Release (and tag) for @expokit/cli and expo-charts once the version in
 # packages/*/package.json is published on npm — never for a version that only exists in the repo.
-# Runs after every sync, every 6 hours (so a publish shows up without a push) and on demand.
+# Runs after every sync, after every Publish run, every 6 hours (so a manual publish shows up without a push) and on demand.
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: [Publish]
+    types: [completed]
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
+permissions: {}
 
 concurrency:
   group: release
@@ -20,11 +22,13 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # push the tag and create the GitHub Release
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version-file: .nvmrc
 
