@@ -6,6 +6,9 @@
   "files": [
     "src/lib/kit.tsx"
   ],
+  "summary": null,
   "props": [],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

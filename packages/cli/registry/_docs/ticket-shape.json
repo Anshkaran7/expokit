@@ -6,6 +6,9 @@
   "files": [
     "src/lib/ticket-shape.tsx"
   ],
+  "summary": null,
   "props": [],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

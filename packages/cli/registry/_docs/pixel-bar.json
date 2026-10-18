@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/pixel-bar.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -62,5 +63,7 @@
       "Fade colour upwards."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

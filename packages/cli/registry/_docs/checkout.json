@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/checkout.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "items",
@@ -98,5 +99,7 @@
       "Root style."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

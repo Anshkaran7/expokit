@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/sign-in.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "methods",
@@ -194,5 +195,7 @@
       "Aliases of onEmailPassword / onOAuth; providers (apple / google) sets the OAuth part of methods when methods isn't given."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

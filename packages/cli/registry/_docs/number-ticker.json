@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/number-ticker.tsx"
   ],
+  "summary": "Each digit rolls like an odometer, flashing green or red as it changes.",
   "props": [
     [
       "value",
@@ -92,5 +93,20 @@
       "Style for the row of digits."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "Each digit springs along its own 0–9 strip, up when the value grows and down when it shrinks, staggered right to left. The text briefly tints green or red on every change."
+    ],
+    [
+      "Screen readers",
+      "The whole number is one text element, read with its prefix and suffix instead of digit by digit."
+    ],
+    [
+      "Platforms",
+      "Plain Animated views on iOS, Android and web. The digit rolls use the native driver; only the colour flash runs in JS."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

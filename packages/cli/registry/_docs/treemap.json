@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/treemap.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -26,5 +27,7 @@
       "Tile colours."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

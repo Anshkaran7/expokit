@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/shimmer-button.tsx"
   ],
+  "summary": "A call-to-action with a looping light sweep, breathing glow or orbiting beam.",
   "props": [
     [
       "variant",
@@ -74,5 +75,24 @@
       "onPress, disabled, …"
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "'shimmer' sweeps a light band across on a loop, 'glow' breathes a soft halo and 'border-beam' sends a bright comet around the border. speed sets the loop length."
+    ],
+    [
+      "Touch",
+      "Pressing scales the button down on a bouncy spring."
+    ],
+    [
+      "Reduced motion",
+      "With Reduce Motion on, or while disabled, the loop stops and the button rests in a still state."
+    ],
+    [
+      "Screen readers",
+      "A button with its disabled state. Other Pressable props, such as accessibilityLabel, pass through."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

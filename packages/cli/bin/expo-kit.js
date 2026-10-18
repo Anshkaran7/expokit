@@ -13,6 +13,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import readline from 'node:readline';
+import { Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import {
   CliError,
@@ -36,6 +37,8 @@ const REGISTRY_DIR = path.join(PACKAGE_ROOT, 'registry');
 /** Website that serves Pro items (GET /api/registry/<name>) and issues CLI tokens (/account). */
 const SITE_URL = (process.env.EXPO_KIT_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
 const CREDENTIALS_DIR = path.join(os.homedir(), '.expo-kit');
+/** How users run the CLI. Bare `expo-kit` only works once installed, and `npx expo-kit` would fetch an unrelated npm package. */
+const RUN = 'npx @expokit/cli@latest';
 const CREDENTIALS_PATH = path.join(CREDENTIALS_DIR, 'credentials.json');
 
 const DEFAULT_ALIASES = {
@@ -295,7 +298,7 @@ async function loadRegistryItem(name) {
   const resolved = resolveRegistryName(name);
   const meta = isValidItemName(resolved) ? readMeta(resolved) : null;
   if (!meta) {
-    if (!isValidItemName(resolved)) fail(`Unknown item "${name}". Run: expo-kit add --list`);
+    if (!isValidItemName(resolved)) fail(`Unknown item "${name}". Run: ${RUN} add --list`);
     // Not in this package's registry — it may be newer than this CLI. Ask the site before giving up.
     const remoteMeta = { name: resolved, title: resolved, tier: 'pro', dependencies: [], unknownLocally: true };
     return stageRemoteItem(remoteMeta, resolved);
@@ -317,7 +320,7 @@ function listRegistry() {
     console.log(`  • ${meta.name.padEnd(18)} ${tag}${meta.title}`);
   }
   console.log('');
-  if (pro) log(`PRO items need an ExpoKit Pro plan — run \`expo-kit login\` (tokens: ${SITE_URL}/account).\n`);
+  if (pro) log(`PRO items need an ExpoKit Pro plan — run \`${RUN} login\` (tokens: ${SITE_URL}/account).\n`);
 }
 
 // ---------------------------------------------------------------------------
@@ -342,9 +345,9 @@ function assertTokenTarget(creds) {
   const target = new URL(SITE_URL).origin;
   throw new CliError(
     creds.fromEnv
-      ? `Refusing to send EXPO_KIT_TOKEN to ${target} (only ${DEFAULT_SITE_URL} or localhost receive it). Unset EXPO_KIT_URL, or run \`expo-kit login\` against that site.`
+      ? `Refusing to send EXPO_KIT_TOKEN to ${target} (only ${DEFAULT_SITE_URL} or localhost receive it). Unset EXPO_KIT_URL, or run \`${RUN} login\` against that site.`
       : `Your saved token was created for ${creds.url ?? DEFAULT_SITE_URL}, so it won't be sent to ${target}. ` +
-        `Unset EXPO_KIT_URL, or run \`expo-kit login\` with EXPO_KIT_URL=${target} to save a token for that site.`
+        `Unset EXPO_KIT_URL, or run \`${RUN} login\` with EXPO_KIT_URL=${target} to save a token for that site.`
   );
 }
 
@@ -361,12 +364,22 @@ async function apiGet(pathname, token) {
   try {
     res = await fetch(url, {
       headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      // A request that carries the token never follows a redirect: the token goes to SITE_URL's origin only.
+      redirect: token ? 'manual' : 'follow',
       signal: AbortSignal.timeout(20000),
     });
   } catch (e) {
     fail(
       `Network error: couldn't reach ${SITE_URL} (${e?.cause?.code ?? e?.name ?? e?.message ?? e}). ` +
         'Check your connection (or EXPO_KIT_URL) and try again.'
+    );
+  }
+  if (token && res.status >= 300 && res.status < 400) {
+    const location = res.headers.get('location');
+    fail(
+      `${SITE_URL} answered with a redirect (HTTP ${res.status}${location ? ` to ${location}` : ''}). ` +
+        `Your token is only sent to ${new URL(SITE_URL).origin} directly, so nothing was sent on. ` +
+        'Check EXPO_KIT_URL, or update the CLI: npx @expokit/cli@latest'
     );
   }
   let body = null;
@@ -388,7 +401,7 @@ async function fetchRemoteItem(name, { unknownLocally = false } = {}) {
   assertTokenTarget(creds);
   const { status, ok, body } = await apiGet(`/api/registry/${encodeURIComponent(name)}`, creds?.token);
   if (ok && body && Array.isArray(body.files)) return body;
-  if (status === 404 && unknownLocally) fail(`Unknown item "${name}". Run: expo-kit add --list`);
+  if (status === 404 && unknownLocally) fail(`Unknown item "${name}". Run: ${RUN} add --list`);
   if (status >= 500) failServerError(status, `downloading "${name}"`);
   if (status === 401 && !creds) {
     fail(
@@ -398,7 +411,7 @@ async function fetchRemoteItem(name, { unknownLocally = false } = {}) {
     );
   }
   if (status === 401) {
-    fail(`Your token (${creds.source}) is invalid or was revoked. Create a new one at ${SITE_URL}/account and run \`expo-kit login\`.`);
+    fail(`Your token (${creds.source}) is invalid or was revoked. Create a new one at ${SITE_URL}/account and run \`${RUN} login\`.`);
   }
   if (status === 403) {
     fail(`"${name}" needs ExpoKit Pro, and your account doesn't have it yet. Upgrade at ${SITE_URL}/pricing.`);
@@ -484,11 +497,20 @@ async function stageRemoteItem(meta, resolved) {
   return { meta: { ...meta, title, dependencies, sharedFiles: [...shared] }, filesRoot: tmp, resolved };
 }
 
-function prompt(question) {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
+/** Reads one line from the terminal without echoing it (for tokens), so it stays off the screen and out of scrollback. */
+function promptSecret(question) {
+  process.stdout.write(question);
+  const muted = new Writable({ write: (_chunk, _encoding, done) => done() });
+  const rl = readline.createInterface({ input: process.stdin, output: muted, terminal: true });
   return new Promise((resolve) => {
-    rl.question(question, (answer) => {
+    rl.on('SIGINT', () => {
       rl.close();
+      process.stdout.write('\n');
+      process.exit(130);
+    });
+    rl.question('', (answer) => {
+      rl.close();
+      process.stdout.write('\n');
       resolve(answer.trim());
     });
   });
@@ -498,9 +520,9 @@ async function cmdLogin(args) {
   const i = args.findIndex((a) => a === '--token' || a.startsWith('--token='));
   let token = i === -1 ? '' : args[i].includes('=') ? args[i].slice('--token='.length) : args[i + 1] ?? '';
   if (!token) {
-    log(`Create a CLI token at ${SITE_URL}/account (signed in), then paste it here.`);
-    if (!process.stdin.isTTY) fail('No token given. Use: expo-kit login --token <token>');
-    token = await prompt('Token: ');
+    log(`Create a CLI token at ${SITE_URL}/account (signed in), then paste it here (it won't be shown).`);
+    if (!process.stdin.isTTY) fail(`No token given. Use: ${RUN} login --token <token>`);
+    token = await promptSecret('Token: ');
   }
   token = token.trim();
   if (!token) fail('No token given.');
@@ -532,7 +554,7 @@ function cmdLogout() {
 
 async function cmdWhoami() {
   const creds = readCredentials();
-  if (!creds) fail(`Not logged in. Run: expo-kit login (tokens: ${SITE_URL}/account)`);
+  if (!creds) fail(`Not logged in. Run: ${RUN} login (tokens: ${SITE_URL}/account)`);
   assertTokenTarget(creds);
   const { status, ok, body } = await apiGet('/api/cli/whoami', creds.token);
   if (status === 401) fail(`Your token (${creds.source}) is invalid or was revoked. Create a new one at ${SITE_URL}/account.`);
@@ -740,9 +762,43 @@ function runExpoInstall(projectRoot, packages, dryRun) {
   return true;
 }
 
-function cmdInit(cwd, flags) {
+/** Folder names `init <dir>` will create: no paths, no spaces, nothing a shell could misread. */
+const SAFE_APP_DIR = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+
+/** `init my-app`: a new Expo app (create-expo-app) in ./my-app, then the usual init inside it. */
+function createExpoApp(cwd, dir, flags) {
+  if (!SAFE_APP_DIR.test(dir)) fail(`"${dir}" is not a valid folder name (letters, numbers, ".", "_" and "-").`);
+  const target = path.join(cwd, dir);
+  if (fs.existsSync(target) && fs.readdirSync(target).length) fail(`./${dir} already exists and is not empty.`);
+  if (flags.dryRun) {
+    log(`Would run: npx create-expo-app@latest ${dir} --yes`);
+    log(`Would then set up ExpoKit in ./${dir}`);
+    return null;
+  }
+  log(`Creating a new Expo app in ./${dir}…`);
+  const result = spawnSync('npx', ['create-expo-app@latest', dir, '--yes'], {
+    cwd,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
+  });
+  if (result.status !== 0 || !fs.existsSync(path.join(target, 'package.json'))) {
+    fail(`create-expo-app failed. Create the app yourself (npx create-expo-app@latest ${dir}), then run ${RUN} init inside it.`);
+  }
+  return target;
+}
+
+function cmdInit(cwd, flags, dir) {
+  if (dir) {
+    // Already inside an Expo app: `init <dir>` still means "create a new one there".
+    const target = createExpoApp(cwd, dir, flags);
+    if (!target) return;
+    cmdInit(target, flags);
+    log('');
+    log(`Next: cd ${dir} && npx expo start — then scan the QR with Expo Go.`);
+    return;
+  }
   const projectRoot = findProjectRoot(cwd);
-  if (!projectRoot) fail('Not inside an Expo project (expo dependency not found).');
+  if (!projectRoot) fail(`Not inside an Expo project (expo dependency not found). Start a new app with: ${RUN} init my-app`);
 
   const configPath = path.join(projectRoot, 'components.json');
   if (fs.existsSync(configPath)) {
@@ -777,7 +833,7 @@ function cmdInit(cwd, flags) {
   log(`Created components.json (${layout} layout)`);
 
   ensureExpoRouterMain(projectRoot, false);
-  log('Done. Add items with: npx @expokit/cli add <name>');
+  log(`Done. Add items with: ${RUN} add <name>`);
 }
 
 async function cmdAdd(args, cwd) {
@@ -891,7 +947,7 @@ async function cmdAdd(args, cwd) {
   if (resolved === 'liquidglass-tab') {
     log('Next steps:');
     console.log('  • Edit src/lib/tabs.ts — labels, icon presets, colors, screen text');
-    console.log('  • Run: npx expo-kit doctor');
+    console.log(`  • Run: ${RUN} doctor`);
     console.log('  • Build a dev client: npx expo run:ios (iOS 26 shows real Liquid Glass,');
     console.log('    iOS 18 and older, Android and web get the glass fallback bar)');
     console.log('  • After package updates: npx @expokit/cli@latest update');
@@ -977,7 +1033,7 @@ function cmdDoctor(cwd) {
   log('Checking project…\n');
 
   if (!fs.existsSync(config.configPath)) {
-    warn('Missing components.json — run: expo-kit init');
+    warn(`Missing components.json — run: ${RUN} init`);
     issues += 1;
   } else {
     log('  ✓ components.json');
@@ -996,7 +1052,7 @@ function cmdDoctor(cwd) {
   const usesLiquidGlass = fs.existsSync(tabsPath) || config.installed?.['liquidglass-tab'];
   if (usesLiquidGlass) {
     if (!fs.existsSync(tabsPath)) {
-      warn('No src/lib/tabs.ts — run: expo-kit add liquidglass-tab');
+      warn(`No src/lib/tabs.ts — run: ${RUN} add liquidglass-tab`);
       issues += 1;
     } else {
       log('  ✓ src/lib/tabs.ts');
@@ -1018,7 +1074,7 @@ function cmdDoctor(cwd) {
         const routePath = path.join(tabsDir, fileName);
         if (!fs.existsSync(routePath)) {
           warn(`Missing route for tab "${tabName}": ${path.relative(projectRoot, routePath)}`);
-          console.log(`    Fix: add the file or run expo-kit add liquidglass-tab --force`);
+          console.log(`    Fix: add the file or run ${RUN} add liquidglass-tab --force`);
           issues += 1;
         } else {
           log(`  ✓ route ${path.relative(projectRoot, routePath)}`);
@@ -1073,7 +1129,7 @@ async function cmdMcp(args, cwd) {
   const i = args.findIndex((a) => a === '--client' || a.startsWith('--client='));
   const client = i < 0 ? undefined : args[i].includes('=') ? args[i].split('=')[1] : args[i + 1];
   const names = [...Object.keys(MCP_CLIENTS), 'codex'].join('|');
-  if (!client) fail(`Pick a client: expo-kit mcp init --client <${names}>`);
+  if (!client) fail(`Pick a client: ${RUN} mcp init --client <${names}>`);
 
   if (client === 'codex') {
     log('Codex reads MCP servers from ~/.codex/config.toml (shared by every project). Add:\n');
@@ -1117,7 +1173,7 @@ function printHelp() {
 expo-kit — copy-paste Expo UI (shadcn-style)
 
 Usage:
-  npx @expokit/cli@latest init
+  npx @expokit/cli@latest init [my-app] [--dry-run]
   npx @expokit/cli@latest add <name...> [--dry-run] [--force]
   npx @expokit/cli@latest update [name] [--dry-run] [--force]
   npx @expokit/cli@latest doctor
@@ -1129,6 +1185,7 @@ Usage:
   npx @expokit/cli@latest mcp init --client <claude|cursor|vscode|codex>
 
 Examples:
+  npx @expokit/cli@latest init my-app        new Expo app with ExpoKit set up
   npx @expokit/cli@latest add liquidglass-tab --dry-run
   npx @expokit/cli@latest add liquidglass-tab --force
   npx @expokit/cli@latest update
@@ -1159,10 +1216,15 @@ Config: components.json (created by init)
 async function main(command, rest) {
   switch (command) {
     case 'init': {
-      const { flags } = parseFlags(rest);
-      cmdInit(process.cwd(), flags);
+      const { flags, positional } = parseFlags(rest);
+      if (positional.length > 1) fail(`init takes one folder name: ${RUN} init my-app`);
+      cmdInit(process.cwd(), flags, positional[0]);
       break;
     }
+    case '--version':
+    case '-v':
+      console.log(getPackageVersion());
+      break;
     case 'add':
       await cmdAdd(rest, process.cwd());
       break;

@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/dashboard.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -116,5 +117,7 @@
       "Root style."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

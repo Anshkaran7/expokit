@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import fs from 'node:fs';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { after, test } from 'node:test';
@@ -130,6 +132,38 @@ test('non-https site is rejected before any request', () => {
   const r = run(['login', '--token', 'tok'], TMP, { EXPO_KIT_URL: 'http://evil.example' });
   assert.equal(r.status, 1);
   assert.match(r.out, /must be https/);
+});
+
+test('a redirect never carries the token on', async () => {
+  const seen = [];
+  const listen = (handler) =>
+    new Promise((resolve) => {
+      const server = http.createServer(handler).listen(0, '127.0.0.1', () => resolve(server));
+    });
+  const elsewhere = await listen((req, res) => {
+    seen.push(req.headers.authorization);
+    res.end('{}');
+  });
+  const site = await listen((req, res) => {
+    res.writeHead(302, { Location: `http://127.0.0.1:${elsewhere.address().port}${req.url}` }).end();
+  });
+  try {
+    const child = spawn(process.execPath, [CLI, 'login', '--token', 'tok'], {
+      cwd: TMP,
+      env: { ...process.env, HOME, USERPROFILE: HOME, EXPO_KIT_URL: `http://127.0.0.1:${site.address().port}`, NO_COLOR: '1' },
+    });
+    let out = '';
+    child.stdout.on('data', (d) => (out += d));
+    child.stderr.on('data', (d) => (out += d));
+    const [status] = await once(child, 'close');
+    assert.equal(status, 1, out);
+    assert.match(out, /answered with a redirect \(HTTP 302/);
+    assert.deepEqual(seen, []);
+    assert.equal(fs.existsSync(path.join(HOME, '.expo-kit', 'credentials.json')), false);
+  } finally {
+    site.close();
+    elsewhere.close();
+  }
 });
 
 test('unknown item asks the site and reports a network error (not an auth error)', () => {

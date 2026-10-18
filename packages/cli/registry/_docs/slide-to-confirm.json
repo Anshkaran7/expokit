@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/slide-to-confirm.tsx"
   ],
+  "summary": "A slide-to-pay track whose thumb drags a glowing trail and ticks with haptics.",
   "props": [
     [
       "label",
@@ -80,5 +81,28 @@
       "Style for the track (merged over its height, radius and colour)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag past the threshold, or flick fast past the halfway point, to confirm; anything less springs back. If onConfirm returns a promise the thumb spins until it settles."
+    ],
+    [
+      "Motion",
+      "The thumb swells while held and a check draws on success; a rejected promise shakes the track and slides it back."
+    ],
+    [
+      "Reduced motion",
+      "The idle nudge and the chevron shimmer on the thumb are turned off."
+    ],
+    [
+      "Haptics",
+      "Selection ticks at 25, 50 and 75 percent of the drag, a medium impact on release, then a success or error notification."
+    ],
+    [
+      "Screen readers",
+      "A button whose label switches to confirmedLabel when done, with busy and disabled state. The 'activate' action (double tap) confirms without dragging."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

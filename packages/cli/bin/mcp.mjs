@@ -179,7 +179,7 @@ function searchItems(catalog, { query }) {
 function viewItem(catalog, registryDir, { name, include_source: includeSource = false }) {
   const it = requireItem(catalog, name);
   const doc = catalog.docs.get(it.name);
-  const out = [`# ${it.title} (${it.name})`, '', it.description, ''];
+  const out = [`# ${it.title} (${it.name})`, '', ...(doc?.summary ? [doc.summary, ''] : []), it.description, ''];
   out.push(`Type: ${it.type} · Tier: ${it.tier === 'pro' ? 'PRO (needs an ExpoKit Pro plan)' : 'free'}${doc?.category ? ` · Category: ${doc.category}` : ''}`);
   if (doc?.aliases?.length) out.push(`Aliases: ${doc.aliases.join(', ')}`);
   out.push('', `Add: \`${addCommand([it.name])}\``);
@@ -194,6 +194,13 @@ function viewItem(catalog, registryDir, { name, include_source: includeSource = 
     const cell = (s) => String(s ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
     for (const [prop, type, def, desc] of doc.props) out.push(`| ${cell(prop)} | ${cell(type)} | ${cell(def)} | ${cell(desc)} |`);
   }
+
+  if (doc?.behavior?.length) {
+    out.push('', '## Behaviour & accessibility', '');
+    for (const [label, text] of doc.behavior) out.push(`- **${label}:** ${text}`);
+  }
+
+  if (doc?.usage) out.push('', '## Usage', '', '```tsx', doc.usage.trimEnd(), '```');
 
   if (doc?.examples?.length) {
     out.push('', '## Examples');

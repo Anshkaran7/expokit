@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/like-button.tsx"
   ],
+  "summary": "A heart, star or bookmark that pops and bursts into particles when liked.",
   "props": [
     [
       "liked / onChange",
@@ -68,5 +69,24 @@
       "Style for the pressable row holding the icon and counter."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "Liking pops the icon, fills it on a bouncy spring and throws a ring and a burst of coloured dots. The counter rolls up or down to the new number."
+    ],
+    [
+      "Haptics",
+      "A light impact when it is liked; un-liking is silent."
+    ],
+    [
+      "Screen readers",
+      "A button labelled \"Like\", \"Favourite\" or \"Bookmark\" (or your label), with a selected state and the count as its value."
+    ],
+    [
+      "Touch",
+      "Small icons get a hitSlop that brings the target up to 44pt."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

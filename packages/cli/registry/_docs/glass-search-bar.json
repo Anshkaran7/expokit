@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/glass-search-bar.tsx"
   ],
+  "summary": "A floating glass search pill that swells on focus as a cancel button splits off.",
   "props": [
     [
       "value / defaultValue / onChangeText",
@@ -86,5 +87,28 @@
       "editable, returnKeyType, onFocus, onBlur, onSubmitEditing, … (ref forwards to the TextInput)."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "The pill swells a touch on focus and a clear button pops in once there is text. With showCancel, a glass cancel button springs in beside it while searching."
+    ],
+    [
+      "Reduced motion",
+      "The pill no longer swells, and the clear and cancel buttons fade in with a short timing instead of a spring."
+    ],
+    [
+      "Keyboard",
+      "The return key reads Search and calls onSubmit with the query. Cancel clears the text and dismisses the keyboard."
+    ],
+    [
+      "Screen readers",
+      "The field has the search role and is labelled by its placeholder. The clear and cancel buttons read \"Clear search\" and cancelLabel (or \"Cancel search\")."
+    ],
+    [
+      "Platforms",
+      "Real Liquid Glass on iOS 26, where the pill and cancel button melt together. Blur or frosted glass everywhere else."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/wheel-list.tsx"
   ],
+  "summary": "An iOS alarm-style picker whose rows curve away on a 3D cylinder.",
   "props": [
     [
       "data",
@@ -98,5 +99,24 @@
       "Style for the root (width)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Flick to spin and it snaps to a row; tap a row to scroll it into the band."
+    ],
+    [
+      "Motion",
+      "Each row rotates, scales and fades by its distance from the band, interpolated from the scroll position on the native driver."
+    ],
+    [
+      "Screen readers",
+      "One adjustable element with increment / decrement actions; its value is the selected label, or \"3 / 12\" for custom rows."
+    ],
+    [
+      "Web",
+      "Browsers lack snap momentum, so it settles on the nearest row shortly after scrolling stops."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

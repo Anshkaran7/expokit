@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/ticket-card.tsx"
   ],
+  "summary": "A boarding pass or event ticket with real notches and a stub you can tear off.",
   "props": [
     [
       "brand / logo",
@@ -170,5 +171,24 @@
       "Style for the root (width, margins)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "The card tilts toward your finger (tilt={false} turns it off). Tap to flip it to the big code and notes; with onTear set, swipe the stub sideways to tear it off."
+    ],
+    [
+      "Motion",
+      "A holo badge shimmers as the card leans, a stamp thumps down when set, and a torn stub falls away along the tear line."
+    ],
+    [
+      "Haptics",
+      "A success notification when the stub tears off."
+    ],
+    [
+      "Screen readers",
+      "One element whose label joins the brand, title or route, every field and the stamp; it is a button when there is a back to flip to."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

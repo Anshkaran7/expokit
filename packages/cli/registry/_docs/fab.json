@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/fab.tsx"
   ],
+  "summary": "A floating action button that fans out a staggered speed dial as its plus turns to ×.",
   "props": [
     [
       "actions",
@@ -116,5 +117,28 @@
       "Style for the absolutely positioned stack holding the main button and list actions."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tapping the button opens the speed dial over an optional dimmed backdrop; tapping the backdrop closes it. Without actions it just calls onPress."
+    ],
+    [
+      "Motion",
+      "Actions spring out one after another as a labelled list or an arc. An extended FAB springs between a pill and a circle, and pulse loops a ring around it."
+    ],
+    [
+      "Reduced motion",
+      "The pulse ring stays off when reduce motion is on."
+    ],
+    [
+      "Haptics",
+      "A light impact when the button opens or closes the dial, or fires onPress."
+    ],
+    [
+      "Screen readers",
+      "The main button and each action are buttons; the main button reads \"Open actions\" / \"Close actions\" with an expanded state when it has a dial."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/waterfall.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -32,5 +33,7 @@
       "Change labels."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

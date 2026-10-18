@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/glass.tsx"
   ],
+  "summary": "A Liquid Glass surface: native on iOS 26, emulated with blur and a rim elsewhere.",
   "props": [
     [
       "variant",
@@ -74,5 +75,20 @@
       "Size, padding and layout."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "With interactive, iOS 26 glass shimmers and bounces under the finger. Elsewhere the prop is ignored."
+    ],
+    [
+      "Platforms",
+      "iOS 26 renders real Liquid Glass that GlassGroup can merge; older iOS uses a system material blur. Android blurs inside GlassProvider + GlassBackdrop and falls back to a frosted fill."
+    ],
+    [
+      "Web",
+      "Blurs what is behind it with a CSS backdrop blur. Wherever glass is emulated it adds a specular rim, a hairline edge and a soft shadow."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

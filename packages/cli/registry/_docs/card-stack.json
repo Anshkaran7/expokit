@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/card-stack.tsx"
   ],
+  "summary": "A Wallet-style stack that fans open on tap and slides the picked card to the front.",
   "props": [
     [
       "data",
@@ -104,5 +105,20 @@
       "Style for the root view."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap the closed stack to fan it open, then tap a card to bring it to the front as the stack closes. With onPressFront, a tap on the front card calls it instead."
+    ],
+    [
+      "Motion",
+      "Cards behind the front one shrink and tilt back in 3D depth. Opening, closing and reordering all run on springs."
+    ],
+    [
+      "Screen readers",
+      "Each card is a button with selected and expanded state, labelled \"Card 2 of 4\" by default or by getAccessibilityLabel."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

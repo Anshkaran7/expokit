@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/parallax-layers.tsx"
   ],
+  "summary": "Drag across a layered scene: near layers slide further while it tilts in 3D.",
   "props": [
     [
       "children",
@@ -80,5 +81,24 @@
       "Style for the layer (it fills the scene)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "The finger position steers the scene and release springs it back to centre. A parent ScrollView can still take over a scroll that starts on it."
+    ],
+    [
+      "Motion",
+      "Each layer moves by its depth times travel while the whole scene tilts in perspective. Left alone, it drifts slowly on a loop."
+    ],
+    [
+      "Screen readers",
+      "With accessibilityLabel the scene is one image element with that label; without it, it is not exposed."
+    ],
+    [
+      "Platforms",
+      "Transforms run on the native driver with PanResponder, so it works on iOS, Android and web with no native modules."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

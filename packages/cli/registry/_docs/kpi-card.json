@@ -6,6 +6,9 @@
   "files": [
     "src/components/charts/kpi-card.tsx"
   ],
+  "summary": null,
   "props": [],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

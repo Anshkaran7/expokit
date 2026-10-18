@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/carousel.tsx"
   ],
+  "summary": "A snapping carousel whose neighbouring slides shrink, fade or tilt with the scroll.",
   "props": [
     [
       "data",
@@ -98,5 +99,24 @@
       "Style for the root view wrapping the slides and pagination."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Swipe to snap from slide to slide. Autoplay waits while you drag and resumes after."
+    ],
+    [
+      "Motion",
+      "Slide effects are interpolated from the scroll position on the native driver. renderItem also gets a progress value for your own parallax."
+    ],
+    [
+      "Screen readers",
+      "The scroller is adjustable, reads \"Slide 2 of 5\" and supports increment and decrement. Dots are buttons labelled \"Go to slide N\"."
+    ],
+    [
+      "Web",
+      "Settles on the nearest slide once scrolling stops, since the web has no snap momentum."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

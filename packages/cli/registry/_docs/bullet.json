@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/bullet.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -20,5 +21,7 @@
       "Sizing."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

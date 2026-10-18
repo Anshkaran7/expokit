@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/offers.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "offers",
@@ -74,5 +75,7 @@
       "Root style."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

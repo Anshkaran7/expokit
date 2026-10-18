@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/glass-nav-bar.tsx"
   ],
+  "summary": "An iOS 26 glass top bar that fades in as content scrolls under it.",
   "props": [
     [
       "title",
@@ -74,5 +75,28 @@
       "Bar row height, and the full height the bar covers — use it as your content's paddingTop."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "With scrollY the bar starts transparent and its glass fades in as content passes under it. A large title scrolls away while the small centred title fades in, all on the native driver."
+    ],
+    [
+      "Touch",
+      "Back and action buttons spring down under the finger on emulated glass; on iOS 26 the interactive glass bounces natively."
+    ],
+    [
+      "Reduced motion",
+      "The large title no longer scales on pull-down or collapse, and the button press springs are off."
+    ],
+    [
+      "Screen readers",
+      "The title is a header, with the small title hidden while the large one shows. The back button reads backLabel or \"Back\", and actions use their accessibilityLabel."
+    ],
+    [
+      "Platforms",
+      "Real Liquid Glass on iOS 26, where the action buttons merge together. Blur on older iOS, Android and web."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

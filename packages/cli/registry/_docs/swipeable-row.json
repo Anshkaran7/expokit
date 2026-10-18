@@ -1,11 +1,15 @@
 {
   "name": "swipeable-row",
   "category": "Display",
-  "aliases": [],
+  "aliases": [
+    "swipeable-list",
+    "swipe-actions"
+  ],
   "exportName": "SwipeableRow",
   "files": [
     "src/components/ui/swipeable-row.tsx"
   ],
+  "summary": "A mail-style row whose actions fan out and grow as you drag it sideways.",
   "props": [
     [
       "leftActions",
@@ -68,5 +72,24 @@
       "Style for the outer row that holds the actions behind the sliding content."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag sideways to reveal the actions; a full swipe past half the row fires the edge action. Tap the open row to close it."
+    ],
+    [
+      "Motion",
+      "Actions fan out and grow with your finger, the edge action stretches across on a full swipe, and destructive actions slide away and collapse the row."
+    ],
+    [
+      "Screen readers",
+      "Every action is offered as a named accessibility action on the row, and each revealed action is a labelled button."
+    ],
+    [
+      "Web",
+      "Built on PanResponder, so a mouse drag works too; the row shows a grab cursor and text selection is turned off."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

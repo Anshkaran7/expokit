@@ -1,0 +1,184 @@
+{
+  "name": "chat",
+  "category": "Blocks",
+  "aliases": [
+    "ai-chat",
+    "chatbot",
+    "assistant",
+    "messages",
+    "chatgpt"
+  ],
+  "exportName": "ChatScreen",
+  "files": [
+    "src/components/blocks/chat.tsx"
+  ],
+  "summary": "AI assistant chat with streamed, fading-in replies, Thinking state and a Stop button.",
+  "props": [
+    [
+      "messages",
+      "{ id, role: 'user' | 'assistant', text, streaming?, feedback? }[]",
+      "[]",
+      "The conversation. Controlled when onSend is set; otherwise the starting messages for the built-in simulation."
+    ],
+    [
+      "onSend",
+      "(text: string) => void",
+      "—",
+      "The user sent a prompt (trimmed). Append it and the reply to messages yourself. Without it, replies are simulated from a canned list so the screen works as-is."
+    ],
+    [
+      "streaming",
+      "boolean",
+      "false",
+      "A reply is in flight: “Thinking…” until the last message is an assistant one with text, a caret while it grows, and Send becomes Stop."
+    ],
+    [
+      "onStop",
+      "() => void",
+      "—",
+      "Stop pressed while streaming."
+    ],
+    [
+      "suggestions",
+      "string[]",
+      "4 prompts",
+      "Chips above the input until the user sends something; tapping one sends it. [] hides them."
+    ],
+    [
+      "assistantName",
+      "string",
+      "'Assistant'",
+      "Used in the header, the placeholder and screen reader labels."
+    ],
+    [
+      "title / subtitle",
+      "string",
+      "assistantName / 'Ask me anything'",
+      "Header text. The subtitle shows “Thinking…” / “Typing…” while streaming."
+    ],
+    [
+      "header",
+      "ReactNode | null",
+      "built-in",
+      "Replace the header; null hides it."
+    ],
+    [
+      "avatar",
+      "ReactNode",
+      "sparkle mark",
+      "Replace the assistant mark beside replies, in the header and the empty state."
+    ],
+    [
+      "emptyTitle / emptySubtitle",
+      "string",
+      "'How can I help today?'",
+      "Empty state copy."
+    ],
+    [
+      "placeholder",
+      "string",
+      "`Message ${assistantName}`",
+      "Prompt placeholder and accessibility label."
+    ],
+    [
+      "variant",
+      "'plain' | 'bubbles'",
+      "'plain'",
+      "plain: assistant text sits on the page. bubbles: assistant replies in muted bubbles too (support bots)."
+    ],
+    [
+      "thinkingIndicator",
+      "'shimmer' | 'dots'",
+      "'shimmer'",
+      "What shows before the first token."
+    ],
+    [
+      "onAttach",
+      "() => void",
+      "—",
+      "Shows a + button left of the input."
+    ],
+    [
+      "onCopy",
+      "(message) => void",
+      "—",
+      "Copy pressed or a message long-pressed — write message.text to the clipboard here. The icon turns into a check."
+    ],
+    [
+      "onRegenerate",
+      "(message) => void",
+      "—",
+      "Regenerate pressed on the latest reply."
+    ],
+    [
+      "onFeedback",
+      "(message, 'up' | 'down' | null) => void",
+      "—",
+      "Thumbs toggled; null when cleared. Initial state comes from message.feedback."
+    ],
+    [
+      "onNewChat",
+      "() => void",
+      "—",
+      "Shows a new-chat button in the header (the simulation also clears itself)."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "0",
+      "Extra padding under the input, e.g. useSafeAreaInsets().bottom. Ignored while the keyboard is open."
+    ],
+    [
+      "keyboardVerticalOffset",
+      "number",
+      "0",
+      "Height above the screen (navigator header) so the input clears the keyboard exactly."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "Light haptics on send, stop, copy and feedback."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "User bubbles, send button, focus ring and the assistant mark."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap a suggestion chip to send it. Long-press a message to copy it; the row under each reply has copy, thumbs up / down and regenerate (latest reply). A round button jumps back to the latest message after scrolling up."
+    ],
+    [
+      "Motion",
+      "Messages rise and fade in on a spring, new words fade in as they stream with a soft blinking caret, “Thinking…” shimmers (or dots bounce), and the send arrow spins into a stop square. Opacity and transforms run on the native driver."
+    ],
+    [
+      "Reduced motion",
+      "No per-word fade, shimmer, bouncing dots or caret blink; simulated replies arrive in larger chunks and messages appear without the rise."
+    ],
+    [
+      "Screen readers",
+      "Messages read as “You: …” and “<assistant>: …” with markdown stripped, and long-press copy is exposed as an action. “<assistant> is thinking” is announced, then the full reply when streaming ends. Buttons have roles, labels and disabled / selected state."
+    ],
+    [
+      "Keyboard",
+      "The prompt stays above the keyboard on iOS and Android (KeyboardAvoidingView; pass keyboardVerticalOffset under a navigator header) and bottomInset is dropped while it is open. On web, Enter sends and Shift+Enter adds a line."
+    ],
+    [
+      "Haptics",
+      "A light tap on send, stop and copy, and a selection tick on chips, thumbs and regenerate (native only, haptics={false} to turn off)."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

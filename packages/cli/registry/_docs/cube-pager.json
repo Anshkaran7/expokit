@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/cube-pager.tsx"
   ],
+  "summary": "Swipeable pages that turn like the faces of a cube, with flick momentum.",
   "props": [
     [
       "children",
@@ -80,5 +81,20 @@
       "Style for the root view."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Pages follow your finger. A quick flick or a drag past 35% turns the page, and the first and last pages rubber-band."
+    ],
+    [
+      "Motion",
+      "Pages rotate around their shared edge in 3D (cube, inside or flip) and darken as they turn away when shade is on."
+    ],
+    [
+      "Screen readers",
+      "The pager is adjustable with a \"2 / 5\" value and increment and decrement actions. Off-screen pages are hidden and dots are buttons."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

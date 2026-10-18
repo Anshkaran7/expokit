@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/glass-sheet.tsx"
   ],
+  "summary": "A floating glass bottom sheet that follows your finger and snaps with velocity.",
   "props": [
     [
       "open",
@@ -104,5 +105,32 @@
       "Sheet content; scrolls at the top snap when taller than the sheet."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag from the grabber or the content. Release velocity picks the snap point, and a fling down or a backdrop tap dismisses it."
+    ],
+    [
+      "Motion",
+      "It springs up over a fading dim and the grabber widens while held. Without snapPoints it sizes to its content, and taller content scrolls."
+    ],
+    [
+      "Reduced motion",
+      "Snapping, opening and closing use short timings instead of springs."
+    ],
+    [
+      "Haptics",
+      "A light tap on open and a selection tick each time it settles on a snap point."
+    ],
+    [
+      "Screen readers",
+      "The sheet is modal and the escape gesture closes it. The grabber is adjustable: increment and decrement step between snap points, and decrement from the lowest one closes it."
+    ],
+    [
+      "Platforms",
+      "Real Liquid Glass on iOS 26, material blur on older iOS and web, and a frosted surface on Android. Android back closes it."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

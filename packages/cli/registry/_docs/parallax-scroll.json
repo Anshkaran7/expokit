@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/parallax-scroll.tsx"
   ],
+  "summary": "A photo header glides slower than the content, then a title bar fades in.",
   "props": [
     [
       "children",
@@ -182,5 +183,28 @@
       "The live scroll offset (native-driver friendly), viewport size and content size for your own effects; null outside a ParallaxScrollView."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "The header lags behind the scroll and darkens as it leaves. The bar, title and button bubbles fade in once it has scrolled under the bar."
+    ],
+    [
+      "Touch",
+      "On iOS, pulling down past the top stretches the header to fill the gap. Set stretch to false when you use a refreshControl."
+    ],
+    [
+      "Reduced motion",
+      "With Reduce Motion on, the header, ParallaxImage and ParallaxView parallax offsets switch off; the stretch and the fades stay."
+    ],
+    [
+      "Screen readers",
+      "The bar comes first in reading order and its title is a header. Header and ParallaxImage photos are labelled images only when you give them a label."
+    ],
+    [
+      "Platforms",
+      "The scroll offset drives everything through a native Animated.event, so there is no JS work while scrolling."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

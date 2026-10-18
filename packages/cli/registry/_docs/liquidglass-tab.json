@@ -16,7 +16,10 @@
     "src/lib/tab-icons.ts",
     "src/lib/tabs.ts"
   ],
+  "summary": null,
   "props": [],
+  "behavior": [],
+  "usage": null,
   "examples": [
     {
       "name": "Preview",

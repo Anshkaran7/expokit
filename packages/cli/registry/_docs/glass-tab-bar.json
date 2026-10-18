@@ -10,6 +10,7 @@
   "files": [
     "src/components/ui/glass-tab-bar.tsx"
   ],
+  "summary": "A floating glass tab bar whose selection bubble stretches as it springs between tabs.",
   "props": [
     [
       "tabs",
@@ -72,5 +73,28 @@
       "Exported height of the bar (and the trailing circle) — pad your scroll content by it."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "The lighter bubble springs to the selected tab, stretching as it travels and settling when it lands. The selected icon lifts, and buttons spring down while pressed."
+    ],
+    [
+      "Reduced motion",
+      "The bubble jumps to the new tab without stretching, icons switch without a spring and press springs are off."
+    ],
+    [
+      "Haptics",
+      "A selection tick when the tab changes and a light tap on the trailing button."
+    ],
+    [
+      "Screen readers",
+      "The bar is a tablist; each tab is a tab with its selected state, and the badge count is read after the label."
+    ],
+    [
+      "Platforms",
+      "Real Liquid Glass on iOS 26, where the trailing button melts into the bar. Blur everywhere else."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

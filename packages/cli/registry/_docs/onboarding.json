@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/onboarding.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "steps",
@@ -62,5 +63,7 @@
       "Root style."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

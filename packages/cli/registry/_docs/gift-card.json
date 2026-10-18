@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/gift-card.tsx"
   ],
+  "summary": "A photo gift card that tilts toward your finger and flips to reveal its code.",
   "props": [
     [
       "amount",
@@ -104,5 +105,20 @@
       "Style for the root."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap the card to flip it over to the redeem code. The copy button calls onCopy and reads \"Copied ✓\" for a moment."
+    ],
+    [
+      "Motion",
+      "With tilt on (the default) the card leans toward your finger with a moving reflection, then turns over in 3D on a spring."
+    ],
+    [
+      "Screen readers",
+      "The card is a button labelled with the brand, amount and redeemed state; the code is added to the label once it is flipped."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/rating.tsx"
   ],
+  "summary": "Drag across the stars to rate; the top one throws a little spark burst.",
   "props": [
     [
       "value / onValueChange",
@@ -86,5 +87,28 @@
       "Style for the row of icons."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap or drag across the row to set the value, to half-icon precision with allowHalf. With clearable, tapping the current value clears it."
+    ],
+    [
+      "Motion",
+      "Icons fill smoothly and pop in a quick stagger with a wobble. When you raise the rating, the top icon throws a spark burst."
+    ],
+    [
+      "Haptics",
+      "A selection tick plays for every step while tapping or dragging."
+    ],
+    [
+      "Screen readers",
+      "One adjustable element read as 'N of 5'. Swipe up or down to change it by one step."
+    ],
+    [
+      "Web",
+      "Works with the mouse too, and shows a pointer cursor while interactive."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

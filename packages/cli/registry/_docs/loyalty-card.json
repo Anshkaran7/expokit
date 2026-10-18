@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/loyalty-card.tsx"
   ],
+  "summary": "A points or stamp card on a shop photo that tilts and flips to a member code.",
   "props": [
     [
       "brand",
@@ -104,5 +105,20 @@
       "Style for the root."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap the card to flip it to the member code for the till, and tap again to turn it back."
+    ],
+    [
+      "Motion",
+      "With tilt on (the default) the card leans toward your finger with a moving reflection, then turns over in 3D on a spring."
+    ],
+    [
+      "Screen readers",
+      "The card is a button labelled with the brand, member and their points or stamp count."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

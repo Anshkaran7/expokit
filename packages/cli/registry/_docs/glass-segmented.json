@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/glass-segmented.tsx"
   ],
+  "summary": "A glass segmented control whose thumb stretches toward the new segment like a drop.",
   "props": [
     [
       "options",
@@ -62,5 +63,32 @@
       "Style for the glass track."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap a segment, or press the thumb and drag it across. It follows your finger and snaps to the nearest segment on release."
+    ],
+    [
+      "Motion",
+      "The thumb springs to the new segment, stretching in the direction of travel before it settles. It lifts slightly while you drag it."
+    ],
+    [
+      "Reduced motion",
+      "The thumb slides over in a short timing with no stretch, and does not lift when dragged."
+    ],
+    [
+      "Haptics",
+      "A selection tick on change and each time a drag crosses into another segment."
+    ],
+    [
+      "Screen readers",
+      "The control is a tablist and each segment a tab with its label and selected state."
+    ],
+    [
+      "Platforms",
+      "Built on Glass: real Liquid Glass on iOS 26, blurred or frosted glass elsewhere."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

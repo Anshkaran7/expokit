@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/isometric-bar.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -68,5 +69,7 @@
       "Bar colour."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

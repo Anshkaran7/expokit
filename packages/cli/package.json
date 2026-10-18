@@ -11,7 +11,8 @@
     "bin",
     "registry",
     "schema",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "expo",
@@ -35,12 +36,16 @@
   "bugs": {
     "url": "https://github.com/Anshkaran7/expokit/issues"
   },
-  "author": "anshkaran7",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Anshkaran7"
+  },
+  "author": "Karan (anshkaran7) <work@karandev.in>",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "prepublishOnly": "echo 'Publish @expokit/cli from the private ExpoKit monorepo.' && exit 1"
+    "prepublishOnly": "node -e \"if (!process.env.GITHUB_ACTIONS) { console.error('Publish @expokit/cli with the Publish workflow (npm provenance), not by hand.'); process.exit(1) }\""
   }
 }

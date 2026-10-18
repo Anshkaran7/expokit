@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/color-swatch.tsx"
   ],
+  "summary": "A colour picker where the chosen swatch settles in as a ring springs out around it.",
   "props": [
     [
       "colors",
@@ -62,5 +63,20 @@
       "Style for the wrapping grid (the ScrollView when scrollable)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap a swatch to choose it. Each swatch's hit area is padded out to 44pt."
+    ],
+    [
+      "Motion",
+      "The chosen swatch settles inward while a ring and check spring out. The check uses whichever ink reads best on that colour."
+    ],
+    [
+      "Screen readers",
+      "A radiogroup labelled \"Colour\" by default; each swatch is a radio named by its label or hex value."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

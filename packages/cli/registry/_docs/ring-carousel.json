@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/ring-carousel.tsx"
   ],
+  "summary": "Cards on a 3D ring you spin with a swipe; it snaps and loops forever.",
   "props": [
     [
       "data",
@@ -98,5 +99,24 @@
       "Style for the root view."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Horizontal drags spin the ring and a flick carries it a little further before snapping. Tapping a side card turns to it; tapping the front card calls onPress."
+    ],
+    [
+      "Motion",
+      "Neighbours turn, shrink and fall into shadow as they go round the back. With autoplay it advances every 3s by default and pauses while touched."
+    ],
+    [
+      "Screen readers",
+      "The ring is one adjustable element ('2 / 7'): swipe up or down to turn it, double-tap to press the front card. Side cards are hidden."
+    ],
+    [
+      "Platforms",
+      "The loop runs on the native driver via Animated.modulo. Each card turns in its own flat layer so iOS never slices a side card into the front one."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

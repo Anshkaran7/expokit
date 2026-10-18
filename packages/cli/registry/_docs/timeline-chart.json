@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/timeline-chart.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -26,5 +27,7 @@
       "Axis labels."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

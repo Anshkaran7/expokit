@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/spin-wheel.tsx"
   ],
+  "summary": "A prize wheel whose flapper ticks over every divider as it eases onto the win.",
   "props": [
     [
       "segments",
@@ -110,5 +111,28 @@
       "Spin from your own button (optionally onto a fixed index), or cancel and turn back to the start."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap the SPIN hub or flick the wheel; a harder flick throws it further. A slow drag just springs back to rest."
+    ],
+    [
+      "Motion",
+      "It keeps turning while getResult resolves, then eases onto the chosen wedge; the other wedges dim and the winner glows while the rim lights flash."
+    ],
+    [
+      "Reduced motion",
+      "The idle chasing lights, the win celebration and the winner pulse are skipped; the spin itself still plays."
+    ],
+    [
+      "Haptics",
+      "A selection tick each time the flapper crosses a divider, a light impact on the hub, and a success notification on the win (skipped on web)."
+    ],
+    [
+      "Screen readers",
+      "The wheel is an image whose label lists every prize; the hub is a button with busy state while spinning, and the result is announced."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

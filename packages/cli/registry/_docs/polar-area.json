@@ -6,6 +6,7 @@
   "files": [
     "src/components/charts/polar-area.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "data",
@@ -74,5 +75,7 @@
       "Grid circles."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

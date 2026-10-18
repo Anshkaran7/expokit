@@ -10,6 +10,7 @@
   "files": [
     "src/components/ui/glass-button.tsx"
   ],
+  "summary": "Liquid Glass buttons and toolbars that spring down under your finger.",
   "props": [
     [
       "label",
@@ -114,5 +115,28 @@
       "As on GlassButton; accessibilityLabel names the toolbar."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "Buttons spring down to 0.94 and toolbar icons to 0.86 while pressed, and an active toolbar item springs in a soft bubble. On iOS 26 a GlassButton lets the native glass bounce instead."
+    ],
+    [
+      "Reduced motion",
+      "Press springs are skipped and the active bubble appears without a spring."
+    ],
+    [
+      "Haptics",
+      "A light impact on every press, unless haptics is false."
+    ],
+    [
+      "Screen readers",
+      "Each button has the button role with its label and disabled state; toolbar items also report selected. The toolbar itself has the toolbar role."
+    ],
+    [
+      "Platforms",
+      "iOS 26 shows real interactive Liquid Glass, tinted natively, and floating toolbar circles melt together. Elsewhere it is blurred glass with a stronger colour wash for tinted buttons."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

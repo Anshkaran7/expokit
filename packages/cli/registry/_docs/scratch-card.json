@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/scratch-card.tsx"
   ],
+  "summary": "Rub a shimmering foil away; past a threshold the rest clears with a haptic tap.",
   "props": [
     [
       "children",
@@ -86,5 +87,24 @@
       "Width, margins."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Your finger scratches the foil away with a round brush, and once threshold of it is gone the rest clears by itself. The card keeps the touch, so a parent ScrollView cannot steal it mid-rub."
+    ],
+    [
+      "Motion",
+      "A light band sweeps across the foil until the first touch. On reveal the foil fades out while scaling up slightly."
+    ],
+    [
+      "Haptics",
+      "A success notification plays when the foil clears."
+    ],
+    [
+      "Screen readers",
+      "The foil is a button labelled with label and sublabel, with the hint 'Double-tap to reveal'."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

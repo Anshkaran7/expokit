@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/settings.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "user",
@@ -68,5 +69,7 @@
       "Root style."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }

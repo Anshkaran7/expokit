@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/swipe-deck.tsx"
   ],
+  "summary": "A card stack you swipe left or right; the top card leans in 3D and stamps a label.",
   "props": [
     [
       "data",
@@ -98,5 +99,20 @@
       "Style for the root view."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag the top card past the threshold or flick it to throw it off; a short drag springs back. A ref exposes swipe, undo and reset for buttons."
+    ],
+    [
+      "Motion",
+      "The card follows your finger, rotates and tilts in 3D, washes in the right or left colour and shows the stamp, while the next card rises."
+    ],
+    [
+      "Screen readers",
+      "Only the top card is exposed. It offers the right and left labels as accessibility actions, which throw the card that way."
+    ]
+  ],
+  "usage": null,
   "examples": []
 }

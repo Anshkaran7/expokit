@@ -6,6 +6,7 @@
   "files": [
     "src/components/blocks/inbox.tsx"
   ],
+  "summary": null,
   "props": [
     [
       "messages",
@@ -68,5 +69,7 @@
       "Root style."
     ]
   ],
+  "behavior": [],
+  "usage": null,
   "examples": []
 }
