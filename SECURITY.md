@@ -15,10 +15,7 @@ The latest published version of `@expokit/cli` and `expo-charts`, and the compon
 
 ## How releases are made
 
-- `@expokit/cli` after 0.2.0 and `expo-charts` after 2.0.0 are published only from this repository's
-  [Publish workflow](.github/workflows/publish.yml), with npm trusted publishing (no long-lived npm tokens). npm
-  attaches a provenance attestation that links each version to the exact commit and workflow run that built it —
-  look for "Provenance" on the package's npm page, or run `npm audit signatures` in your app.
+- `@expokit/cli` and `expo-charts` are published to npm by the maintainer, from the code on `main` in this repository.
 - Both packages have no runtime dependencies and no install scripts.
 - Every change runs CI, [CodeQL](.github/workflows/codeql.yml) and
   [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/Anshkaran7/expokit). GitHub Actions are pinned to

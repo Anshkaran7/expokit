@@ -61,9 +61,7 @@ component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choo
 
 - **No runtime dependencies** — neither `@expokit/cli` nor `expo-charts` installs anything else (`expo-charts` only
   has peer dependencies), and neither runs install scripts.
-- **Built in the open** — new versions are published from this repo's [Publish workflow](.github/workflows/publish.yml)
-  with npm trusted publishing, so npm shows a provenance badge that links each version to the commit it was built
-  from. Check what you installed with `npm audit signatures`.
+- **Source in the open** — every published version is built from the code in this repository.
 - **Checked continuously** — CI, [CodeQL](.github/workflows/codeql.yml) and
   [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/Anshkaran7/expokit) run on every change.
 
