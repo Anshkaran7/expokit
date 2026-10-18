@@ -36,9 +36,7 @@ Every chart with live previews, props, theming and help: **[expokit.karandev.in/
 ## Security
 
 No dependencies (only `react`, `react-native` and `react-native-svg` as peers), no install scripts, no network access.
-Versions after 2.0.0 are built and published by
-[GitHub Actions](https://github.com/Anshkaran7/expokit/actions/workflows/publish.yml) with npm provenance — check
-them with `npm audit signatures`. Report a vulnerability privately:
+Report a vulnerability privately:
 [SECURITY.md](https://github.com/Anshkaran7/expokit/blob/main/SECURITY.md).
 
 ## License
