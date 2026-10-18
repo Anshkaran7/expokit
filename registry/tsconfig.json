@@ -118,6 +118,9 @@
       "@/components/ui/spinner": [
         "./ui/spinner/src/components/ui/spinner.tsx"
       ],
+      "@/components/ui/stateful-button": [
+        "./ui/stateful-button/src/components/ui/stateful-button.tsx"
+      ],
       "@/components/ui/stepper": [
         "./ui/stepper/src/components/ui/stepper.tsx"
       ],
@@ -129,6 +132,9 @@
       ],
       "@/components/ui/tag-input": [
         "./ui/tag-input/src/components/ui/tag-input.tsx"
+      ],
+      "@/components/ui/text-animation": [
+        "./ui/text-animation/src/components/ui/text-animation.tsx"
       ],
       "@/components/ui/textarea": [
         "./ui/textarea/src/components/ui/textarea.tsx"
