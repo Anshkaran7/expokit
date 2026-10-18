@@ -4,6 +4,30 @@
   "tier": "free",
   "category": "Inputs",
   "description": "One-time-code cells that size themselves to fit any width. The active cell glows with a soft focus halo and a blinking caret, digits pop in on a spring, a pasted code fills every cell, errors shake the row and success pulses across the cells with a drawn check.",
+  "summary": "Digits pop into cells that size themselves, with SMS autofill and paste.",
+  "usage": "import { useState } from 'react';\nimport { OtpInput } from '@/components/ui/otp-input';\n\nconst [code, setCode] = useState('');\n<OtpInput value={code} onChangeText={setCode} helperText=\"Sent to +1 415 555 0132\" />",
+  "behavior": [
+    [
+      "Touch",
+      "Tapping the row focuses one hidden number-pad input. Pasting a code like 123-456 strips the non-digits and fills every cell."
+    ],
+    [
+      "Motion",
+      "Digits pop in on a bouncy spring and the active cell glows with a halo and a blinking caret. Errors shake the row; success pulses across the cells."
+    ],
+    [
+      "Platforms",
+      "Sets textContentType 'oneTimeCode' and autoComplete 'one-time-code', so codes from SMS can autofill."
+    ],
+    [
+      "Screen readers",
+      "The cells are hidden; the input is labelled 'One-time code, 6 digits' with a hint. Helper, error and success messages are a polite live region."
+    ],
+    [
+      "Web",
+      "The browser focus outline is removed; the border and halo show focus instead."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

@@ -4,6 +4,22 @@
   "tier": "free",
   "category": "3D",
   "description": "A realistic bank card on any photo or texture — gold or silver EMV chip, contactless mark, embossed number and the real Visa / Mastercard / Amex / RuPay marks. It tilts toward your finger with a moving reflection and flips on tap to the back: magnetic stripe, signature panel with the CVV and a hologram. Frozen state for card controls.",
+  "summary": "A bank card that tilts toward your finger and flips on tap to its back.",
+  "usage": "import { PaymentCard } from '@/components/ui/payment-card';\n\n<PaymentCard\n  bank=\"Northwind\"\n  number=\"5412 7590 1234 0317\"\n  name=\"Maya Patel\"\n  expiry=\"09/29\"\n  brand=\"mastercard\"\n/>",
+  "behavior": [
+    [
+      "Touch",
+      "A tap flips the card to its back (stripe, signature panel, CVV, hologram); frozen cards ignore taps. flippable={false} makes a still card for use inside something tappable."
+    ],
+    [
+      "Motion",
+      "With tilt on, the card leans toward the finger with a soft glare, and its shadow narrows as it turns edge-on mid-flip."
+    ],
+    [
+      "Screen readers",
+      "Read as '{bank} card ending {last4}', plus 'Frozen' when frozen. The number is masked to the last four digits by default."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

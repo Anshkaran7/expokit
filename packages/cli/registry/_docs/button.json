@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/button.tsx"
   ],
+  "summary": "A button that springs down on press, in eleven variants including gradient and glow.",
   "props": [
     [
       "variant",
@@ -80,6 +81,21 @@
       "onPress, disabled, …"
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Scales down with a spring on press-in and bounces back on release. loading swaps the label for a spinner and blocks presses."
+    ],
+    [
+      "Haptics",
+      "Opt-in light impact on press with haptics; off by default."
+    ],
+    [
+      "Screen readers",
+      "A button with disabled and busy state."
+    ]
+  ],
+  "usage": "import { Button } from '@/components/ui/button';\n\n<Button variant=\"accent\" size=\"lg\" block onPress={checkout}>\n  Continue to payment\n</Button>",
   "examples": [
     {
       "name": "Variants",

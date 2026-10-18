@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/flip-card.tsx"
   ],
+  "summary": "A two-sided card that turns over in 3D, lifting toward you half-way through.",
   "props": [
     [
       "front",
@@ -86,6 +87,21 @@
       "Style for the root (width, margins)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap to flip. With trigger 'none' it only turns when you change flipped from outside."
+    ],
+    [
+      "Motion",
+      "A gentle spring turns the card around its vertical or horizontal axis while the shadow beneath narrows as it goes edge-on. Faces swap exactly at 90° so Android never flickers."
+    ],
+    [
+      "Screen readers",
+      "The card is a button whose hint says which side is showing, with an expanded state when flipped. The hidden face is hidden from screen readers."
+    ]
+  ],
+  "usage": "import { FlipCard } from '@/components/ui/flip-card';\n\n<FlipCard\n  accessibilityLabel=\"Boarding pass\"\n  front={<PassFront flight=\"LH 402\" />}\n  back={<PassBarcode code=\"ZK7Q2P\" />}\n/>",
   "examples": [
     {
       "name": "Polaroid",

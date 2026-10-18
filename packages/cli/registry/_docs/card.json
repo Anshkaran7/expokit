@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/card.tsx"
   ],
+  "summary": "A composable card that springs down on press, with a spotlight that follows your finger.",
   "props": [
     [
       "variant",
@@ -86,6 +87,25 @@
       "Style for the card surface (merged after the variant background, border and radius)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "With onPress, onLongPress or pressable it scales down with a spring and bounces back on release."
+    ],
+    [
+      "Motion",
+      "highlight=\"spotlight\" springs in a soft glow under your finger; highlight=\"border\" fades in a glowing accent ring."
+    ],
+    [
+      "Screen readers",
+      "Becomes a button with disabled state when it has onPress or onLongPress. Card.Title is a header."
+    ],
+    [
+      "Web",
+      "Shows a pointer cursor when it has onPress."
+    ]
+  ],
+  "usage": "import { Card } from '@/components/ui/card';\n\n<Card variant=\"elevated\" highlight=\"spotlight\" onPress={openGuide}>\n  <Card.Header>\n    <Card.Title>Kyoto in autumn</Card.Title>\n    <Card.Description>Temples, maple-lined paths and the best matcha spots.</Card.Description>\n  </Card.Header>\n</Card>",
   "examples": [
     {
       "name": "Default",

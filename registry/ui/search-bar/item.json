@@ -4,6 +4,26 @@
   "tier": "free",
   "category": "Inputs",
   "description": "Search field with a soft focus halo: the magnifier pops on focus, Cancel slides in as the field springs narrower, the clear button scales in and a spinning arc shows loading. Suggestions drop down in an animated panel with recent / trending icons and the matching text in bold; a trailing slot fits a filter or mic button. The minimal variant expands from a round icon.",
+  "summary": "Focus pops the magnifier and springs in Cancel; suggestions drop down below.",
+  "usage": "import { useState } from 'react';\nimport { SearchBar } from '@/components/ui/search-bar';\n\nconst [query, setQuery] = useState('');\n<SearchBar value={query} onChangeText={setQuery} placeholder=\"Search products\" />",
+  "behavior": [
+    [
+      "Motion",
+      "On focus a halo glows and the magnifier pops; Cancel slides in as the field springs narrower and the clear button scales in. loading swaps the magnifier for a spinning arc."
+    ],
+    [
+      "Touch",
+      "The 'minimal' variant rests as a round icon and expands into a full field when tapped. Picking a suggestion fills the query and dismisses the keyboard."
+    ],
+    [
+      "Screen readers",
+      "The input has the search role, labelled by its placeholder. 'Clear search', Cancel and each suggestion are labelled buttons."
+    ],
+    [
+      "Web",
+      "The browser outline is replaced by the border and halo, and the suggestion panel stays open a beat after blur so clicks land."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

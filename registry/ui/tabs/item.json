@@ -4,6 +4,15 @@
   "tier": "free",
   "category": "Navigation",
   "description": "Underline tabs with swipeable content panes. The underline is measured to each label and moves like liquid — leading edge first, trailing edge catching up — and follows your finger while you drag the panes, with rubber-band resistance at the ends. Count badges pop, the bar scrolls and centres the active tab once tabs overflow, and every change ticks a haptic.",
+  "summary": "Underline tabs whose indicator moves like liquid, leading edge first.",
+  "usage": "import { Tabs } from '@/components/ui/tabs';\n\n<Tabs\n  items={[\n    { value: 'overview', label: 'Overview', content: <Overview /> },\n    { value: 'reviews', label: 'Reviews', badge: 128, content: <Reviews /> },\n  ]}\n/>",
+  "behavior": [
+    ["Touch", "Tap a tab or drag the content panes sideways; the underline follows your finger, with rubber-band resistance at the ends."],
+    ["Motion", "The underline is measured to each label and springs with the leading edge first. Badges pop, and an overflowing bar scrolls to centre the active tab."],
+    ["Reduced motion", "Springs become short timings, the bar scrolls without animating and badges change without the pop."],
+    ["Haptics", "A selection tick on every change; turn it off with haptics={false}."],
+    ["Screen readers", "The bar is a tablist of tabs with selected and disabled state; badges are read with the label, and inactive panes are hidden."]
+  ],
   "dependencies": [
     "expo-haptics"
   ],

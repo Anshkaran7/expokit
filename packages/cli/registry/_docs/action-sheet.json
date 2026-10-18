@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/action-sheet.tsx"
   ],
+  "summary": "An iOS-style action sheet that follows your finger and flings away to dismiss.",
   "props": [
     [
       "open / defaultOpen",
@@ -80,6 +81,33 @@
       "Sheet container style."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag anywhere on the sheet. Pull past a third of its height or flick down to dismiss; pulling up rubber-bands."
+    ],
+    [
+      "Motion",
+      "Springs up over a fading scrim. The exit is quicker than the entry and keeps a fling's momentum."
+    ],
+    [
+      "Reduced motion",
+      "The sheet fades in and out in place instead of sliding up from the bottom."
+    ],
+    [
+      "Haptics",
+      "A light impact when it opens and a selection tick when you pick an action. Turn off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "The sheet is a modal view, the title is a header and each row is a button with its label and disabled state."
+    ],
+    [
+      "Keyboard",
+      "Escape closes it on web; the Android back button closes it too."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { ActionSheet } from '@/components/ui/action-sheet';\n\nconst [open, setOpen] = useState(false);\n<ActionSheet\n  open={open}\n  onOpenChange={setOpen}\n  title=\"Profile photo\"\n  actions={[{ label: 'Take photo' }, { label: 'Remove photo', destructive: true }]}\n/>",
   "examples": [
     {
       "name": "Photo",

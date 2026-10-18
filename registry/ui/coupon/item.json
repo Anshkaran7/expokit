@@ -5,6 +5,13 @@
   "category": "Coupons",
   "isNew": true,
   "description": "Coupons people actually want to tap — a vivid value panel (sunburst, confetti, waves…) joined to a details panel by a perforated tear line with real cut-outs. Ten themes, five outlines (ticket, stamp, receipt, scallop, cut-out), copyable code, Apply button, live countdown, applied / used / expired / locked states, a light sweep, and an optional 3D tilt with a holo sheen that flips over to the T&C.",
+  "summary": "A perforated coupon with a copyable code that can tilt in 3D and flip to its terms.",
+  "usage": "import { Coupon } from '@/components/ui/coupon';\n\n<Coupon\n  value=\"50%\"\n  unit=\"Off\"\n  title=\"Your first order, on us\"\n  code=\"GLOW50\"\n  onApply={applyCoupon}\n/>",
+  "behavior": [
+    ["Touch", "Tapping the code chip calls onCopy and flips its icon to a check. The T&C link turns the coupon over to its terms."],
+    ["Motion", "With tilt it leans toward your finger with a moving reflection, holo adds a rainbow sheen, and shine sweeps light across the value panel."],
+    ["Screen readers", "The code chip is a button that reads the copy label and the code. Apply is a button with disabled and selected state."]
+  ],
   "dependencies": ["react-native-svg"],
   "registryDependencies": ["kit", "tilt-card", "flip-card", "ticket-shape"],
   "props": [

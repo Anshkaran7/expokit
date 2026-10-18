@@ -3,25 +3,51 @@
   "title": "Spinner",
   "tier": "free",
   "category": "Feedback",
-  "description": "A comet arc whose tail fades out and breathes as it spins (native rotation), or a soft staggered wave of dots. Optional faint track and a visible label with an animated ellipsis.",
+  "description": "A loader pack: the comet ring whose tail breathes as it spins, a staggered dot wave, and ten more — equalizer bars, pulse ripple, orbit, squash-bounce, sine wave, 3×3 grid, typing bubble, counter-rotating arcs, morphing square and an indeterminate line. All native-driver loops, one size/colour/speed API, optional track and an animated-ellipsis label.",
+  "summary": "Twelve loaders — ring, dots, bars, pulse, orbit, typing, line and more — from one API.",
+  "usage": "import { Spinner } from '@/components/ui/spinner';\n\nexport function Saving() {\n  return <Spinner variant=\"bars\" size=\"lg\" label=\"Saving changes\" labelPosition=\"right\" />;\n}",
+  "behavior": [
+    [
+      "Motion",
+      "Every variant loops on the native driver (rotation, scale, translate, opacity); the ring's arc-length breathing is the only SVG prop animation and runs on its own JS-driven node."
+    ],
+    [
+      "Reduced motion",
+      "Loops stop and each loader holds a still, clearly-busy frame (staggered dots, a lit diagonal, a mid-line segment); the ring keeps a plain steady spin."
+    ],
+    [
+      "Screen readers",
+      "Announced as a progress bar with state busy and your label (default \"Loading\"); the visual is one accessible element."
+    ],
+    [
+      "Platforms",
+      "Pure React Native Animated plus react-native-svg — iOS, Android, Expo Go and web, no native setup."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],
   "registryDependencies": [
     "kit"
   ],
+  "aliases": [
+    "loader",
+    "loading",
+    "activity-indicator",
+    "progress-indicator"
+  ],
   "props": [
     [
       "variant",
-      "\"ring\" | \"dots\"",
+      "\"ring\" | \"dots\" | \"bars\" | \"pulse\" | \"orbit\" | \"bounce\" | \"wave\" | \"grid\" | \"typing\" | \"arc\" | \"square\" | \"line\"",
       "\"ring\"",
-      "Indicator style."
+      "Indicator style — 12 loaders. \"line\" is an indeterminate bar size × 4 wide (override with style.width)."
     ],
     [
       "size",
       "\"sm\" | \"md\" | \"lg\" | \"xl\" | number",
       "\"md\"",
-      "16 / 24 / 36 / 52pt, or any number."
+      "16 / 24 / 36 / 52pt, or any number. Every variant scales from it."
     ],
     [
       "color",
@@ -51,7 +77,7 @@
       "track",
       "boolean",
       "false",
-      "Faint full circle behind the ring."
+      "Faint guide behind the motion: full circle (ring, orbit, arc), rail (line) or ghost bars (bars)."
     ],
     [
       "style",

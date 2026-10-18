@@ -4,6 +4,26 @@
   "tier": "free",
   "category": "Feedback",
   "description": "Solid bar in the accent colour with a soft glowing head that rides the fill (or sweeps when indeterminate, or carries animated stripes), an SVG ring with a glowing arc tip whose percentage counts up and morphs into a drawn check, and segments that pop as they fill while the current step pulses. Reaching max plays a short success flash.",
+  "summary": "A bar, ring or segments with a glowing head; finishing flashes and draws a check.",
+  "usage": "import { Progress } from '@/components/ui/progress';\n\n<Progress value={64} label=\"Uploading trip-to-lisbon.mov\" showValue />\n<Progress variant=\"circular\" value={64} />",
+  "behavior": [
+    [
+      "Motion",
+      "The fill springs to each value with a glow riding its head, and the ring's percentage counts up. Reaching max flashes the fill and morphs the value into a drawn check."
+    ],
+    [
+      "Reduced motion",
+      "The completion flash, moving stripes and segment pop and pulse are skipped. The fill still springs and indeterminate loops still run."
+    ],
+    [
+      "Screen readers",
+      "A progressbar with your label and its min, max and current value. Indeterminate progress is marked busy."
+    ],
+    [
+      "Platforms",
+      "Transforms and opacity use the native driver; only the ring's SVG stroke and the check drawing use the JS driver."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

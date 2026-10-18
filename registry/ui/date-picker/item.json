@@ -6,6 +6,26 @@
   "isNew": true,
   "previewHeight": 600,
   "description": "A date field with a floating label and glowing focus halo that opens the Calendar in a spring sheet (drag the grabber to dismiss, a dialog on wide screens) or an anchored popover. Single or range mode, one-tap presets like Next 7 days and Next weekend, optional Clear / Done staging with a live summary, Intl formatting, error shake with an icon message and a success check.",
+  "summary": "A floating-label date field that opens the calendar in a draggable spring sheet.",
+  "usage": "import { useState } from 'react';\nimport { DatePicker } from '@/components/ui/date-picker';\n\nconst [date, setDate] = useState<Date | null>(null);\n<DatePicker label=\"Date of birth\" value={date} onChange={setDate} maxDate={new Date()} />",
+  "behavior": [
+    [
+      "Touch",
+      "Tap the field to open the picker. In a sheet, drag the grabber header down (or flick it) to dismiss."
+    ],
+    [
+      "Motion",
+      "The label floats onto the border and a focus halo springs in while open. An error shakes the field once and its message springs in below."
+    ],
+    [
+      "Screen readers",
+      "The field is a button labelled with your label, with the date (or \"Not set\") as its value and an expanded state. Helper, error and success messages are polite live regions."
+    ],
+    [
+      "Platforms",
+      "With presentation 'auto' it opens a bottom sheet on phones and a centred dialog from 640pt wide."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

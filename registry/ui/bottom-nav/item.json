@@ -5,6 +5,30 @@
   "category": "Navigation",
   "isNew": true,
   "description": "Bottom navigation in five looks — minimal dot, floating capsule, expanding pill, notched centre FAB and top indicator with a spotlight. A liquid indicator stretches between tabs (leading edge first, trailing edge catching up), icons morph from outline to filled with a spring and a lift, active labels rise in, badges pop, the solid accent action button glows softly, and every change ticks a haptic.",
+  "summary": "A tab bar whose indicator stretches between tabs, leading edge first.",
+  "usage": "import { useState } from 'react';\nimport { BottomNav } from '@/components/ui/bottom-nav';\n\nconst [tab, setTab] = useState('home');\n<BottomNav\n  items={[{ key: 'home', label: 'Home', icon: 'home' }, { key: 'inbox', label: 'Inbox', icon: 'inbox', badge: 3 }]}\n  value={tab}\n  onValueChange={setTab}\n/>",
+  "behavior": [
+    [
+      "Touch",
+      "Tap a tab to select it. Items marked action call onAction instead and never become the active tab."
+    ],
+    [
+      "Motion",
+      "The indicator springs its leading edge first and the trailing edge catches up. Icons morph from outline to filled and badges pop in."
+    ],
+    [
+      "Reduced motion",
+      "The indicator glides with a short timing and no stretch, and icon changes use quick timings instead of springs."
+    ],
+    [
+      "Haptics",
+      "A selection tick on tab change and a light impact on the action button. Turn off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "The bar is a tablist and each tab carries selected state, with the badge count in its label. Action items are buttons."
+    ]
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

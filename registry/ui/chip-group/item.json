@@ -4,6 +4,22 @@
   "tier": "free",
   "category": "Selection",
   "description": "Filter chips for single or multiple choice. A check mark draws itself in while the chip widens smoothly to make room and its colours cross-fade. Wrapping or horizontally scrolling.",
+  "summary": "Filter chips that widen to make room as a check mark draws itself in.",
+  "usage": "import { ChipGroup } from '@/components/ui/chip-group';\n\n<ChipGroup\n  multiple\n  defaultValue={['Vegan']}\n  options={['Vegan', 'Vegetarian', 'Gluten-free', 'Halal']}\n/>",
+  "behavior": [
+    [
+      "Touch",
+      "Tap to select. In single mode, tapping the selected chip clears it unless deselectable is false. Short chips pad their hit area to 44pt."
+    ],
+    [
+      "Motion",
+      "Selection springs the check, width and colours together, and chips squish while pressed."
+    ],
+    [
+      "Screen readers",
+      "Chips are radios in single mode and checkboxes in multiple mode, with checked and disabled state."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

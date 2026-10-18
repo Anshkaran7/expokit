@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/avatar.tsx"
   ],
+  "summary": "A photo over hashed-colour initials, with presence dots and badges cut into the edge.",
   "props": [
     [
       "src",
@@ -158,6 +159,29 @@
       "Style for the avatar root; AvatarGroup applies it to its row."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "The photo fades in over the initials, a story ring cross-fades to a hairline once seen, and AvatarGroup springs its faces in with a stagger."
+    ],
+    [
+      "Touch",
+      "With onPress it becomes a button that springs down while pressed."
+    ],
+    [
+      "Reduced motion",
+      "The status pulse, ring spin, press squish and group stagger are skipped, and the seen cross-fade is instant."
+    ],
+    [
+      "Haptics",
+      "A light impact on press when onPress is set. Turn off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "Read as an image (or a button when pressable) labelled with the name plus verified, status, notification and story details. A group reads its first names and \"and N more\"."
+    ]
+  ],
+  "usage": "import { Avatar, AvatarGroup } from '@/components/ui/avatar';\n\n<Avatar name=\"Ava Rossi\" src=\"https://i.pravatar.cc/240?img=47\" size=\"lg\" status=\"online\" />\n<AvatarGroup max={3} total={12}>\n  <Avatar name=\"Noah Kim\" />\n  <Avatar name=\"Priya Patel\" />\n  <Avatar name=\"Diego Alvarez\" />\n</AvatarGroup>",
   "examples": [
     {
       "name": "ProfileHeader",

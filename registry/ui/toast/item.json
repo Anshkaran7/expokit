@@ -4,6 +4,15 @@
   "tier": "free",
   "category": "Feedback",
   "description": "Sonner-style toasts with living tone icons: the outline draws itself inside a halo, a light-leak glow spills behind it, and a hairline drains along the bottom as time runs out (paused while touched). toast.promise() closes the spinning arc into the success or error circle before the mark draws in, variant=\"minimal\" gives compact inverted pills (with a second line for the description), and variant=\"island\" turns the Toaster into an iPhone-style Dynamic Island.",
+  "summary": "Sonner-style toasts whose tone icon draws itself while a hairline drains away.",
+  "usage": "import { toast, Toaster } from '@/components/ui/toast';\n\n// once, at the root of your app\n<Toaster />\n\n// anywhere\ntoast.success('Invoice INV-0042 sent', { description: 'Maya will get it by email.' });",
+  "behavior": [
+    ["Touch", "Tap the stack to fan it out, swipe a toast sideways or toward the edge to dismiss it; timers and the drain line pause while you touch."],
+    ["Motion", "Tone icons draw their outline inside a halo; toast.promise() closes the spinning arc into the success or error mark. variant=\"island\" morphs like a Dynamic Island."],
+    ["Reduced motion", "Tone icons appear fully drawn without the spin or pop, and the island skips its squash and staggered morph."],
+    ["Haptics", "A success, warning or error notification when a toast of that type appears, landing as the loading circle closes; turn it off with haptics={false}."],
+    ["Screen readers", "Each toast is an alert in a polite live region, labelled by its title and description, with action and Dismiss buttons."]
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

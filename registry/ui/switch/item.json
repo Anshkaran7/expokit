@@ -4,6 +4,14 @@
   "tier": "free",
   "category": "Selection",
   "description": "A toggle whose thumb stretches toward the other side while you hold it (squash & stretch), drags across under your finger and throws a soft halo as it springs over, while the track cross-fades. iOS, Material 3 and sun/moon icon looks.",
+  "summary": "A toggle whose thumb squashes and stretches toward the other side while held.",
+  "usage": "import { useState } from 'react';\nimport { Switch } from '@/components/ui/switch';\n\nconst [wifi, setWifi] = useState(true);\n<Switch label=\"Wi-Fi\" value={wifi} onValueChange={setWifi} />",
+  "behavior": [
+    ["Touch", "Tap to flip, or drag the thumb across. Passing label (and description) turns it into a settings row."],
+    ["Motion", "The thumb stretches toward its destination while pressed, springs over with a soft halo, and the track cross-fades."],
+    ["Haptics", "A light impact on every flip; turn it off with haptics={false}."],
+    ["Screen readers", "A switch role with checked and disabled state, labelled by accessibilityLabel or label."]
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

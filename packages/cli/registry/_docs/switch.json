@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/switch.tsx"
   ],
+  "summary": "A toggle whose thumb squashes and stretches toward the other side while held.",
   "props": [
     [
       "value / onValueChange",
@@ -74,6 +75,25 @@
       "Style for the pressable — the switch itself, or the whole settings row when label is set."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap to flip, or drag the thumb across. Passing label (and description) turns it into a settings row."
+    ],
+    [
+      "Motion",
+      "The thumb stretches toward its destination while pressed, springs over with a soft halo, and the track cross-fades."
+    ],
+    [
+      "Haptics",
+      "A light impact on every flip; turn it off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "A switch role with checked and disabled state, labelled by accessibilityLabel or label."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { Switch } from '@/components/ui/switch';\n\nconst [wifi, setWifi] = useState(true);\n<Switch label=\"Wi-Fi\" value={wifi} onValueChange={setWifi} />",
   "examples": [
     {
       "name": "IOS",

@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/tilt-card.tsx"
   ],
+  "summary": "A card that leans toward your finger in 3D while a glare slides across it.",
   "props": [
     [
       "children",
@@ -116,6 +117,21 @@
       "The card's live tilt values (native-driver friendly) for your own effects."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Press and drag to tilt up to maxTilt degrees; the card scales by pressScale and springs flat on release. onPress fires on a tap, not after a drag."
+    ],
+    [
+      "Motion",
+      "The shadow slides away from the light and the glare (soft, sharp or holo) glides across. TiltLayer children float at their own depth, and idle makes it sway gently at rest."
+    ],
+    [
+      "Screen readers",
+      "Exposed as one element when it has onPress or accessibilityLabel; with onPress it is a button with an 'activate' action."
+    ]
+  ],
+  "usage": "import { TiltCard, TiltLayer } from '@/components/ui/tilt-card';\n\n<TiltCard image={{ uri: photoUrl }} idle accessibilityLabel=\"Manarola, Cinque Terre\" style={{ width: 270, height: 360 }}>\n  <TiltLayer depth={1}>\n    <PlaceCaption place={place} />\n  </TiltLayer>\n</TiltCard>",
   "examples": [
     {
       "name": "TravelCard",

@@ -5,6 +5,32 @@
   "category": "Inputs",
   "previewHeight": 560,
   "description": "A form field with a floating label and a glowing focus halo that opens a dropdown anchored right under it — matching its width, preferring below, flipping above only when there's clearly no room, re-placing itself on resize / rotation / keyboard, and scrolling inside when long — or, with presentation=\"sheet\", a drag-to-dismiss bottom sheet (a dialog on wide screens). The chevron turns, rows carry icons, descriptions, groups and disabled states, the chosen row gets a springy accent check, search highlights matches with a \"No results\" state, multiple mode adds checkboxes and removable chips that pop in and collapse out smoothly (overflow rolls into a \"+N\" chip, the footer count rolls too), and on web arrow keys, Enter and Escape drive the menu.",
+  "summary": "A dropdown or sheet picker with a floating label; multi-select shows removable chips.",
+  "usage": "import { useState } from 'react';\nimport { Select } from '@/components/ui/select';\n\nconst [team, setTeam] = useState<string[]>([]);\n<Select multiple label=\"Assignees\" options={['Amelia', 'Ravi', 'Sofia', 'Kenji']} values={team} onValuesChange={setTeam} />",
+  "behavior": [
+    [
+      "Touch",
+      "Tapping the field opens a dropdown anchored under it, flipping above when there's no room. presentation='sheet' slides up a bottom sheet you drag down to dismiss (a centred dialog on wide screens)."
+    ],
+    [
+      "Motion",
+      "The label floats onto the border, a focus halo glows and the chevron turns. In multiple mode chips pop in and collapse out, overflowing into a '+N' chip."
+    ],
+    [
+      "Keyboard",
+      "On web, arrow keys move the highlight, Home and End jump, Enter picks, and Escape or Tab close the menu."
+    ],
+    [
+      "Screen readers",
+      "The field is a combobox whose value lists the selection, with an expanded state. Options are menu items, or checkboxes in multiple mode."
+    ]
+  ],
+  "aliases": [
+    "multi-select",
+    "multiselect",
+    "combobox",
+    "dropdown"
+  ],
   "dependencies": [
     "react-native-svg"
   ],

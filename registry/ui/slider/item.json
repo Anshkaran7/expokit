@@ -4,6 +4,14 @@
   "tier": "free",
   "category": "Inputs",
   "description": "A slider that feels native on iPhone and Android: thumb and fill ride the native driver, the thumb swells under your finger, tap the track to seek, and values spring-snap to the step. Thin iOS track, a Control-Center style bar with an icon that inverts as the fill passes, a stepped track with ticks, and two-thumb range mode with an optional histogram.",
+  "summary": "A native-driver slider with a swelling thumb, tap-to-seek and a two-thumb range mode.",
+  "usage": "import { useState } from 'react';\nimport { Slider } from '@/components/ui/slider';\n\nconst [price, setPrice] = useState<[number, number]>([20, 80]);\n<Slider range value={price} onValueChange={setPrice} accessibilityLabel=\"Price\" />",
+  "behavior": [
+    ["Touch", "Tap anywhere on the track to seek, or grab a thumb and drag. Built-in leftIcon and rightIcon names step the value down or up when tapped."],
+    ["Motion", "Thumb and fill move on the native driver; the thumb swells under your finger and values spring-snap to the step."],
+    ["Screen readers", "Single mode is one adjustable element with min, max, current value and increment / decrement actions. In range mode each thumb is its own adjustable, labelled 'minimum' and 'maximum'."]
+  ],
+  "aliases": ["range-slider", "range", "dual-slider"],
   "dependencies": [
     "react-native-svg"
   ],

@@ -1,11 +1,17 @@
 {
   "name": "select",
   "category": "Inputs",
-  "aliases": [],
+  "aliases": [
+    "multi-select",
+    "multiselect",
+    "combobox",
+    "dropdown"
+  ],
   "exportName": "Select",
   "files": [
     "src/components/ui/select.tsx"
   ],
+  "summary": "A dropdown or sheet picker with a floating label; multi-select shows removable chips.",
   "props": [
     [
       "options",
@@ -212,6 +218,25 @@
       "Each option's label text."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tapping the field opens a dropdown anchored under it, flipping above when there's no room. presentation='sheet' slides up a bottom sheet you drag down to dismiss (a centred dialog on wide screens)."
+    ],
+    [
+      "Motion",
+      "The label floats onto the border, a focus halo glows and the chevron turns. In multiple mode chips pop in and collapse out, overflowing into a '+N' chip."
+    ],
+    [
+      "Keyboard",
+      "On web, arrow keys move the highlight, Home and End jump, Enter picks, and Escape or Tab close the menu."
+    ],
+    [
+      "Screen readers",
+      "The field is a combobox whose value lists the selection, with an expanded state. Options are menu items, or checkboxes in multiple mode."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { Select } from '@/components/ui/select';\n\nconst [team, setTeam] = useState<string[]>([]);\n<Select multiple label=\"Assignees\" options={['Amelia', 'Ravi', 'Sofia', 'Kenji']} values={team} onValuesChange={setTeam} />",
   "examples": [
     {
       "name": "Validation",

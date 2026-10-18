@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/list-item.tsx"
   ],
+  "summary": "Settings, contact and inbox rows with a press highlight that fades in fast, out slow.",
   "props": [
     [
       "title",
@@ -170,6 +171,21 @@
       "Draw the inset hairline under the last row too."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Pressable rows get a UIKit-style highlight that fades in fast and out slowly, and a chevron by default. onLongPress is supported too."
+    ],
+    [
+      "Screen readers",
+      "Pressable rows are buttons labelled with the title, subtitle, value and badge count, with disabled and checked states. ListGroup and ListSection headers are headers."
+    ],
+    [
+      "Platforms",
+      "Plain React Native views, so rows look the same on iOS, Android and web. ListGroup gives the iOS inset-grouped card on every platform."
+    ]
+  ],
+  "usage": "import { ListGroup, ListItem } from '@/components/ui/list-item';\n\n<ListGroup header=\"Account\">\n  <ListItem icon=\"user\" title=\"Profile\" value=\"Amelia Hart\" onPress={openProfile} />\n  <ListItem icon=\"bell\" title=\"Notifications\" badge={3} onPress={openNotifications} />\n</ListGroup>",
   "examples": [
     {
       "name": "Settings",

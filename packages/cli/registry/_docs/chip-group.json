@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/chip-group.tsx"
   ],
+  "summary": "Filter chips that widen to make room as a check mark draws itself in.",
   "props": [
     [
       "options",
@@ -86,6 +87,21 @@
       "Style for the wrapping row (the ScrollView when scrollable)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap to select. In single mode, tapping the selected chip clears it unless deselectable is false. Short chips pad their hit area to 44pt."
+    ],
+    [
+      "Motion",
+      "Selection springs the check, width and colours together, and chips squish while pressed."
+    ],
+    [
+      "Screen readers",
+      "Chips are radios in single mode and checkboxes in multiple mode, with checked and disabled state."
+    ]
+  ],
+  "usage": "import { ChipGroup } from '@/components/ui/chip-group';\n\n<ChipGroup\n  multiple\n  defaultValue={['Vegan']}\n  options={['Vegan', 'Vegetarian', 'Gluten-free', 'Halal']}\n/>",
   "examples": [
     {
       "name": "Solid",

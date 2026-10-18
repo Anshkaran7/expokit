@@ -6,6 +6,13 @@
   "previewHeight": 560,
   "isNew": true,
   "description": "Time input in three styles: iOS-style wheel drums whose rows tilt, shrink and fade past an inset selection band (scroll-driven on the native driver, momentum snapping, tap a row to jump); a Material 3-style clock face with a big hh : mm header, AM / PM toggle and a hand you drag anywhere on the dial — it snaps to hours, then crossfades to minutes; or a grid of bookable time chips with struck-through booked slots and Morning / Afternoon / Evening groups. Render any of them inline or as a floating-label field that opens it in a drag-to-dismiss sheet.",
+  "summary": "A time picker as 3D wheel drums, a draggable clock dial or bookable time chips.",
+  "usage": "import { useState } from 'react';\nimport { TimePicker, type TimeValue } from '@/components/ui/time-picker';\n\nconst [time, setTime] = useState<TimeValue | null>({ hours: 7, minutes: 30 });\n<TimePicker value={time} onChange={setTime} hour12 />",
+  "behavior": [
+    ["Touch", "Wheel drums snap with momentum and a tapped row jumps into the band. On the clock, drag the hand anywhere on the dial; it snaps to hours, then moves on to minutes when you let go."],
+    ["Motion", "Wheel rows tilt, shrink and fade past the selection band, driven by scroll on the native driver; the clock header crossfades between hours and minutes."],
+    ["Screen readers", "Each wheel column and the clock dial are adjustable with increment / decrement actions; AM / PM and the time chips are radio groups, with booked or unavailable slots named. The sheet field is a button with expanded state."]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

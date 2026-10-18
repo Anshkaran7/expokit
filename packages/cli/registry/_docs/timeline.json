@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/timeline.tsx"
   ],
+  "summary": "A vertical timeline whose connector fills down to the current step as dots check off.",
   "props": [
     [
       "items",
@@ -116,6 +117,21 @@
       "Root style — for variant=\"scroll\" this is the scroll view, so set a height."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "Items rise in, then the line fills to the current step: done dots draw their check as it arrives and the current dot pulses. The scroll variant ties the fill to the scroll position."
+    ],
+    [
+      "Reduced motion",
+      "Everything renders in its final state with no rise, fill or pulse, the same as animated={false}."
+    ],
+    [
+      "Screen readers",
+      "The timeline is a list; each entry is read as its title, time, description and status, and links are exposed as links."
+    ]
+  ],
+  "usage": "import { Timeline } from '@/components/ui/timeline';\n\n<Timeline\n  items={[\n    { title: 'Order placed', time: '9:41 AM', status: 'done' },\n    { title: 'Out for delivery', time: '1:15 PM', status: 'current' },\n    { title: 'Delivered', status: 'upcoming' },\n  ]}\n/>",
   "examples": [
     {
       "name": "OrderTracking",

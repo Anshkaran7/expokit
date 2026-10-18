@@ -5,6 +5,34 @@
   "category": "Overlays",
   "previewHeight": 560,
   "description": "Draggable bottom sheet with snap points, a grabber pill that stretches as you drag, rubber-banding past its limits and release-velocity snapping with a haptic tick on each detent. The scrim dims in step with its height, content scrolls once fully expanded, a footer stays pinned at every detent, and the keyboard lifts it. Large radius, hairline edge and a soft layered top shadow.",
+  "summary": "A draggable sheet with snap points whose grabber stretches as you pull it.",
+  "usage": "import { useState } from 'react';\nimport { BottomSheet } from '@/components/ui/bottom-sheet';\n\nconst [open, setOpen] = useState(false);\n<BottomSheet\n  open={open}\n  onClose={() => setOpen(false)}\n  snapPoints={['40%', '85%']}\n  title=\"Share album\"\n/>",
+  "behavior": [
+    [
+      "Touch",
+      "Drag the grabber or header between snap points; release velocity picks the detent and dragging past the limits rubber-bands. Tap the scrim or drag down to close."
+    ],
+    [
+      "Motion",
+      "Glides between detents on a firm spring while the scrim dims with its height. The keyboard lifts the sheet when avoidKeyboard is on."
+    ],
+    [
+      "Reduced motion",
+      "Snapping uses a short timing instead of a spring."
+    ],
+    [
+      "Haptics",
+      "A light impact on open and a selection tick on each snap. Turn off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "The sheet is a modal view. The grabber is adjustable with increment and decrement actions to change snap point, and the title is a header."
+    ],
+    [
+      "Keyboard",
+      "Escape closes it on web when dismissible; the Android back button closes it too."
+    ]
+  ],
   "dependencies": [
     "expo-haptics"
   ],

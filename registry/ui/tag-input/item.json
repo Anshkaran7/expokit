@@ -4,6 +4,14 @@
   "tier": "free",
   "category": "Inputs",
   "description": "Type and press Enter or a comma to make chips that pop in with a spring and shrink and fade out on removal while their neighbours slide over. Backspace highlights the last chip before deleting it, duplicates bump, invalid tags shake the field with an inline error, suggestions show as pills or a filtered list with highlighted matches, and a ring counter tracks maxTags. Chips come soft, solid or outline, or colourised per label.",
+  "summary": "Chips that spring in on Enter or comma and shrink away as neighbours slide over.",
+  "usage": "import { useState } from 'react';\nimport { TagInput } from '@/components/ui/tag-input';\n\nconst [skills, setSkills] = useState(['TypeScript']);\n<TagInput value={skills} onChange={setSkills} placeholder=\"Add a skill…\" suggestions={['React', 'Swift', 'Kotlin']} />",
+  "behavior": [
+    ["Keyboard", "Enter or a separator commits the text as a chip. Backspace in an empty field highlights the last chip, and a second press removes it."],
+    ["Motion", "Chips pop in on a spring and shrink out on removal; duplicates bump and a rejected tag shakes the field."],
+    ["Screen readers", "Each chip has a 'Remove' button and each suggestion an 'Add' button; error messages land in a polite live region and the counter reads '3 of 5 tags'."],
+    ["Web", "The browser focus outline on the input is removed; the field draws its own focus state."]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

@@ -5,6 +5,14 @@
   "category": "Coupons",
   "isNew": true,
   "description": "Confetti for the moments that deserve it — a coupon applied, a reward revealed, an order placed. Pieces fly on real arcs (launch, gravity, air drag) and flutter as they fall; one native-driven animation moves them all. Cannons, rain or a pop under your finger; respects Reduce Motion.",
+  "summary": "Confetti that flies on real arcs with gravity and drag, then flutters as it falls.",
+  "usage": "import { useState } from 'react';\nimport { Confetti } from '@/components/ui/confetti';\n\nconst [orders, setOrders] = useState(0);\n<Confetti trigger={orders} origin=\"bottom\" />",
+  "behavior": [
+    ["Motion", "Each burst launches pieces with velocity, gravity and air drag, all moved by one native-driven animation. Bursts can overlap."],
+    ["Touch", "The overlay fills its parent and never takes touches."],
+    ["Reduced motion", "Bursts launch a quarter of the pieces."],
+    ["Screen readers", "The overlay is hidden from assistive tech."]
+  ],
   "dependencies": [],
   "registryDependencies": ["kit"],
   "props": [

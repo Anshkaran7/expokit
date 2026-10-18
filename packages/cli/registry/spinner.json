@@ -2,7 +2,7 @@
   "name": "spinner",
   "type": "component",
   "title": "Spinner",
-  "description": "A comet arc whose tail fades out and breathes as it spins (native rotation), or a soft staggered wave of dots. Optional faint track and a visible label with an animated ellipsis.",
+  "description": "A loader pack: the comet ring whose tail breathes as it spins, a staggered dot wave, and ten more — equalizer bars, pulse ripple, orbit, squash-bounce, sine wave, 3×3 grid, typing bubble, counter-rotating arcs, morphing square and an indeterminate line. All native-driver loops, one size/colour/speed API, optional track and an animated-ellipsis label.",
   "tier": "free",
   "dependencies": [
     "react-native-svg"

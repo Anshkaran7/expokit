@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/checkbox.tsx"
   ],
+  "summary": "A checkbox whose tick draws itself in as the box squishes and a ring bursts out.",
   "props": [
     [
       "checked / onChange",
@@ -68,6 +69,21 @@
       "Style for the pressable row holding the box and label."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "The whole row toggles. The box squishes on press-in and bounces back on release."
+    ],
+    [
+      "Motion",
+      "The fill and tick spring in together, and a ring bursts outward each time it becomes checked."
+    ],
+    [
+      "Screen readers",
+      "A checkbox with checked and disabled state."
+    ]
+  ],
+  "usage": "import { Checkbox } from '@/components/ui/checkbox';\n\n<Checkbox\n  label=\"Email me about new releases\"\n  description=\"About once a month, never spam.\"\n  defaultChecked\n/>",
   "examples": [
     {
       "name": "Default",

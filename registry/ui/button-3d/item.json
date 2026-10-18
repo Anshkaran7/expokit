@@ -4,6 +4,22 @@
   "tier": "free",
   "category": "3D",
   "description": "A physical, keycap-style button — a softly lit face on a darker edge that sinks in when pressed, with a light haptic, and springs back. Light, dark or frosted-glass keycaps (auto picks the one that contrasts with your screen) or any colour; three sizes, pill and circle shapes, loading state.",
+  "summary": "A keycap-style button whose lit face sinks into its edge when pressed.",
+  "usage": "import { Button3D } from '@/components/ui/button-3d';\n\n<Button3D size=\"lg\" shape=\"pill\" onPress={startTrip}>\n  Start the trip\n</Button3D>",
+  "behavior": [
+    [
+      "Touch",
+      "The face sinks into its edge on press-in and springs back on release. Small sizes pad their hit area to 44pt."
+    ],
+    [
+      "Haptics",
+      "A light impact on press-in on iOS and on press on Android, so scrolling past it doesn't buzz. Turn off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "A button with disabled and busy state. Pass accessibilityLabel for circle keys that show only a glyph."
+    ]
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

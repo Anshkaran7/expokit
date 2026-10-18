@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Badge, BadgeIcon, BadgeIconTile, NotificationBadge } from '@/components/ui/badge';
+import { Badge, BadgeIcon, BadgeIconTile, NotificationBadge, type BadgeIconName, type BadgeTone } from '@/components/ui/badge';
 import { alpha, useKit } from '@/lib/kit';
 
 const TONES = ['neutral', 'accent', 'success', 'warning', 'danger'] as const;
@@ -32,6 +32,43 @@ export function Statuses() {
       <Badge variant="outline" tone="danger">Overdue</Badge>
       <Badge variant="solid" tone="accent" shape="rounded">PRO</Badge>
       <Badge variant="soft" tone="accent" icon={<BadgeIcon name="heart" color={colors.accent} size={14} />}>Saved</Badge>
+    </View>
+  );
+}
+
+const DEPLOY: { label: string; tone: BadgeTone; icon: BadgeIconName }[] = [
+  { label: 'Queued', tone: 'neutral', icon: 'clock' },
+  { label: 'Building', tone: 'warning', icon: 'refresh' },
+  { label: 'Deployed', tone: 'success', icon: 'check' },
+  { label: 'Failed', tone: 'danger', icon: 'alert' },
+];
+
+export function LiveStatus() {
+  const { colors } = useKit();
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setStep((i) => (i + 1) % DEPLOY.length), 1800);
+    return () => clearInterval(id);
+  }, []);
+  const { label, tone, icon } = DEPLOY[step];
+  const tint = { neutral: colors.mutedForeground, accent: colors.accent, success: colors.success, warning: colors.warning, danger: colors.danger }[tone];
+  return (
+    <View style={{ gap: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <Text style={{ fontSize: 15, color: colors.foreground }}>web-checkout #482</Text>
+        <Badge tone={tone} icon={<BadgeIcon name={icon} color={tint} size={14} />}>
+          {label}
+        </Badge>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <Text style={{ fontSize: 15, color: colors.foreground }}>api-gateway #117</Text>
+        <Badge variant="solid" tone={tone} size="lg">
+          {label}
+        </Badge>
+        <Badge variant="dot" tone={tone} pulse={tone === 'warning'}>
+          {label}
+        </Badge>
+      </View>
     </View>
   );
 }

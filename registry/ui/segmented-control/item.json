@@ -4,6 +4,26 @@
   "tier": "free",
   "category": "Selection",
   "description": "A liquid indicator: the leading edge springs ahead and the trailing edge catches up, so it stretches between segments — measured with onLayout to fit any label. Drag the selected segment to scrub. iOS pill, tab underline and outline looks, with icons and three sizes.",
+  "summary": "A liquid indicator that stretches as it slides; drag it to scrub.",
+  "usage": "import { useState } from 'react';\nimport { SegmentedControl } from '@/components/ui/segmented-control';\n\nconst [range, setRange] = useState('Week');\n<SegmentedControl options={['Day', 'Week', 'Month', 'Year']} value={range} onValueChange={setRange} />",
+  "behavior": [
+    [
+      "Motion",
+      "The leading edge of the indicator springs ahead and the trailing edge catches up, so it stretches as it travels. Labels squish on press and bounce when selected."
+    ],
+    [
+      "Touch",
+      "A sideways drag that starts on the selected segment scrubs across the others; drags that start elsewhere are left to a parent ScrollView. Short segments get hitSlop up to 44pt."
+    ],
+    [
+      "Haptics",
+      "A selection tick plays on each change (haptics, on by default)."
+    ],
+    [
+      "Screen readers",
+      "A tablist of tabs with selected and disabled state, labelled by each option's label or accessibilityLabel."
+    ]
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

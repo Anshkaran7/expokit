@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/progress-steps.tsx"
   ],
+  "summary": "Finished steps pop and draw a check while the line pours into the next one.",
   "props": [
     [
       "steps",
@@ -62,6 +63,29 @@
       "Style for the step row / column (the bar container in the bar variant)."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "When current changes, the finished node pops and draws its check, the connector fills toward the next step and the new step lights up. The current step's ring pulses."
+    ],
+    [
+      "Touch",
+      "With onStepPress, steps become buttons that squish on press; pressableSteps='completed' limits taps to finished steps."
+    ],
+    [
+      "Haptics",
+      "A selection tick plays whenever current changes (haptics, on by default)."
+    ],
+    [
+      "Reduced motion",
+      "Steps move with a short timing instead of springs, the ring stops pulsing and the done node appears without the overshoot pop."
+    ],
+    [
+      "Screen readers",
+      "Each step reads like 'Step 2 of 4, Shipping, current'. The bar variant is a progressbar labelled 'Step N of M' with the step name."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { ProgressSteps } from '@/components/ui/progress-steps';\n\nconst [step, setStep] = useState(1);\n<ProgressSteps steps={['Cart', 'Shipping', 'Payment', 'Review']} current={step} onStepPress={setStep} pressableSteps=\"completed\" />",
   "examples": [
     {
       "name": "Checkout",

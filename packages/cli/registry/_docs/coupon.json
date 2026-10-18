@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/coupon.tsx"
   ],
+  "summary": "A perforated coupon with a copyable code that can tilt in 3D and flip to its terms.",
   "props": [
     [
       "value",
@@ -146,6 +147,21 @@
       "Width, margins."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tapping the code chip calls onCopy and flips its icon to a check. The T&C link turns the coupon over to its terms."
+    ],
+    [
+      "Motion",
+      "With tilt it leans toward your finger with a moving reflection, holo adds a rainbow sheen, and shine sweeps light across the value panel."
+    ],
+    [
+      "Screen readers",
+      "The code chip is a button that reads the copy label and the code. Apply is a button with disabled and selected state."
+    ]
+  ],
+  "usage": "import { Coupon } from '@/components/ui/coupon';\n\n<Coupon\n  value=\"50%\"\n  unit=\"Off\"\n  title=\"Your first order, on us\"\n  code=\"GLOW50\"\n  onApply={applyCoupon}\n/>",
   "examples": [
     {
       "name": "Hero",

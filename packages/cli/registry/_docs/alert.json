@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/alert.tsx"
   ],
+  "summary": "An inline banner whose icon draws itself inside a halo, with an optional draining timer.",
   "props": [
     [
       "variant",
@@ -92,6 +93,33 @@
       "Style for the outer animated wrapper (its height collapses on dismiss)."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "On appear the icon outline draws, the glyph springs in and the halo ripples once. Dismissing collapses the height so content below glides up."
+    ],
+    [
+      "Touch",
+      "With duration set, a hairline drains along the bottom to show the time left. Pressing the alert pauses it."
+    ],
+    [
+      "Reduced motion",
+      "The icon draw, glyph pop and halo ripple jump straight to their finished state."
+    ],
+    [
+      "Haptics",
+      "Success, warning and danger alerts play the matching notification haptic when they appear; info stays silent."
+    ],
+    [
+      "Screen readers",
+      "The card has the alert role in a polite live region. The close button is labelled Dismiss and actions are buttons named by their label."
+    ],
+    [
+      "Web",
+      "Hovering also pauses the auto-dismiss timer."
+    ]
+  ],
+  "usage": "import { Alert } from '@/components/ui/alert';\n\n<Alert\n  variant=\"warning\"\n  title=\"Storage almost full\"\n  description=\"You've used 9.4 GB of your 10 GB plan.\"\n  dismissible\n/>",
   "examples": [
     {
       "name": "Soft",

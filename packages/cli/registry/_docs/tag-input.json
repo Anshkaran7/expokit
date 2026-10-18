@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/tag-input.tsx"
   ],
+  "summary": "Chips that spring in on Enter or comma and shrink away as neighbours slide over.",
   "props": [
     [
       "value / defaultValue",
@@ -98,6 +99,25 @@
       "placeholder, keyboardType, …"
     ]
   ],
+  "behavior": [
+    [
+      "Keyboard",
+      "Enter or a separator commits the text as a chip. Backspace in an empty field highlights the last chip, and a second press removes it."
+    ],
+    [
+      "Motion",
+      "Chips pop in on a spring and shrink out on removal; duplicates bump and a rejected tag shakes the field."
+    ],
+    [
+      "Screen readers",
+      "Each chip has a 'Remove' button and each suggestion an 'Add' button; error messages land in a polite live region and the counter reads '3 of 5 tags'."
+    ],
+    [
+      "Web",
+      "The browser focus outline on the input is removed; the field draws its own focus state."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { TagInput } from '@/components/ui/tag-input';\n\nconst [skills, setSkills] = useState(['TypeScript']);\n<TagInput value={skills} onChange={setSkills} placeholder=\"Add a skill…\" suggestions={['React', 'Swift', 'Kotlin']} />",
   "examples": [
     {
       "name": "Skills",

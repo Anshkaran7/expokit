@@ -5,6 +5,22 @@
   "category": "Inputs",
   "isNew": true,
   "description": "A month calendar for single dates, continuous ranges or multiple picks. Months slide in from the direction you travel (chevrons or a swipe), the title flips to a month / year grid, selected days pop with a spring and ranges draw one band with rounded ends that wraps across weeks. Locale-aware weekday and month names via Intl, Sunday or Monday weeks, min / max / custom disabled days, a today ring, coloured event dots and whole-day colour highlights. Day tiles follow the kit radius — square at 0, circles from 16 up.",
+  "summary": "A month calendar where months slide in from the side you travel and ranges draw one band.",
+  "usage": "import { useState } from 'react';\nimport { Calendar } from '@/components/ui/calendar';\n\nconst [date, setDate] = useState(new Date());\n<Calendar value={date} onChange={setDate} minDate={new Date()} />",
+  "behavior": [
+    [
+      "Touch",
+      "Tap a day to select it. Swipe sideways or use the chevrons to change month, and tap the title for a month and year grid."
+    ],
+    [
+      "Motion",
+      "Months slide in with a spring, selected days pop with a bouncy spring and range bands fade in."
+    ],
+    [
+      "Screen readers",
+      "Days are buttons with selected and disabled state, labelled with the full date plus \"today\" or \"has events\" where they apply."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

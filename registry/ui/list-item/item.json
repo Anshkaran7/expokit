@@ -5,6 +5,22 @@
   "category": "Display",
   "isNew": true,
   "description": "Settings, contacts and inbox rows: icon tiles, avatars with presence dots, subtitles, values, badges, checks and chevrons, with a UIKit-style press highlight that fades in fast and out slow. ListGroup gives you the iOS inset-grouped card with headers, footers and separators that line up with the text.",
+  "summary": "Settings, contact and inbox rows with a press highlight that fades in fast, out slow.",
+  "usage": "import { ListGroup, ListItem } from '@/components/ui/list-item';\n\n<ListGroup header=\"Account\">\n  <ListItem icon=\"user\" title=\"Profile\" value=\"Amelia Hart\" onPress={openProfile} />\n  <ListItem icon=\"bell\" title=\"Notifications\" badge={3} onPress={openNotifications} />\n</ListGroup>",
+  "behavior": [
+    [
+      "Touch",
+      "Pressable rows get a UIKit-style highlight that fades in fast and out slowly, and a chevron by default. onLongPress is supported too."
+    ],
+    [
+      "Screen readers",
+      "Pressable rows are buttons labelled with the title, subtitle, value and badge count, with disabled and checked states. ListGroup and ListSection headers are headers."
+    ],
+    [
+      "Platforms",
+      "Plain React Native views, so rows look the same on iOS, Android and web. ListGroup gives the iOS inset-grouped card on every platform."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

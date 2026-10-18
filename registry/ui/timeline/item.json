@@ -5,6 +5,13 @@
   "category": "Display",
   "isNew": true,
   "description": "Vertical timeline for order tracking, activity feeds, travel logs and release history, in the preview's solid accent colour. Items rise in, then the connector fills down to the current step: done dots draw their check as the line arrives, the current dot pulses, upcoming dots stay hollow on a dotted track, and failures draw a red cross. The scroll variant ties the fill to the scroll position, lighting each node as the line reaches it. Entries can carry photo galleries, tags and links.",
+  "summary": "A vertical timeline whose connector fills down to the current step as dots check off.",
+  "usage": "import { Timeline } from '@/components/ui/timeline';\n\n<Timeline\n  items={[\n    { title: 'Order placed', time: '9:41 AM', status: 'done' },\n    { title: 'Out for delivery', time: '1:15 PM', status: 'current' },\n    { title: 'Delivered', status: 'upcoming' },\n  ]}\n/>",
+  "behavior": [
+    ["Motion", "Items rise in, then the line fills to the current step: done dots draw their check as it arrives and the current dot pulses. The scroll variant ties the fill to the scroll position."],
+    ["Reduced motion", "Everything renders in its final state with no rise, fill or pulse, the same as animated={false}."],
+    ["Screen readers", "The timeline is a list; each entry is read as its title, time, description and status, and links are exposed as links."]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

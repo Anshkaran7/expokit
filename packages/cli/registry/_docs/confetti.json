@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/confetti.tsx"
   ],
+  "summary": "Confetti that flies on real arcs with gravity and drag, then flutters as it falls.",
   "props": [
     [
       "count",
@@ -62,6 +63,25 @@
       "The overlay never takes touches."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "Each burst launches pieces with velocity, gravity and air drag, all moved by one native-driven animation. Bursts can overlap."
+    ],
+    [
+      "Touch",
+      "The overlay fills its parent and never takes touches."
+    ],
+    [
+      "Reduced motion",
+      "Bursts launch a quarter of the pieces."
+    ],
+    [
+      "Screen readers",
+      "The overlay is hidden from assistive tech."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { Confetti } from '@/components/ui/confetti';\n\nconst [orders, setOrders] = useState(0);\n<Confetti trigger={orders} origin=\"bottom\" />",
   "examples": [
     {
       "name": "Celebrate",

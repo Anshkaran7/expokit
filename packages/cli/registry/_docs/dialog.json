@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/dialog.tsx"
   ],
+  "summary": "A centred alert whose card springs up from 0.92 while its tone icon draws itself.",
   "props": [
     [
       "open / defaultOpen",
@@ -122,6 +123,29 @@
       "Card style."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "The scrim fades in while the card springs to full size. A confirm that returns false keeps it open and shakes it."
+    ],
+    [
+      "Reduced motion",
+      "The card fades in without the scale spring, and the tone icon appears fully drawn instead of animating. The shake is skipped."
+    ],
+    [
+      "Haptics",
+      "A warning tick on open for destructive, warning and danger dialogs, success for the success tone, and an error buzz on shake."
+    ],
+    [
+      "Screen readers",
+      "The title is a header; destructive, warning and danger dialogs use the alert role. Buttons report disabled and busy, and the error text is a polite live region."
+    ],
+    [
+      "Keyboard",
+      "Escape closes it on web, and Return submits a prompt field."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { Dialog } from '@/components/ui/dialog';\n\nconst [open, setOpen] = useState(false);\n<Dialog\n  open={open} onOpenChange={setOpen}\n  variant=\"destructive\"\n  title=\"Delete this project?\"\n  confirmLabel=\"Delete\"\n/>",
   "examples": [
     {
       "name": "Basic",

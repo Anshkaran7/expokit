@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { Spinner } from '@/components/ui/spinner';
+import { Spinner, type SpinnerVariant } from '@/components/ui/spinner';
 import { readableOn, useKit } from '@/lib/kit';
 
 export function Variants() {
@@ -10,6 +10,39 @@ export function Variants() {
       <Spinner variant="ring" size="lg" track />
       <Spinner variant="ring" size="lg" />
       <Spinner variant="dots" size="lg" />
+    </View>
+  );
+}
+
+const LOADERS: SpinnerVariant[] = ['ring', 'dots', 'bars', 'pulse', 'orbit', 'bounce', 'wave', 'grid', 'typing', 'arc', 'square', 'line'];
+
+export function LoaderGallery() {
+  const { colors, radius } = useKit();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', rowGap: 12 }}>
+      {LOADERS.map((variant) => (
+        <View key={variant} style={{ width: '33.33%', alignItems: 'center', gap: 8, paddingHorizontal: 4 }}>
+          <View
+            style={{
+              alignSelf: 'stretch',
+              height: 64,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: radius.md,
+              backgroundColor: colors.muted,
+            }}
+          >
+            <Spinner
+              variant={variant}
+              size={variant === 'line' ? 'sm' : 'lg'}
+              track={variant === 'line'}
+              label={`${variant} loader`}
+              style={variant === 'line' ? { width: '72%' } : undefined}
+            />
+          </View>
+          <Text style={{ fontSize: 12, color: colors.mutedForeground }}>{variant}</Text>
+        </View>
+      ))}
     </View>
   );
 }

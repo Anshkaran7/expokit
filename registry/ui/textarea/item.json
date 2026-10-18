@@ -4,6 +4,13 @@
   "tier": "free",
   "category": "Inputs",
   "description": "Multiline field that glides taller line by line between minRows and maxRows, with a floating label, a focus halo, animated error / success states, a counter that morphs into a progress ring (amber at 90%, red at the limit) and a toolbar slot for chat composers.",
+  "summary": "A multiline field that glides taller line by line, with a ring-style counter.",
+  "usage": "import { useState } from 'react';\nimport { Textarea } from '@/components/ui/textarea';\n\nconst [review, setReview] = useState('');\n<Textarea label=\"Your review\" value={review} onChangeText={setReview} maxLength={200} />",
+  "behavior": [
+    ["Motion", "The box grows smoothly between minRows and maxRows as you type; the label floats up on focus and a halo glows around the field."],
+    ["Screen readers", "The input is labelled by label or placeholder; the counter reads like '42 of 200 characters left' and error / success messages land in a polite live region."],
+    ["Web", "The browser focus outline is removed; the field draws its own focus halo."]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

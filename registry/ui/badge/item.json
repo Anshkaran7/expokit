@@ -3,7 +3,27 @@
   "title": "Badge",
   "tier": "free",
   "category": "Display",
-  "description": "Status labels in solid, soft, outline and dot styles across five tones — plus NotificationBadge with BadgeIconTile/BadgeIcon anchors (or your own children), spring-in counts, and pop on change.",
+  "description": "Status labels in solid, soft, outline and dot styles across five tones — when the label changes it rolls over letter by letter, the icon pops, the colour cross-fades and the pill springs to its new width. Plus NotificationBadge with BadgeIconTile/BadgeIcon anchors (or your own children), spring-in counts, and pop on change.",
+  "summary": "Status pills in four styles that roll, pop and re-tint when their status changes.",
+  "usage": "import { Badge } from '@/components/ui/badge';\n\nexport function BuildStatus({ done }: { done: boolean }) {\n  return (\n    <Badge tone={done ? 'success' : 'warning'}>{done ? 'Deployed' : 'Building'}</Badge>\n  );\n}",
+  "behavior": [
+    [
+      "Motion",
+      "On a change the old label rolls up and out as the new one rolls in (per letter for short Latin text), the icon swaps with a scale-and-rotate pop and the pill width springs to fit. Rolls and pops use the native driver; colour and width run on the JS driver on separate views. Nothing animates on mount; animateChanges={false} swaps instantly."
+    ],
+    [
+      "Reduced motion",
+      "Changes swap instantly: no roll, pop, colour fade or width spring. The dot variant's pulse still loops."
+    ],
+    [
+      "Screen readers",
+      "Text labels are one accessible element whose label is always the current text; on Android it is a polite live region so status changes are announced."
+    ],
+    [
+      "Platforms",
+      "React Native Animated and react-native-svg only — iOS, Android, Expo Go and web."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],
@@ -52,6 +72,12 @@
       "boolean",
       "false",
       "Pulsing dot for live states (dot variant)."
+    ],
+    [
+      "animateChanges",
+      "boolean",
+      "true",
+      "Roll the label, pop the icon, cross-fade colours and spring the width when they change. Never on mount."
     ],
     [
       "NotificationBadge.count",

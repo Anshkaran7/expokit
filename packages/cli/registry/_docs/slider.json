@@ -1,11 +1,16 @@
 {
   "name": "slider",
   "category": "Inputs",
-  "aliases": [],
+  "aliases": [
+    "range-slider",
+    "range",
+    "dual-slider"
+  ],
   "exportName": "Slider",
   "files": [
     "src/components/ui/slider.tsx"
   ],
+  "summary": "A native-driver slider with a swelling thumb, tap-to-seek and a two-thumb range mode.",
   "props": [
     [
       "value / defaultValue",
@@ -122,6 +127,21 @@
       "Root, inactive track, active fill, thumb and value text."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap anywhere on the track to seek, or grab a thumb and drag. Built-in leftIcon and rightIcon names step the value down or up when tapped."
+    ],
+    [
+      "Motion",
+      "Thumb and fill move on the native driver; the thumb swells under your finger and values spring-snap to the step."
+    ],
+    [
+      "Screen readers",
+      "Single mode is one adjustable element with min, max, current value and increment / decrement actions. In range mode each thumb is its own adjustable, labelled 'minimum' and 'maximum'."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { Slider } from '@/components/ui/slider';\n\nconst [price, setPrice] = useState<[number, number]>([20, 80]);\n<Slider range value={price} onValueChange={setPrice} accessibilityLabel=\"Price\" />",
   "examples": [
     {
       "name": "ControlCenter",

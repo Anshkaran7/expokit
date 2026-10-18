@@ -4,6 +4,13 @@
   "tier": "free",
   "category": "Inputs",
   "description": "Quantity control whose number rolls — each changed digit slides out as the new one slides in, up or down with the change. Airbnb-style outline, an iOS-style filled capsule, a compact row control, and a DoorDash-style cart button that springs open from a single + into − 1 + (with a trash can at 1). Buttons spring on press, hold to repeat with acceleration, and pushing past a limit gives a little bump.",
+  "summary": "A quantity stepper whose digits roll up or down as the number changes.",
+  "usage": "import { useState } from 'react';\nimport { Stepper } from '@/components/ui/stepper';\n\nconst [guests, setGuests] = useState(2);\n<Stepper value={guests} onValueChange={setGuests} min={1} max={16} label=\"Guests\" />",
+  "behavior": [
+    ["Touch", "Hold a button to keep stepping, speeding up as you hold. The cart variant opens from a single + into − 1 +, with a trash can at 1."],
+    ["Motion", "Each changed character slides out as the new one slides in; buttons spring on press and a press past min or max gives a small bump."],
+    ["Screen readers", "One adjustable element with min, max and the formatted value (suffix included), plus 'Increase' and 'Decrease' actions."]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/radio-group.tsx"
   ],
+  "summary": "The dot springs in with a ripple; cards light up and draw a check badge.",
   "props": [
     [
       "options",
@@ -62,6 +63,25 @@
       "Style for the group container (the bordered card in the segmented-list variant)."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Rows squish on press in the default and card variants, and the default dot has extra hitSlop. Disabled options are dimmed and ignore taps."
+    ],
+    [
+      "Motion",
+      "The selected dot pops on a bouncy spring with a ripple ring. Cards tint their border and pop a self-drawing check; the list variant draws a tick."
+    ],
+    [
+      "Haptics",
+      "A selection tick plays on each change (haptics, on by default)."
+    ],
+    [
+      "Screen readers",
+      "The group is a radiogroup and each option a radio with checked and disabled state. Descriptions are read as hints."
+    ]
+  ],
+  "usage": "import { RadioGroup } from '@/components/ui/radio-group';\n\n<RadioGroup\n  defaultValue=\"standard\"\n  options={[\n    { value: 'standard', label: 'Standard shipping', description: '4–6 business days · Free' },\n    { value: 'express', label: 'Express', description: '1–2 business days · $9' },\n  ]}\n/>",
   "examples": [
     {
       "name": "Default",

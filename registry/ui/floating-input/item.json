@@ -4,6 +4,26 @@
   "tier": "free",
   "category": "Inputs",
   "description": "The label starts as the placeholder and glides onto the border when you focus \u2014 a soft accent halo blooms around the field, errors shake in with an icon, valid values pop a spring check. Prefix/suffix, clear button, counter and three variants whose indicator grows from the centre.",
+  "summary": "A text field whose label glides onto the border as an accent halo blooms.",
+  "usage": "import { useState } from 'react';\nimport { FloatingInput } from '@/components/ui/floating-input';\n\nconst [email, setEmail] = useState('');\n<FloatingInput label=\"Email\" value={email} onChangeText={setEmail} keyboardType=\"email-address\" clearable />",
+  "behavior": [
+    [
+      "Touch",
+      "Tapping anywhere on the field focuses the input. With clearable, a × springs in once there is text and empties the field."
+    ],
+    [
+      "Motion",
+      "The label springs onto the border on focus or when filled, and a soft halo blooms around the field. An error shakes it once; a success check springs in."
+    ],
+    [
+      "Screen readers",
+      "The input is labelled with your label and the clear button reads \"Clear\" plus the label. Helper, error and success messages are polite live regions."
+    ],
+    [
+      "Web",
+      "Browser autofill floats the label too, and the field keeps its own background instead of the autofill blue."
+    ]
+  ],
   "dependencies": [
     "react-native-svg"
   ],

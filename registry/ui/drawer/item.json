@@ -6,6 +6,34 @@
   "previewHeight": 620,
   "isNew": true,
   "description": "Side navigation drawer that springs in over a fading scrim — or, with variant=\"push\", shrinks the screen into a rounded 0.92 card and slides it aside like modern mail apps. Swipe in from the edge, drag closed from anywhere on the panel with velocity and rubber-banding, and build the panel from DrawerProfile (soft initials avatar, presence, account switcher), DrawerItems with a spring-in accent-tinted active pill and popping count badges, divided section headings and a DrawerFooter meter. Flat theme colours, hairline edges and soft shadows; haptics throughout.",
+  "summary": "A side drawer that follows your finger, or pushes the screen aside as a card.",
+  "usage": "import { useState } from 'react';\nimport { Drawer, DrawerItem } from '@/components/ui/drawer';\n\nconst [open, setOpen] = useState(false);\n<Drawer open={open} onOpenChange={setOpen} content={<DrawerItem label=\"Inbox\" icon=\"inbox\" active />}>\n  <InboxScreen onMenuPress={() => setOpen(true)} />\n</Drawer>",
+  "behavior": [
+    [
+      "Touch",
+      "Swipe in from the screen edge to open and drag the panel or scrim to close. Release velocity decides where it settles, and it rubber-bands past fully open."
+    ],
+    [
+      "Motion",
+      "The panel springs in over a fading scrim; variant 'push' shrinks the screen into a rounded card and slides it aside. Active items spring in an accent pill and badges pop."
+    ],
+    [
+      "Reduced motion",
+      "Opening and closing use a short timing instead of a spring, the push variant no longer scales the screen, and item and badge pops are skipped."
+    ],
+    [
+      "Haptics",
+      "A light impact when the drawer opens and a selection tick when a DrawerItem is pressed."
+    ],
+    [
+      "Screen readers",
+      "The open panel is marked modal and hides itself when closed. DrawerItems are menu items with selected and disabled states, and the badge is read with the label."
+    ],
+    [
+      "Keyboard",
+      "Escape closes it on web; Android back closes it when it is rendered inline."
+    ]
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

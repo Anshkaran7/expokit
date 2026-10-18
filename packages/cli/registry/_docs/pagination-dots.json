@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/pagination-dots.tsx"
   ],
+  "summary": "The active dot stretches into a pill that follows your swipe live.",
   "props": [
     [
       "count",
@@ -68,6 +69,25 @@
       "Style for the row of dots (the numbers pill or line track in those variants)."
     ]
   ],
+  "behavior": [
+    [
+      "Motion",
+      "Pass a live progress value (scroll offset ÷ page width) and the indicator tracks the finger; with index alone it springs across. Variants stretch a pill, scale a dot, fill line segments or roll the page number."
+    ],
+    [
+      "Touch",
+      "With onPress, each dot becomes a button with an enlarged hit area that reports its page."
+    ],
+    [
+      "Screen readers",
+      "Read as one element with 'N of M'. With onPress it is adjustable, so swiping up or down changes the page."
+    ],
+    [
+      "Platforms",
+      "The 'dots' variant animates widths, so drive its progress with useNativeDriver: false. The other variants work with either driver."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { PaginationDots } from '@/components/ui/pagination-dots';\n\nconst [page, setPage] = useState(0);\n<PaginationDots count={4} index={page} onPress={setPage} />",
   "examples": [
     {
       "name": "Onboarding",

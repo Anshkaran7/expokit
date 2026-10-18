@@ -6,6 +6,7 @@
   "files": [
     "src/components/ui/accordion.tsx"
   ],
+  "summary": "Sections spring open to their measured height while the chevron turns.",
   "props": [
     [
       "type",
@@ -74,6 +75,21 @@
       "Style for the Accordion's root view (the card in the bordered variant); AccordionItem takes its own."
     ]
   ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap a header to open or close its section. In single mode, opening one closes the other; disabled items don't respond."
+    ],
+    [
+      "Motion",
+      "Content height springs to its measured size, so any content animates smoothly. The chevron turns 180° on the native driver."
+    ],
+    [
+      "Screen readers",
+      "Each header is a button with expanded and disabled state. Content of closed sections is hidden from assistive tech."
+    ]
+  ],
+  "usage": "import { Accordion, AccordionItem } from '@/components/ui/accordion';\n\n<Accordion defaultValue={['shipping']}>\n  <AccordionItem value=\"shipping\" title=\"How long does shipping take?\">\n    Orders leave our warehouse within 24 hours.\n  </AccordionItem>\n  <AccordionItem value=\"returns\" title=\"Can I return an item?\">\n    You have 30 days to send anything back for a full refund.\n  </AccordionItem>\n</Accordion>",
   "examples": [
     {
       "name": "Default",
