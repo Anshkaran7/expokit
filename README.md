@@ -16,6 +16,14 @@
   <a href="https://www.npmjs.com/package/expo-charts">expo-charts on npm</a>
 </p>
 
+<p align="center">
+  <a href="https://www.npmjs.com/package/@expokit/cli"><img src="https://img.shields.io/npm/v/@expokit/cli?label=%40expokit%2Fcli" alt="@expokit/cli on npm"></a>
+  <a href="https://www.npmjs.com/package/expo-charts"><img src="https://img.shields.io/npm/v/expo-charts?label=expo-charts" alt="expo-charts on npm"></a>
+  <a href="https://github.com/Anshkaran7/expokit/actions/workflows/ci.yml"><img src="https://github.com/Anshkaran7/expokit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/Anshkaran7/expokit"><img src="https://api.scorecard.dev/projects/github.com/Anshkaran7/expokit/badge" alt="OpenSSF Scorecard"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license"></a>
+</p>
+
 ## What is ExpoKit?
 
 ExpoKit works like shadcn/ui for mobile: instead of installing a UI library, the CLI copies each component's source
@@ -49,6 +57,18 @@ Installation, live previews, props, theming and AI setup for every component:
 This repository is a read-only mirror of ExpoKit, so pull requests are closed automatically. Found a bug or want a
 component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choose).
 
+## Security
+
+- **No runtime dependencies** — neither `@expokit/cli` nor `expo-charts` installs anything else (`expo-charts` only
+  has peer dependencies), and neither runs install scripts.
+- **Built in the open** — new versions are published from this repo's [Publish workflow](.github/workflows/publish.yml)
+  with npm trusted publishing, so npm shows a provenance badge that links each version to the commit it was built
+  from. Check what you installed with `npm audit signatures`.
+- **Checked continuously** — CI, [CodeQL](.github/workflows/codeql.yml) and
+  [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/Anshkaran7/expokit) run on every change.
+
+Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY.md).
+
 ## Community
 
 - X: [@expo_kit](https://x.com/expo_kit)
@@ -57,4 +77,6 @@ component? [Open an issue](https://github.com/Anshkaran7/expokit/issues/new/choo
 
 ## License
 
-[MIT](LICENSE) © Karan (anshkaran7)
+[MIT](LICENSE) © Karan (anshkaran7) — covers everything in this repository. ExpoKit Pro items are not part of it:
+they are sold separately under the terms at https://expokit.karandev.in/terms. The ExpoKit name and logo are not
+licensed for use as your own branding.
