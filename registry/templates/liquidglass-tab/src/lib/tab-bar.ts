@@ -33,7 +33,7 @@ export function setTabBarCollapsed(next: boolean) {
   Animated.spring(tabBarCollapse, {
     toValue: next ? 1 : 0,
     useNativeDriver: false,
-    damping: 20,
+    damping: 29,
     stiffness: 220,
     mass: 0.9,
   }).start();

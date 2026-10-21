@@ -44,7 +44,7 @@ export function GlassTabBar({ state, navigation, insets }: BottomTabBarProps) {
     Animated.spring(bubbleX, {
       toValue: activeIndex * itemW,
       useNativeDriver: true,
-      damping: 18,
+      damping: 29,
       stiffness: 240,
       mass: 0.8,
     }).start();
