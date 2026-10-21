@@ -1,0 +1,80 @@
+{
+  "name": "grain",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "GrainGradient",
+  "files": [
+    "src/components/ui/grain.tsx"
+  ],
+  "summary": "A soft blob gradient with real film grain, plus a grain overlay for anything.",
+  "props": [
+    [
+      "palette",
+      "sunset | ocean | aurora | dusk | peach | graphite | ember | mint | lavender | candy | forest | noir",
+      "\"sunset\"",
+      "Built-in colour set."
+    ],
+    [
+      "colors",
+      "string[]",
+      "—",
+      "Base colour first, then up to four blob colours. Overrides palette."
+    ],
+    [
+      "grain",
+      "number",
+      "0.55",
+      "Grain strength, 0–1."
+    ],
+    [
+      "seed",
+      "number",
+      "0",
+      "Shuffles where the blobs sit."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style; give it a size or flex: 1."
+    ],
+    [
+      "GrainOverlay grain",
+      "number",
+      "0.55",
+      "Grain only, laid over its parent."
+    ]
+  ],
+  "behavior": [
+    [
+      "Gradient",
+      "A base colour with up to four radial blobs, drawn with react-native-svg so it scales to any size."
+    ],
+    [
+      "Grain",
+      "A tiny tiling noise image drawn at 2×, so the speckle stays fine on every screen; grain sets its strength."
+    ],
+    [
+      "Touch",
+      "The gradient and grain never take touches; children render on top."
+    ]
+  ],
+  "usage": "import { GrainGradient, GrainOverlay } from '@/components/ui/grain';\n\n<GrainGradient palette=\"aurora\" style={{ flex: 1 }}>\n  {/* your screen */}\n</GrainGradient>",
+  "examples": [
+    {
+      "name": "Hero",
+      "title": "Hero",
+      "code": "import { Text, View } from 'react-native';\nimport { GRAIN_PALETTES, GrainGradient } from '@/components/ui/grain';\nimport { useKit } from '@/lib/kit';\n\n/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */\ntype DemoProps = { screen?: boolean; bottomInset?: number };\n\nexport default function Hero({ screen }: DemoProps) {\n  const { radius } = useKit();\n  return (\n    <GrainGradient palette=\"ember\" seed={1} style={screen ? { flex: 1 } : { height: 460, borderRadius: radius.xl }}>\n      <View style={{ flex: 1, justifyContent: 'flex-end', padding: 24, gap: 6 }}>\n        <Text style={{ color: '#ffffff', fontSize: 34, fontWeight: '700', letterSpacing: -0.8 }}>Golden hour</Text>\n        <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15 }}>Warm light, soft grain, no photo needed.</Text>\n      </View>\n    </GrainGradient>\n  );\n}\n"
+    },
+    {
+      "name": "Palettes",
+      "title": "Palettes",
+      "code": "import { Text, View } from 'react-native';\nimport { GRAIN_PALETTES, GrainGradient } from '@/components/ui/grain';\nimport { useKit } from '@/lib/kit';\n\n/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */\ntype DemoProps = { screen?: boolean; bottomInset?: number };\n\nexport default function Palettes({ screen }: DemoProps) {\n  const { radius } = useKit();\n  return (\n    <View style={[{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }, screen && { padding: 16 }]}>\n      {GRAIN_PALETTES.map((p, i) => (\n        <GrainGradient key={p} palette={p} seed={i} style={{ width: '47%', flexGrow: 1, height: 120, borderRadius: radius.lg }}>\n          <Text style={{ margin: 12, color: ['peach', 'mint', 'lavender'].includes(p) ? '#1d1a26' : '#ffffff', fontWeight: '600', textTransform: 'capitalize' }}>{p}</Text>\n        </GrainGradient>\n      ))}\n    </View>\n  );\n}\n"
+    },
+    {
+      "name": "Custom",
+      "title": "Custom",
+      "code": "import { GRAIN_PALETTES, GrainGradient } from '@/components/ui/grain';\nimport { useKit } from '@/lib/kit';\n\n/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */\ntype DemoProps = { screen?: boolean; bottomInset?: number };\n\nexport default function Custom({ screen }: DemoProps) {\n  const { radius } = useKit();\n  return (\n    <GrainGradient colors={['#0c0a1f', '#ff4d6d', '#ffd166', '#06d6a0']} grain={0.9} seed={2} style={screen ? { flex: 1 } : { height: 400, borderRadius: radius.xl }} />\n  );\n}\n"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "grain",
+  "title": "Grain Gradient",
+  "tier": "free",
+  "category": "Display",
+  "previewMode": "dark",
+  "isNew": true,
+  "screen": true,
+  "bleed": true,
+  "description": "A soft mesh-style gradient — a base colour with blurred colour blobs — finished with real film grain. Twelve palettes or your own colours. Use it as a screen or card background, or behind glass so there is something to refract. GrainOverlay adds the same grain to anything, photos included.",
+  "summary": "A soft blob gradient with real film grain, plus a grain overlay for anything.",
+  "usage": "import { GrainGradient, GrainOverlay } from '@/components/ui/grain';\n\n<GrainGradient palette=\"aurora\" style={{ flex: 1 }}>\n  {/* your screen */}\n</GrainGradient>",
+  "behavior": [
+    ["Gradient", "A base colour with up to four radial blobs, drawn with react-native-svg so it scales to any size."],
+    ["Grain", "A tiny tiling noise image drawn at 2×, so the speckle stays fine on every screen; grain sets its strength."],
+    ["Touch", "The gradient and grain never take touches; children render on top."]
+  ],
+  "dependencies": ["react-native-svg"],
+  "registryDependencies": ["kit"],
+  "props": [
+    ["palette", "sunset | ocean | aurora | dusk | peach | graphite | ember | mint | lavender | candy | forest | noir", "\"sunset\"", "Built-in colour set."],
+    ["colors", "string[]", "—", "Base colour first, then up to four blob colours. Overrides palette."],
+    ["grain", "number", "0.55", "Grain strength, 0–1."],
+    ["seed", "number", "0", "Shuffles where the blobs sit."],
+    ["style", "StyleProp<ViewStyle>", "—", "Root style; give it a size or flex: 1."],
+    ["GrainOverlay grain", "number", "0.55", "Grain only, laid over its parent."]
+  ]
+}
