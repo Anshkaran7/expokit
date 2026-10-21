@@ -1,0 +1,122 @@
+{
+  "name": "qr-code-button",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "QrCodeButton",
+  "files": [
+    "src/components/ui/qr-code-button.tsx"
+  ],
+  "summary": "A pill that morphs into a card with a real, scannable QR code.",
+  "props": [
+    [
+      "value",
+      "string",
+      "—",
+      "What the code encodes: a URL, a payment link, a ticket id."
+    ],
+    [
+      "label",
+      "string",
+      "'Show QR Code'",
+      "Text on the pill."
+    ],
+    [
+      "copyLabel",
+      "string",
+      "'Copy'",
+      "Copy button text."
+    ],
+    [
+      "copiedLabel",
+      "string",
+      "'Copied'",
+      "Shown after Copy is pressed."
+    ],
+    [
+      "onCopy",
+      "(value: string) => void",
+      "—",
+      "Wire your clipboard here (expo-clipboard)."
+    ],
+    [
+      "open",
+      "boolean",
+      "—",
+      "Controlled state."
+    ],
+    [
+      "defaultOpen",
+      "boolean",
+      "false",
+      "Uncontrolled initial state."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Opened or closed."
+    ],
+    [
+      "size",
+      "\"sm\" | \"md\" | \"lg\"",
+      "\"md\"",
+      "Pill height 36 / 44 / 52."
+    ],
+    [
+      "codeSize",
+      "number",
+      "168",
+      "Side of the code in points; the card wraps it."
+    ],
+    [
+      "color",
+      "string",
+      "white (dark) / primary (light)",
+      "Pill colour. The card stays white so the code scans."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "label",
+      "Screen reader label for the pill."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "behavior": [
+    [
+      "Motion",
+      "Press swells the pill; it glides into the card while its label fades out and the code fades and scales in. Close glides it back."
+    ],
+    [
+      "Layout",
+      "Reserves the open card's size up front, so nothing around it moves and every control stays inside its own bounds (taps work on Android)."
+    ],
+    [
+      "Code",
+      "Encoded in the component: UTF-8 bytes, error correction M, smallest version that fits, mask chosen by the spec's penalty rules. Always dark on white so it scans in dark mode too."
+    ],
+    [
+      "Copy",
+      "Calls onCopy with the value and flips to a tick and \"Copied\" for 1.5 s."
+    ],
+    [
+      "Haptics",
+      "A light impact on open, a success tap on Copy, a tick on close."
+    ],
+    [
+      "Reduced motion",
+      "Opens and closes with a short fade."
+    ],
+    [
+      "Screen readers",
+      "A button with an expanded state; the code reads as \"QR code for …\"."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

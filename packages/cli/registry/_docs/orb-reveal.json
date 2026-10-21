@@ -1,0 +1,132 @@
+{
+  "name": "orb-reveal",
+  "category": "Motion",
+  "aliases": [],
+  "exportName": "OrbReveal",
+  "files": [
+    "src/components/ui/orb-reveal.tsx"
+  ],
+  "summary": "Drag a liquid-glass orb up: it shows your title through the lens, then fountains glass marbles into a heart.",
+  "props": [
+    [
+      "headline",
+      "string",
+      "'A new era of…'",
+      "Copy shown before the reveal."
+    ],
+    [
+      "title",
+      "string",
+      "'Meet Wabi.'",
+      "The line the lens uncovers."
+    ],
+    [
+      "subtitle",
+      "string",
+      "'The first personal…'",
+      "Lines under the title."
+    ],
+    [
+      "hint",
+      "string",
+      "'Swipe up to enter'",
+      "Faint hint under the resting orb."
+    ],
+    [
+      "images",
+      "string[]",
+      "—",
+      "Image URIs for the marbles (app icons, avatars)."
+    ],
+    [
+      "emoji",
+      "string[]",
+      "24 emoji",
+      "Marble pictures when there are no images, each on a bright gradient."
+    ],
+    [
+      "count",
+      "number",
+      "52",
+      "Marbles in the heart (max 60), plus a trail of specks."
+    ],
+    [
+      "glowColors",
+      "[string, string]",
+      "blue, violet",
+      "The glow while you hold the orb."
+    ],
+    [
+      "background",
+      "string",
+      "theme background",
+      "Page colour."
+    ],
+    [
+      "footer",
+      "ReactNode",
+      "—",
+      "Fades in after the reveal: sign-in buttons, a CTA."
+    ],
+    [
+      "revealed",
+      "boolean",
+      "—",
+      "Controlled state."
+    ],
+    [
+      "defaultRevealed",
+      "boolean",
+      "false",
+      "Uncontrolled initial state."
+    ],
+    [
+      "onRevealChange",
+      "(revealed: boolean) => void",
+      "—",
+      "The orb settled in a new state."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "flex: 1",
+      "Root style; give it a screen or a tall card."
+    ]
+  ],
+  "behavior": [
+    [
+      "Hold",
+      "The orb swells and lifts, a blue-violet smile of light glows through it and the headline fades."
+    ],
+    [
+      "Drag",
+      "Drag up past halfway (or flick) to reveal; drag the small orb down to go back. A quick tap toggles; a hold or a drag back to the start stays put."
+    ],
+    [
+      "Lens",
+      "Two Skia shaders refract the page under the orb and the title the lens uncovers: magnified middle, mirrored bevel, red/blue split at the edge."
+    ],
+    [
+      "Marbles",
+      "Fountain out of the button on arcs, pop to size and settle into a heart, then drift. Going back down, they float off the top."
+    ],
+    [
+      "Copy",
+      "The title rides with the orb. It and the footer appear as the orb settles and stay until it is most of the way back down."
+    ],
+    [
+      "Haptics",
+      "A tick when you pick the orb up and a medium impact on reveal."
+    ],
+    [
+      "Reduced motion",
+      "The orb snaps between states and the marbles appear in place."
+    ],
+    [
+      "Web",
+      "Needs CanvasKit loaded (LoadSkiaWeb); without it the revealed copy and footer are shown."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

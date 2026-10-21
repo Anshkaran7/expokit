@@ -12,7 +12,7 @@
       "items",
       "{ id, name, variant?, price, quantity, image? }[]",
       "3 sample products",
-      "Initial bag. Quantities and removals are kept in state."
+      "Initial bag. Quantities and removals are kept in state. Each item can carry a `thumbnail` node (your own drawing) instead of an `image` URL."
     ],
     [
       "onItemsChange",
@@ -49,6 +49,12 @@
       "(code) => number | null | Promise<…>",
       "—",
       "Return the discount fraction (0.1 = 10%) or null. Omit to hide the promo row."
+    ],
+    [
+      "defaultPromo",
+      "string",
+      "—",
+      "A code to apply on mount (checked with onApplyPromo), e.g. a coupon picked on another screen."
     ],
     [
       "taxRate",

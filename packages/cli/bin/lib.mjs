@@ -2,6 +2,8 @@
  * Pure helpers for the expo-kit CLI (no I/O, no dependencies) — kept separate so they can be unit-tested.
  */
 
+import path from 'node:path';
+
 /** Thrown for user-facing errors; the CLI entry point prints `message` and exits 1. */
 export class CliError extends Error {}
 
@@ -270,6 +272,27 @@ export function isValidItemName(name) {
 }
 
 /**
+ * Tab names from the user's tabs.ts become route files in app/(tabs)/: letters, digits and route punctuation
+ * (`-_.()[]`) only, so a name can never be a path like `../../x`.
+ */
+export function isSafeTabName(name) {
+  return typeof name === 'string' && name.length <= 100 && /^[A-Za-z0-9_.()[\]-]+$/.test(name) && !/^\.+$/.test(name);
+}
+
+// ---------------------------------------------------------------------------
+// Project paths
+// ---------------------------------------------------------------------------
+
+/**
+ * Whether `rel` (a components.json `paths` value) stays inside `root` once joined to it the way the CLI
+ * writes files: `../x` escapes, while `/src/lib` is re-rooted by path.join and stays inside.
+ */
+export function isInsideDir(root, rel) {
+  const r = path.relative(root, path.join(root, rel));
+  return r === '' || (r !== '..' && !r.startsWith(`..${path.sep}`) && !path.isAbsolute(r));
+}
+
+/**
  * npm package name, optionally with a simple version (`@1.2.3`, `@~14.0.0`, `@^2`). It reaches
  * `npx expo install` through a shell on Windows, so no `< > | =` or spaces — ranges like `>=1` are out.
  */
@@ -288,6 +311,46 @@ export function kitVersion(text) {
   return /export function KitProvider\b/.test(text) ? 1 : null;
 }
 
+/**
+ * Packages a registry item may depend on that work in the Expo Go app (SDK 58): native modules Expo Go
+ * ships, plus pure-JS packages. Anything else needs a development build (`npx expo run:ios|android`).
+ * Keep in sync with the Expo Go module list when the SDK moves.
+ */
+export const EXPO_GO_PACKAGES = new Set([
+  '@expo/vector-icons',
+  '@shopify/react-native-skia',
+  'expo-blur',
+  'expo-charts',
+  'expo-glass-effect',
+  'expo-haptics',
+  'expo-router',
+  'expo-splash-screen',
+  'react-native-gesture-handler',
+  'react-native-reanimated',
+  'react-native-safe-area-context',
+  'react-native-screens',
+  'react-native-svg',
+  'react-native-worklets',
+]);
+
+/** Which of `deps` keep an item out of Expo Go (bare names; `pkg@1.2` is read as `pkg`). Empty: runs in Expo Go. */
+export function needsDevBuild(deps) {
+  return (deps ?? [])
+    .map((spec) => spec.replace(/^(@?[^@]+)@.*$/, '$1'))
+    .filter((name) => !EXPO_GO_PACKAGES.has(name));
+}
+
+/**
+ * The component a file is named for: the PascalCase export matching one of `names` ("Grain Gradient" or
+ * "grain-gradient" → GrainGradient), else the first PascalCase export (never a CONSTANT).
+ */
+export function pickMainExport(source, names = []) {
+  const exports = [...source.matchAll(/export (?:function|const) ([A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
+  const pascal = (s) => String(s ?? '').split(/[^A-Za-z0-9]+/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join('');
+  const wanted = names.map(pascal).map((n) => n.toLowerCase());
+  return exports.find((e) => wanted.includes(e.toLowerCase())) ?? exports[0] ?? null;
+}
+
 /** Union of dependency lists, order preserved. */
 export function mergeDependencies(...lists) {
   const out = [];
@@ -301,7 +364,7 @@ export function mergeDependencies(...lists) {
 // Site URL + token guard
 // ---------------------------------------------------------------------------
 
-export const DEFAULT_SITE_URL = 'https://expokit.karandev.in';
+export const DEFAULT_SITE_URL = 'https://expokit.in';
 
 export function isLoopbackHost(hostname) {
   return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]' || hostname === '::1';
@@ -340,4 +403,50 @@ export function canSendToken({ siteUrl, credsUrl, fromEnv = false, defaultUrl = 
   if (target === originOf(defaultUrl)) return true;
   if (fromEnv) return isLoopbackHost(new URL(siteUrl).hostname);
   return Boolean(credsUrl) && target === originOf(credsUrl);
+}
+
+/**
+ * `env` without EXPO_KIT_TOKEN, for child processes: `npx expo install` runs third-party install scripts,
+ * and none of them needs the Pro token. Case-insensitive, as Windows env names are.
+ */
+export function envWithoutToken(env) {
+  return Object.fromEntries(Object.entries(env).filter(([key]) => key.toUpperCase() !== 'EXPO_KIT_TOKEN'));
+}
+
+// ---------------------------------------------------------------------------
+// 429 / 503: wait once, then give up
+// ---------------------------------------------------------------------------
+
+/** The longest the CLI waits before its one retry of a 429 / 503. */
+export const RETRY_MAX_WAIT_MS = 10_000;
+
+/** A Retry-After header (delta-seconds or an HTTP date) in whole seconds from `now`; null when missing or unreadable. */
+export function parseRetryAfter(value, now = Date.now()) {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  if (/^\d+$/.test(text)) return Number(text);
+  if (!/[A-Za-z]/.test(text)) return null; // an HTTP date always names its day / month
+  const at = Date.parse(text);
+  return Number.isNaN(at) ? null : Math.max(0, Math.ceil((at - now) / 1000));
+}
+
+/**
+ * Milliseconds to wait before retrying a 429 / 503 once: what the server asked (3 s when it didn't say).
+ * null when it asked for longer than RETRY_MAX_WAIT_MS: retrying sooner than that just earns another 429 / 503.
+ */
+export function retryDelayMs(retryAfter, now = Date.now()) {
+  const secs = parseRetryAfter(retryAfter, now);
+  if (secs === null) return 3000;
+  if (secs * 1000 > RETRY_MAX_WAIT_MS) return null;
+  return secs * 1000;
+}
+
+/** "in 30 s" / "in 5 min" / "in about 2 h" for a "try again …" message; "in a minute" when the server didn't say. */
+export function retryHint(retryAfter, now = Date.now()) {
+  const secs = parseRetryAfter(retryAfter, now);
+  if (secs === null) return 'in a minute';
+  if (secs < 90) return `in ${Math.max(1, secs)} s`;
+  if (secs < 90 * 60) return `in ${Math.round(secs / 60)} min`;
+  if (secs < 48 * 3600) return `in about ${Math.round(secs / 3600)} h`;
+  return 'later';
 }

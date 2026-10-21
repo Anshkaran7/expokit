@@ -1,0 +1,49 @@
+{
+  "name": "fintech-app",
+  "category": "Templates",
+  "aliases": [],
+  "exportName": null,
+  "files": [
+    "src/app/(tabs)/_layout.tsx",
+    "src/app/(tabs)/cards.tsx",
+    "src/app/(tabs)/index.tsx",
+    "src/app/(tabs)/pay.tsx",
+    "src/app/(tabs)/profile.tsx",
+    "src/app/_layout.tsx",
+    "src/app/onboarding.tsx",
+    "src/app/settings.tsx",
+    "src/app/sign-in.tsx",
+    "src/components/fintech-app/cards-screen.tsx",
+    "src/components/fintech-app/pay-screen.tsx",
+    "src/components/fintech-app/tabs.tsx",
+    "src/lib/fintech-app/data.tsx",
+    "src/lib/fintech-app/session.tsx",
+    "src/lib/fintech-app/wallet.tsx"
+  ],
+  "summary": null,
+  "props": [],
+  "behavior": [
+    [
+      "Flow",
+      "Onboarding shows once, then phone number + one-time code, then the tabs. Signing out returns to sign in. The session is saved on the device (AsyncStorage) and guarded with Expo Router’s Stack.Protected."
+    ],
+    [
+      "Tabs",
+      "Home (scrubbable revenue chart, KPIs, pull to refresh), Cards (swipe between cards, reveal the number or CVV, freeze), Pay (payee, amount, slide to send) and Profile."
+    ],
+    [
+      "Payments",
+      "A transfer made on Pay appears at the top of Home’s transactions straight away. The send itself is a stand-in — call your payments API from the slider’s onConfirm."
+    ],
+    [
+      "Settings",
+      "Pushed from Profile. Appearance (System / Light / Dark) re-themes every kit component instantly."
+    ],
+    [
+      "Your backend",
+      "SMS code handlers in app/sign-in.tsx and the transfer in components/fintech-app/pay-screen.tsx are stand-ins that wait and succeed. Cards, payees and the dashboard numbers live in lib/fintech-app/data.tsx."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

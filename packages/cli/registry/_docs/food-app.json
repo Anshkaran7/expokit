@@ -1,0 +1,47 @@
+{
+  "name": "food-app",
+  "category": "Templates",
+  "aliases": [],
+  "exportName": null,
+  "files": [
+    "src/app/(tabs)/_layout.tsx",
+    "src/app/(tabs)/bag.tsx",
+    "src/app/(tabs)/index.tsx",
+    "src/app/(tabs)/offers.tsx",
+    "src/app/(tabs)/profile.tsx",
+    "src/app/_layout.tsx",
+    "src/app/onboarding.tsx",
+    "src/app/settings.tsx",
+    "src/app/sign-in.tsx",
+    "src/components/food-app/tabs.tsx",
+    "src/lib/food-app/cart.tsx",
+    "src/lib/food-app/data.tsx",
+    "src/lib/food-app/session.tsx"
+  ],
+  "summary": null,
+  "props": [],
+  "behavior": [
+    [
+      "Flow",
+      "Onboarding shows once, then sign in, then the tabs. Signing out returns to sign in. The session is saved on the device (AsyncStorage) and guarded with Expo Router’s Stack.Protected."
+    ],
+    [
+      "Tabs",
+      "Menu (rolling donut shelf), Offers (coupons that unlock with the bag total), Bag (checkout) and Profile. The kit’s BottomNav is the tab bar, with the bag count as a badge."
+    ],
+    [
+      "Bag",
+      "Donuts added on the Menu land in the bag; a coupon picked on Offers is applied at checkout. Pay is a stand-in — wire it to your payment sheet."
+    ],
+    [
+      "Settings",
+      "Pushed from Profile. Appearance (System / Light / Dark) re-themes every kit component instantly."
+    ],
+    [
+      "Your backend",
+      "Auth handlers in app/sign-in.tsx and payment in app/(tabs)/bag.tsx are stand-ins that wait and succeed. Menu, coupons and the user live in lib/food-app/data.tsx."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

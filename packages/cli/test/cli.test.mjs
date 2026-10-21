@@ -121,7 +121,7 @@ test('saved token is not sent to a different site', () => {
   fs.mkdirSync(path.join(home, '.expo-kit'), { recursive: true });
   fs.writeFileSync(
     path.join(home, '.expo-kit', 'credentials.json'),
-    JSON.stringify({ token: 'tok', url: 'https://expokit.karandev.in' })
+    JSON.stringify({ token: 'tok', url: 'https://expokit.in' })
   );
   const r = run(['whoami'], TMP, { HOME: home, USERPROFILE: home, EXPO_KIT_URL: 'http://localhost:9' });
   assert.equal(r.status, 1);

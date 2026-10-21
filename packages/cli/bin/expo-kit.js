@@ -14,20 +14,28 @@ import os from 'node:os';
 import path from 'node:path';
 import readline from 'node:readline';
 import { Writable } from 'node:stream';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import {
   CliError,
   DEFAULT_SITE_URL,
   addTsconfigPathAlias,
   canSendToken,
+  envWithoutToken,
   hasJsoncExtras,
+  isInsideDir,
   isSafePackageSpec,
+  isSafeTabName,
   isValidItemName,
   kitVersion,
   mergeDependencies,
   parseJsonc,
   parseSiteUrl,
+  retryDelayMs,
+  retryHint,
   tabComponentName,
+  needsDevBuild,
+  pickMainExport,
 } from './lib.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,6 +48,8 @@ const CREDENTIALS_DIR = path.join(os.homedir(), '.expo-kit');
 /** How users run the CLI. Bare `expo-kit` only works once installed, and `npx expo-kit` would fetch an unrelated npm package. */
 const RUN = 'npx @expokit/cli@latest';
 const CREDENTIALS_PATH = path.join(CREDENTIALS_DIR, 'credentials.json');
+/** Env for `npx expo install` / create-expo-app: they run third-party install scripts that never need the Pro token. */
+const childEnv = envWithoutToken(process.env);
 
 const DEFAULT_ALIASES = {
   components: '@/components',
@@ -179,7 +189,7 @@ function detectProjectLayout(projectRoot) {
 function buildDefaultConfig(projectRoot) {
   const { paths } = detectProjectLayout(projectRoot);
   return {
-    $schema: 'https://expokit.karandev.in/schema.json',
+    $schema: 'https://expokit.in/schema.json',
     aliases: { ...DEFAULT_ALIASES },
     paths,
   };
@@ -204,11 +214,19 @@ function loadConfig(projectRoot) {
     return { ...defaults, configPath };
   }
   const user = readJsonFile(configPath, 'components.json');
+  const paths = { ...defaults.paths, ...user.paths };
+  // Every write goes to path.join(projectRoot, paths.*): a "../" from a cloned repo would land outside the app.
+  for (const [key, value] of Object.entries(paths)) {
+    if (value === null || value === undefined) continue; // falls back to the default folder
+    if (typeof value !== 'string' || !isInsideDir(projectRoot, value)) {
+      throw new CliError(`components.json paths.${key} (${JSON.stringify(value)}) must be a folder inside the project. Fix it and re-run.`);
+    }
+  }
   return {
     ...defaults,
     ...user,
     aliases: { ...defaults.aliases, ...user.aliases },
-    paths: { ...defaults.paths, ...user.paths },
+    paths,
     installed: { ...user.installed },
     configPath,
   };
@@ -357,12 +375,9 @@ function writeCredentials(data) {
   fs.chmodSync(CREDENTIALS_PATH, 0o600); // also when the file already existed
 }
 
-async function apiGet(pathname, token) {
-  parseSiteUrl(SITE_URL); // https only (http just for localhost) — throws CliError
-  const url = `${SITE_URL}${pathname}`;
-  let res;
+async function siteFetch(url, token) {
   try {
-    res = await fetch(url, {
+    return await fetch(url, {
       headers: { Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       // A request that carries the token never follows a redirect: the token goes to SITE_URL's origin only.
       redirect: token ? 'manual' : 'follow',
@@ -373,6 +388,26 @@ async function apiGet(pathname, token) {
       `Network error: couldn't reach ${SITE_URL} (${e?.cause?.code ?? e?.name ?? e?.message ?? e}). ` +
         'Check your connection (or EXPO_KIT_URL) and try again.'
     );
+  }
+}
+
+/** Rate limited (429) or briefly unavailable (503): worth one polite retry. */
+const BUSY_STATUSES = new Set([429, 503]);
+
+async function apiGet(pathname, token) {
+  parseSiteUrl(SITE_URL); // https only (http just for localhost) — throws CliError
+  const url = `${SITE_URL}${pathname}`;
+  let res = await siteFetch(url, token);
+  if (BUSY_STATUSES.has(res.status)) {
+    // Wait what the server asks (plus jitter so a crowd of CLIs doesn't come back in lockstep), then try once more.
+    // When it asks for more than 10 s, don't knock early: skip the retry and just say when to try again.
+    const wait = retryDelayMs(res.headers.get('retry-after'));
+    if (wait !== null) {
+      await res.arrayBuffer().catch(() => {});
+      log(`${new URL(SITE_URL).host} is busy (HTTP ${res.status}) — trying again in ${Math.max(1, Math.ceil(wait / 1000))} s…`);
+      await sleep(wait + Math.floor(Math.random() * 500));
+      res = await siteFetch(url, token);
+    }
   }
   if (token && res.status >= 300 && res.status < 400) {
     const location = res.headers.get('location');
@@ -388,6 +423,11 @@ async function apiGet(pathname, token) {
   } catch {
     // non-JSON (proxy error page, …)
   }
+  if (BUSY_STATUSES.has(res.status)) {
+    const why = res.status === 429 ? 'is limiting requests (HTTP 429).' : "is temporarily unavailable (HTTP 503) — this isn't a problem with your token.";
+    const hint = typeof body?.message === 'string' && body.message ? body.message : `Try again ${retryHint(res.headers.get('retry-after'))}.`;
+    fail(`${SITE_URL} ${why} ${hint}`);
+  }
   return { status: res.status, ok: res.ok, body };
 }
 
@@ -395,12 +435,33 @@ function failServerError(status, what) {
   fail(`Server error from ${SITE_URL} (HTTP ${status}) while ${what}. This isn't a problem with your token — try again in a moment.`);
 }
 
-/** Downloads one Pro item (own files only). Exits with a clear message on 401 / 403 / 5xx. */
+/** Pro items already downloaded in this run, so `add a b c` and `update --force` fetch a shared dep (e.g. glass) once. */
+const remoteItemCache = new Map();
+
+/** The 401 message for a saved or given token: expired (the site says `token_expired`) or invalid / revoked. */
+function rejectedToken(body, which) {
+  return body?.error === 'token_expired'
+    ? `${which} has expired. Create a new one at ${SITE_URL}/account and run \`${RUN} login\`.`
+    : `${which} is invalid or was revoked. Create a new one at ${SITE_URL}/account and run \`${RUN} login\`.`;
+}
+
+/** " · token expires Jan 5, 2027" when the site sent an expiry, else "". */
+function expiryNote(body) {
+  const at = body?.expiresAt ? new Date(body.expiresAt) : null;
+  if (!at || Number.isNaN(at.getTime())) return '';
+  return ` · token expires ${at.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+}
+
+/** Downloads one Pro item (own files only). Exits with a clear message on 401 / 403 / 429 / 5xx. */
 async function fetchRemoteItem(name, { unknownLocally = false } = {}) {
+  if (remoteItemCache.has(name)) return remoteItemCache.get(name);
   const creds = readCredentials();
   assertTokenTarget(creds);
   const { status, ok, body } = await apiGet(`/api/registry/${encodeURIComponent(name)}`, creds?.token);
-  if (ok && body && Array.isArray(body.files)) return body;
+  if (ok && body && Array.isArray(body.files)) {
+    remoteItemCache.set(name, body);
+    return body;
+  }
   if (status === 404 && unknownLocally) fail(`Unknown item "${name}". Run: ${RUN} add --list`);
   if (status >= 500) failServerError(status, `downloading "${name}"`);
   if (status === 401 && !creds) {
@@ -411,7 +472,7 @@ async function fetchRemoteItem(name, { unknownLocally = false } = {}) {
     );
   }
   if (status === 401) {
-    fail(`Your token (${creds.source}) is invalid or was revoked. Create a new one at ${SITE_URL}/account and run \`${RUN} login\`.`);
+    fail(rejectedToken(body, `Your token (${creds.source})`));
   }
   if (status === 403) {
     fail(`"${name}" needs ExpoKit Pro, and your account doesn't have it yet. Upgrade at ${SITE_URL}/pricing.`);
@@ -516,13 +577,37 @@ function promptSecret(question) {
   });
 }
 
+/**
+ * First non-blank line of a non-TTY stdin (`printf %s "$TOKEN" | … login`, or typed into a console without a TTY):
+ * the token never lands in argv, shell history or `ps`.
+ */
+async function readTokenFromStdin() {
+  let data = '';
+  process.stdin.setEncoding('utf8');
+  for await (const chunk of process.stdin) {
+    data += chunk;
+    // Stop at the first non-blank line: a pipe left open (Git Bash/mintty, IDE consoles) never sends EOF after Enter.
+    if (/\S.*\n/.test(data)) break;
+    if (data.length > 4096) break; // a token is ~50 chars; don't slurp a whole file
+  }
+  return data.trim().split(/\r?\n/)[0].trim();
+}
+
 async function cmdLogin(args) {
   const i = args.findIndex((a) => a === '--token' || a.startsWith('--token='));
   let token = i === -1 ? '' : args[i].includes('=') ? args[i].slice('--token='.length) : args[i + 1] ?? '';
+  if (i !== -1) warn('--token leaves the token in your shell history. Prefer the prompt, piping it in, or EXPO_KIT_TOKEN.');
   if (!token) {
-    log(`Create a CLI token at ${SITE_URL}/account (signed in), then paste it here (it won't be shown).`);
-    if (!process.stdin.isTTY) fail(`No token given. Use: ${RUN} login --token <token>`);
-    token = await promptSecret('Token: ');
+    if (process.stdin.isTTY) {
+      log(`Create a CLI token at ${SITE_URL}/account (signed in), then paste it here (it won't be shown).`);
+      token = await promptSecret('Token: ');
+    } else {
+      log(`Paste your token from ${SITE_URL}/account and press Enter (or pipe it in)…`);
+      token = await readTokenFromStdin();
+      if (!token) {
+        fail(`No token given. Pipe it in (printf %s "$TOKEN" | ${RUN} login) or set EXPO_KIT_TOKEN. Tokens: ${SITE_URL}/account`);
+      }
+    }
   }
   token = token.trim();
   if (!token) fail('No token given.');
@@ -531,14 +616,17 @@ async function cmdLogin(args) {
   log(`Verifying the token with ${site.host} — it will only be sent to ${site.origin}.`);
   if (site.origin !== new URL(DEFAULT_SITE_URL).origin) warn(`${site.origin} is not the default site (EXPO_KIT_URL is set).`);
   const { status, ok, body } = await apiGet('/api/cli/whoami', token);
-  if (status === 401) fail(`That token isn't valid (or was revoked). Create a new one at ${SITE_URL}/account.`);
+  if (status === 401) fail(rejectedToken(body, 'That token'));
   if (status >= 500) failServerError(status, 'verifying the token');
   if (!ok) fail(`Couldn't verify the token (HTTP ${status}). Check your network and ${SITE_URL}, then try again.`);
 
   writeCredentials({ token, url: site.origin, savedAt: new Date().toISOString() });
   log(`Saved to ${CREDENTIALS_PATH} (readable only by you).`);
   if (ok && body) {
-    log(body.pro ? `Logged in — Pro is unlocked (${body.plan} plan).` : `Logged in on the ${body.plan} plan. Pro items need Pro: ${SITE_URL}/pricing`);
+    log(
+      (body.pro ? `Logged in — Pro is unlocked (${body.plan} plan).` : `Logged in on the ${body.plan} plan. Pro items need Pro: ${SITE_URL}/pricing`) +
+        expiryNote(body)
+    );
   }
 }
 
@@ -557,10 +645,10 @@ async function cmdWhoami() {
   if (!creds) fail(`Not logged in. Run: ${RUN} login (tokens: ${SITE_URL}/account)`);
   assertTokenTarget(creds);
   const { status, ok, body } = await apiGet('/api/cli/whoami', creds.token);
-  if (status === 401) fail(`Your token (${creds.source}) is invalid or was revoked. Create a new one at ${SITE_URL}/account.`);
+  if (status === 401) fail(rejectedToken(body, `Your token (${creds.source})`));
   if (status >= 500) failServerError(status, 'checking your token');
   if (!ok || !body) fail(`Couldn't check your token (HTTP ${status}).`);
-  log(`User ${body.userId} · ${body.plan} plan · Pro ${body.pro ? 'unlocked' : 'locked'} · ${SITE_URL}`);
+  log(`User ${body.userId} · ${body.plan} plan · Pro ${body.pro ? 'unlocked' : 'locked'}${expiryNote(body)} · ${SITE_URL}`);
 }
 
 function collectFiles(src, dest, files = []) {
@@ -726,6 +814,11 @@ function syncTabRoutes(projectRoot, config, options) {
   }
 
   for (const tabName of tabNames) {
+    // Names come from the user's tabs.ts and become file names: never let one be a path.
+    if (!isSafeTabName(tabName)) {
+      warn(`Skipping tab ${JSON.stringify(tabName)} in tabs.ts: route names may only use letters, numbers and - _ . ( ) [ ]`);
+      continue;
+    }
     const fileName = tabName === 'index' ? 'index.tsx' : `${tabName}.tsx`;
     const destPath = path.join(tabsDir, fileName);
     const rel = path.relative(projectRoot, destPath);
@@ -751,6 +844,7 @@ function runExpoInstall(projectRoot, packages, dryRun) {
   log(`Installing: ${packages.join(', ')}`);
   const result = spawnSync('npx', ['expo', 'install', ...packages], {
     cwd: projectRoot,
+    env: childEnv,
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
@@ -760,6 +854,17 @@ function runExpoInstall(projectRoot, packages, dryRun) {
     return false;
   }
   return true;
+}
+
+/** After an add: can the item run in Expo Go, or does it need a development build? */
+function printRunHint(deps) {
+  const native = needsDevBuild(deps);
+  if (!native.length) {
+    log('Runs in Expo Go: npx expo start, then scan the QR code with your phone.');
+    return;
+  }
+  log(`Needs a development build (not in Expo Go): ${native.join(', ')}`);
+  console.log('  • Build and run it: npx expo run:ios  or  npx expo run:android');
 }
 
 /** Folder names `init <dir>` will create: no paths, no spaces, nothing a shell could misread. */
@@ -778,6 +883,7 @@ function createExpoApp(cwd, dir, flags) {
   log(`Creating a new Expo app in ./${dir}…`);
   const result = spawnSync('npx', ['create-expo-app@latest', dir, '--yes'], {
     cwd,
+    env: childEnv,
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
@@ -808,7 +914,7 @@ function cmdInit(cwd, flags, dir) {
 
   const { paths, aliasTarget, layout } = detectProjectLayout(projectRoot);
   const config = {
-    $schema: 'https://expokit.karandev.in/schema.json',
+    $schema: 'https://expokit.in/schema.json',
     aliases: { ...DEFAULT_ALIASES },
     paths,
   };
@@ -918,6 +1024,7 @@ async function cmdAdd(args, cwd) {
       ensureExpoRouterMain(projectRoot, true);
     }
     runExpoInstall(projectRoot, meta.dependencies ?? [], true);
+    if (resolved !== 'liquidglass-tab') printRunHint(meta.dependencies);
     return;
   }
 
@@ -956,10 +1063,9 @@ async function cmdAdd(args, cwd) {
       fs.existsSync(path.join(filesRoot, 'src', 'components', f, `${resolved}.tsx`))
     );
     const main = folder ? path.join(filesRoot, 'src', 'components', folder, `${resolved}.tsx`) : null;
-    const exported = main
-      ? fs.readFileSync(main, 'utf8').match(/export (?:function|const) ([A-Z]\w*)/)?.[1]
-      : null;
+    const exported = main ? pickMainExport(fs.readFileSync(main, 'utf8'), [meta.title, resolved]) : null;
     if (exported) log(`Import: import { ${exported} } from "@/components/${folder}/${resolved}";`);
+    printRunHint(meta.dependencies);
   }
 }
 
@@ -1070,6 +1176,11 @@ function cmdDoctor(cwd) {
       const tabsDir = path.join(projectRoot, config.paths.app ?? 'src/app', '(tabs)');
 
       for (const tabName of tabNames) {
+        if (!isSafeTabName(tabName)) {
+          warn(`Tab ${JSON.stringify(tabName)} in tabs.ts is not a valid route name (letters, numbers and - _ . ( ) [ ] only)`);
+          issues += 1;
+          continue;
+        }
         const fileName = tabName === 'index' ? 'index.tsx' : `${tabName}.tsx`;
         const routePath = path.join(tabsDir, fileName);
         if (!fs.existsSync(routePath)) {
@@ -1178,7 +1289,7 @@ Usage:
   npx @expokit/cli@latest update [name] [--dry-run] [--force]
   npx @expokit/cli@latest doctor
   npx @expokit/cli@latest add --list
-  npx @expokit/cli@latest login [--token <token>]
+  npx @expokit/cli@latest login
   npx @expokit/cli@latest logout
   npx @expokit/cli@latest whoami
   npx @expokit/cli@latest mcp
@@ -1199,8 +1310,10 @@ auto-sync — run \`update\` after upgrading the package.
 files; tabs.ts kept). Other items: use \`add <name> --force\` to overwrite.
 
 Pro items (marked PRO in \`add --list\`): create a token at ${SITE_URL}/account,
-run \`login\`, then \`add\` them like any other item. Credentials live in
-~/.expo-kit/credentials.json (or set EXPO_KIT_TOKEN). EXPO_KIT_URL overrides the
+run \`login\` and paste it, then \`add\` them like any other item. In scripts, pipe
+it in (printf %s "$TOKEN" | npx @expokit/cli@latest login) or set EXPO_KIT_TOKEN;
+\`login --token <token>\` still works but leaves the token in your shell history.
+Credentials live in ~/.expo-kit/credentials.json. EXPO_KIT_URL overrides the
 site (https only; http just for localhost). A saved token is only sent to the site
 it was created for (or ${DEFAULT_SITE_URL}).
 

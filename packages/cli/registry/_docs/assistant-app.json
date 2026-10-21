@@ -1,0 +1,47 @@
+{
+  "name": "assistant-app",
+  "category": "Templates",
+  "aliases": [],
+  "exportName": null,
+  "files": [
+    "src/app/(tabs)/_layout.tsx",
+    "src/app/(tabs)/history.tsx",
+    "src/app/(tabs)/index.tsx",
+    "src/app/(tabs)/profile.tsx",
+    "src/app/_layout.tsx",
+    "src/app/onboarding.tsx",
+    "src/app/settings.tsx",
+    "src/app/sign-in.tsx",
+    "src/components/assistant-app/tabs.tsx",
+    "src/lib/assistant-app/assistant.ts",
+    "src/lib/assistant-app/conversations.tsx",
+    "src/lib/assistant-app/data.ts",
+    "src/lib/assistant-app/session.tsx"
+  ],
+  "summary": null,
+  "props": [],
+  "behavior": [
+    [
+      "Flow",
+      "Onboarding shows once, then sign in (Apple, Google or a 6-digit email code), then the tabs. Signing out returns to sign in. The session is saved on the device (AsyncStorage) and guarded with Expo Router’s Stack.Protected."
+    ],
+    [
+      "Chat",
+      "Fully controlled: your message goes in, the reply streams in word by word with a Stop button, and suggestion chips fill the empty state. The tab bar steps aside while the keyboard is up."
+    ],
+    [
+      "History",
+      "Every conversation, newest first. Tap to reopen it in Chat, swipe to delete, or compose a new one."
+    ],
+    [
+      "Settings",
+      "Pushed from Profile. Appearance (System / Light / Dark) re-themes every kit component instantly."
+    ],
+    [
+      "Your model",
+      "lib/assistant-app/assistant.ts streams a canned answer so the app runs with no backend. Replace `reply` with a call to your server, which calls the model API — never ship an API key in the app."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

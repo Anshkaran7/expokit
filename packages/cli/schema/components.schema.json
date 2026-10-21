@@ -1,5 +1,5 @@
 {
-  "$schema": "https://expokit.karandev.in/schema.json",
+  "$schema": "https://expokit.in/schema.json",
   "aliases": {
     "components": "@/components",
     "lib": "@/lib",

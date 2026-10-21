@@ -2,7 +2,7 @@
   "name": "glass",
   "category": "Glass",
   "aliases": [],
-  "exportName": "GlassProvider",
+  "exportName": "Glass",
   "files": [
     "src/components/ui/glass.tsx"
   ],

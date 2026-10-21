@@ -10,6 +10,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { needsDevBuild } from './lib.mjs';
+
 /** Newest first; we answer with the client's version when we know it, else our newest. */
 export const PROTOCOL_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'];
 
@@ -21,7 +23,7 @@ Items are copied into the user's app as source files by the expo-kit CLI — the
 Workflow: search_items or list_items → view_item (props, import line, examples) → get_add_command, then run that command in the app's root folder.
 The CLI creates components.json, adds the @/* tsconfig alias, copies files under src/ (or the root app layout) and installs npm deps with \`npx expo install\`.
 Import components from '@/components/...' and wrap the app in <KitProvider> from '@/lib/kit' (added with the first item).
-Pro items need an ExpoKit Pro plan: the user runs \`npx ${PACKAGE}@latest login\` once (token from https://expokit.karandev.in/account). Never ask the user to paste a token into chat.`;
+Pro items need an ExpoKit Pro plan: the user runs \`npx ${PACKAGE}@latest login\` once (token from https://expokit.in/account). Never ask the user to paste a token into chat.`;
 
 // ---------------------------------------------------------------------------
 // Registry access (bundled JSON)
@@ -187,6 +189,8 @@ function viewItem(catalog, registryDir, { name, include_source: includeSource = 
   if (imp) out.push(`Import: \`${imp}\``);
   if (doc?.files?.length) out.push(`Files it adds: ${doc.files.join(', ')}`);
   if (it.dependencies.length) out.push(`npm deps (installed by the CLI): ${it.dependencies.join(', ')}`);
+  const native = needsDevBuild(it.dependencies);
+  out.push(native.length ? `Runs in Expo Go: no, needs a development build (${native.join(', ')})` : 'Runs in Expo Go: yes');
   if (it.registryDependencies.length) out.push(`Also adds: ${it.registryDependencies.join(', ')}`);
 
   if (doc?.props?.length) {
@@ -206,7 +210,7 @@ function viewItem(catalog, registryDir, { name, include_source: includeSource = 
     out.push('', '## Examples');
     for (const ex of doc.examples) out.push('', `### ${ex.title}`, '', '```tsx', ex.code.trimEnd(), '```');
   } else if (it.tier === 'pro') {
-    out.push('', 'Usage examples and source for Pro items are on https://expokit.karandev.in after signing in, and in the files the add command copies.');
+    out.push('', 'Usage examples and source for Pro items are on https://expokit.in after signing in, and in the files the add command copies.');
   }
 
   if (includeSource) {
@@ -240,7 +244,7 @@ function getAddCommand(catalog, { names }) {
   ];
   if (pro.length)
     lines.push(
-      `- PRO: ${pro.join(', ')} ${pro.length === 1 ? 'needs' : 'need'} an ExpoKit Pro plan. If the command reports "not logged in", ask the user to run \`npx ${PACKAGE}@latest login\` themselves (token from https://expokit.karandev.in/account). Never ask for the token in chat.`
+      `- PRO: ${pro.join(', ')} ${pro.length === 1 ? 'needs' : 'need'} an ExpoKit Pro plan. If the command reports "not logged in", ask the user to run \`npx ${PACKAGE}@latest login\` themselves (token from https://expokit.in/account). Never ask for the token in chat.`
     );
   return lines.join('\n');
 }
@@ -265,15 +269,19 @@ export function callTool(catalog, registryDir, name, args = {}) {
 // ---------------------------------------------------------------------------
 
 const rpcError = (id, code, message) => ({ jsonrpc: '2.0', id, error: { code, message } });
+const isObject = (v) => Boolean(v) && typeof v === 'object' && !Array.isArray(v);
 
 /** One incoming JSON-RPC message → the response object, or null for notifications. */
 export function handleMessage(msg, ctx) {
-  if (!msg || typeof msg !== 'object' || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') {
-    return msg && 'id' in msg ? rpcError(msg.id ?? null, -32600, 'Invalid request') : null;
+  if (!isObject(msg) || msg.jsonrpc !== '2.0' || typeof msg.method !== 'string') {
+    // A stray `5`, "abc" or nested array has no id to answer; an object with one gets an error back.
+    return isObject(msg) && 'id' in msg ? rpcError(msg.id ?? null, -32600, 'Invalid request') : null;
   }
   const isRequest = 'id' in msg && msg.id !== null;
   if (!isRequest) return null; // notifications/initialized, notifications/cancelled, …
-  const { id, method, params = {} } = msg;
+  const { id, method } = msg;
+  // `params: null` skips a destructuring default, and params.name would then throw.
+  const params = isObject(msg.params) ? msg.params : {};
   const ok = (result) => ({ jsonrpc: '2.0', id, result });
 
   switch (method) {
@@ -313,6 +321,30 @@ export function handleMessage(msg, ctx) {
   }
 }
 
+/**
+ * One stdin line → what to write back: a reply, an array of replies for a batch, or null. Never throws —
+ * it runs inside the stdin listener, where one bad line would otherwise kill the server for the session.
+ */
+export function handleLine(line, ctx) {
+  let msg;
+  try {
+    msg = JSON.parse(line);
+  } catch {
+    return rpcError(null, -32700, 'Parse error');
+  }
+  const reply = (m) => {
+    try {
+      return handleMessage(m, ctx);
+    } catch {
+      return isObject(m) && 'id' in m && m.id !== null ? rpcError(m.id, -32603, 'Internal error') : null;
+    }
+  };
+  if (!Array.isArray(msg)) return reply(msg);
+  // Batches came and went in 2025-03-26; answer them anyway.
+  const replies = msg.map(reply).filter(Boolean);
+  return replies.length ? replies : null;
+}
+
 /** Serves MCP on stdin/stdout until stdin closes. */
 export function startMcpServer({ registryDir, version, aliases }) {
   const ctx = { registryDir, version, catalog: loadCatalog(registryDir, aliases) };
@@ -326,18 +358,8 @@ export function startMcpServer({ registryDir, version, aliases }) {
       const line = buffer.slice(0, nl).trim();
       buffer = buffer.slice(nl + 1);
       if (!line) continue;
-      let msg;
-      try {
-        msg = JSON.parse(line);
-      } catch {
-        send(rpcError(null, -32700, 'Parse error'));
-        continue;
-      }
-      // Batches came and went in 2025-03-26; answer them anyway.
-      const replies = (Array.isArray(msg) ? msg : [msg]).map((m) => handleMessage(m, ctx)).filter(Boolean);
-      if (Array.isArray(msg)) {
-        if (replies.length) send(replies);
-      } else if (replies[0]) send(replies[0]);
+      const reply = handleLine(line, ctx);
+      if (reply) send(reply);
     }
   });
   process.stdin.on('end', () => process.exit(0));

@@ -1,0 +1,96 @@
+{
+  "name": "morphing-button-group",
+  "category": "Buttons",
+  "aliases": [],
+  "exportName": "MorphingButtonGroup",
+  "files": [
+    "src/components/ui/morphing-button-group.tsx"
+  ],
+  "summary": "Buttons that split, join and stretch between sets — with a signature sheet built on it.",
+  "props": [
+    [
+      "buttons",
+      "{ key, label, icon?, variant?, onPress? }[]",
+      "—",
+      "MorphingButtonGroup: the buttons to show now; changing it morphs the row."
+    ],
+    [
+      "height",
+      "number",
+      "44",
+      "Button height."
+    ],
+    [
+      "gap",
+      "number",
+      "10",
+      "Space between buttons."
+    ],
+    [
+      "duration",
+      "number",
+      "380",
+      "Morph length in ms."
+    ],
+    [
+      "SignatureSheet label",
+      "string",
+      "'Sign'",
+      "The pill's text."
+    ],
+    [
+      "SignatureSheet title",
+      "string",
+      "'Add Signature'",
+      "Card title."
+    ],
+    [
+      "SignatureSheet onConfirm",
+      "({ paths, width, height }) => void",
+      "—",
+      "The finished signature."
+    ],
+    [
+      "SignatureSheet onCancel",
+      "() => void",
+      "—",
+      "Closed without signing."
+    ],
+    [
+      "SignatureSheet cardHeight",
+      "number",
+      "340",
+      "Height of the open card."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "behavior": [
+    [
+      "Morph",
+      "Buttons with the same key keep their place and resize; new ones grow in from nothing and leaving ones shrink away, on one smooth ease (no bounce)."
+    ],
+    [
+      "Labels",
+      "A label change cross-fades while the button resizes."
+    ],
+    [
+      "Signature",
+      "The pad draws smoothed strokes; undo removes the last one, Reset clears, Confirm asks once more. onConfirm gets SVG path data and the pad size."
+    ],
+    [
+      "Haptics",
+      "A tick on each button, a light tap opening the sheet, success on confirm."
+    ],
+    [
+      "Reduced motion",
+      "Morphs are instant."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

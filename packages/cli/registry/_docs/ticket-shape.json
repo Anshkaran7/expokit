@@ -2,7 +2,7 @@
   "name": "ticket-shape",
   "category": null,
   "aliases": [],
-  "exportName": "TicketStamp",
+  "exportName": "TicketShape",
   "files": [
     "src/lib/ticket-shape.tsx"
   ],

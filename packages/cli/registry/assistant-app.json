@@ -1,0 +1,49 @@
+{
+  "name": "assistant-app",
+  "type": "template",
+  "title": "AI assistant app",
+  "description": "A complete Expo Router app for an AI chat assistant: onboarding once, Apple / Google / email-code sign in, a streaming chat with suggestions and stop, conversation history, profile and settings.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics",
+    "expo-router",
+    "expo-splash-screen",
+    "expo-status-bar",
+    "react-native-safe-area-context",
+    "react-native-screens",
+    "@react-native-async-storage/async-storage"
+  ],
+  "registryDependencies": [
+    "kit",
+    "bottom-nav",
+    "onboarding",
+    "sign-in",
+    "chat",
+    "inbox",
+    "profile",
+    "settings"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/bottom-nav.tsx",
+    "components/blocks/onboarding.tsx",
+    "components/ui/button.tsx",
+    "components/ui/floating-input.tsx",
+    "components/ui/password-input.tsx",
+    "components/ui/otp-input.tsx",
+    "components/blocks/sign-in.tsx",
+    "components/blocks/chat.tsx",
+    "components/ui/avatar.tsx",
+    "components/ui/badge.tsx",
+    "components/ui/chip-group.tsx",
+    "components/ui/search-bar.tsx",
+    "components/ui/swipeable-row.tsx",
+    "components/blocks/inbox.tsx",
+    "components/blocks/profile.tsx",
+    "components/ui/segmented-control.tsx",
+    "components/ui/switch.tsx",
+    "components/blocks/settings.tsx"
+  ],
+  "filesDir": null
+}

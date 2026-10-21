@@ -1,0 +1,18 @@
+{
+  "name": "donut-shop",
+  "type": "block",
+  "title": "Donut Shop",
+  "description": "A dessert shop screen where the products roll. Swipe and the donuts roll across the carousel like wheels; \"+\" grows into a stepper and an add-to-cart bar rises; tap the donut and it zooms out to the edge of the screen, still turning, beside its nutrition. The donuts are drawn — icing, sprinkles, drizzle — with light that stays put while they spin, or pass your own round product art.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

@@ -45,6 +45,12 @@
       "Pressed Sign out."
     ],
     [
+      "onBack",
+      "() => void",
+      "—",
+      "Shows a back button above the title, e.g. when Settings is pushed from a profile tab."
+    ],
+    [
       "storageUsed",
       "string",
       "'1.2 GB'",

@@ -1,0 +1,88 @@
+{
+  "name": "donut-shop",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "DonutShop",
+  "files": [
+    "src/components/blocks/donut-shop.tsx"
+  ],
+  "summary": "Donuts roll across a carousel and zoom into a detail view beside their nutrition.",
+  "props": [
+    [
+      "items",
+      "DonutItem[]",
+      "5 donuts",
+      "{ name, price, icing, topping?, toppingColor?, image?, nutrition? }."
+    ],
+    [
+      "title",
+      "string",
+      "'Dunats'",
+      "Shop name, in a script face."
+    ],
+    [
+      "currency",
+      "string",
+      "'$'",
+      "Prefix for prices."
+    ],
+    [
+      "background",
+      "string",
+      "soft pink",
+      "Page colour in light mode."
+    ],
+    [
+      "initialIndex",
+      "number",
+      "0",
+      "Donut shown first."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "The centred donut changed."
+    ],
+    [
+      "onAddToCart",
+      "(item, quantity) => void",
+      "—",
+      "Add to Cart pressed."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "flex: 1",
+      "Root style."
+    ]
+  ],
+  "behavior": [
+    [
+      "Swipe",
+      "Donuts roll a full turn per circumference travelled and snap to the nearest; the centre one is larger."
+    ],
+    [
+      "+",
+      "Grows into a + 01 − stepper; an add-to-cart bar with the running total rises from the bottom."
+    ],
+    [
+      "Detail",
+      "Tap the donut: the list pushes away, the donut zooms to the right edge and keeps turning, the name and nutrition chips slide in. Back reverses it."
+    ],
+    [
+      "Art",
+      "Drawn donuts per item (icing colour, sprinkles / drizzle / specks), or your own image per item."
+    ],
+    [
+      "Haptics",
+      "A tick on each snap and a medium impact on Add to Cart."
+    ],
+    [
+      "Reduced motion",
+      "The detail donut stops its idle spin."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}
