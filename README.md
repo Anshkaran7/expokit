@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://expokit.karandev.in/logo-mark-light.svg">
-    <img src="https://expokit.karandev.in/logo-mark.svg" alt="ExpoKit" height="72">
+    <source media="(prefers-color-scheme: dark)" srcset="https://expokit.in/logo-mark-light.svg">
+    <img src="https://expokit.in/logo-mark.svg" alt="ExpoKit" height="72">
   </picture>
 </p>
 
@@ -10,8 +10,8 @@
 <p align="center">
   Beautifully animated UI components, charts and templates for Expo and React Native.
   <br>
-  <a href="https://expokit.karandev.in">Website</a> ·
-  <a href="https://expokit.karandev.in/docs">Docs</a> ·
+  <a href="https://expokit.in">Website</a> ·
+  <a href="https://expokit.in/docs">Docs</a> ·
   <a href="https://www.npmjs.com/package/@expokit/cli">CLI on npm</a> ·
   <a href="https://www.npmjs.com/package/expo-charts">expo-charts on npm</a>
 </p>
@@ -44,13 +44,13 @@ into your app. You get readable, typed files you own and can change however you 
 | `packages/charts` | `expo-charts`, animated and interactive charts |
 | `skills/`, `.claude-plugin/` | The ExpoKit skill and Claude Code plugin |
 
-[ExpoKit Pro](https://expokit.karandev.in/pricing) adds 3D and Liquid Glass components, full-screen blocks and more
+[ExpoKit Pro](https://expokit.in/pricing) adds 3D and Liquid Glass components, full-screen blocks and more
 charts. Pro source is not in this repository.
 
 ## Docs
 
 Installation, live previews, props, theming and AI setup for every component:
-**[expokit.karandev.in/docs](https://expokit.karandev.in/docs)**
+**[expokit.in/docs](https://expokit.in/docs)**
 
 ## Feedback
 
@@ -76,5 +76,5 @@ Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY
 ## License
 
 [MIT](LICENSE) © Karan (anshkaran7) — covers everything in this repository. ExpoKit Pro items are not part of it:
-they are sold separately under the terms at https://expokit.karandev.in/terms. The ExpoKit name and logo are not
+they are sold separately under the terms at https://expokit.in/terms. The ExpoKit name and logo are not
 licensed for use as your own branding.

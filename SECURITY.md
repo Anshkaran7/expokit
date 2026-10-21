@@ -5,7 +5,7 @@
 Please don't report security problems in public issues.
 
 Report them privately with GitHub's [Report a vulnerability](https://github.com/Anshkaran7/expokit/security/advisories/new)
-form, or email work@karandev.in (or use https://expokit.karandev.in/support) with "Security" in the subject — what you found, how to
+form, or email work@karandev.in (or use https://expokit.in/support) with "Security" in the subject — what you found, how to
 reproduce it and what it affects (a component, the CLI, `expo-kit login` / tokens, or the website). You'll get a reply
 within a few days, and a fix and credit (if you'd like it) once it is released.
 
@@ -27,7 +27,7 @@ The latest published version of `@expokit/cli` and `expo-charts`, and the compon
   the component files under the folders in `components.json`. `--dry-run` shows every change first, and `add` never
   overwrites a file you changed unless you pass `--force`.
 - Free components are bundled in the npm package — adding them needs no network.
-- Pro components are downloaded over HTTPS from https://expokit.karandev.in. Your token is saved in
+- Pro components are downloaded over HTTPS from https://expokit.in. Your token is saved in
   `~/.expo-kit/credentials.json` (readable only by you), is sent only to the site it was created for, and never
   follows a redirect. `expo-kit logout` deletes it.
 - Runs one command: `npx expo install <packages>` for the npm packages a component needs.
