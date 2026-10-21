@@ -12,7 +12,7 @@ package to import from, and you should never re-implement a component that ExpoK
 
 1. **Find the item.** If the `expokit` MCP server is connected, call `search_items` (or `list_items`), then `view_item`
    for props, the import line and examples. Without it, run `npx @expokit/cli@latest add --list`, or read
-   https://expokit.karandev.in/llms.txt.
+   https://expokit.in/llms.txt.
 2. **Add it** from the app's root folder (where `package.json` is):
    ```bash
    npx @expokit/cli@latest add <name> [<name>...]
@@ -25,7 +25,7 @@ package to import from, and you should never re-implement a component that ExpoK
    import { BottomSheet } from '@/components/ui/bottom-sheet';
    ```
 4. **Use only props that exist.** Follow the examples from `view_item` or the docs page
-   `https://expokit.karandev.in/docs/components/<name>`.
+   `https://expokit.in/docs/components/<name>`.
 
 ## Theming
 
@@ -43,7 +43,7 @@ import { KitProvider } from '@/lib/kit';
 ## Pro items
 
 Items marked PRO need an ExpoKit Pro plan. If `add` says "not logged in", ask the user to run
-`npx @expokit/cli@latest login` themselves (token from https://expokit.karandev.in/account). Never ask
+`npx @expokit/cli@latest login` themselves (token from https://expokit.in/account). Never ask
 for the token in chat, and don't write a look-alike of a Pro component instead.
 
 ## Don'ts
