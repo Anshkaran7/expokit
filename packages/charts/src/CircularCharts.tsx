@@ -10,11 +10,11 @@ import {
   responsive,
   useAnimatedValues,
 } from "./internal";
-import { ChartConfig, ChartLegend, ChartTooltip, TooltipIndicator, arc, sector, useMorphPaths } from "./kit";
+import { ChartConfig, ChartLegend, ChartTooltip, TEXT_SCALE, TooltipIndicator, arc, sector, useMorphPaths } from "./kit";
 import { seriesColor, useChartTheme } from "./theme";
 import { ChartSkeleton, GlowFilter, LegendVariant, TooltipVariant, glowUrl } from "./styles";
 import { Defs } from "react-native-svg";
-import type { Datum } from "./CartesianCharts";
+import { EmptyState, type Datum } from "./CartesianCharts";
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 const TAU = Math.PI * 2;
@@ -44,7 +44,41 @@ interface CircularBaseProps {
   tooltipVariant?: TooltipVariant;
   formatValue?: (value: number) => string;
   onSelect?: (index: number | null, datum: Datum | null) => void;
+  /** Shown when `data` is empty or every value is 0. */
+  emptyText?: string;
+  /** Screen-reader summary. Defaults to one built from the slices ("Chrome 275, 42%…"). */
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
+}
+
+/**
+ * VoiceOver / TalkBack: the chart is one adjustable element. Its label lists every slice; swiping
+ * up / down selects the next one (same as a tap, so the tooltip and centre follow).
+ */
+function circleA11y(
+  kind: string,
+  slices: { label: string; value: number }[],
+  active: number | null,
+  formatValue: (v: number) => string,
+  label: string | undefined,
+  select: (index: number) => void
+) {
+  const total = slices.reduce((sum, s) => sum + s.value, 0) || 1;
+  const part = (s: { label: string; value: number }) => `${s.label} ${formatValue(s.value)}, ${Math.round((s.value / total) * 100)}%`;
+  return {
+    accessible: true,
+    accessibilityRole: "adjustable" as const,
+    accessibilityLabel: label ?? `${kind}, ${slices.length} parts. ${slices.slice(0, 8).map(part).join(". ")}`,
+    accessibilityHint: "Swipe up or down to select each part.",
+    accessibilityValue: active !== null && slices[active] ? { text: part(slices[active]) } : undefined,
+    accessibilityActions: [{ name: "increment" as const }, { name: "decrement" as const }],
+    onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) => {
+      if (!slices.length) return;
+      const delta = event.nativeEvent.actionName === "increment" ? 1 : -1;
+      const next = active === null ? (delta > 0 ? 0 : slices.length - 1) : clamp(active + delta, 0, slices.length - 1);
+      if (next !== active) select(next);
+    },
+  };
 }
 
 function useSlices(data: Datum[], config: ChartConfig | undefined, nameKey: string, valueKey: string) {
@@ -125,6 +159,8 @@ function PieInner({
   animate = true,
   formatValue = compactNumber,
   onSelect,
+  emptyText = "No data",
+  accessibilityLabel,
 }: PieSeriesChartProps & { width: number }) {
   const theme = useChartTheme();
   const slices = useSlices(data, config, nameKey, valueKey);
@@ -210,17 +246,24 @@ function PieInner({
       if (!allowClear) pickedThisGesture.current = i;
       setActive(i);
       onSelect?.(i, data[i]);
+      theme.haptics?.();
     }
   };
 
   const activeSlice = active !== null ? geo[active] : null;
   const showCenter = (inner > 24 || semi) && centerValue !== null;
   if (isLoading) return <ChartSkeleton height={chartH} kind="circle" />;
+  if (!slices.some((sl) => sl.value > 0)) return <EmptyState height={chartH} text={emptyText} />;
   const pt = (r: number, a: number) => ({ x: cx + r * Math.sin(a), y: cy - r * Math.cos(a) });
+  const a11y = circleA11y(inner > 0 ? "Donut chart" : "Pie chart", slices, active, formatValue, accessibilityLabel, (i) => {
+    setActive(i);
+    onSelect?.(i, data[i]);
+    theme.haptics?.();
+  });
 
   return (
     <View>
-      <View style={{ width, height: chartH }}>
+      <View style={{ width, height: chartH }} {...a11y}>
         <Svg width={width} height={chartH}>
           <Defs>{geo.map((g) => (glowOn(g.key) ? <GlowFilter key={g.key} id={`pie-${g.key}`} blur={6} /> : null))}</Defs>
           {geo.map((g, i) =>
@@ -272,10 +315,10 @@ function PieInner({
             pointerEvents="none"
             style={semi ? [styles.radialCenter, { top: cy - 54, height: 56 }] : [StyleSheet.absoluteFill, styles.center]}
           >
-            <Text style={[styles.centerValue, { color: theme.foreground, fontFamily: theme.fontFamily, fontSize: clamp(inner / 2.6, 14, 30) }]} numberOfLines={1} adjustsFontSizeToFit>
+            <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.centerValue, { color: theme.foreground, fontFamily: theme.fontFamily, fontSize: clamp(inner / 2.6, 14, 30) }]} numberOfLines={1} adjustsFontSizeToFit>
               {activeSlice ? formatValue(activeSlice.value) : centerValue ?? formatValue(total)}
             </Text>
-            <Text style={[styles.centerLabel, { color: theme.mutedForeground, fontFamily: theme.fontFamily }]} numberOfLines={1}>
+            <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.centerLabel, { color: theme.mutedForeground, fontFamily: theme.fontFamily }]} numberOfLines={1}>
               {activeSlice ? activeSlice.label : centerLabel}
             </Text>
           </View>
@@ -357,6 +400,8 @@ function RadialInner({
   animate = true,
   formatValue = compactNumber,
   onSelect,
+  emptyText = "No data",
+  accessibilityLabel,
 }: RadialSeriesChartProps & { width: number }) {
   const theme = useChartTheme();
   const slices = useSlices(data, config, nameKey, valueKey);
@@ -413,6 +458,7 @@ function RadialInner({
       i = rings.findIndex((r) => Math.abs(dist - r.r) <= r.band / 2 + gap / 2);
     }
     const next = i === -1 || (!hover && i === active) ? null : i;
+    if (next !== null && next !== active && !hover) theme.haptics?.();
     setActive(next);
     onSelect?.(next, next === null ? null : data[next]);
   };
@@ -425,9 +471,16 @@ function RadialInner({
       ? { value: formatValue(shown.value), label: shown.label }
       : { value: centerValue ?? formatValue(stacked ? total : rings[0]?.value ?? 0), label: centerLabel ?? (stacked ? "Total" : rings[0]?.label ?? "") };
 
+  if (!slices.length) return <EmptyState height={height} text={emptyText} />;
+  const a11y = circleA11y("Radial chart", slices, active, formatValue, accessibilityLabel, (i) => {
+    setActive(i);
+    onSelect?.(i, data[i]);
+    theme.haptics?.();
+  });
+
   return (
     <View>
-      <View style={{ width, height }}>
+      <View style={{ width, height }} {...a11y}>
         <Svg width={width} height={height}>
           {rings.map((r, i) => {
             const d = arc(cx, cy, r.r, r.start, r.end);
@@ -468,10 +521,10 @@ function RadialInner({
         </Svg>
         {center ? (
           <View pointerEvents="none" style={[styles.radialCenter, { top: semi ? cy - 52 : 0, bottom: semi ? undefined : 0, height: semi ? 56 : undefined }]}>
-            <Text style={[styles.centerValue, { color: theme.foreground, fontFamily: theme.fontFamily, fontSize: semi ? 26 : clamp(outer * innerRadius * 0.55, 16, 30) }]} numberOfLines={1} adjustsFontSizeToFit>
+            <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.centerValue, { color: theme.foreground, fontFamily: theme.fontFamily, fontSize: semi ? 26 : clamp(outer * innerRadius * 0.55, 16, 30) }]} numberOfLines={1} adjustsFontSizeToFit>
               {center.value}
             </Text>
-            <Text style={[styles.centerLabel, { color: theme.mutedForeground, fontFamily: theme.fontFamily }]} numberOfLines={1}>
+            <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.centerLabel, { color: theme.mutedForeground, fontFamily: theme.fontFamily }]} numberOfLines={1}>
               {center.label}
             </Text>
           </View>

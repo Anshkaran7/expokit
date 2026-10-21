@@ -29,9 +29,53 @@ import { LineChart } from 'expo-charts';
 />;
 ```
 
+## Built for phones
+
+- **Scrub with your finger**, tap to pin a point; charts never fight the page's ScrollView (iOS and Android).
+- **Haptics**: one line gives every chart a selection tick.
+- **VoiceOver & TalkBack**: each chart reads a summary, and swiping up / down steps through the points.
+- **Reduce Motion**: animations switch off when the phone asks for it. Text follows the font size setting (capped so layouts hold).
+- **Real-world data**: missing values leave a gap (`connectNulls` to bridge), `yDomain={["auto", "auto"]}` for prices and
+  vitals, `referenceLines` for goals and limits, an empty state, and dense series skip their dots automatically.
+
+```tsx
+import * as Haptics from 'expo-haptics';
+import { ChartProvider, LineSeriesChart } from 'expo-charts';
+
+<ChartProvider haptics={Haptics.selectionAsync}>
+  <LineSeriesChart
+    data={prices} // [{ day: "1 Oct", close: 148.2 }, …]
+    config={{ close: { label: "Close" } }}
+    xKey="day"
+    yDomain={["auto", "auto"]}
+    referenceLines={[{ value: 148.2, label: "Open" }]}
+    activeIndex={prices.length - 1} // show the latest price until the finger scrubs
+  />
+</ChartProvider>;
+```
+
+## Mobile dashboard charts
+
+Capsule bars, tick bars, a fan gauge and mini rings for health, fitness and analytics screens. They are plain
+Views animated on the native UI thread, so they stay smooth even while your JS thread is busy.
+
+```tsx
+import { PillBarChart, TickBarChart, FanGauge, MiniRing } from 'expo-charts';
+
+<PillBarChart data={steps} activeGradient={['#C3E550', '#4C9A3B']} defaultIndex={4} dimAfter={4} activeDot />
+<PillBarChart data={week} max={100} track />            // progress to a goal
+<TickBarChart data={[{ label: 'Done', value: 1012 }, { label: 'Pending', value: 340 }]} />
+<FanGauge value={82} label="Sales Growth" onChange={setValue} />
+<MiniRing value={72} color="#E4572E" />
+```
+
+More in the same family: `PriceChart` (stock/crypto with 1D–ALL tabs), `GoalBars`, `ActivityRings`, `ScoreGauge`,
+`BeadChart`, `StatCard`, `BarList`, `SegmentedBar`, `RangeBarChart`, `DivergingBarChart`, `StackedPillChart`,
+`WaffleChart`, `CalendarHeatmap`, `TickRing`, `LiquidGauge`, and 3D `Donut3D` / `CylinderBarChart`.
+
 ## Docs
 
-Every chart with live previews, props, theming and help: **[expokit.karandev.in/docs/charts](https://expokit.karandev.in/docs/charts)**.
+Every chart with live previews, props, theming and help: **[expokit.in/docs/charts](https://expokit.in/docs/charts)**.
 
 ## Security
 

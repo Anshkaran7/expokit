@@ -29,6 +29,9 @@ export type ChartConfig = Record<
     glow?: boolean;
   }
 >;
+/** Text grows with Dynamic Type / font size, capped so tooltips and legends keep their layout. */
+export const TEXT_SCALE = 1.4;
+
 export type CurveType = "monotone" | "natural" | "linear" | "step";
 export type TooltipIndicator = "dot" | "line" | "dashed";
 
@@ -351,27 +354,27 @@ export function ChartTooltip({
       ]}
     >
       {content.title ? (
-        <Text style={[styles.tooltipTitle, { color: theme.popoverForeground, fontFamily: theme.fontFamily }]}>
+        <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.tooltipTitle, { color: theme.popoverForeground, fontFamily: theme.fontFamily }]}>
           {content.title}
         </Text>
       ) : null}
       {content.items.map((item) => (
         <View key={item.key} style={styles.tooltipRow}>
           {hideIndicator ? null : <Indicator color={item.color} type={indicator} />}
-          <Text style={[styles.tooltipLabel, { color: theme.mutedForeground, fontFamily: theme.fontFamily }]} numberOfLines={1}>
+          <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.tooltipLabel, { color: theme.mutedForeground, fontFamily: theme.fontFamily }]} numberOfLines={1}>
             {item.label}
           </Text>
-          <Text style={[styles.tooltipValue, { color: theme.popoverForeground, fontFamily: theme.fontFamily }]}>
+          <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.tooltipValue, { color: theme.popoverForeground, fontFamily: theme.fontFamily }]}>
             {item.value}
           </Text>
         </View>
       ))}
       {content.footer ? (
         <View style={[styles.tooltipFooter, { borderTopColor: theme.border }]}>
-          <Text style={[styles.tooltipLabel, { color: theme.popoverForeground, fontWeight: "500" }]}>
+          <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.tooltipLabel, { color: theme.popoverForeground, fontWeight: "500" }]}>
             {content.footer.label}
           </Text>
-          <Text style={[styles.tooltipValue, { color: theme.popoverForeground }]}>{content.footer.value}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.tooltipValue, { color: theme.popoverForeground }]}>{content.footer.value}</Text>
         </View>
       ) : null}
     </Animated.View>
@@ -448,7 +451,7 @@ export function ChartLegend({
           ]}
         >
           <LegendMarker variant={variant} color={item.color} />
-          <Text style={[styles.legendText, { color: theme.foreground, fontFamily: theme.fontFamily }]}>{item.label}</Text>
+          <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.legendText, { color: theme.foreground, fontFamily: theme.fontFamily }]}>{item.label}</Text>
         </Pressable>
       ))}
     </View>
@@ -501,9 +504,9 @@ export function ChartCard({
       {title || description || action ? (
         <View style={styles.cardHeader}>
           <View style={{ flex: 1 }}>
-            {title ? <Text style={[styles.cardTitle, font, { color: theme.foreground }]}>{title}</Text> : null}
+            {title ? <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.cardTitle, font, { color: theme.foreground }]}>{title}</Text> : null}
             {description ? (
-              <Text style={[styles.cardDescription, font, { color: theme.mutedForeground }]}>{description}</Text>
+              <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.cardDescription, font, { color: theme.mutedForeground }]}>{description}</Text>
             ) : null}
           </View>
           {action}
@@ -514,13 +517,13 @@ export function ChartCard({
         <View style={styles.cardFooter}>
           {trend ? (
             <View style={styles.trendRow}>
-              <Text style={[styles.trendText, font, { color: theme.foreground }]}>
+              <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.trendText, font, { color: theme.foreground }]}>
                 {trend.label ?? `Trending ${up ? "up" : "down"} by ${Math.abs(trend.value).toFixed(1)}% this month`}
               </Text>
               <TrendIcon color={up ? theme.positive : theme.negative} down={!up} />
             </View>
           ) : null}
-          {caption ? <Text style={[styles.caption, font, { color: theme.mutedForeground }]}>{caption}</Text> : null}
+          {caption ? <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.caption, font, { color: theme.mutedForeground }]}>{caption}</Text> : null}
           {footer}
         </View>
       ) : null}
@@ -546,7 +549,8 @@ const styles = StyleSheet.create({
   },
   tooltipTitle: { fontSize: 12, fontWeight: "500", marginBottom: 1 },
   tooltipRow: { flexDirection: "row", alignItems: "center", gap: 7 },
-  tooltipLabel: { flex: 1, fontSize: 12 },
+  // Grow into spare width but keep the natural width: `flex: 1` collapsed labels to "C…" in a content-sized tooltip.
+  tooltipLabel: { flexGrow: 1, flexShrink: 1, fontSize: 12 },
   tooltipValue: { fontSize: 12, fontWeight: "500", fontVariant: ["tabular-nums"], marginLeft: 12 },
   tooltipFooter: {
     flexDirection: "row",

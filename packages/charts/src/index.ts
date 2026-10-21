@@ -34,11 +34,33 @@ export type {
   BarChartProps as BarSeriesChartProps,
   ComboChartProps,
   CartesianBaseProps,
+  ReferenceLine,
   Datum,
 } from "./CartesianCharts";
 export { PieSeriesChart, RadialSeriesChart } from "./CircularCharts";
 export type { PieSeriesChartProps, RadialSeriesChartProps } from "./CircularCharts";
 export { readableTextColor } from "./kit";
+
+// Mobile dashboard charts: native-thread animation (capsule bars, tick bars, fan gauge, mini rings).
+export { PillBarChart, TickBarChart, FanGauge, MiniRing, mixColor } from "./NativeCharts";
+export type { BarDatum, PillBarChartProps, TickBarChartProps, FanGaugeProps, MiniRingProps } from "./NativeCharts";
+export * from "./mobile/BarList";
+export * from "./mobile/SegmentedBar";
+export * from "./mobile/RangeBarChart";
+export * from "./mobile/WaffleChart";
+export * from "./mobile/CalendarHeatmap";
+export * from "./mobile/DivergingBarChart";
+export * from "./mobile/TickRing";
+export * from "./mobile/LiquidGauge";
+export * from "./mobile/StackedPillChart";
+export * from "./mobile/StatCard";
+export * from "./mobile/PriceChart";
+export * from "./mobile/GoalBars";
+export * from "./mobile/ActivityRings";
+export * from "./mobile/BeadChart";
+export * from "./mobile/ScoreGauge";
+export * from "./mobile/Donut3D";
+export * from "./mobile/CylinderBarChart";
 
 export * from "./styles";
 
@@ -56,6 +78,7 @@ export {
   niceTicks,
   responsive,
   useAnimatedValues,
+  useReducedMotion,
 } from "./internal";
 export { useMorphPaths } from "./kit";
 export type { Corners } from "./kit";

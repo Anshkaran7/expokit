@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { Animated, PanResponder, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
+import { Animated, PanResponder, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import Svg, { Defs, G, Line, Path, Rect, Text as SvgText } from "react-native-svg";
 import {
   AnimatedPath,
@@ -16,6 +16,7 @@ import {
   ChartLegend,
   ChartTooltip,
   CurveType,
+  TEXT_SCALE,
   TooltipIndicator,
   buildArea,
   buildPath,
@@ -71,6 +72,15 @@ export interface CartesianBaseProps {
   showYAxis?: boolean;
   yAxisPosition?: "left" | "right";
   yTickCount?: number;
+  /**
+   * Value range of the y axis. Each end is a number or "auto" (fit the data). Omit to start at zero.
+   * Prices, heart rate, weight…: `yDomain={["auto", "auto"]}` so small moves aren't flattened.
+   */
+  yDomain?: [number | "auto", number | "auto"];
+  /** Horizontal lines for goals, limits or averages: [{ value: 200, label: "Goal" }]. */
+  referenceLines?: ReferenceLine[];
+  /** Missing values (null / undefined / NaN) break lines into gaps. True draws straight across them. */
+  connectNulls?: boolean;
   /** Texture behind the plot: dots, grid, hatch… */
   backgroundVariant?: BackgroundVariant;
 
@@ -110,9 +120,27 @@ export interface CartesianBaseProps {
   formatValue?: (value: number, key?: string) => string;
   formatLabel?: (value: any, index: number) => string;
   onSelect?: (index: number | null, datum: Datum | null) => void;
+  /**
+   * Controlled selection: this point shows its tooltip while the finger is up (e.g. the latest
+   * value, or the point picked on a second, synced chart). Scrubbing still takes over.
+   */
+  activeIndex?: number | null;
   onScrubStart?: () => void;
   onScrubEnd?: () => void;
+  /** Shown when `data` is empty. */
+  emptyText?: string;
+  /** Screen-reader summary. Defaults to a generated one ("Line chart, 6 points. Desktop: 186 to 214…"). */
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
+}
+
+export interface ReferenceLine {
+  value: number;
+  label?: string;
+  /** Defaults to the muted foreground colour. */
+  color?: string;
+  /** Default true. */
+  dashed?: boolean;
 }
 
 interface LineLook {
@@ -202,6 +230,26 @@ const num = (value: unknown) => {
   const n = Number(value);
   return isFinite(n) ? n : 0;
 };
+/** null / undefined / "" / NaN: no reading for this point (drawn as a gap). */
+const missing = (value: unknown) =>
+  value === null || value === undefined || value === "" || !Number.isFinite(Number(value));
+
+/** Runs of consecutive present indices below `limit` (one run when connecting across gaps). */
+function runsOf(present: boolean[], limit: number, connect: boolean) {
+  const runs: number[][] = [];
+  let run: number[] = [];
+  for (let i = 0; i < limit; i++) {
+    if (present[i]) run.push(i);
+    else if (!connect && run.length) {
+      runs.push(run);
+      run = [];
+    }
+  }
+  if (run.length) runs.push(run);
+  return runs;
+}
+
+const KIND_NAME: Record<string, string> = { area: "Area chart", line: "Line chart", bar: "Bar chart", combo: "Chart" };
 
 function CartesianEngine(props: EngineProps) {
   const theme = useChartTheme();
@@ -220,6 +268,12 @@ function CartesianEngine(props: EngineProps) {
     showYAxis = false,
     yAxisPosition = "left",
     yTickCount = 4,
+    yDomain,
+    referenceLines = [],
+    connectNulls = false,
+    activeIndex,
+    emptyText = "No data",
+    accessibilityLabel,
     backgroundVariant = "none",
     showLegend = false,
     legendVariant = "rounded-square",
@@ -253,7 +307,7 @@ function CartesianEngine(props: EngineProps) {
     strokeWidth = 2,
     strokeVariant = "solid",
     glow = false,
-    showDots = kind === "line",
+    showDots,
     dotRadius = 3.5,
     dotVariant = "default",
     activeDotVariant = "default",
@@ -288,9 +342,12 @@ function CartesianEngine(props: EngineProps) {
     const silhouette = stack && kind === "area" && stackOffset === "silhouette";
     const y0: Record<string, number[]> = {};
     const y1: Record<string, number[]> = {};
+    // Gaps only for unstacked series: a stack treats a missing value as 0.
+    const present: Record<string, boolean[]> = {};
     series.forEach((s) => {
       y0[s.key] = [];
       y1[s.key] = [];
+      present[s.key] = data.map((d) => stack || !missing(d[s.key]));
     });
     for (let i = 0; i < n; i++) {
       const total = series.reduce((sum, s) => sum + (hidden[s.key] ? 0 : Math.max(0, num(data[i][s.key]))), 0);
@@ -315,12 +372,34 @@ function CartesianEngine(props: EngineProps) {
       });
     }
     const visible = series.filter((s) => !hidden[s.key]);
-    const all: number[] = silhouette ? [] : [0];
-    visible.forEach((s) => all.push(...y0[s.key], ...y1[s.key]));
+    // Default: the axis starts at zero. A yDomain end of "auto" fits the data instead.
+    const all: number[] = silhouette || yDomain ? [] : [0];
+    visible.forEach((s) =>
+      present[s.key].forEach((on, i) => {
+        if (on) all.push(y0[s.key][i], y1[s.key][i]);
+      })
+    );
+    // Lines (no fill) start at their own lowest point, not at the zero baseline under them.
+    if (yDomain && !stack) {
+      // Bars keep zero (a bar cut off above zero misreads); lines and areas fit their own values.
+      const flatOnly = visible.every((s) => typeOf(s.key) !== "bar");
+      if (flatOnly) all.splice(0, all.length, ...visible.flatMap((s) => y1[s.key].filter((_, i) => present[s.key][i])));
+    }
+    referenceLines.forEach((r) => Number.isFinite(r.value) && all.push(r.value));
     if (!all.length) all.push(0, 1);
-    const scale = expand
+    let scale = expand
       ? { min: 0, max: 1, ticks: [0, 0.25, 0.5, 0.75, 1] }
-      : niceTicks(Math.min(...all), Math.max(...all, 1e-9), yTickCount);
+      : niceTicks(
+          typeof yDomain?.[0] === "number" ? yDomain[0] : Math.min(...all),
+          typeof yDomain?.[1] === "number" ? yDomain[1] : Math.max(...all, yDomain ? -Infinity : 1e-9),
+          yTickCount
+        );
+    // A fixed end is exact (0–100 stays 0–100), not rounded out to the next nice tick.
+    if (!expand && yDomain && (typeof yDomain[0] === "number" || typeof yDomain[1] === "number")) {
+      const lo = typeof yDomain[0] === "number" ? yDomain[0] : scale.min;
+      const hi = typeof yDomain[1] === "number" ? yDomain[1] : scale.max;
+      if (hi > lo) scale = { min: lo, max: hi, ticks: scale.ticks.filter((t) => t >= lo - 1e-9 && t <= hi + 1e-9) };
+    }
     const tickLabel = (t: number) => (expand ? `${Math.round(t * 100)}%` : formatValue(t));
     const yAxisWidth = showYAxis ? Math.max(...scale.ticks.map((t) => estimateTextWidth(tickLabel(t), 11))) + 10 : 0;
     const edge = banded ? 0 : Math.max(dotRadius + 4, strokeWidth + 1);
@@ -370,8 +449,8 @@ function CartesianEngine(props: EngineProps) {
               w = Math.max(each, 0);
             }
           }
-          const a = toY(y0[s.key][i]);
-          const b = toY(y1[s.key][i]);
+          const a = toY(clamp(y0[s.key][i], scale.min, scale.max));
+          const b = toY(clamp(y1[s.key][i], scale.min, scale.max));
           const top = Math.min(a, b);
           const h = Math.abs(a - b);
           const value = num(data[i][s.key]);
@@ -428,19 +507,22 @@ function CartesianEngine(props: EngineProps) {
         if (t === "line" && hidden[s.key]) return;
         const topPts = data.map((_, i) => ({ x: xAt(i), y: toY(y1[s.key][i]) }));
         const flat = data.map((_, i) => ({ x: xAt(i), y: baseline }));
+        const on = present[s.key];
         // Buffer: main line stops one point early; the last segment is drawn dashed.
-        const split = bufferLast && n > 2;
-        const mainPts = split ? topPts.slice(0, -1) : topPts;
-        const mainFlat = split ? flat.slice(0, -1) : flat;
+        const split = bufferLast && n > 2 && on[n - 1] && on[n - 2];
+        const runs = runsOf(on, split ? n - 1 : n, connectNulls);
+        const pick = (pts: { x: number; y: number }[], run: number[]) => run.map((i) => pts[i]);
+        const line = (pts: { x: number; y: number }[]) => runs.map((run) => buildPath(pick(pts, run), curve)).join(" ");
         if (t === "area") {
-          const bottomPts = data.map((_, i) => ({ x: xAt(i), y: toY(y0[s.key][i]) }));
-          const flatBottom = silhouette ? flat : flat;
+          // An "auto" y range can start above zero: the fill stops at the plot's floor.
+          const bottomPts = data.map((_, i) => ({ x: xAt(i), y: toY(clamp(y0[s.key][i], scale.min, scale.max)) }));
+          const areaRuns = runsOf(on, n, connectNulls);
           shapes.push({
             id: `${s.key}-area`,
             key: s.key,
             type: "area",
-            d: buildArea(topPts, bottomPts, curve),
-            collapsed: buildArea(flat, flatBottom, curve),
+            d: areaRuns.map((run) => buildArea(pick(topPts, run), pick(bottomPts, run), curve)).join(" "),
+            collapsed: areaRuns.map((run) => buildArea(pick(flat, run), pick(flat, run), curve)).join(" "),
             color: s.color,
             fill: fillUrl(`${s.key}-area`, variantOf(s.key), s.color, "area"),
           });
@@ -449,8 +531,8 @@ function CartesianEngine(props: EngineProps) {
           id: `${s.key}-${t === "area" ? "stroke" : "line"}`,
           key: s.key,
           type: t === "area" ? "area-line" : "line",
-          d: buildPath(mainPts, curve),
-          collapsed: buildPath(mainFlat, curve),
+          d: line(topPts),
+          collapsed: line(flat),
           color: s.color,
         });
         if (split) {
@@ -496,8 +578,8 @@ function CartesianEngine(props: EngineProps) {
     const labels = data.map((d, i) => formatLabel(d[xKey], i));
     const maxLabel = Math.max(0, ...labels.map((l) => estimateTextWidth(l, 11)));
     const every = labelStep(n, plotW, maxLabel + 14);
-    return { scale, tickLabel, pad, plotW, plotH, toY, baseline, bandW, xAt, shapes, marks, labels, every, y1, yAxisWidth };
-  }, [data, series.map((s) => s.key + s.color).join(), JSON.stringify(config), hidden, width, height, kind, stacked, stackOffset, curve, radius, barGap, categoryGap, maxBarSize, barShape, bufferLast, showXAxis, showYAxis, yAxisPosition, showLabels, yTickCount, dotRadius, strokeWidth, JSON.stringify(types), negativeColor, fillVariant]);
+    return { scale, tickLabel, pad, plotW, plotH, toY, baseline, bandW, xAt, shapes, marks, labels, every, y1, yAxisWidth, present };
+  }, [data, series.map((s) => s.key + s.color).join(), JSON.stringify(config), hidden, width, height, kind, stacked, stackOffset, curve, radius, barGap, categoryGap, maxBarSize, barShape, bufferLast, showXAxis, showYAxis, yAxisPosition, showLabels, yTickCount, dotRadius, strokeWidth, JSON.stringify(types), negativeColor, fillVariant, JSON.stringify(yDomain), JSON.stringify(referenceLines), connectNulls]);
 
   const rise = animationType === "rise";
   const { paths, alt, progress } = useMorphPaths(
@@ -506,9 +588,13 @@ function CartesianEngine(props: EngineProps) {
     { animate: animate && animationType !== "none" }
   );
 
-  const { scale, tickLabel, pad, plotW, plotH, toY, baseline, bandW, xAt, shapes, marks: markShapes, labels, every, y1 } = geo;
+  const { scale, tickLabel, pad, plotW, plotH, toY, baseline, bandW, xAt, shapes, marks: markShapes, labels, every, y1, present } = geo;
   // The data can shrink under an active selection (brush, live updates): drop it rather than read past the end.
-  const idx = active && active.index < n ? active.index : null;
+  // With the finger up, a controlled `activeIndex` keeps its point selected.
+  const controlled = activeIndex !== null && activeIndex !== undefined && activeIndex >= 0 && activeIndex < n ? activeIndex : null;
+  const idx = active && active.index < n ? active.index : controlled;
+  // Dense series (a year of days) skip point markers unless asked: they'd smear into a thick line.
+  const dotsOn = showDots ?? (kind === "line" && (n < 2 || plotW / (n - 1) >= 12));
 
   const indexAt = (x: number) =>
     banded
@@ -518,7 +604,10 @@ function CartesianEngine(props: EngineProps) {
     const i = indexAt(x);
     // Scrubbing fires on every finger move; only a new index (or a tap pinning it) re-renders.
     if (active && active.index === i && active.sticky === sticky) return;
-    if (i !== idx) onSelect?.(i, data[i]);
+    if (i !== idx) {
+      onSelect?.(i, data[i]);
+      theme.haptics?.();
+    }
     setActive({ index: i, y, sticky });
   };
 
@@ -545,7 +634,12 @@ function CartesianEngine(props: EngineProps) {
   const tooltipItems =
     idx === null
       ? []
-      : visibleSeries.map((s) => ({ key: s.key, label: s.label, color: s.color, value: formatValue(num(data[idx][s.key]), s.key) }));
+      : visibleSeries.map((s) => ({
+          key: s.key,
+          label: s.label,
+          color: s.color,
+          value: present[s.key][idx] ? formatValue(num(data[idx][s.key]), s.key) : "—",
+        }));
   const total = idx === null ? 0 : visibleSeries.reduce((sum, s) => sum + num(data[idx][s.key]), 0);
   const topOfActive =
     idx === null ? 0 : Math.min(...visibleSeries.map((s) => toY(Math.max(y1[s.key][idx], 0))), baseline);
@@ -678,17 +772,18 @@ function CartesianEngine(props: EngineProps) {
               )
             : null}
 
-          {(showDots || showLabels) && !banded ? (
+          {(dotsOn || showLabels) && !banded ? (
             <AnimatedG opacity={rise ? progress : 1}>
               {visibleSeries
                 .filter((s) => typeOf(s.key) !== "bar")
                 .map((s) =>
                   data.map((d, i) => {
+                    if (!present[s.key][i]) return null;
                     const cy = toY(y1[s.key][i]);
                     return (
                       <G key={`${s.key}-p-${i}`} opacity={dimKey(s.key)}>
-                        {showDots ? <ChartDot cx={xAt(i)} cy={cy} r={dotRadius} color={s.color} variant={dotVariant} surface={theme.card} /> : null}
-                        {showLabels ? (
+                        {dotsOn ? <ChartDot cx={xAt(i)} cy={cy} r={dotRadius} color={s.color} variant={dotVariant} surface={theme.card} /> : null}
+                        {showLabels && i % every === 0 ? (
                           <SvgText x={xAt(i)} y={cy - dotRadius - 6} fontSize={11} fontWeight="500" fill={theme.foreground} textAnchor="middle" fontFamily={fontFamily}>
                             {formatValue(num(d[s.key]), s.key)}
                           </SvgText>
@@ -707,7 +802,7 @@ function CartesianEngine(props: EngineProps) {
                 .map((s) =>
                   data.map((d, i) => {
                     const shape = shapes.find((sh) => sh.id === `${s.key}-${i}`);
-                    if (!shape) return null;
+                    if (!shape || i % every !== 0 || !present[s.key][i]) return null;
                     const v = num(d[s.key]);
                     const yEnd = toY(y1[s.key][i]);
                     return (
@@ -733,12 +828,44 @@ function CartesianEngine(props: EngineProps) {
     [props, geo, theme, hidden, picked, paths, alt, progress, dash, markIndex]
   );
 
-  if (!n) return <View style={{ height }} />;
+  if (!n) return <EmptyState height={height} text={emptyText} />;
+
+  // Screen readers: one adjustable element. Swipe up / down steps through the points, reading each
+  // one's values (and moving the tooltip, so a sighted helper sees the same point).
+  const describe = (i: number) =>
+    `${labels[i] || String(data[i][xKey] ?? "")}: ${visibleSeries
+      .map((s) => `${s.label} ${present[s.key][i] ? formatValue(num(data[i][s.key]), s.key) : "no data"}`)
+      .join(", ")}`;
+  const summary =
+    accessibilityLabel ??
+    `${KIND_NAME[kind] ?? "Chart"}, ${n} ${n === 1 ? "point" : "points"}. ${visibleSeries
+      .slice(0, 4)
+      .map((s) => {
+        const vals = data.map((d) => d[s.key]).filter((v) => !missing(v)).map(Number);
+        return vals.length ? `${s.label}: ${formatValue(vals[0], s.key)} to ${formatValue(vals[vals.length - 1], s.key)}` : `${s.label}: no data`;
+      })
+      .join(". ")}`;
+  const step = (delta: number) => {
+    const next = clamp((idx ?? (delta > 0 ? -1 : n)) + delta, 0, n - 1);
+    if (next === idx) return;
+    setActive({ index: next, y: 0, sticky: true });
+    onSelect?.(next, data[next]);
+    theme.haptics?.();
+  };
 
   return (
     <View>
       {legendPosition === "top" ? legend : null}
-      <View style={{ width, height }}>
+      <View
+        style={{ width, height }}
+        accessible
+        accessibilityRole="adjustable"
+        accessibilityLabel={summary}
+        accessibilityHint="Swipe up or down to read each point."
+        accessibilityValue={idx === null ? undefined : { text: describe(idx) }}
+        accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
+        onAccessibilityAction={(event) => step(event.nativeEvent.actionName === "increment" ? 1 : -1)}
+      >
         <Svg width={width} height={height}>
           {backdrop}
 
@@ -751,9 +878,38 @@ function CartesianEngine(props: EngineProps) {
 
           {marks}
 
+          {referenceLines.map((r, k) => {
+            if (!Number.isFinite(r.value) || r.value < scale.min || r.value > scale.max) return null;
+            const y = toY(r.value);
+            const color = r.color ?? theme.mutedForeground;
+            const above = y - 6 > pad.top - 4;
+            return (
+              <G key={`ref-${k}`}>
+                <Line x1={pad.left} x2={width - pad.right} y1={y} y2={y} stroke={color} strokeWidth={1.25} strokeDasharray={r.dashed === false ? undefined : "5 4"} />
+                {r.label ? (
+                  // Card-coloured chip so a series crossing the label never strikes through it.
+                  <Rect
+                    x={width - pad.right - estimateTextWidth(r.label, 10) - 6}
+                    y={(above ? y - 6 : y + 14) - 11}
+                    width={estimateTextWidth(r.label, 10) + 6}
+                    height={14}
+                    rx={4}
+                    fill={theme.card}
+                    opacity={0.9}
+                  />
+                ) : null}
+                {r.label ? (
+                  <SvgText x={width - pad.right - 2} y={above ? y - 6 : y + 14} fontSize={10} fontWeight="500" fill={color} textAnchor="end" fontFamily={fontFamily}>
+                    {r.label}
+                  </SvgText>
+                ) : null}
+              </G>
+            );
+          })}
+
           {idx !== null
             ? visibleSeries
-                .filter((s) => typeOf(s.key) !== "bar")
+                .filter((s) => typeOf(s.key) !== "bar" && present[s.key][idx])
                 .map((s) => (
                   <ChartDot key={`a-${s.key}`} cx={xAt(idx)} cy={toY(y1[s.key][idx])} r={dotRadius + 2} color={s.color} variant={activeDotVariant === "none" ? "default" : activeDotVariant} surface={theme.card} />
                 ))
@@ -835,6 +991,18 @@ function CartesianEngine(props: EngineProps) {
         ) : null}
       </View>
       {legendPosition === "bottom" ? legend : null}
+    </View>
+  );
+}
+
+/** Muted "No data" in the chart's footprint, so layouts don't jump while data loads or filters empty. */
+export function EmptyState({ height, text }: { height: number; text: string }) {
+  const theme = useChartTheme();
+  return (
+    <View style={{ height, alignItems: "center", justifyContent: "center" }} accessible accessibilityLabel={text}>
+      <Text maxFontSizeMultiplier={TEXT_SCALE} style={{ color: theme.mutedForeground, fontSize: 13, fontFamily: theme.fontFamily }}>
+        {text}
+      </Text>
     </View>
   );
 }
@@ -1086,11 +1254,12 @@ function HorizontalBars(props: EngineProps) {
   });
 
   const { paths, alt, progress } = useMorphPaths(shapes.map((s) => s.d), shapes.map((s) => s.collapsed), { animate });
-  if (!n) return <View style={{ height: chartH }} />;
+  if (!n) return <EmptyState height={chartH} text={props.emptyText ?? "No data"} />;
 
   const select = (y: number, hover = false) => {
     const i = clamp(Math.floor(y / bandH), 0, n - 1);
     const next = !hover && active === i ? null : i;
+    if (next !== active && next !== null && !hover) theme.haptics?.();
     setActive(next);
     onSelect?.(next, next === null ? null : data[next]);
   };

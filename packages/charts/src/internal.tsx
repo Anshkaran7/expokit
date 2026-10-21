@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   PanResponder,
@@ -458,6 +459,38 @@ export function SvgTooltip({
   );
 }
 
+// Shared across charts: one OS query, then every chart follows the live setting.
+let reducedMotion = false;
+const motionListeners = new Set<(on: boolean) => void>();
+let motionWatching = false;
+function watchReducedMotion() {
+  if (motionWatching) return;
+  motionWatching = true;
+  const set = (on: boolean) => {
+    if (on === reducedMotion) return;
+    reducedMotion = on;
+    motionListeners.forEach((listener) => listener(on));
+  };
+  AccessibilityInfo.isReduceMotionEnabled?.()
+    .then((on) => set(!!on))
+    .catch(() => {});
+  AccessibilityInfo.addEventListener?.("reduceMotionChanged", (on: boolean) => set(!!on));
+}
+
+/** True while the phone's Reduce Motion (iOS) / Remove animations (Android) setting is on. */
+export function useReducedMotion() {
+  const [on, setOn] = useState(reducedMotion);
+  useEffect(() => {
+    watchReducedMotion();
+    setOn(reducedMotion);
+    motionListeners.add(setOn);
+    return () => {
+      motionListeners.delete(setOn);
+    };
+  }, []);
+  return on;
+}
+
 /**
  * Wraps a chart so it fills its parent's width when no `width` prop is given,
  * and re-lays out on rotation / split screen / tablets.
@@ -469,6 +502,7 @@ export function responsive<P extends { width?: number; style?: StyleProp<ViewSty
   const Responsive = (rawProps: P) => {
     const [measured, setMeasured] = useState(0);
     const theme = useChartTheme();
+    const calm = useReducedMotion();
     // Theme supplies colours unless the caller passed their own.
     const props = { ...rawProps } as any;
     const themed: Record<string, unknown> = {
@@ -481,6 +515,8 @@ export function responsive<P extends { width?: number; style?: StyleProp<ViewSty
     Object.keys(themed).forEach((key) => {
       if (props[key] === undefined) props[key] = themed[key];
     });
+    // Reduce Motion: charts appear and update instantly.
+    if (calm) props.animate = false;
     const width = rawProps.width ?? measured;
 
     return (

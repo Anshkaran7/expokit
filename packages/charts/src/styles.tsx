@@ -15,6 +15,9 @@ import {
   Stop,
 } from "react-native-svg";
 import { useChartTheme } from "./theme";
+import { useReducedMotion } from "./internal";
+
+const TEXT_SCALE = 1.4;
 
 export type FillVariant =
   | "gradient"
@@ -239,14 +242,16 @@ export function ChartDot({
 /** Looping value (0→1) for marching dashes. Native-free: only for strokeDashoffset. */
 export function useDashLoop(enabled: boolean, period = 900) {
   const value = useRef(new Animated.Value(0)).current;
+  const calm = useReducedMotion();
+  const on = enabled && !calm;
   useEffect(() => {
-    if (!enabled) return;
+    if (!on) return;
     const loop = Animated.loop(
       Animated.timing(value, { toValue: 1, duration: period, easing: Easing.linear, useNativeDriver: false })
     );
     loop.start();
     return () => loop.stop();
-  }, [enabled, period]);
+  }, [on, period]);
   return value;
 }
 
@@ -306,7 +311,12 @@ export function Reveal({
 export function ChartSkeleton({ height, kind = "area" }: { height: number; kind?: "area" | "bar" | "circle" }) {
   const theme = useChartTheme();
   const pulse = useRef(new Animated.Value(0.4)).current;
+  const calm = useReducedMotion();
   useEffect(() => {
+    if (calm) {
+      pulse.setValue(0.7);
+      return;
+    }
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),
@@ -315,7 +325,7 @@ export function ChartSkeleton({ height, kind = "area" }: { height: number; kind?
     );
     loop.start();
     return () => loop.stop();
-  }, []);
+  }, [calm]);
   const bars = [0.45, 0.7, 0.55, 0.85, 0.6, 0.9, 0.5, 0.75, 0.65, 0.8];
   return (
     <View style={{ height, justifyContent: "flex-end" }}>
@@ -339,7 +349,7 @@ export function ChartSkeleton({ height, kind = "area" }: { height: number; kind?
         )}
       </Animated.View>
       <View style={[styles.badge, { backgroundColor: theme.popover, borderColor: theme.border }]}>
-        <Text style={[styles.badgeText, { color: theme.mutedForeground }]}>Loading…</Text>
+        <Text maxFontSizeMultiplier={TEXT_SCALE} style={[styles.badgeText, { color: theme.mutedForeground }]}>Loading…</Text>
       </View>
     </View>
   );

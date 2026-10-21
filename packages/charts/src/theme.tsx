@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo, useRef } from "react";
 import { useColorScheme } from "react-native";
 
 /** Colour tokens, modelled on shadcn/ui (zinc). */
@@ -24,6 +24,8 @@ export interface ResolvedChartTheme extends ChartTokens {
   /** Corner radius for cards and bars. */
   radius: number;
   fontFamily?: string;
+  /** Light tick when the selected point changes (set on ChartProvider). */
+  haptics?: () => void;
 }
 
 export type PaletteName =
@@ -129,6 +131,11 @@ const ChartThemeContext = createContext<ResolvedChartTheme | null>(null);
 export interface ChartProviderProps extends Omit<ChartThemeOptions, "dark"> {
   /** "system" follows the phone's light/dark setting. */
   mode?: "light" | "dark" | "system";
+  /**
+   * Called with a light tick whenever a chart's selected point changes (scrub, tap, VoiceOver swipe).
+   * Pass `Haptics.selectionAsync` from expo-haptics — the library itself stays dependency-free.
+   */
+  haptics?: () => void;
   children: React.ReactNode;
 }
 
@@ -139,15 +146,23 @@ export function ChartProvider({
   radius,
   tokens,
   fontFamily,
+  haptics,
   children,
 }: ChartProviderProps) {
   const scheme = useColorScheme();
   const dark = mode === "system" ? scheme === "dark" : mode === "dark";
   const paletteKey = Array.isArray(palette) ? palette.join(",") : palette;
   const tokensKey = tokens ? JSON.stringify(tokens) : "";
+  // Latest callback without re-theming every chart when the caller passes an inline function.
+  const hapticRef = useRef(haptics);
+  hapticRef.current = haptics;
+  const hasHaptics = !!haptics;
   const value = useMemo(
-    () => resolveChartTheme({ palette, dark, radius, tokens, fontFamily }),
-    [paletteKey, dark, radius, tokensKey, fontFamily]
+    () => ({
+      ...resolveChartTheme({ palette, dark, radius, tokens, fontFamily }),
+      haptics: hasHaptics ? () => hapticRef.current?.() : undefined,
+    }),
+    [paletteKey, dark, radius, tokensKey, fontFamily, hasHaptics]
   );
   return <ChartThemeContext.Provider value={value}>{children}</ChartThemeContext.Provider>;
 }
