@@ -13,9 +13,6 @@
     ],
     "types": [],
     "paths": {
-      "@/components/charts/kpi-card": [
-        "./charts/kpi-card/src/components/charts/kpi-card.tsx"
-      ],
       "@/components/ui/accordion": [
         "./ui/accordion/src/components/ui/accordion.tsx"
       ],
@@ -76,14 +73,14 @@
       "@/components/ui/floating-input": [
         "./ui/floating-input/src/components/ui/floating-input.tsx"
       ],
+      "@/components/ui/grain": [
+        "./ui/grain/src/components/ui/grain.tsx"
+      ],
       "@/components/ui/list-item": [
         "./ui/list-item/src/components/ui/list-item.tsx"
       ],
       "@/components/ui/otp-input": [
         "./ui/otp-input/src/components/ui/otp-input.tsx"
-      ],
-      "@/components/ui/pagination-dots": [
-        "./ui/pagination-dots/src/components/ui/pagination-dots.tsx"
       ],
       "@/components/ui/password-input": [
         "./ui/password-input/src/components/ui/password-input.tsx"
@@ -129,9 +126,6 @@
       ],
       "@/components/ui/tabs": [
         "./ui/tabs/src/components/ui/tabs.tsx"
-      ],
-      "@/components/ui/tag-input": [
-        "./ui/tag-input/src/components/ui/tag-input.tsx"
       ],
       "@/components/ui/text-animation": [
         "./ui/text-animation/src/components/ui/text-animation.tsx"

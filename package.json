@@ -8,7 +8,7 @@
     "typecheck": "tsc -p registry"
   },
   "devDependencies": {
-    "@types/react": "~19.2.2",
+    "@types/react": "~19.3.0",
     "expo-haptics": "~57.0.3",
     "react": "19.2.3",
     "react-native": "0.86.3",
