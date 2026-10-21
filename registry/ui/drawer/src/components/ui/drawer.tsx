@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -45,7 +45,7 @@ const SHADOW_PAD = 28;
 const PUSH_SCALE = 0.92;
 const PUSH_GAP = 14;
 /** Kit snappy with a touch more damping: the panel lands with a hint of overshoot, not a wobble. */
-const OPEN_SPRING = { ...motion.snappy, damping: 22 };
+const OPEN_SPRING = motion.snappy;
 /** Closing is clamped, so it ends on the first crossing — exits feel faster than entrances. */
 const CLOSE_SPRING = { ...motion.snappy, overshootClamping: true };
 
@@ -226,7 +226,7 @@ export function Drawer({
   }, [isOpen, inline]);
 
   // Root position on the page, for the edge-swipe zone (gesture coordinates are page-based).
-  const rootRef = useRef<View>(null);
+  const rootRef = useRef<ComponentRef<typeof View>>(null);
   const rootX = useRef(0);
   const measure = useCallback(() => {
     rootRef.current?.measure((_x, _y, _w, _h, pageX) => {
@@ -492,7 +492,8 @@ export interface DrawerHeaderProps {
 
 /** Title block with optional leading node and close button — drop into `header`. */
 export function DrawerHeader({ title, subtitle, leading, showClose = false, onClose, children, style }: DrawerHeaderProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const drawerCtx = useContext(DrawerContext);
   const close = onClose ?? (() => drawerCtx?.close());
   const canClose = showClose || onClose !== undefined;
@@ -501,12 +502,12 @@ export function DrawerHeader({ title, subtitle, leading, showClose = false, onCl
       {leading ? <View>{leading}</View> : null}
       <View style={styles.headerText}>
         {title ? (
-          <Text accessibilityRole="header" style={[styles.headerTitle, { color: colors.foreground }]} numberOfLines={1}>
+          <Text accessibilityRole="header" style={[styles.headerTitle, ff, { color: colors.foreground }]} numberOfLines={1}>
             {title}
           </Text>
         ) : null}
         {subtitle ? (
-          <Text style={[styles.headerSub, { color: colors.mutedForeground }]} numberOfLines={1}>
+          <Text style={[styles.headerSub, ff, { color: colors.mutedForeground }]} numberOfLines={1}>
             {subtitle}
           </Text>
         ) : null}
@@ -569,7 +570,8 @@ export function DrawerProfile({
   accessibilityHint,
   style,
 }: DrawerProfileProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const press = useRef(new Animated.Value(0)).current;
   const stacked = layout === 'stacked';
   const trailing =
@@ -587,11 +589,11 @@ export function DrawerProfile({
     ) : null;
   const text = (
     <View style={styles.profileText}>
-      <Text numberOfLines={1} style={[styles.profileName, { color: colors.foreground }, stacked && styles.profileNameLg]}>
+      <Text numberOfLines={1} style={[styles.profileName, ff, { color: colors.foreground }, stacked && styles.profileNameLg]}>
         {name}
       </Text>
       {email ? (
-        <Text numberOfLines={1} style={[styles.profileEmail, { color: colors.mutedForeground }]}>
+        <Text numberOfLines={1} style={[styles.profileEmail, ff, { color: colors.mutedForeground }]}>
           {email}
         </Text>
       ) : null}
@@ -637,7 +639,8 @@ export function DrawerProfile({
 }
 
 function ProfileAvatar({ name, src, size, status }: { name: string; src?: string; size: number; status?: DrawerPresence }) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const ring = useContext(SurfaceContext) ?? colors.card;
   const hue = nameColor(name);
   const ink = dark ? mix(hue, colors.foreground, 0.35) : mix(hue, colors.foreground, 0.3);
@@ -670,7 +673,7 @@ function ProfileAvatar({ name, src, size, status }: { name: string; src?: string
           },
         ]}
       >
-        <Text style={{ color: ink, fontSize: size * 0.36, fontWeight: '400', letterSpacing: -0.2 }}>{initials}</Text>
+        <Text style={[{ color: ink, fontSize: size * 0.36, fontWeight: '400', letterSpacing: -0.2 }, ff]}>{initials}</Text>
         {src ? <Image source={{ uri: src }} alt="" style={StyleSheet.absoluteFill} /> : null}
       </View>
       {status ? (
@@ -811,7 +814,8 @@ export function DrawerItem({
   disabled,
   style,
 }: DrawerItemProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const drawer = useContext(DrawerContext);
   const reduceMotion = useReduceMotion();
   const danger = tone === 'danger';
@@ -910,7 +914,7 @@ export function DrawerItem({
             )}
           </Animated.View>
         ) : null}
-        <Text numberOfLines={1} style={[styles.itemLabel, { color: labelColor }]}>
+        <Text numberOfLines={1} style={[styles.itemLabel, ff, { color: labelColor }]}>
           {label}
         </Text>
         {showBadge ? (
@@ -921,7 +925,7 @@ export function DrawerItem({
               { borderRadius: radius.capsule(22), backgroundColor: badgeColors.bg, transform: [{ scale: badgePop }] },
             ]}
           >
-            <Text style={[styles.badgeText, { color: badgeColors.fg }]}>
+            <Text style={[styles.badgeText, ff, { color: badgeColors.fg }]}>
               {typeof badge === 'number' && badge > 99 ? '99+' : badge}
             </Text>
           </Animated.View>
@@ -943,12 +947,13 @@ export interface DrawerSectionProps {
 
 /** A quiet heading between groups of DrawerItems, with a hairline divider above it. */
 export function DrawerSection({ title, trailing, divider = true, style }: DrawerSectionProps) {
-  const { colors, dark } = useKit();
+  const { colors, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   return (
     <View style={style}>
       {divider ? <View style={[styles.divider, { backgroundColor: alpha(colors.foreground, dark ? 0.1 : 0.07) }]} /> : null}
       <View style={[styles.section, !divider && styles.sectionFlush]}>
-        <Text accessibilityRole="header" style={[styles.sectionText, { color: colors.mutedForeground }]}>
+        <Text accessibilityRole="header" style={[styles.sectionText, ff, { color: colors.mutedForeground }]}>
           {title}
         </Text>
         {trailing}
@@ -972,7 +977,8 @@ export interface DrawerFooterProps {
 
 /** A compact footer row — storage meter, app version, sync status — for the `footer` slot. */
 export function DrawerFooter({ label, detail, icon, progress, onPress, trailing, style }: DrawerFooterProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const pct = progress === undefined ? undefined : Math.max(0, Math.min(1, progress));
   return (
     <Pressable
@@ -996,7 +1002,7 @@ export function DrawerFooter({ label, detail, icon, progress, onPress, trailing,
         </View>
       ) : null}
       <View style={styles.footerText}>
-        <Text numberOfLines={1} style={[styles.footerLabel, { color: colors.foreground }]}>
+        <Text numberOfLines={1} style={[styles.footerLabel, ff, { color: colors.foreground }]}>
           {label}
         </Text>
         {pct !== undefined ? (
@@ -1012,7 +1018,7 @@ export function DrawerFooter({ label, detail, icon, progress, onPress, trailing,
           </View>
         ) : null}
         {detail ? (
-          <Text numberOfLines={1} style={[styles.footerDetail, { color: colors.mutedForeground }]}>
+          <Text numberOfLines={1} style={[styles.footerDetail, ff, { color: colors.mutedForeground }]}>
             {detail}
           </Text>
         ) : null}

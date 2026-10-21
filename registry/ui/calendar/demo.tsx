@@ -4,12 +4,16 @@ import { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-na
 import { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';
 import { alpha, useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 const today = startOfDay(new Date());
 const day = (d: Date | null) => (d ? d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' }) : '—');
 
-/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+/** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. In `screen` mode it is the page itself. */
+function Card({ screen, style, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
+  if (screen) return <View style={[s.screen, { backgroundColor: colors.background }, style]} {...rest} />;
   return <View style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]} {...rest} />;
 }
 
@@ -19,10 +23,10 @@ function Ink({ tone, style, ...rest }: TextProps & { tone?: 'muted' }) {
   return <Text style={[{ color: tone === 'muted' ? colors.mutedForeground : colors.foreground }, style]} {...rest} />;
 }
 
-export function Single() {
+export function Single({ screen }: DemoProps) {
   const [date, setDate] = useState<Date>(addDays(today, 3));
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Delivery day</Ink>
       <Calendar value={date} onChange={setDate} minDate={today} />
       <View style={s.summary}>
@@ -33,12 +37,12 @@ export function Single() {
   );
 }
 
-export function Range() {
+export function Range({ screen }: DemoProps) {
   const [stay, setStay] = useState<DateRange>({ start: addDays(today, 4), end: addDays(today, 8) });
   const { colors, radius } = useKit();
   const nights = stay.start && stay.end ? Math.round((stay.end.getTime() - stay.start.getTime()) / 86400000) : 0;
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Your stay · Lisbon</Ink>
       <Calendar mode="range" value={stay} onChange={setStay} minDate={today} />
       <View style={s.row}>
@@ -64,7 +68,7 @@ const TRIP = '#f59e0b';
 const DONE = '#22c55e';
 const DUE = '#ef4444';
 
-export function Marked() {
+export function Marked({ screen }: DemoProps) {
   const [date, setDate] = useState<Date>(today);
   const { highlights, marks } = useMemo(() => {
     const y = today.getFullYear();
@@ -78,7 +82,7 @@ export function Marked() {
     };
   }, []);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Schedule</Ink>
       <Calendar value={date} onChange={setDate} highlightedDates={highlights} markedDates={marks} weekStartsOn={1} />
       <View style={s.legend}>
@@ -99,11 +103,11 @@ export function Marked() {
   );
 }
 
-export function Booking() {
+export function Booking({ screen }: DemoProps) {
   const booked = useMemo(() => new Set([2, 5, 6, 11, 19].map((n) => toDateKey(addDays(today, n)))), []);
   const [date, setDate] = useState<Date | null>(null);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Book a consultation</Ink>
       <Calendar
         value={date}
@@ -121,10 +125,10 @@ export function Booking() {
   );
 }
 
-export function WeekStartsMonday() {
+export function WeekStartsMonday({ screen }: DemoProps) {
   const [days, setDays] = useState<Date[]>([addDays(today, 1), addDays(today, 3)]);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Training days · pick up to 3</Ink>
       <Calendar mode="multiple" value={days} onChange={setDays} max={3} weekStartsOn={1} locale="en-GB" showOutsideDays />
       <Ink tone="muted" style={s.muted}>{days.length ? days.map((d) => day(d)).join('  ·  ') : 'No sessions planned'}</Ink>
@@ -134,6 +138,7 @@ export function WeekStartsMonday() {
 
 const s = StyleSheet.create({
   card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },
+  screen: { flex: 1, justifyContent: 'center', padding: 16, gap: 12 },
   title: { fontSize: 15, fontWeight: '400' },
   summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },

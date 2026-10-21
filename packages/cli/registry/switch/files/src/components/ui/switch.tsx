@@ -63,7 +63,8 @@ export function Switch({
   accessibilityLabel,
   style,
 }: SwitchProps) {
-  const { colors, dark } = useKit();
+  const { colors, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const gid = 'sw' + useId().replace(/[^a-zA-Z0-9]/g, '');
   const tint = accent ?? colors.accent;
   const [inner, setInner] = useState(defaultValue);
@@ -315,8 +316,8 @@ export function Switch({
   return (
     <Pressable {...a11y} style={[styles.row, { opacity: disabled ? 0.45 : 1 }, style]}>
       <View style={styles.text}>
-        <Text style={[styles.label, { color: colors.foreground }]}>{label}</Text>
-        {description ? <Text style={[styles.description, { color: colors.mutedForeground }]}>{description}</Text> : null}
+        <Text style={[styles.label, ff, { color: colors.foreground }]}>{label}</Text>
+        {description ? <Text style={[styles.description, ff, { color: colors.mutedForeground }]}>{description}</Text> : null}
       </View>
       {control}
     </Pressable>

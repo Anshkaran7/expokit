@@ -131,7 +131,8 @@ export function Avatar({
   haptics = true,
   style,
 }: AvatarProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const reduceMotion = useReduceMotion();
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const px = resolveSize(size);
@@ -280,6 +281,7 @@ export function Avatar({
             numberOfLines={1}
             style={[
               styles.initials,
+              ff,
               {
                 color: ink,
                 fontSize: Math.max(9, px * (initials.length > 1 ? 0.37 : 0.42)),
@@ -448,7 +450,7 @@ export function Avatar({
           {badgeText ? (
             <Text
               allowFontScaling={false}
-              style={[styles.badgeText, { color: colors.dangerForeground, fontSize: Math.max(9, badgeH * 0.6) }]}
+              style={[styles.badgeText, ff, { color: colors.dangerForeground, fontSize: Math.max(9, badgeH * 0.6) }]}
             >
               {badgeText}
             </Text>
@@ -623,7 +625,8 @@ export function AvatarGroup({
   onPressMore,
   style,
 }: AvatarGroupProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const reduceMotion = useReduceMotion();
   const px = resolveSize(size);
   const bg = surface ?? colors.background;
@@ -699,7 +702,7 @@ export function AvatarGroup({
         <Text
           allowFontScaling={false}
           numberOfLines={1}
-          style={[styles.moreText, { color: colors.foreground, fontSize: Math.max(8, px * (extraText.length <= 2 ? 0.34 : extraText.length === 3 ? 0.29 : 0.24)) }]}
+          style={[styles.moreText, ff, { color: colors.foreground, fontSize: Math.max(8, px * (extraText.length <= 2 ? 0.34 : extraText.length === 3 ? 0.29 : 0.24)) }]}
         >
           +{extraText}
         </Text>

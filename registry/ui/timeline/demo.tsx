@@ -5,6 +5,9 @@ import { Avatar } from '@/components/ui/avatar';
 import { Timeline } from '@/components/ui/timeline';
 import { alpha, useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 export function OrderTracking() {
   const { colors, radius, dark } = useKit();
   return (
@@ -193,12 +196,12 @@ export function Support() {
 
 const pic = (seed: string) => `https://picsum.photos/seed/${seed}/600/400`;
 
-export function Journey() {
+export function Journey({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
     <Timeline
       variant="scroll"
-      style={{ height: 560 }}
+      style={screen ? { flex: 1 } : { height: 560 }}
       header={
         <View style={{ gap: 2, paddingBottom: 20 }}>
           <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>12 DAYS · 1,140 KM</Text>
@@ -223,12 +226,12 @@ export function Journey() {
   );
 }
 
-export function DeliveryScroll() {
+export function DeliveryScroll({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
     <Timeline
       variant="scroll"
-      style={{ height: 560 }}
+      style={screen ? { flex: 1 } : { height: 560 }}
       header={
         <View style={{ gap: 2, paddingBottom: 20 }}>
           <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>PARCEL DHL 4471 9902 31</Text>

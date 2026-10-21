@@ -2,7 +2,7 @@
   "name": "skeleton",
   "category": "Feedback",
   "aliases": [],
-  "exportName": "SkeletonGroup",
+  "exportName": "Skeleton",
   "files": [
     "src/components/ui/skeleton.tsx"
   ],
@@ -156,7 +156,7 @@
     {
       "name": "Nav",
       "title": "Nav",
-      "code": "import { Skeleton } from '@/components/ui/skeleton';\n\nexport default function Nav() {\n  return <Skeleton.Nav rows={6} tabCount={5} style={{ minHeight: 600 }} />;\n}\n"
+      "code": "import { Skeleton } from '@/components/ui/skeleton';\n\n/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */\ntype DemoProps = { screen?: boolean; bottomInset?: number };\n\nexport default function Nav({ screen }: DemoProps) {\n  return <Skeleton.Nav rows={6} tabCount={5} style={screen ? undefined : { minHeight: 600 }} />;\n}\n"
     }
   ]
 }

@@ -198,6 +198,8 @@ function useRemaining(at?: Date | number) {
 
 /** The promo code in a dashed chip; a tap copies it and flips the icon to a check for a moment. */
 function CodeChip({ code, color, ink, fontSize, onCopy, labels }: { code: string; color: string; ink: string; fontSize: number; onCopy?: (code: string) => void; labels: Required<CouponLabels> }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const [copied, setCopied] = useState(false);
   const [box, setBox] = useState({ w: 0, h: 0 });
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -226,7 +228,7 @@ function CodeChip({ code, color, ink, fontSize, onCopy, labels }: { code: string
           <Rect x={0.75} y={0.75} width={box.w - 1.5} height={box.h - 1.5} rx={8} fill="none" stroke={alpha(color, 0.75)} strokeWidth={1.5} strokeDasharray={[5, 4]} />
         </Svg>
       ) : null}
-      <Text numberOfLines={1} style={{ color: ink, fontSize, fontWeight: '800', letterSpacing: 1, flexShrink: 1 }}>
+      <Text numberOfLines={1} style={[{ color: ink, fontSize, fontWeight: '800', letterSpacing: 1, flexShrink: 1 }, ff]}>
         {code}
       </Text>
       {onCopy ? (
@@ -325,7 +327,8 @@ export function Coupon({
   labels: labelsProp,
   style,
 }: CouponProps) {
-  const { colors, dark } = useKit();
+  const { colors, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const theme = typeof themeProp === 'object' ? themeProp : couponThemes[themeProp];
   const fills = typeof theme.fill === 'string' ? [theme.fill] : theme.fill;
   const accent = theme.accent ?? fills[fills.length - 1];
@@ -421,7 +424,7 @@ export function Coupon({
     left !== undefined && left > 0 && !spent ? (
       <View style={[styles.timer, { backgroundColor: timerBg }]}>
         <Icon d={ICON.clock} size={11} color={timerInk} />
-        <Text style={{ color: timerInk, fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'] }}>
+        <Text style={[{ color: timerInk, fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'] }, ff]}>
           {labels.endsIn} {formatCountdown(left)}
         </Text>
       </View>
@@ -433,7 +436,7 @@ export function Coupon({
         <View style={[styles.row, { gap: 6, flexShrink: 1 }]}>
           {logo}
           {brand ? (
-            <Text numberOfLines={1} style={{ color: horizontal ? bodySoft : valueSoft, fontSize: 10.5, fontWeight: '800', letterSpacing: 1.2, flexShrink: 1 }}>
+            <Text numberOfLines={1} style={[{ color: horizontal ? bodySoft : valueSoft, fontSize: 10.5, fontWeight: '800', letterSpacing: 1.2, flexShrink: 1 }, ff]}>
               {brand.toUpperCase()}
             </Text>
           ) : null}
@@ -445,15 +448,15 @@ export function Coupon({
   // Value panel ------------------------------------------------------------------------------------
   const valueBlock = (
     <View style={{ alignItems: 'center' }}>
-      {prefix ? <Text style={[{ color: valueSoft, fontSize: 10.5, fontWeight: '900', letterSpacing: 1.6 }, lift]}>{prefix.toUpperCase()}</Text> : null}
+      {prefix ? <Text style={[{ color: valueSoft, fontSize: 10.5, fontWeight: '900', letterSpacing: 1.6 }, ff, lift]}>{prefix.toUpperCase()}</Text> : null}
       {locked ? <Icon d={ICON.lock} size={valueSize * 0.6} color={valueInk} /> : null}
       {/* Vertical coupons set "50% OFF" on one line when it fits, and stack a long unit ("CASHBACK"). */}
       <View style={{ flexDirection: inline ? 'row' : 'column', alignItems: inline ? 'flex-end' : 'center', gap: inline ? 6 : 0 }}>
-        <Text numberOfLines={1} adjustsFontSizeToFit style={[{ color: valueInk, fontSize: valueSize, lineHeight: valueSize * 1.08, fontWeight: '900', letterSpacing: -1.2 }, lift]}>
+        <Text numberOfLines={1} adjustsFontSizeToFit style={[{ color: valueInk, fontSize: valueSize, lineHeight: valueSize * 1.08, fontWeight: '900', letterSpacing: -1.2 }, ff, lift]}>
           {value}
         </Text>
         {unit ? (
-          <Text style={[{ color: valueInk, fontSize: horizontal ? 12.5 : 16, fontWeight: '900', letterSpacing: 2.4, marginBottom: inline ? valueSize * 0.14 : 0 }, lift]}>
+          <Text style={[{ color: valueInk, fontSize: horizontal ? 12.5 : 16, fontWeight: '900', letterSpacing: 2.4, marginBottom: inline ? valueSize * 0.14 : 0 }, ff, lift]}>
             {unit.toUpperCase()}
           </Text>
         ) : null}
@@ -482,7 +485,7 @@ export function Coupon({
           {brandRow}
           {valueBlock}
           {title ? (
-            <Text numberOfLines={2} style={[{ color: valueInk, fontSize: s.title + 1, fontWeight: '800', textAlign: 'center', letterSpacing: -0.3 }, lift]}>
+            <Text numberOfLines={2} style={[{ color: valueInk, fontSize: s.title + 1, fontWeight: '800', textAlign: 'center', letterSpacing: -0.3 }, ff, lift]}>
               {title}
             </Text>
           ) : null}
@@ -511,7 +514,7 @@ export function Coupon({
       ]}
     >
       {applied || locked ? <Icon d={applied ? ICON.check : ICON.lock} size={13} color={applied ? '#ffffff' : bodySoft} /> : null}
-      <Text numberOfLines={1} style={{ color: applied ? '#ffffff' : locked || spent ? bodySoft : readableOn(accent), fontSize: s.chip - 0.5, fontWeight: '800' }}>
+      <Text numberOfLines={1} style={[{ color: applied ? '#ffffff' : locked || spent ? bodySoft : readableOn(accent), fontSize: s.chip - 0.5, fontWeight: '800' }, ff]}>
         {applied ? labels.applied : locked ? labels.locked : labels.apply}
       </Text>
     </Pressable>
@@ -520,11 +523,11 @@ export function Coupon({
   const footer =
     expires || canFlip ? (
       <View style={[styles.row, { justifyContent: 'flex-start', gap: 6 }]}>
-        {expires ? <Text style={{ color: bodySoft, fontSize: 11, fontWeight: '600' }}>{expires}</Text> : null}
-        {expires && canFlip ? <Text style={{ color: bodySoft, fontSize: 11 }}>·</Text> : null}
+        {expires ? <Text style={[{ color: bodySoft, fontSize: 11, fontWeight: '600' }, ff]}>{expires}</Text> : null}
+        {expires && canFlip ? <Text style={[{ color: bodySoft, fontSize: 11 }, ff]}>·</Text> : null}
         {canFlip ? (
           <Pressable onPress={toggle} hitSlop={10} accessibilityRole="button" accessibilityLabel={labels.termsTitle}>
-            <Text style={{ color: textAccent, fontSize: 11, fontWeight: '800', textDecorationLine: 'underline' }}>{labels.terms}</Text>
+            <Text style={[{ color: textAccent, fontSize: 11, fontWeight: '800', textDecorationLine: 'underline' }, ff]}>{labels.terms}</Text>
           </Pressable>
         ) : null}
       </View>
@@ -552,16 +555,16 @@ export function Coupon({
     >
       {horizontal ? brandRow : null}
       {horizontal && title ? (
-        <Text numberOfLines={2} style={{ color: bodyInk, fontSize: s.title, fontWeight: '800', letterSpacing: -0.3 }}>
+        <Text numberOfLines={2} style={[{ color: bodyInk, fontSize: s.title, fontWeight: '800', letterSpacing: -0.3 }, ff]}>
           {title}
         </Text>
       ) : null}
       {locked && lockedHint ? (
-        <Text numberOfLines={2} style={{ color: textAccent, fontSize: s.desc, fontWeight: '700' }}>
+        <Text numberOfLines={2} style={[{ color: textAccent, fontSize: s.desc, fontWeight: '700' }, ff]}>
           {lockedHint}
         </Text>
       ) : description ? (
-        <Text numberOfLines={size === 'sm' ? 1 : 2} style={{ color: bodySoft, fontSize: s.desc, lineHeight: s.desc * 1.35 }}>
+        <Text numberOfLines={size === 'sm' ? 1 : 2} style={[{ color: bodySoft, fontSize: s.desc, lineHeight: s.desc * 1.35 }, ff]}>
           {description}
         </Text>
       ) : null}
@@ -627,23 +630,23 @@ export function Coupon({
       <TicketShape {...shape} fill={body} style={StyleSheet.absoluteFill}>
         <Pressable onPress={toggle} accessibilityRole="button" accessibilityHint={labels.back} style={[StyleSheet.absoluteFill, { padding: s.pad + edgePad, gap: 6, flexDirection: horizontal ? 'row' : 'column' }]}>
           <View style={{ flex: 1, gap: 4 }}>
-            <Text style={{ color: bodyInk, fontSize: 12, fontWeight: '800', letterSpacing: 0.3 }}>{labels.termsTitle}</Text>
+            <Text style={[{ color: bodyInk, fontSize: 12, fontWeight: '800', letterSpacing: 0.3 }, ff]}>{labels.termsTitle}</Text>
             {terms!.slice(0, size === 'lg' ? 5 : 4).map((t, i) => (
               <View key={i} style={{ flexDirection: 'row', gap: 6 }}>
-                <Text style={{ color: textAccent, fontSize: 11, fontWeight: '900' }}>•</Text>
-                <Text numberOfLines={2} style={{ color: bodySoft, fontSize: 11, lineHeight: 14.5, flex: 1 }}>
+                <Text style={[{ color: textAccent, fontSize: 11, fontWeight: '900' }, ff]}>•</Text>
+                <Text numberOfLines={2} style={[{ color: bodySoft, fontSize: 11, lineHeight: 14.5, flex: 1 }, ff]}>
                   {t}
                 </Text>
               </View>
             ))}
-            <Text style={{ color: alpha(bodyInk, 0.4), fontSize: 10, fontWeight: '700', marginTop: 'auto' }}>{labels.back}</Text>
+            <Text style={[{ color: alpha(bodyInk, 0.4), fontSize: 10, fontWeight: '700', marginTop: 'auto' }, ff]}>{labels.back}</Text>
           </View>
           {code ? (
             <View style={{ alignItems: 'center', justifyContent: 'center', gap: 4 }}>
               <View style={styles.plate}>
                 <BarcodeLike code={code} width={horizontal ? 74 : 200} height={horizontal ? 54 : 46} />
               </View>
-              <Text style={{ color: bodyInk, fontSize: 10, fontWeight: '800', letterSpacing: 1.2 }}>{code}</Text>
+              <Text style={[{ color: bodyInk, fontSize: 10, fontWeight: '800', letterSpacing: 1.2 }, ff]}>{code}</Text>
             </View>
           ) : null}
         </Pressable>

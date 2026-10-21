@@ -4,14 +4,19 @@ import { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } fro
 import { DatePicker, type DatePickerPresentation, type DateRange } from '@/components/ui/date-picker';
 import { useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ screen, style, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
         s.card,
-        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },
+        screen
+          ? { flex: 1, backgroundColor: colors.background }
+          : [s.cardFrame, { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card }],
         style,
       ]}
       {...rest}
@@ -63,12 +68,12 @@ function Header({ title, opens, onOpens }: { title: string; opens: Opens; onOpen
   );
 }
 
-export function Birthday() {
+export function Birthday({ screen }: DemoProps) {
   const [date, setDate] = useState<Date | null>(new Date(1994, 5, 12));
   const age = date ? Math.floor((today.getTime() - date.getTime()) / (365.25 * 86400000)) : null;
   const [opens, setOpens] = useState<Opens>('sheet');
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Profile" opens={opens} onOpens={setOpens} />
       <DatePicker
         key={opens}
@@ -84,12 +89,12 @@ export function Birthday() {
   );
 }
 
-export function TripDates() {
+export function TripDates({ screen }: DemoProps) {
   const [trip, setTrip] = useState<DateRange | null>(null);
   const nights = trip?.start && trip.end ? Math.round((trip.end.getTime() - trip.start.getTime()) / 86400000) : 0;
   const [opens, setOpens] = useState<Opens>('dialog');
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Trip · Kyoto" opens={opens} onOpens={setOpens} />
       <DatePicker
         key={opens}
@@ -110,13 +115,13 @@ export function TripDates() {
   );
 }
 
-export function Deadline() {
+export function Deadline({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [due, setDue] = useState<Date | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [opens, setOpens] = useState<Opens>('popover');
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="New task" opens={opens} onOpens={setOpens} />
       <DatePicker
         key={opens}
@@ -144,10 +149,10 @@ export function Deadline() {
   );
 }
 
-export function Sizes() {
+export function Sizes({ screen }: DemoProps) {
   const d = new Date(today.getFullYear(), today.getMonth(), 24);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink tone="muted" style={s.label}>Small</Ink>
       <DatePicker size="sm" label="Invoice date" defaultValue={d} />
       <Ink tone="muted" style={s.label}>Medium</Ink>
@@ -161,7 +166,8 @@ export function Sizes() {
 }
 
 const s = StyleSheet.create({
-  card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 14 },
+  card: { padding: 16, gap: 14 },
+  cardFrame: { borderWidth: StyleSheet.hairlineWidth },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },
   switch: { flexDirection: 'row', padding: 3 },

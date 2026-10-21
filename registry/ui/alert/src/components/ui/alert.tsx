@@ -89,7 +89,8 @@ export function Alert({
   color,
   style,
 }: AlertProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduceMotion = useReduceMotion();
   const tones: Record<AlertVariant, string> = {
@@ -322,9 +323,9 @@ export function Alert({
     <>
       {iconNode}
       <View style={[styles.body, { paddingTop: textTop }]}>
-        {title ? <Text style={[styles.title, { color: fg }]}>{title}</Text> : null}
+        {title ? <Text style={[styles.title, ff, { color: fg }]}>{title}</Text> : null}
         {typeof description === 'string' ? (
-          <Text style={[styles.desc, { color: title ? sub : fg }]}>{description}</Text>
+          <Text style={[styles.desc, ff, { color: title ? sub : fg }]}>{description}</Text>
         ) : (
           description
         )}
@@ -443,6 +444,8 @@ function Pill({
   bg: string;
   fg: string;
 }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   return (
     <Pressable
       accessibilityRole="button"
@@ -455,7 +458,7 @@ function Pill({
         pressed ? { opacity: 0.75, transform: [{ scale: 0.97 }] } : null,
       ]}
     >
-      <Text style={[styles.pillText, { color: fg }]} numberOfLines={1}>
+      <Text style={[styles.pillText, ff, { color: fg }]} numberOfLines={1}>
         {action.label}
       </Text>
     </Pressable>

@@ -134,7 +134,8 @@ export function ActionSheet({
   haptics = true,
   style,
 }: ActionSheetProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const { height: winH } = useWindowDimensions();
   const reduceMotion = useReduceMotion();
   const tint = accent ?? colors.accent;
@@ -247,13 +248,13 @@ export function ActionSheet({
         {title ? (
           <Text
             accessibilityRole="header"
-            style={[list ? styles.titleLarge : styles.title, { color: list ? colors.foreground : colors.mutedForeground }]}
+            style={[list ? styles.titleLarge : styles.title, ff, { color: list ? colors.foreground : colors.mutedForeground }]}
           >
             {title}
           </Text>
         ) : null}
         {message ? (
-          <Text style={[styles.message, { color: colors.mutedForeground, textAlign: list ? 'left' : 'center' }]}>
+          <Text style={[styles.message, ff, { color: colors.mutedForeground, textAlign: list ? 'left' : 'center' }]}>
             {message}
           </Text>
         ) : null}
@@ -265,7 +266,7 @@ export function ActionSheet({
     cancelLabel !== null ? (
       <Card corner={corner} bg={colors.popover} edge={edge} dark={dark}>
         <Row onPress={dismiss} highlight={highlight} label={cancelLabel} style={styles.row}>
-          <Text style={[styles.rowLabel, styles.center, { color: variant === 'inset' ? tint : colors.foreground }]}>
+          <Text style={[styles.rowLabel, ff, styles.center, { color: variant === 'inset' ? tint : colors.foreground }]}>
             {cancelLabel}
           </Text>
         </Row>
@@ -295,7 +296,7 @@ export function ActionSheet({
                   <View style={[styles.tileIcon, { backgroundColor: fill, borderRadius: radius.scale(16) }]}>
                     {icon(a, fg, 24)}
                   </View>
-                  <Text numberOfLines={2} style={[styles.tileLabel, { color: a.destructive ? colors.danger : colors.foreground }]}>
+                  <Text numberOfLines={2} style={[styles.tileLabel, ff, { color: a.destructive ? colors.danger : colors.foreground }]}>
                     {a.label}
                   </Text>
                 </Row>
@@ -337,7 +338,7 @@ export function ActionSheet({
               {a.icon ? (
                 <View style={styles.listIcon}>{icon(a, a.destructive ? colors.danger : colors.mutedForeground, 22)}</View>
               ) : null}
-              <Text style={[styles.listLabel, { color }]} numberOfLines={1}>
+              <Text style={[styles.listLabel, ff, { color }]} numberOfLines={1}>
                 {a.label}
               </Text>
             </Row>
@@ -347,7 +348,7 @@ export function ActionSheet({
           <>
             <View style={[styles.divider, { backgroundColor: separator }]} />
             <Row onPress={dismiss} highlight={highlight} corner={radius.md} label={cancelLabel} style={styles.listRow}>
-              <Text style={[styles.listLabel, styles.center, { color: colors.mutedForeground }]}>{cancelLabel}</Text>
+              <Text style={[styles.listLabel, ff, styles.center, { color: colors.mutedForeground }]}>{cancelLabel}</Text>
             </Row>
           </>
         ) : null}
@@ -379,7 +380,7 @@ export function ActionSheet({
                   (i > 0 || header) && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: separator },
                 ]}
               >
-                <Text style={[styles.rowLabel, withIcons ? styles.rowLabelMenu : styles.center, { color }]} numberOfLines={1}>
+                <Text style={[styles.rowLabel, ff, withIcons ? styles.rowLabelMenu : styles.center, { color }]} numberOfLines={1}>
                   {a.label}
                 </Text>
                 {withIcons ? <View style={styles.rowIcon}>{a.icon ? icon(a, color, 22) : null}</View> : null}

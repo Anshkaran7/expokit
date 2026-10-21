@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { Spinner, type SpinnerVariant } from '@/components/ui/spinner';
 import { readableOn, useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 export function Variants() {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 40 }}>
@@ -77,21 +80,16 @@ export function InButton() {
   );
 }
 
-export function LoadingCard() {
+export function LoadingCard({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   return (
     <View
-      style={{
-        alignSelf: 'stretch',
-        alignItems: 'center',
-        gap: 6,
-        paddingVertical: 32,
-        paddingHorizontal: 20,
-        borderRadius: radius.lg,
-        backgroundColor: colors.card,
-        borderWidth: 1,
-        borderColor: colors.border,
-      }}
+      style={[
+        { alignSelf: 'stretch', alignItems: 'center', gap: 6, paddingVertical: 32, paddingHorizontal: 20 },
+        screen
+          ? { flex: 1, justifyContent: 'center', backgroundColor: colors.background }
+          : { borderRadius: radius.lg, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
+      ]}
     >
       <Spinner size="xl" track label="Preparing your itinerary" labelPosition="bottom" />
       <Text style={{ fontSize: 13, color: colors.mutedForeground, textAlign: 'center' }}>

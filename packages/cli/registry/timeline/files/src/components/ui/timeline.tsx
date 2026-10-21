@@ -244,7 +244,7 @@ function ScrollTimeline({
   const dottedFrom = Math.max(0, reach);
   const dottedH = measured && reach < n - 1 ? nodes[n - 1] - nodes[dottedFrom] : 0;
 
-  let fillStyle: Animated.WithAnimatedObject<ViewStyle> | null = null;
+  let fillStyle: Animated.WithAnimatedValue<ViewStyle> | null = null;
   if (fillH > 0) {
     if (frozen) {
       fillStyle = {};
@@ -379,7 +379,8 @@ function Row({
   lit,
   onNode,
 }: RowProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const compact = variant === 'compact';
   const card = variant === 'card';
   const scroll = variant === 'scroll';
@@ -454,21 +455,21 @@ function Row({
       <View style={[styles.titleRow, compact && styles.compactRow]}>
         <Text
           numberOfLines={compact ? 1 : 2}
-          style={[styles.title, { fontSize: titleSize, lineHeight: titleLine, color: titleColor }]}
+          style={[styles.title, ff, { fontSize: titleSize, lineHeight: titleLine, color: titleColor }]}
         >
           {item.title}
         </Text>
         {item.time ? (
           <Text
             numberOfLines={1}
-            style={[styles.time, { lineHeight: titleLine, color: current ? tint : colors.mutedForeground }]}
+            style={[styles.time, ff, { lineHeight: titleLine, color: current ? tint : colors.mutedForeground }]}
           >
             {item.time}
           </Text>
         ) : null}
       </View>
       {item.description && !compact ? (
-        <Text style={[styles.desc, { color: colors.mutedForeground }]}>{item.description}</Text>
+        <Text style={[styles.desc, ff, { color: colors.mutedForeground }]}>{item.description}</Text>
       ) : null}
       {photos.length ? <TimelineGallery images={photos} dim={muted} /> : null}
       {item.tags?.length || hasLinks ? (
@@ -478,7 +479,7 @@ function Row({
               key={`t-${t}`}
               style={[styles.tag, { borderRadius: radius.capsule(22), backgroundColor: alpha(tint, dark ? 0.2 : 0.1) }]}
             >
-              <Text style={[styles.tagText, { color: tint }]}>{t}</Text>
+              <Text style={[styles.tagText, ff, { color: tint }]}>{t}</Text>
             </View>
           ))}
           {item.links?.map((l) => (
@@ -490,14 +491,14 @@ function Row({
               hitSlop={12}
               style={({ pressed }) => [styles.link, { opacity: pressed ? 0.55 : 1 }]}
             >
-              <Text style={[styles.linkText, { color: tint }]}>{l.label} →</Text>
+              <Text style={[styles.linkText, ff, { color: tint }]}>{l.label} →</Text>
             </Pressable>
           ))}
         </View>
       ) : null}
       {item.content ? (
         <View style={styles.content}>
-          {isTextNode(item.content) ? <Text style={{ color: colors.foreground }}>{item.content}</Text> : item.content}
+          {isTextNode(item.content) ? <Text style={[ff, { color: colors.foreground }]}>{item.content}</Text> : item.content}
         </View>
       ) : null}
     </>
@@ -927,7 +928,8 @@ function TimelineGallery({ images, dim }: { images: TimelineImageSource[]; dim: 
 }
 
 function Photo({ uri, delay, style, more }: { uri: string; delay: number; style: StyleProp<ViewStyle>; more: number }) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const shown = useRef(new Animated.Value(0)).current;
   return (
     <View style={[styles.photo, { backgroundColor: colors.muted }, style]}>
@@ -939,7 +941,7 @@ function Photo({ uri, delay, style, more }: { uri: string; delay: number; style:
       />
       {more > 0 ? (
         <View style={[StyleSheet.absoluteFill, styles.more]}>
-          <Text style={styles.moreText}>+{more}</Text>
+          <Text style={[styles.moreText, ff]}>+{more}</Text>
         </View>
       ) : null}
     </View>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -84,7 +84,7 @@ export function OtpInput({
   style,
 }: OtpInputProps) {
   const { colors } = useKit();
-  const input = useRef<TextInput>(null);
+  const input = useRef<ComponentRef<typeof TextInput>>(null);
   const [inner, setInner] = useState('');
   const [focused, setFocused] = useState(false);
   const [width, setWidth] = useState(0);
@@ -202,7 +202,8 @@ function Cell({
   w: number;
   h: number;
 }) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font: kitFont } = useKit();
+  const ff = kitFont.family ? { fontFamily: kitFont.family } : null;
   const filled = !!char;
   // Native driver: digit pop, caret blink, halo, success pulse.
   const pop = useRef(new Animated.Value(filled ? 1 : 0)).current;
@@ -305,7 +306,7 @@ function Cell({
             {secure ? (
               <View style={{ width: dot, height: dot, borderRadius: dot / 2, backgroundColor: fg }} />
             ) : (
-              <Text style={[styles.char, { color: fg, fontSize: font, lineHeight: Math.round(font * 1.2) }]}>{char}</Text>
+              <Text style={[styles.char, ff, { color: fg, fontSize: font, lineHeight: Math.round(font * 1.2) }]}>{char}</Text>
             )}
           </Animated.View>
         ) : active ? (
@@ -318,7 +319,8 @@ function Cell({
 
 /** Helper / error / success line that fades and slides in whenever its text changes. */
 function Message({ text, kind }: { text: string; kind: CellState }) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const enter = useRef(new Animated.Value(0)).current;
   const draw = useRef(new Animated.Value(0)).current;
 
@@ -359,7 +361,7 @@ function Message({ text, kind }: { text: string; kind: CellState }) {
           />
         </Svg>
       ) : null}
-      <Text style={[styles.messageText, { color }]}>{text}</Text>
+      <Text style={[styles.messageText, ff, { color }]}>{text}</Text>
     </Animated.View>
   );
 }

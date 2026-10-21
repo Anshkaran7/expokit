@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -75,7 +75,7 @@ const webNoOutline = Platform.OS === 'web' ? ({ outlineStyle: 'none', outlineWid
  * panel drops down while focused. The 'minimal' variant rests as a round icon and expands
  * into a full field when tapped.
  */
-export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBar(
+export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarProps>(function SearchBar(
   {
     variant = 'default',
     size = 'md',
@@ -104,14 +104,15 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
   },
   ref
 ) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const s = SIZES[size];
   const tint = accent ?? colors.accent;
   const minimal = variant === 'minimal';
   const cancelEnabled = !minimal && (showCancel ?? true);
 
-  const inputRef = useRef<TextInput>(null);
-  useImperativeHandle(ref, () => inputRef.current as TextInput);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+  useImperativeHandle(ref, () => inputRef.current as ComponentRef<typeof TextInput>);
 
   const [focused, setFocused] = useState(false);
   const [inner, setInner] = useState(defaultValue ?? '');
@@ -293,7 +294,7 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
                   if (minimal && !text) setExpanded(false);
                   onBlur?.(e);
                 }}
-                style={[styles.input, { color: colors.foreground, fontSize: s.font, height: s.h - 3 }, webNoOutline]}
+                style={[styles.input, ff, { color: colors.foreground, fontSize: s.font, height: s.h - 3 }, webNoOutline]}
               />
             </Animated.View>
             <Animated.View
@@ -343,7 +344,7 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
             <Text
               pointerEvents="none"
               onLayout={(e) => setCancelW(Math.ceil(e.nativeEvent.layout.width) + 14)}
-              style={[styles.cancelText, styles.measure, { fontSize: s.font }]}
+              style={[styles.cancelText, styles.measure, ff, { fontSize: s.font }]}
             >
               {cancelLabel}
             </Text>
@@ -366,7 +367,7 @@ export const SearchBar = forwardRef<TextInput, SearchBarProps>(function SearchBa
                   accessibilityLabel={cancelLabel}
                   onPress={cancel}
                 >
-                  <Text numberOfLines={1} style={[styles.cancelText, { color: tint, fontSize: s.font }]}>
+                  <Text numberOfLines={1} style={[styles.cancelText, ff, { color: tint, fontSize: s.font }]}>
                     {cancelLabel}
                   </Text>
                 </Pressable>
@@ -397,7 +398,8 @@ function SuggestionPanel({
   tint: string;
   onSelect: (item: SearchSuggestion) => void;
 }) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const [mounted, setMounted] = useState(open);
   const enter = useRef(new Animated.Value(0)).current;
   const last = useRef(items);
@@ -443,11 +445,11 @@ function SuggestionPanel({
           <View style={[styles.optionIcon, { backgroundColor: colors.muted }]}>
             <Icon name={item.icon ?? 'search'} size={15} color={item.icon === 'trending' ? tint : colors.mutedForeground} />
           </View>
-          <Text numberOfLines={1} style={[styles.optionText, { color: colors.mutedForeground }]}>
+          <Text numberOfLines={1} style={[styles.optionText, ff, { color: colors.mutedForeground }]}>
             <Highlight label={item.label} query={query} color={colors.foreground} />
           </Text>
           {item.hint ? (
-            <Text numberOfLines={1} style={[styles.hint, { color: colors.mutedForeground }]}>
+            <Text numberOfLines={1} style={[styles.hint, ff, { color: colors.mutedForeground }]}>
               {item.hint}
             </Text>
           ) : null}

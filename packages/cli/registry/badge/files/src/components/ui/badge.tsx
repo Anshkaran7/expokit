@@ -243,6 +243,8 @@ function RollingLabel({
   perLetter: boolean;
   duration: number;
 }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const pieces = perLetter ? [...text].map((ch) => (ch === ' ' ? ' ' : ch)) : [text];
   const distance = Math.ceil(fontSize * 1.35);
   return (
@@ -262,7 +264,7 @@ function RollingLabel({
               ],
             }}
           >
-            <Text numberOfLines={1} allowFontScaling={false} style={[styles.label, { color, fontSize }]}>
+            <Text numberOfLines={1} allowFontScaling={false} style={[styles.label, ff, { color, fontSize }]}>
               {piece}
             </Text>
           </Animated.View>
@@ -288,7 +290,8 @@ export function Badge({
   animateChanges = true,
   style,
 }: BadgeProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const s = SIZES[size];
   const c = color ?? toneColor(colors, tone);
@@ -328,7 +331,7 @@ export function Badge({
   const natural = useRef<number | null>(null);
   const rowWidth = useRef<number | null>(null);
   const widthV = useRef(new Animated.Value(0)).current;
-  const flat = StyleSheet.flatten(style) ?? {};
+  const flat = flattenView(style);
   const canSize = flat.width == null && flat.minWidth == null && flat.flex == null && flat.flexGrow == null && flat.alignSelf !== 'stretch';
 
   const textChanged = text !== last.text;
@@ -410,7 +413,7 @@ export function Badge({
         <Animated.Text
           numberOfLines={1}
           allowFontScaling={false}
-          style={[styles.label, { color: from && !roll ? mix(from.fg, fg) : fg, fontSize: s.font }, roll ? styles.hidden : null]}
+          style={[styles.label, ff, { color: from && !roll ? mix(from.fg, fg) : fg, fontSize: s.font }, roll ? styles.hidden : null]}
         >
           {text}
         </Animated.Text>
@@ -540,7 +543,8 @@ export function NotificationBadge({
   offset = [0, 0],
   style,
 }: NotificationBadgeProps) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const c = color ?? toneColor(colors, tone);
   const fg = !color && tone === 'accent' ? colors.accentForeground : readableOn(c);
   const visible = count > 0 || !!showZero;
@@ -556,7 +560,7 @@ export function NotificationBadge({
     Animated.spring(show, { toValue: visible ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
     if (visible && prev.current !== count && prev.current > 0) {
       pop.setValue(1.35);
-      Animated.spring(pop, { toValue: 1, useNativeDriver: true, damping: 9, stiffness: 320, mass: 0.6 }).start();
+      Animated.spring(pop, { toValue: 1, useNativeDriver: true, damping: 29, stiffness: 320, mass: 0.6 }).start();
     }
     prev.current = count;
   }, [count, visible, show, pop]);
@@ -587,7 +591,7 @@ export function NotificationBadge({
       ]}
     >
       {dot ? null : (
-        <Text allowFontScaling={false} numberOfLines={1} style={[styles.count, { color: fg, fontSize: size === 'sm' ? 10 : 11.5 }]}>
+        <Text allowFontScaling={false} numberOfLines={1} style={[styles.count, ff, { color: fg, fontSize: size === 'sm' ? 10 : 11.5 }]}>
           {text}
         </Text>
       )}
@@ -608,6 +612,16 @@ export function NotificationBadge({
       {bubble}
     </View>
   );
+}
+
+/**
+ * The user's root style as one object. Not StyleSheet.flatten: with TypeScript 6 its RN 0.88 signature
+ * rejects a plain StyleProp<ViewStyle> once expo/types adds web-only keys to ViewStyle.
+ */
+function flattenView(style: StyleProp<ViewStyle>): ViewStyle {
+  if (!style || typeof style !== 'object') return {};
+  if (Array.isArray(style)) return Object.assign({}, ...style.map((s) => flattenView(s as StyleProp<ViewStyle>)));
+  return style as ViewStyle;
 }
 
 const styles = StyleSheet.create({

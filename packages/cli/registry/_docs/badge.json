@@ -2,7 +2,7 @@
   "name": "badge",
   "category": "Display",
   "aliases": [],
-  "exportName": "BadgeIcon",
+  "exportName": "Badge",
   "files": [
     "src/components/ui/badge.tsx"
   ],

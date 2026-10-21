@@ -417,7 +417,8 @@ function ToastItem({
   onRemoved,
 }: ToastItemProps) {
   const toast = useToast();
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const toward = edge === 'bottom' ? 1 : -1; // swipe direction that dismisses toward the edge
   const last = useRef(layout ?? { y: 0, scale: 1, hidden: false, faded: false });
   if (layout) last.current = layout;
@@ -505,8 +506,8 @@ function ToastItem({
         },
         onPanResponderTerminate: () => {
           setTouching(false);
-          Animated.spring(dragX, { toValue: 0, useNativeDriver: true }).start();
-          Animated.spring(dragY, { toValue: 0, useNativeDriver: true }).start();
+          Animated.spring(dragX, { toValue: 0, ...motion.snappy, useNativeDriver: true }).start();
+          Animated.spring(dragY, { toValue: 0, ...motion.snappy, useNativeDriver: true }).start();
         },
       });
     })(),
@@ -572,11 +573,11 @@ function ToastItem({
             <Animated.View style={[styles.row, minimal ? styles.padMinimal : icon ? styles.padIcon : styles.pad, { opacity: content }]}>
               {icon ? <View style={!minimal && data.description ? styles.iconTop : null}>{icon}</View> : null}
               <View style={minimal ? styles.textMinimal : styles.text}>
-                <Text numberOfLines={minimal ? 1 : 3} style={[styles.title, { color: look.title }]}>
+                <Text numberOfLines={minimal ? 1 : 3} style={[styles.title, ff, { color: look.title }]}>
                   {data.title}
                 </Text>
                 {data.description ? (
-                  <Text numberOfLines={minimal ? 2 : 4} style={[styles.desc, minimal && styles.descMinimal, { color: look.desc }]}>
+                  <Text numberOfLines={minimal ? 2 : 4} style={[styles.desc, minimal && styles.descMinimal, ff, { color: look.desc }]}>
                     {data.description}
                   </Text>
                 ) : null}
@@ -594,7 +595,7 @@ function ToastItem({
                     { borderRadius: radius.capsule(32), backgroundColor: look.actionBg, opacity: pressed ? 0.7 : 1 },
                   ]}
                 >
-                  <Text style={[styles.actionText, { color: look.actionFg }]}>{data.action.label}</Text>
+                  <Text style={[styles.actionText, ff, { color: look.actionFg }]}>{data.action.label}</Text>
                 </Pressable>
               ) : null}
               {closeButton ? (
@@ -648,7 +649,8 @@ interface IslandToasterProps {
  * fade are native-driven on their own wrapper views.
  */
 function IslandToaster({ store, toasts, duration, offset, haptics, reduceMotion, style }: IslandToasterProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const active = toasts.filter((t) => !t.dismissed);
   const front = active[0];
 
@@ -893,18 +895,18 @@ function IslandToaster({ store, toasts, duration, offset, haptics, reduceMotion,
                     >
                       {icon ? <View style={expanded && shown.description ? styles.iconTop : null}>{icon}</View> : null}
                       <View style={styles.text}>
-                        <Text numberOfLines={expanded ? 3 : 1} style={[styles.title, { color: fg }]}>
+                        <Text numberOfLines={expanded ? 3 : 1} style={[styles.title, ff, { color: fg }]}>
                           {shown.title}
                         </Text>
                         {shown.description ? (
-                          <Text numberOfLines={expanded ? undefined : 1} style={[styles.desc, { color: alpha(fg, 0.62) }]}>
+                          <Text numberOfLines={expanded ? undefined : 1} style={[styles.desc, ff, { color: alpha(fg, 0.62) }]}>
                             {shown.description}
                           </Text>
                         ) : null}
                       </View>
                       {!expanded && shown.action ? (
                         <View style={[styles.islandChip, { borderRadius: radius.capsule(24), backgroundColor: alpha(fg, 0.14) }]}>
-                          <Text style={[styles.islandChipText, { color: fg }]}>{shown.action.label}</Text>
+                          <Text style={[styles.islandChipText, ff, { color: fg }]}>{shown.action.label}</Text>
                         </View>
                       ) : null}
                     </Pressable>
@@ -921,7 +923,7 @@ function IslandToaster({ store, toasts, duration, offset, haptics, reduceMotion,
                             { borderRadius: radius.capsule(44), backgroundColor: alpha(fg, pressed ? 0.24 : 0.16) },
                           ]}
                         >
-                          <Text style={[styles.title, { color: fg }]}>{shown.action.label}</Text>
+                          <Text style={[styles.title, ff, { color: fg }]}>{shown.action.label}</Text>
                         </Pressable>
                       </View>
                     ) : null}

@@ -6,21 +6,20 @@ import { alpha, useKit } from '@/lib/kit';
 
 type Row = [title: string, subtitle: string, meta: string];
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** The bottom of a phone screen: a title, a few rows, the bar docked at the bottom. */
-function Screen({ title, rows, children }: { title: string; rows: Row[]; children: React.ReactNode }) {
+function Screen({ title, rows, screen, children }: { title: string; rows: Row[]; screen?: boolean; children: React.ReactNode }) {
   const { colors, radius, dark } = useKit();
   return (
     <View
-      style={{
-        height: 300,
-        alignSelf: 'stretch',
-        borderRadius: radius.scale(28),
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06),
-        backgroundColor: colors.background,
-        justifyContent: 'space-between',
-      }}
+      style={[
+        { alignSelf: 'stretch', overflow: 'hidden', backgroundColor: colors.background, justifyContent: 'space-between' },
+        screen
+          ? { flex: 1 }
+          : { height: 300, borderRadius: radius.scale(28), borderWidth: 1, borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06) },
+      ]}
     >
       <View style={{ paddingHorizontal: 18, paddingTop: 18, gap: 14 }}>
         <Text style={{ fontSize: 22, fontWeight: '400', letterSpacing: -0.5, color: colors.foreground }}>{title}</Text>
@@ -108,7 +107,7 @@ const ROWS: Record<string, Row[]> = {
 
 const titleOf = (items: BottomNavItem[], key: string) => items.find((i) => i.key === key)?.label ?? '';
 
-export function MinimalClean() {
+export function MinimalClean({ screen, bottomInset }: DemoProps) {
   const items: BottomNavItem[] = [
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'explore', label: 'Explore', icon: 'explore' },
@@ -118,13 +117,13 @@ export function MinimalClean() {
   ];
   const [tab, setTab] = useState('home');
   return (
-    <Screen title={titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav variant="minimal" items={items} value={tab} onValueChange={setTab} />
+    <Screen screen={screen} title={titleOf(items, tab)} rows={ROWS[tab]}>
+      <BottomNav bottomInset={bottomInset} variant="minimal" items={items} value={tab} onValueChange={setTab} />
     </Screen>
   );
 }
 
-export function Floating() {
+export function Floating({ screen, bottomInset }: DemoProps) {
   const [tab, setTab] = useState('home');
   const [unread, setUnread] = useState(3);
   const [drafts, setDrafts] = useState(0);
@@ -140,13 +139,13 @@ export function Floating() {
     if (k === 'inbox') setUnread(0);
   };
   return (
-    <Screen title={drafts ? `${drafts} new ${drafts === 1 ? 'draft' : 'drafts'}` : titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav variant="floating" items={items} value={tab} onValueChange={open} onAction={() => setDrafts((n) => n + 1)} />
+    <Screen screen={screen} title={drafts ? `${drafts} new ${drafts === 1 ? 'draft' : 'drafts'}` : titleOf(items, tab)} rows={ROWS[tab]}>
+      <BottomNav bottomInset={bottomInset} variant="floating" items={items} value={tab} onValueChange={open} onAction={() => setDrafts((n) => n + 1)} />
     </Screen>
   );
 }
 
-export function PillHighlight() {
+export function PillHighlight({ screen, bottomInset }: DemoProps) {
   const items: BottomNavItem[] = [
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'projects', label: 'Projects', icon: 'projects' },
@@ -155,13 +154,13 @@ export function PillHighlight() {
   ];
   const [tab, setTab] = useState('home');
   return (
-    <Screen title={titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav variant="pill" items={items} value={tab} onValueChange={setTab} />
+    <Screen screen={screen} title={titleOf(items, tab)} rows={ROWS[tab]}>
+      <BottomNav bottomInset={bottomInset} variant="pill" items={items} value={tab} onValueChange={setTab} />
     </Screen>
   );
 }
 
-export function CenterFab() {
+export function CenterFab({ screen, bottomInset }: DemoProps) {
   const [tab, setTab] = useState('home');
   const [posts, setPosts] = useState(0);
   const items: BottomNavItem[] = [
@@ -172,13 +171,13 @@ export function CenterFab() {
     { key: 'profile', label: 'Profile', icon: 'profile' },
   ];
   return (
-    <Screen title={posts ? `Posted ${posts} ${posts === 1 ? 'time' : 'times'}` : titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav variant="center-fab" items={items} value={tab} onValueChange={setTab} onAction={() => setPosts((n) => n + 1)} />
+    <Screen screen={screen} title={posts ? `Posted ${posts} ${posts === 1 ? 'time' : 'times'}` : titleOf(items, tab)} rows={ROWS[tab]}>
+      <BottomNav bottomInset={bottomInset} variant="center-fab" items={items} value={tab} onValueChange={setTab} onAction={() => setPosts((n) => n + 1)} />
     </Screen>
   );
 }
 
-export function TabWithIndicator() {
+export function TabWithIndicator({ screen, bottomInset }: DemoProps) {
   const items: BottomNavItem[] = [
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'analytics', label: 'Insights', icon: 'analytics' },
@@ -188,13 +187,13 @@ export function TabWithIndicator() {
   ];
   const [tab, setTab] = useState('analytics');
   return (
-    <Screen title={titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav variant="indicator" items={items} value={tab} onValueChange={setTab} />
+    <Screen screen={screen} title={titleOf(items, tab)} rows={ROWS[tab]}>
+      <BottomNav bottomInset={bottomInset} variant="indicator" items={items} value={tab} onValueChange={setTab} />
     </Screen>
   );
 }
 
-export function MusicIconsOnly() {
+export function MusicIconsOnly({ screen, bottomInset }: DemoProps) {
   const items: BottomNavItem[] = [
     { key: 'home2', label: 'Listen now', icon: 'music' },
     { key: 'browse', label: 'Browse', icon: 'browse' },
@@ -203,8 +202,8 @@ export function MusicIconsOnly() {
   ];
   const [tab, setTab] = useState('home2');
   return (
-    <Screen title={titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav variant="floating" showLabels={false} items={items} value={tab} onValueChange={setTab} />
+    <Screen screen={screen} title={titleOf(items, tab)} rows={ROWS[tab]}>
+      <BottomNav bottomInset={bottomInset} variant="floating" showLabels={false} items={items} value={tab} onValueChange={setTab} />
     </Screen>
   );
 }

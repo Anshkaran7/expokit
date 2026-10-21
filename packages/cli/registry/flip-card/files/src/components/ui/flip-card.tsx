@@ -121,7 +121,7 @@ export function FlipCard({
       borderRadius: radius,
       opacity,
       transform: [{ perspective }, { [axis]: turn } as never, { scale: lift }],
-    }) as Animated.WithAnimatedObject<ViewStyle>;
+    }) as Animated.WithAnimatedValue<ViewStyle>;
 
   // The shadow squeezes along the turning axis as the card goes edge-on (see SQUEEZE) and fades a little.
   const squeeze = p.interpolate(SQUEEZE);

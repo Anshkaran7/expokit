@@ -4,18 +4,19 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { readableOn, useKit } from '@/lib/kit';
 
-function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
+function Card({ title, subtitle, screen, children }: { title: string; subtitle?: string; screen?: boolean; children: React.ReactNode }) {
   const { colors, radius } = useKit();
   return (
     <View
-      style={{
-        padding: 16,
-        gap: 12,
-        borderRadius: radius.xl,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: colors.border,
-        backgroundColor: colors.card,
-      }}
+      style={[
+        { padding: 16, gap: 12 },
+        screen
+          ? { flex: 1, backgroundColor: colors.background }
+          : { borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },
+      ]}
     >
       <View style={{ gap: 2, marginBottom: 2 }}>
         <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>
@@ -28,14 +29,14 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
 
 const isEmail = (v: string) => /^\S+@\S+\.\S{2,}$/.test(v);
 
-export function SignUp() {
+export function SignUp({ screen }: DemoProps) {
   const { colors } = useKit();
   const [name, setName] = useState('Priya Sharma');
   const [email, setEmail] = useState('priya@');
   const [phone, setPhone] = useState('');
   const emailError = email.length > 0 && !isEmail(email) ? 'Enter a valid email address' : undefined;
   return (
-    <Card title="Create your account" subtitle="It takes less than a minute.">
+    <Card title="Create your account" subtitle="It takes less than a minute." screen={screen}>
       <FloatingInput label="Full name" value={name} onChangeText={setName} autoComplete="name" clearable />
       <FloatingInput
         label="Email"
@@ -100,7 +101,7 @@ const rupees = (n: number) => {
   return `₹${int.replace(/(\d)(?=(\d\d)+\d$)/g, '$1,')}${frac === '00' ? '' : `.${frac}`}`;
 };
 
-export function Payment() {
+export function Payment({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [amount, setAmount] = useState('1299');
   const [card, setCard] = useState('4242 4242 4242 4242');
@@ -112,7 +113,7 @@ export function Payment() {
   const expErr = expiryError(expiry);
   const ready = Number(amount) > 0 && card.length >= 18 && expErr === null && cvc.length === cvcLen;
   return (
-    <Card title="Add funds" subtitle="Charged securely — you can cancel anytime.">
+    <Card title="Add funds" subtitle="Charged securely — you can cancel anytime." screen={screen}>
       <FloatingInput label="Amount" prefix="₹" suffix="INR" keyboardType="decimal-pad" value={amount} onChangeText={setAmount} />
       <FloatingInput
         label="Card number"
@@ -191,10 +192,10 @@ export function States() {
   );
 }
 
-export function Website() {
+export function Website({ screen }: DemoProps) {
   const [slug, setSlug] = useState('');
   return (
-    <Card title="Your public page">
+    <Card title="Your public page" screen={screen}>
       <FloatingInput
         label="Website"
         prefix="https://"
@@ -229,12 +230,12 @@ export function Sizes() {
 }
 
 /** floatingLabel={false}: static labels above the fields, placeholders inside. */
-export function LabelAbove() {
+export function LabelAbove({ screen }: DemoProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [bio, setBio] = useState('');
   return (
-    <Card title="Edit profile" subtitle="This is how others will see you.">
+    <Card title="Edit profile" subtitle="This is how others will see you." screen={screen}>
       <FloatingInput floatingLabel={false} label="Full name" placeholder="Priya Sharma" value={name} onChangeText={setName} autoComplete="name" clearable />
       <FloatingInput
         floatingLabel={false}
@@ -262,11 +263,11 @@ export function LabelAbove() {
 }
 
 /** Style slots: restyle the box, label, typed text and message without forking the component. */
-export function CustomStyles() {
+export function CustomStyles({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [handle, setHandle] = useState('priya.codes');
   return (
-    <Card title="Custom styles" subtitle="fieldStyle, labelStyle, inputStyle, messageStyle.">
+    <Card title="Custom styles" subtitle="fieldStyle, labelStyle, inputStyle, messageStyle." screen={screen}>
       <FloatingInput
         label="Username"
         prefix="@"

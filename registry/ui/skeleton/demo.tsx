@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 export function Shimmer() {
   return (
     <Skeleton.Group style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -153,6 +156,6 @@ export function Pulse() {
   );
 }
 
-export function Nav() {
-  return <Skeleton.Nav rows={6} tabCount={5} style={{ minHeight: 600 }} />;
+export function Nav({ screen }: DemoProps) {
+  return <Skeleton.Nav rows={6} tabCount={5} style={screen ? undefined : { minHeight: 600 }} />;
 }

@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -75,7 +75,7 @@ export interface BottomSheetProps {
 
 const DEFAULT_BOTTOM_INSET = Platform.select({ ios: 20, android: 12, default: 16 }) ?? 16;
 /** Kit gentle, firmed up — glides between detents without bouncing past them. */
-const SNAP_SPRING = { ...motion.gentle, damping: 26, stiffness: 220, mass: 0.9 };
+const SNAP_SPRING = { ...motion.gentle, damping: 29, stiffness: 220, mass: 0.9 };
 /** Extra sheet below the screen edge, so pulling up past the top snap never shows a gap. */
 const OVERDRAG = 120;
 /** Never let the sheet's top go closer than this to the top of the screen. */
@@ -122,7 +122,8 @@ export function BottomSheet({
   style,
   contentStyle,
 }: BottomSheetProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const reduceMotion = useReduceMotion();
   const { height: screen } = useWindowDimensions();
 
@@ -164,7 +165,7 @@ export function BottomSheet({
   const shown = useRef(false); // auto: slid in once measured
   const index = useRef(initialSnap);
   const scrollY = useRef(0);
-  const rootRef = useRef<View>(null);
+  const rootRef = useRef<ComponentRef<typeof View>>(null);
 
   const bodyDrags = dragFromContent ?? scrollable;
   const live = useRef({ stops, closed, max, dismissible, onClose, onSnapChange, haptics, reduceMotion, scrollable, bodyDrags, expanded });
@@ -473,12 +474,12 @@ export function BottomSheet({
                   <View style={[styles.header, !handle && { paddingTop: 20 }]}>
                     <View style={styles.headerText}>
                       {title ? (
-                        <Text accessibilityRole="header" style={[styles.title, { color: colors.foreground }]} numberOfLines={1}>
+                        <Text accessibilityRole="header" style={[styles.title, ff, { color: colors.foreground }]} numberOfLines={1}>
                           {title}
                         </Text>
                       ) : null}
                       {subtitle ? (
-                        <Text style={[styles.subtitle, { color: colors.mutedForeground }]} numberOfLines={1}>
+                        <Text style={[styles.subtitle, ff, { color: colors.mutedForeground }]} numberOfLines={1}>
                           {subtitle}
                         </Text>
                       ) : null}

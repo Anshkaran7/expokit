@@ -5,20 +5,25 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { Select } from '@/components/ui/select';
 import { alpha, readableOn, useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ screen, style, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
-        {
-          backgroundColor: colors.card,
-          borderColor: colors.border,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderRadius: radius.xl,
-          padding: 18,
-          gap: 14,
-        },
+        screen
+          ? { flex: 1, backgroundColor: colors.background, padding: 18, gap: 14 }
+          : {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderRadius: radius.xl,
+              padding: 18,
+              gap: 14,
+            },
         style,
       ]}
       {...rest}
@@ -71,13 +76,13 @@ const flag = (f: string) => <Text style={s.flag}>{f}</Text>;
  * Clean product form — label above the field, helper + error, CTA.
  * This is the pattern that reads best in docs; other demos follow it.
  */
-export function Validation() {
+export function Validation({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [size, setSize] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
   const missing = touched && !size;
   return (
-    <Card>
+    <Card screen={screen}>
       <Heading title="Merino crew sweater" sub="₹3,499 · Oatmeal" />
       <Select
         label="Size"
@@ -112,10 +117,10 @@ export function Validation() {
 }
 
 /** Single select with icon tiles and descriptions — same label-above pattern. */
-export function Plan() {
+export function Plan({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card>
+    <Card screen={screen}>
       <Heading title="Workspace plan" sub="Billed monthly · change anytime" />
       <Select
         label="Plan"
@@ -137,10 +142,10 @@ export function Plan() {
 }
 
 /** Searchable, grouped list with flags. */
-export function Country() {
+export function Country({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card>
+    <Card screen={screen}>
       <Heading title="Shipping address" sub="Where should we send this order?" />
       <Select
         searchable
@@ -174,11 +179,11 @@ const avatar = (initials: string, color: string) => (
 );
 
 /** Multi-select: chips in the field, the menu stays open while toggling. */
-export function Assignees() {
+export function Assignees({ screen }: DemoProps) {
   const { colors } = useKit();
   const [people, setPeople] = useState(['maya', 'leo']);
   return (
-    <Card>
+    <Card screen={screen}>
       <Heading title="Fix checkout crash on Android 14" sub="ENG-2142 · In progress" />
       <Select
         multiple
@@ -204,10 +209,10 @@ export function Assignees() {
 }
 
 /** presentation="sheet": a bottom sheet on phones, a dialog on wide screens. */
-export function Sheet() {
+export function Sheet({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card>
+    <Card screen={screen}>
       <Heading title="Notifications" sub="Opens as a sheet instead of a dropdown" />
       <Select
         presentation="sheet"
@@ -230,11 +235,11 @@ export function Sheet() {
 }
 
 /** Sizes match FloatingInput: sm 44 · md 54 · lg 64. */
-export function Sizes() {
+export function Sizes({ screen }: DemoProps) {
   const { colors } = useKit();
   const opts = ['Daily', 'Weekly', 'Monthly'];
   return (
-    <Card style={{ gap: 16 }}>
+    <Card screen={screen} style={{ gap: 16 }}>
       <Select size="sm" label="Small" floatingLabel={false} placeholder="Pick one" defaultValue="Weekly" options={opts} surface={colors.card} />
       <Select size="md" label="Medium" floatingLabel={false} placeholder="Pick one" defaultValue="Weekly" options={opts} surface={colors.card} />
       <Select size="lg" label="Large" floatingLabel={false} placeholder="Pick one" defaultValue="Weekly" options={opts} surface={colors.card} />
@@ -244,10 +249,10 @@ export function Sizes() {
 }
 
 /** `accent` recolours the focus ring, label, checks and chips. */
-export function Colors() {
+export function Colors({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card>
+    <Card screen={screen}>
       <Heading title="Project labels" sub="Accent colour drives focus, checks and chips" />
       <Select
         multiple

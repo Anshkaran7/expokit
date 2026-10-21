@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Image, Text, View } from 'react-native';
 
 import { Button3D } from '@/components/ui/button-3d';
+import { GrainGradient } from '@/components/ui/grain';
 import { useKit } from '@/lib/kit';
+
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
 
 /** Any photo works (`require()` or a URL). `blur` gives soft, abstract art. */
 const photo = (id: number, w: number, h: number, blur = false) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}${blur ? '?blur=10' : ''}` });
@@ -21,11 +25,11 @@ function Header({ title, sub, right }: { title: string; sub?: string; right?: Re
   );
 }
 
-/** A trip planner's start screen: frosted-glass keys on a photo. */
-export function OnPhoto() {
+/** A trip planner's start screen: frosted-glass keys on a soft gradient. */
+export function OnPhoto({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <View style={{ gap: 18 }}>
+    <View style={[{ gap: 18 }, screen && { flex: 1 }]}>
       <Header
         title="Good morning, Maya"
         sub="Your trip starts in 3 days"
@@ -35,14 +39,14 @@ export function OnPhoto() {
           </View>
         }
       />
-      <View style={{ height: 440, borderRadius: 28, overflow: 'hidden', backgroundColor: '#1a2a22' }}>
-        <Image alt="" source={photo(1039, 700, 880)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+      <View style={[{ borderRadius: 28, overflow: 'hidden', backgroundColor: '#1a2a22' }, screen ? { flex: 1, minHeight: 440 } : { height: 440 }]}>
+        <GrainGradient palette="aurora" seed={2} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.28)' }} />
         <View style={{ flex: 1, justifyContent: 'flex-end', padding: 22, gap: 16 }}>
           <View>
-            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 }}>OREGON · 3 DAYS</Text>
-            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Multnomah Falls</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2 }}>Waterfalls, old-growth forest and a lodge by the river</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 }}>NORTHERN LIGHTS · 4 NIGHTS</Text>
+            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Aurora Weekend</Text>
+            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2 }}>Glass cabins, hot springs and skies that glow green</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
             <Button3D appearance="glass" size="lg" shape="pill" style={{ flex: 1 }} block>
@@ -188,11 +192,11 @@ export function Materials() {
         <Button3D color="#ff5a5f">Custom</Button3D>
       </View>
       <View style={{ borderRadius: 22, overflow: 'hidden', padding: 18, alignItems: 'center', backgroundColor: '#3a2b55' }}>
-        <Image alt="" source={photo(888, 300, 160, true)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
+        <GrainGradient palette="candy" seed={1} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Button3D appearance="glass">Glass</Button3D>
           <Button3D appearance="glass" shape="pill">
-            On any photo
+            On any backdrop
           </Button3D>
         </View>
       </View>

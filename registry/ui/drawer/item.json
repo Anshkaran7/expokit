@@ -3,6 +3,7 @@
   "title": "Drawer",
   "tier": "free",
   "category": "Overlays",
+  "screen": true,
   "previewHeight": 620,
   "isNew": true,
   "description": "Side navigation drawer that springs in over a fading scrim — or, with variant=\"push\", shrinks the screen into a rounded 0.92 card and slides it aside like modern mail apps. Swipe in from the edge, drag closed from anywhere on the panel with velocity and rubber-banding, and build the panel from DrawerProfile (soft initials avatar, presence, account switcher), DrawerItems with a spring-in accent-tinted active pill and popping count badges, divided section headings and a DrawerFooter meter. Flat theme colours, hairline edges and soft shadows; haptics throughout.",

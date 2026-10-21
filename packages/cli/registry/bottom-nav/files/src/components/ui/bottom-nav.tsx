@@ -109,8 +109,8 @@ const PILL_H = 42;
 /** Flex weight of the active item in the `pill` look (the others are 1). */
 const PILL_GROW = 2.3;
 // Liquid move: the edge in the direction of travel leads, the other one trails behind.
-const LEAD = { damping: 22, stiffness: 320, mass: 0.7 };
-const TRAIL = { damping: 20, stiffness: 150, mass: 0.9 };
+const LEAD = { damping: 31, stiffness: 320, mass: 0.7 };
+const TRAIL = { damping: 24, stiffness: 150, mass: 0.9 };
 
 /**
  * Bottom navigation in five looks — minimal dot, floating capsule, expanding pill, notched centre
@@ -444,6 +444,8 @@ interface NavButtonProps {
 }
 
 function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, reduce, onPress }: NavButtonProps) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const press = useRef(new Animated.Value(1)).current; // press squish (native)
   const pop = useRef(new Animated.Value(active ? 1 : 0)).current; // active state (native)
   const grow = useRef(new Animated.Value(active ? 1 : 0)).current; // pill width (JS — layout)
@@ -512,6 +514,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
                   numberOfLines={1}
                   style={[
                     styles.pillLabel,
+                    ff,
                     {
                       width: labelW + 1,
                       color: tint,
@@ -528,7 +531,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
           {/* Invisible measurer: the label's natural width, so it never ellipsizes while growing. */}
           {showLabels ? (
             <View pointerEvents="none" style={styles.measure} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-              <Text style={[styles.pillLabel, styles.selfStart]} onLayout={(e) => setLabelW(Math.ceil(e.nativeEvent.layout.width))}>
+              <Text style={[styles.pillLabel, styles.selfStart, ff]} onLayout={(e) => setLabelW(Math.ceil(e.nativeEvent.layout.width))}>
                 {item.label}
               </Text>
             </View>
@@ -561,6 +564,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
             style={[
               styles.label,
               styles.floatLabel,
+              ff,
               { color: tint, opacity: fadeIn, transform: [{ translateY: pop.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) }] },
             ]}
           >
@@ -587,7 +591,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
           {badge}
         </Animated.View>
         {showLabels ? (
-          <Text numberOfLines={1} style={[styles.label, { color: active ? tint : idle }]}>
+          <Text numberOfLines={1} style={[styles.label, ff, { color: active ? tint : idle }]}>
             {item.label}
           </Text>
         ) : null}
@@ -653,6 +657,8 @@ function CentreAction({
   showLabel: boolean;
   onPress: () => void;
 }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const press = useRef(new Animated.Value(1)).current;
   const pressTo = (v: number) =>
     Animated.spring(press, { toValue: v, useNativeDriver: true, ...(v < 1 ? motion.snappy : motion.bouncy) }).start();
@@ -671,7 +677,7 @@ function CentreAction({
         </FabFace>
       </Animated.View>
       {showLabel ? (
-        <Text numberOfLines={1} style={[styles.label, styles.abs, { top: labelTop, color: labelColor }]}>
+        <Text numberOfLines={1} style={[styles.label, styles.abs, ff, { top: labelTop, color: labelColor }]}>
           {item.label}
         </Text>
       ) : null}
@@ -758,7 +764,8 @@ function FabFace({
 
 /** Dot or count. Pops in with a spring when it appears or its value changes. */
 function Badge({ value, ring, reduce }: { value: true | number; ring: string; reduce: boolean }) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const s = useRef(new Animated.Value(reduce ? 1 : 0.3)).current;
   useEffect(() => {
     if (reduce) {
@@ -784,7 +791,7 @@ function Badge({ value, ring, reduce }: { value: true | number; ring: string; re
         },
       ]}
     >
-      {!dot && <Text style={[styles.badgeText, { color: colors.dangerForeground }]}>{text}</Text>}
+      {!dot && <Text style={[styles.badgeText, ff, { color: colors.dangerForeground }]}>{text}</Text>}
     </Animated.View>
   );
 }

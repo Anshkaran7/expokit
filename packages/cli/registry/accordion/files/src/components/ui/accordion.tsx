@@ -119,7 +119,8 @@ export function AccordionItem({ value, title, subtitle, icon, children, disabled
   if (!ctx) throw new Error('AccordionItem must be used inside <Accordion>');
   const { open: openValues, toggle, variant, tint } = ctx;
   const { last } = useContext(PositionContext);
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const open = openValues.includes(value);
 
   const [height, setHeight] = useState(0);
@@ -168,11 +169,11 @@ export function AccordionItem({ value, title, subtitle, icon, children, disabled
         {icon ? <View style={styles.icon}>{icon}</View> : null}
         <View style={styles.titles}>
           {isTextNode(title) ? (
-            <Text style={[styles.title, { color: open && variant === 'default' ? tint : colors.foreground }]}>{title}</Text>
+            <Text style={[styles.title, ff, { color: open && variant === 'default' ? tint : colors.foreground }]}>{title}</Text>
           ) : (
             title
           )}
-          {subtitle ? <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>{subtitle}</Text> : null}
+          {subtitle ? <Text style={[styles.subtitle, ff, { color: colors.mutedForeground }]}>{subtitle}</Text> : null}
         </View>
         <Animated.View
           style={{ transform: [{ rotate: turn.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) }] }}
@@ -209,7 +210,7 @@ export function AccordionItem({ value, title, subtitle, icon, children, disabled
           ]}
         >
           {isTextNode(children) ? (
-            <Text style={[styles.text, { color: colors.mutedForeground }]}>{children}</Text>
+            <Text style={[styles.text, ff, { color: colors.mutedForeground }]}>{children}</Text>
           ) : (
             children
           )}

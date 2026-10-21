@@ -57,7 +57,7 @@ const SIZES: Record<SegmentedControlSize, { h: number; font: number; px: number;
 const INSET = 3;
 // Liquid move: the edge in the direction of travel leads, the other one trails behind.
 const LEAD = motion.snappy;
-const TRAIL = { damping: 20, stiffness: 150, mass: 0.9 };
+const TRAIL = { damping: 24, stiffness: 150, mass: 0.9 };
 
 /**
  * Segmented control with a liquid indicator: its leading edge springs ahead and the trailing
@@ -274,6 +274,8 @@ interface SegmentProps {
 }
 
 function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size, height, activeFg, idleFg, disabled }: SegmentProps) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   // a: text colour (JS). press: content squish, pop: little bounce on selection (native, same view).
   const a = useRef(new Animated.Value(active ? 1 : 0)).current;
   const press = useRef(new Animated.Value(1)).current;
@@ -315,7 +317,7 @@ function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size
       <Animated.View style={[styles.content, { transform: [{ scale: Animated.multiply(press, pop) }] }]}>
         {icon ? <View style={{ minWidth: size.icon, alignItems: 'center' }}>{icon}</View> : null}
         {option.label ? (
-          <Animated.Text numberOfLines={1} style={[styles.label, { fontSize: size.font, color }]}>
+          <Animated.Text numberOfLines={1} style={[styles.label, ff, { fontSize: size.font, color }]}>
             {option.label}
           </Animated.Text>
         ) : null}

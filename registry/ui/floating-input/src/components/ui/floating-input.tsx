@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -99,7 +99,7 @@ const NO_WEB_OUTLINE = Platform.OS === 'web' ? ({ outlineStyle: 'none', outlineW
 const AUTOFILL_CSS = `@keyframes ekAutofillOn{from{}to{}}@keyframes ekAutofillOff{from{}to{}}
 input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{animation:ekAutofillOn 1ms;-webkit-text-fill-color:currentColor!important;caret-color:currentColor;transition:background-color 99999s 0s,color 99999s 0s!important}
 input:not(:-webkit-autofill){animation:ekAutofillOff 1ms}`;
-function useWebAutofill(inputRef: React.RefObject<TextInput | null>, onChange: (filled: boolean) => void) {
+function useWebAutofill(inputRef: React.RefObject<ComponentRef<typeof TextInput> | null>, onChange: (filled: boolean) => void) {
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
     if (!document.getElementById('expokit-autofill')) {
@@ -126,7 +126,7 @@ function useWebAutofill(inputRef: React.RefObject<TextInput | null>, onChange: (
  * cutting a notch in the outline (Material-style). Focus draws a soft halo, errors shake,
  * success pops a check — all spring-driven.
  */
-export const FloatingInput = forwardRef<TextInput, FloatingInputProps>(function FloatingInput(
+export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, FloatingInputProps>(function FloatingInput(
   {
     label,
     floatingLabel = true,
@@ -169,7 +169,7 @@ export const FloatingInput = forwardRef<TextInput, FloatingInputProps>(function 
   const ff = font.family ? { fontFamily: font.family } : null;
   const S = FLOATING_INPUT_SIZES[size];
   // The user's border colour only replaces the resting one; numeric height / radius drive the layout maths.
-  const { borderColor: userBorder, ...userField } = StyleSheet.flatten(fieldStyle) ?? {};
+  const { borderColor: userBorder, ...userField } = flattenView(fieldStyle);
   const userLabelColor = StyleSheet.flatten(labelStyleProp)?.color;
   const HEIGHT = typeof userField.height === 'number' ? userField.height : S.height;
   // Floated size stays relative to the resting size, so a bigger label floats bigger at the same ratio.
@@ -179,8 +179,8 @@ export const FloatingInput = forwardRef<TextInput, FloatingInputProps>(function 
   const slot = S.icon + 10; // room for the clear button / check
   const tint = accent ?? colors.accent;
   const bg = surface ?? colors.background;
-  const inputRef = useRef<TextInput>(null);
-  useImperativeHandle(ref, () => inputRef.current as TextInput);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+  useImperativeHandle(ref, () => inputRef.current as ComponentRef<typeof TextInput>);
 
   const [focused, setFocused] = useState(false);
   const [inner, setInner] = useState(defaultValue ?? '');
@@ -498,6 +498,16 @@ function FieldMessage({ text, tone, color, style }: { text: string; tone: Messag
       </Text>
     </Animated.View>
   );
+}
+
+/**
+ * The user's field style as one object. Not StyleSheet.flatten: with TypeScript 6 its RN 0.88 signature
+ * rejects a plain StyleProp<ViewStyle> once expo/types adds web-only keys to ViewStyle.
+ */
+function flattenView(style: StyleProp<ViewStyle>): ViewStyle {
+  if (!style || typeof style !== 'object') return {};
+  if (Array.isArray(style)) return Object.assign({}, ...style.map((s) => flattenView(s as StyleProp<ViewStyle>)));
+  return style as ViewStyle;
 }
 
 const styles = StyleSheet.create({

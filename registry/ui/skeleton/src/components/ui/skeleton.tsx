@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -131,7 +131,7 @@ interface Frame {
 
 const GroupContext = createContext<{ frame: Frame | null } | null>(null);
 
-function measure(node: View | null, e: LayoutChangeEvent, done: (f: Frame) => void) {
+function measure(node: ComponentRef<typeof View> | null, e: LayoutChangeEvent, done: (f: Frame) => void) {
   const { x, y, width, height } = e.nativeEvent.layout;
   const fallback = () => done({ x, y, w: width, h: height });
   if (!node || typeof node.measureInWindow !== 'function') return fallback();
@@ -153,7 +153,7 @@ export interface SkeletonGroupProps {
  */
 export function SkeletonGroup({ children, style }: SkeletonGroupProps) {
   const parent = useContext(GroupContext);
-  const ref = useRef<View>(null);
+  const ref = useRef<ComponentRef<typeof View>>(null);
   const [frame, setFrame] = useState<Frame | null>(null);
   const value = useMemo(() => ({ frame }), [frame]);
   if (parent) return <View style={style}>{children}</View>;
@@ -182,7 +182,7 @@ export function Skeleton({ width = '100%', height = 14, radius = 'sm', variant =
   const t = useClock(moving);
   const group = useContext(GroupContext);
   const win = useWindowDimensions();
-  const ref = useRef<View>(null);
+  const ref = useRef<ComponentRef<typeof View>>(null);
   const [box, setBox] = useState<Frame | null>(null);
   const gid = 'sk' + useId().replace(/[^a-zA-Z0-9]/g, '');
 

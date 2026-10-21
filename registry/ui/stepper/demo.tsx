@@ -4,13 +4,18 @@ import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { Stepper } from '@/components/ui/stepper';
 import { useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ style, screen, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
-        { backgroundColor: colors.card, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.xl, padding: 16, gap: 12 },
+        screen
+          ? { flex: 1, backgroundColor: colors.background, padding: 16, gap: 12 }
+          : { backgroundColor: colors.card, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.xl, padding: 16, gap: 12 },
         style,
       ]}
       {...rest}
@@ -31,12 +36,12 @@ const MENU = [
   { key: 'mochi', emoji: '🍡', name: 'Mochi trio', note: 'Matcha, yuzu, sesame', price: 180 },
 ];
 
-export function Cart() {
+export function Cart({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [qty, setQty] = useState<Record<string, number>>({ bowl: 1, ramen: 2, mochi: 0 });
   const total = MENU.reduce((sum, it) => sum + it.price * (qty[it.key] ?? 0), 0);
   return (
-    <Card>
+    <Card screen={screen}>
       <Text style={[eyebrow, { color: colors.mutedForeground }]}>Your order</Text>
       {MENU.map((it) => (
         <View key={it.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -66,7 +71,7 @@ export function Cart() {
   );
 }
 
-export function Guests() {
+export function Guests({ screen }: DemoProps) {
   const { colors } = useKit();
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
@@ -74,7 +79,7 @@ export function Guests() {
   const cap = 6;
   const rule = <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }} />;
   return (
-    <Card style={{ gap: 14 }}>
+    <Card screen={screen} style={{ gap: 14 }}>
       <Stepper label="Adults" description="Ages 13 or above" value={adults} onValueChange={setAdults} min={1} max={cap - children} />
       {rule}
       <Stepper label="Children" description="Ages 2–12" value={children} onValueChange={setChildren} max={cap - adults} />
@@ -87,12 +92,12 @@ export function Guests() {
   );
 }
 
-export function AddToBag() {
+export function AddToBag({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [qty, setQty] = useState(1);
   const price = 1899;
   return (
-    <Card>
+    <Card screen={screen}>
       <View style={{ gap: 2 }}>
         <Text style={{ fontSize: 17, fontWeight: '400', color: colors.foreground }}>Linen overshirt</Text>
         <Text style={{ fontSize: 13, color: colors.mutedForeground }}>Sand · Size M · Free returns</Text>
@@ -121,10 +126,10 @@ export function AddToBag() {
   );
 }
 
-export function Menu() {
+export function Menu({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card>
+    <Card screen={screen}>
       <Text style={[eyebrow, { color: colors.mutedForeground }]}>Popular</Text>
       <Stepper variant="cart" addLabel="Add" label="Pistachio croissant" description="₹220 · Baked this morning" accessibilityLabel="Pistachio croissant" />
       <Stepper variant="cart" addLabel="Add" label="Iced oat latte" description="₹280 · 16 oz" defaultValue={1} accessibilityLabel="Iced oat latte" />
@@ -132,9 +137,9 @@ export function Menu() {
   );
 }
 
-export function Formatted() {
+export function Formatted({ screen }: DemoProps) {
   return (
-    <Card style={{ gap: 16 }}>
+    <Card screen={screen} style={{ gap: 16 }}>
       <Stepper variant="filled" size="sm" label="Nights" description="Check-in Fri, Oct 24" defaultValue={3} min={1} max={28} suffix={(n) => (n === 1 ? 'night' : 'nights')} />
       <Stepper variant="filled" size="sm" label="Driver tip" description="100% goes to your driver" defaultValue={50} step={10} min={0} max={500} format={money} />
       <Stepper variant="filled" size="sm" label="Search radius" defaultValue={2.5} step={0.5} min={0.5} max={10} suffix="km" />
@@ -143,7 +148,7 @@ export function Formatted() {
   );
 }
 
-export function Sizes() {
+export function Sizes({ screen }: DemoProps) {
   const { colors } = useKit();
   const row = (name: string, el: React.ReactNode) => (
     <View key={name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48 }}>
@@ -152,7 +157,7 @@ export function Sizes() {
     </View>
   );
   return (
-    <Card style={{ gap: 4 }}>
+    <Card screen={screen} style={{ gap: 4 }}>
       {row('Small', <Stepper size="sm" defaultValue={2} max={20} accessibilityLabel="Small stepper" />)}
       {row('Medium', <Stepper size="md" defaultValue={2} max={20} accessibilityLabel="Medium stepper" />)}
       {row('Large', <Stepper size="lg" defaultValue={2} max={20} accessibilityLabel="Large stepper" />)}
@@ -161,10 +166,10 @@ export function Sizes() {
   );
 }
 
-export function Colors() {
+export function Colors({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card style={{ gap: 16 }}>
+    <Card screen={screen} style={{ gap: 16 }}>
       <Stepper variant="filled" accent={colors.success} label="Water" description="Glasses today" defaultValue={6} max={12} />
       <Stepper variant="compact" accent={colors.warning} label="Espresso shots" defaultValue={2} max={4} />
       <Stepper variant="cart" accent={colors.danger} addLabel="Add" label="Hot sauce" description="₹30 each" />

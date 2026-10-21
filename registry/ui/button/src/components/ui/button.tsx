@@ -116,7 +116,8 @@ export function Button({
   onPressOut,
   ...props
 }: ButtonProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const gid = 'btn' + useId().replace(/[^a-zA-Z0-9]/g, '');
   const scale = useRef(new Animated.Value(1)).current;
   const isDisabled = disabled || loading;
@@ -149,7 +150,7 @@ export function Button({
   const label = isTextNode(children) ? (
     <Text
       numberOfLines={1}
-      style={[styles.label, { color: fg, fontSize: s.font }, variant === 'link' && styles.link, textStyle]}
+      style={[styles.label, ff, { color: fg, fontSize: s.font }, variant === 'link' && styles.link, textStyle]}
     >
       {children}
     </Text>
@@ -235,7 +236,7 @@ export function Button({
               <View style={styles.row}>
                 <ActivityIndicator size="small" color={fg} />
                 {size !== 'icon' && isTextNode(children) ? (
-                  <Text style={[styles.label, { color: fg, fontSize: s.font, opacity: 0.85 }]}>{children}</Text>
+                  <Text style={[styles.label, ff, { color: fg, fontSize: s.font, opacity: 0.85 }]}>{children}</Text>
                 ) : null}
               </View>
             ) : (

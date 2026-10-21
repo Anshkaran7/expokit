@@ -4,20 +4,19 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Avatar, AvatarGroup } from '@/components/ui/avatar';
 import { alpha, useKit } from '@/lib/kit';
 
-export function ProfileHeader() {
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
+export function ProfileHeader({ screen }: DemoProps) {
   const { colors, radius, dark } = useKit();
   return (
     <View
-      style={{
-        alignItems: 'center',
-        gap: 12,
-        paddingVertical: 20,
-        paddingHorizontal: 16,
-        borderRadius: radius.xl,
-        backgroundColor: colors.card,
-        borderWidth: 1,
-        borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06),
-      }}
+      style={[
+        { alignItems: 'center', gap: 12, paddingVertical: 20, paddingHorizontal: 16 },
+        screen
+          ? { flex: 1, justifyContent: 'center', backgroundColor: colors.background }
+          : { borderRadius: radius.xl, backgroundColor: colors.card, borderWidth: 1, borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06) },
+      ]}
     >
       <Avatar
         size={88}
@@ -25,7 +24,7 @@ export function ProfileHeader() {
         name="Ava Rossi"
         ring="story"
         verified
-        surface={colors.card}
+        surface={screen ? colors.background : colors.card}
         elevated
       />
       <View style={{ alignItems: 'center', gap: 2 }}>

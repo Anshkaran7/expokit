@@ -161,7 +161,8 @@ export function Slider(props: SliderProps) {
   const onSlidingStart = props.onSlidingStart as Callback;
   const onSlidingComplete = props.onSlidingComplete as Callback;
 
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const onTint = accent ? readableOn(accent) : colors.accentForeground;
   const sz = SIZES[size];
@@ -412,7 +413,7 @@ export function Slider(props: SliderProps) {
     <View style={[styles.barContent, { width: w, height: trackH, paddingHorizontal: Math.round(trackH * 0.32) }]}>
       <View>{icon !== undefined ? drawIcon(icon, iconColor) : null}</View>
       {showValue === 'always' ? (
-        <Text numberOfLines={1} selectable={false} style={[styles.barValue, { color: textColor, fontSize: sz.font + 1 }, labelStyle]}>
+        <Text numberOfLines={1} selectable={false} style={[styles.barValue, ff, { color: textColor, fontSize: sz.font + 1 }, labelStyle]}>
           {range ? `${fmt(vals[0])} – ${fmt(vals[1])}` : fmt(vals[0])}
         </Text>
       ) : null}
@@ -424,7 +425,7 @@ export function Slider(props: SliderProps) {
       key={key}
       numberOfLines={1}
       selectable={false}
-      style={[styles.markLabel, place, { fontSize: sz.font - 1, color: lit ? colors.foreground : colors.mutedForeground }, labelStyle]}
+      style={[styles.markLabel, place, ff, { fontSize: sz.font - 1, color: lit ? colors.foreground : colors.mutedForeground }, labelStyle]}
     >
       {text}
     </Text>
@@ -569,7 +570,7 @@ export function Slider(props: SliderProps) {
                           ]}
                         >
                           <View style={[styles.bubble, { backgroundColor: colors.foreground, borderRadius: radius.capsule(BUBBLE_H) }]}>
-                            <Text numberOfLines={1} selectable={false} style={[styles.bubbleText, { color: colors.background, fontSize: sz.font }, labelStyle]}>
+                            <Text numberOfLines={1} selectable={false} style={[styles.bubbleText, ff, { color: colors.background, fontSize: sz.font }, labelStyle]}>
                               {fmt(v)}
                             </Text>
                           </View>

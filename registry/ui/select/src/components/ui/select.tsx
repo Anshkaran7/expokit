@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Dimensions,
@@ -219,8 +219,8 @@ export function Select<T extends string | number = string>({
   const [anchor, setAnchor] = useState({ x: 0, y: 0, w: 0, h: 0 });
   const [hi, setHi] = useState(-1); // highlighted row (keyboard / hover, web)
   const [kb, setKb] = useState(0); // on-screen keyboard height while the dropdown is open
-  const fieldRef = useRef<View>(null);
-  const scrollRef = useRef<ScrollView>(null);
+  const fieldRef = useRef<ComponentRef<typeof View>>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const rowBox = useRef<Record<string, { y: number; h: number }>>({});
   const scrollY = useRef(0);
   const viewH = useRef(0);

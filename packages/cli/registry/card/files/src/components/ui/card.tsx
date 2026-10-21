@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useId, useRef, useState } from 'react';
+import React, { createContext, useContext, useId, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Image,
@@ -98,7 +98,7 @@ export function Card({
     if (highlight !== 'none') Animated.timing(glow, { toValue: 0, duration: 420, useNativeDriver: true }).start();
   };
   // Touch coordinates are relative to whichever child was hit, so work from page coordinates.
-  const clipRef = useRef<View>(null);
+  const clipRef = useRef<ComponentRef<typeof View>>(null);
   const origin = useRef({ x: 0, y: 0 });
   const placeSpot = (pageX: number, pageY: number) =>
     spot.setValue({ x: pageX - origin.current.x - spotD / 2, y: pageY - origin.current.y - spotD / 2 });
@@ -215,18 +215,20 @@ export interface CardTextProps {
 }
 
 export function CardTitle({ children, numberOfLines, style }: CardTextProps) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   return (
-    <Text accessibilityRole="header" numberOfLines={numberOfLines} style={[styles.title, { color: colors.cardForeground }, style]}>
+    <Text accessibilityRole="header" numberOfLines={numberOfLines} style={[styles.title, ff, { color: colors.cardForeground }, style]}>
       {children}
     </Text>
   );
 }
 
 export function CardDescription({ children, numberOfLines, style }: CardTextProps) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   return (
-    <Text numberOfLines={numberOfLines} style={[styles.description, { color: colors.mutedForeground }, style]}>
+    <Text numberOfLines={numberOfLines} style={[styles.description, ff, { color: colors.mutedForeground }, style]}>
       {children}
     </Text>
   );

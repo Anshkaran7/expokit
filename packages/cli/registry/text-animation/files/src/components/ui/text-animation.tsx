@@ -114,10 +114,10 @@ function nextStop(text: string, from: number) {
 
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-/** A soft spring (~8% overshoot) sampled as a curve, so it can run on the native driver. */
-const soft = (t: number) => 1 - Math.exp(-6.5 * t) * Math.cos(8 * t);
-/** A firmer settle (~4% overshoot). */
-const settle = (t: number) => 1 - Math.exp(-7 * t) * Math.cos(7 * t);
+/** A soft, critically damped settle (no overshoot), sampled as a curve so it runs on the native driver. */
+const soft = (t: number) => 1 - Math.exp(-7 * t) * (1 + 7 * t);
+/** A firmer settle, also without overshoot. */
+const settle = (t: number) => 1 - Math.exp(-8 * t) * (1 + 8 * t);
 
 /**
  * Maps a millisecond clock onto `from → to` between `start` and `start + dur` through `ease`.

@@ -4,14 +4,19 @@ import { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } fro
 import { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';
 import { useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ style, screen, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
         s.card,
-        { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },
+        screen
+          ? { flex: 1, borderWidth: 0, backgroundColor: colors.background }
+          : { borderRadius: radius.xl, borderColor: colors.border, backgroundColor: colors.card },
         style,
       ]}
       {...rest}
@@ -34,10 +39,10 @@ function until(t: TimeValue) {
   return h ? `in ${h} h ${diff % 60} min` : `in ${diff} min`;
 }
 
-export function Alarm() {
+export function Alarm({ screen }: DemoProps) {
   const [time, setTime] = useState<TimeValue>({ hours: 6, minutes: 45 });
   return (
-    <Card>
+    <Card screen={screen}>
       <View style={s.head}>
         <View style={s.headText}>
           <Ink style={s.title}>Wake up</Ink>
@@ -50,11 +55,11 @@ export function Alarm() {
   );
 }
 
-export function Clock() {
+export function Clock({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [time, setTime] = useState<TimeValue>({ hours: 7, minutes: 30 });
   return (
-    <Card>
+    <Card screen={screen}>
       <View style={s.headText}>
         <Ink style={s.title}>Morning run</Ink>
         <Ink tone="muted" style={s.meta}>Tap the hour or minute, then drag the dial.</Ink>
@@ -67,11 +72,11 @@ export function Clock() {
   );
 }
 
-export function Appointment() {
+export function Appointment({ screen }: DemoProps) {
   const { colors, radius } = useKit();
   const [slot, setSlot] = useState<TimeValue | null>(null);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Dr. Amara Okafor · Dermatology</Ink>
       <TimePicker
         variant="chips"
@@ -96,10 +101,10 @@ export function Appointment() {
   );
 }
 
-export function Reminder() {
+export function Reminder({ screen }: DemoProps) {
   const [time, setTime] = useState<TimeValue>({ hours: 21, minutes: 30 });
   return (
-    <Card>
+    <Card screen={screen}>
       <View style={s.head}>
         <Ink style={s.title}>Daily journal reminder</Ink>
         <Ink tone="muted" style={s.meta}>{formatTime(time, false)}</Ink>
@@ -110,11 +115,11 @@ export function Reminder() {
   );
 }
 
-export function InSheet() {
+export function InSheet({ screen }: DemoProps) {
   const [pickup, setPickup] = useState<TimeValue | null>({ hours: 18, minutes: 15 });
   const [delivery, setDelivery] = useState<TimeValue | null>(null);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Order #4821 · Green Basket</Ink>
       <TimePicker presentation="sheet" label="Pickup time" title="When will you pick up?" value={pickup} onChange={setPickup} minuteInterval={5} hour12 />
       <TimePicker
@@ -137,11 +142,11 @@ export function InSheet() {
   );
 }
 
-export function ClockInSheet() {
+export function ClockInSheet({ screen }: DemoProps) {
   const [start, setStart] = useState<TimeValue | null>({ hours: 9, minutes: 0 });
   const [end, setEnd] = useState<TimeValue | null>(null);
   return (
-    <Card>
+    <Card screen={screen}>
       <Ink style={s.title}>Focus block · Thursday</Ink>
       <TimePicker presentation="sheet" variant="clock" label="Starts" title="Start time" value={start} onChange={setStart} hour12 />
       <TimePicker

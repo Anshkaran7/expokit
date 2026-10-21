@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -267,7 +267,7 @@ export function TiltCard({
   const touching = useRef(false);
   const origin = useRef({ x: 0, y: 0 });
   const moved = useRef(false);
-  const viewRef = useRef<View>(null);
+  const viewRef = useRef<ComponentRef<typeof View>>(null);
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
 

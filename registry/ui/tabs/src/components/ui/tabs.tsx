@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -64,7 +64,7 @@ type Box = { x: number; w: number };
 
 // Liquid move: the edge in the direction of travel leads, the other one trails behind.
 const LEAD = motion.snappy;
-const TRAIL = { damping: 20, stiffness: 150, mass: 0.9 };
+const TRAIL = { damping: 24, stiffness: 150, mass: 0.9 };
 const UNDERLINE = 3;
 
 /**
@@ -123,7 +123,7 @@ export function Tabs({
   const release = useRef({ v: 0, dragged: false });
   const paging = useRef(false); // pager spring in flight (its JS value is stale until it ends)
   const [settle, setSettle] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
 
   const edgesOf = (i: number): [number, number] | null => {
     const t = tabs.current[i];
@@ -173,7 +173,7 @@ export function Tabs({
         Animated.timing(pan, { toValue: to, duration: 180, useNativeDriver: true }).start();
       } else {
         paging.current = true;
-        Animated.spring(pan, { toValue: to, velocity: v, useNativeDriver: true, ...motion.snappy, damping: 24 }).start(
+        Animated.spring(pan, { toValue: to, velocity: v, useNativeDriver: true, ...motion.snappy, damping: 30 }).start(
           ({ finished }) => {
             if (finished) paging.current = false;
           }
@@ -425,7 +425,8 @@ interface TabProps {
 }
 
 function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLayout, onLabelLayout }: TabProps) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const a = useRef(new Animated.Value(active ? 1 : 0)).current; // label colour (JS)
   const press = useRef(new Animated.Value(1)).current; // squish (native)
 
@@ -462,7 +463,7 @@ function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLa
       {/* Measured: the underline spans exactly this (icon + label). */}
       <Animated.View onLayout={onLabelLayout} style={[styles.labelRow, { transform: [{ scale: press }] }]}>
         {icon}
-        <Animated.Text numberOfLines={1} style={[styles.label, { color, fontSize }]}>
+        <Animated.Text numberOfLines={1} style={[styles.label, ff, { color, fontSize }]}>
           {item.label}
         </Animated.Text>
       </Animated.View>
@@ -473,7 +474,8 @@ function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLa
 
 /** Count bubble: accent when its tab is active, muted otherwise. Pops when the value changes. */
 function TabBadge({ value, active, tint, reduce }: { value: number | string; active: boolean; tint: string; reduce: boolean }) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const s = useRef(new Animated.Value(1)).current;
   const first = useRef(true);
   useEffect(() => {
@@ -496,7 +498,7 @@ function TabBadge({ value, active, tint, reduce }: { value: number | string; act
         },
       ]}
     >
-      <Animated.Text style={[styles.badgeText, { color: active ? readableOn(tint) : colors.mutedForeground }]}>{text}</Animated.Text>
+      <Animated.Text style={[styles.badgeText, ff, { color: active ? readableOn(tint) : colors.mutedForeground }]}>{text}</Animated.Text>
     </Animated.View>
   );
 }

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -255,7 +255,7 @@ const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, lab
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const scrollY = useRef(new Animated.Value(index * ITEM)).current; // native, driven by the scroll view
-  const ref = useRef<ScrollView>(null);
+  const ref = useRef<ComponentRef<typeof ScrollView>>(null);
   const settled = useRef(index);
   const dragging = useRef(false);
   const lastY = useRef(index * ITEM);

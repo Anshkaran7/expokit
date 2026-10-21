@@ -104,7 +104,8 @@ export function Progress({
   striped = false,
   style,
 }: ProgressProps) {
-  const { colors, dark } = useKit();
+  const { colors, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const top = max ?? (variant === 'steps' ? steps : 100);
   const unknown = indeterminate || value === undefined;
@@ -137,7 +138,7 @@ export function Progress({
           done={done}
           reduce={reduce}
         />
-        {label ? <Text style={[styles.ringLabel, { color: colors.mutedForeground }]}>{label}</Text> : null}
+        {label ? <Text style={[styles.ringLabel, ff, { color: colors.mutedForeground }]}>{label}</Text> : null}
       </View>
     );
   }
@@ -147,13 +148,13 @@ export function Progress({
   const header =
     label || valueShown ? (
       <View style={styles.header}>
-        <Text numberOfLines={1} style={[styles.label, { color: colors.foreground }]}>
+        <Text numberOfLines={1} style={[styles.label, ff, { color: colors.foreground }]}>
           {label}
         </Text>
         {checkShown ? (
           <DrawnCheck color={tint} size={18} />
         ) : valueShown ? (
-          <Text style={[styles.value, { color: colors.mutedForeground }]}>{text}</Text>
+          <Text style={[styles.value, ff, { color: colors.mutedForeground }]}>{text}</Text>
         ) : null}
       </View>
     ) : null;
@@ -685,6 +686,8 @@ function Ring({
   reduce: boolean;
 }) {
   const { d, w, font } = RING[size];
+  const kit = useKit();
+  const ff = kit.font.family ? { fontFamily: kit.font.family } : null;
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
   const r = (d - w) / 2;
   const c = 2 * Math.PI * r;
@@ -835,7 +838,7 @@ function Ring({
               ],
             }}
           >
-            <Text style={[styles.ringValue, { color: fg, fontSize: font }]}>
+            <Text style={[styles.ringValue, ff, { color: fg, fontSize: font }]}>
               {format ? format() : <RingPercent fill={fill} initial={ratio} />}
               {format ? null : <Text style={{ fontSize: font * 0.6, color: alpha(fg, 0.55) }}>%</Text>}
             </Text>

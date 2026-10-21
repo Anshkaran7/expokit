@@ -113,7 +113,8 @@ interface RadioItemProps {
 }
 
 function RadioItem({ option, active, onPress, variant, horizontal, first, tint, disabled }: RadioItemProps) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   // p: colours + svg (JS driver). dot: scale/opacity pops (native). press: press feedback (native).
   // ripple: a ring that expands and fades when the item gets selected, 0 → 1 (native, rests at 1).
   const p = useRef(new Animated.Value(active ? 1 : 0)).current;
@@ -154,17 +155,17 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
 
   const text = (
     <View style={styles.text}>
-      <Text numberOfLines={2} style={[styles.label, { color: fg }]}>
+      <Text numberOfLines={2} style={[styles.label, ff, { color: fg }]}>
         {option.label}
       </Text>
-      {option.description ? <Text style={[styles.description, { color: muted }]}>{option.description}</Text> : null}
+      {option.description ? <Text style={[styles.description, ff, { color: muted }]}>{option.description}</Text> : null}
     </View>
   );
 
   if (variant === 'card') {
     const lit = (from: string, to: string) => p.interpolate({ inputRange: [0, 1], outputRange: [from, to], extrapolate: 'clamp' });
     const hint = option.hint ? (
-      <Animated.Text style={[styles.hint, horizontal && styles.hintColumn, { color: lit(fg, tint) }]}>{option.hint}</Animated.Text>
+      <Animated.Text style={[styles.hint, ff, horizontal && styles.hintColumn, { color: lit(fg, tint) }]}>{option.hint}</Animated.Text>
     ) : null;
     return (
       <Animated.View style={[horizontal && styles.flex, { opacity: disabled ? 0.5 : 1, transform: [{ scale: press }] }]}>
@@ -191,10 +192,10 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
               </Animated.View>
             ) : null}
             <View style={[styles.text, horizontal && styles.cardTextColumn]}>
-              <Text numberOfLines={2} style={[styles.label, { color: fg }]}>
+              <Text numberOfLines={2} style={[styles.label, ff, { color: fg }]}>
                 {option.label}
               </Text>
-              {option.description ? <Text style={[styles.description, { color: muted }]}>{option.description}</Text> : null}
+              {option.description ? <Text style={[styles.description, ff, { color: muted }]}>{option.description}</Text> : null}
               {horizontal ? hint : null}
             </View>
             {horizontal ? null : hint}
@@ -241,11 +242,11 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
         <View style={styles.text}>
           <Animated.Text
             numberOfLines={1}
-            style={[styles.label, { color: p.interpolate({ inputRange: [0, 1], outputRange: [fg, tint], extrapolate: 'clamp' }) }]}
+            style={[styles.label, ff, { color: p.interpolate({ inputRange: [0, 1], outputRange: [fg, tint], extrapolate: 'clamp' }) }]}
           >
             {option.label}
           </Animated.Text>
-          {option.description ? <Text style={[styles.description, { color: muted }]}>{option.description}</Text> : null}
+          {option.description ? <Text style={[styles.description, ff, { color: muted }]}>{option.description}</Text> : null}
         </View>
         <Svg width={20} height={20} viewBox="0 0 24 24">
           <AnimatedPath
@@ -286,7 +287,7 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
         </Animated.View>
       </Animated.View>
       {horizontal && !option.description ? (
-        <Text style={[styles.label, { color: fg }]}>{option.label}</Text>
+        <Text style={[styles.label, ff, { color: fg }]}>{option.label}</Text>
       ) : (
         text
       )}

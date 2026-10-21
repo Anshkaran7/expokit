@@ -70,7 +70,8 @@ export function ProgressSteps({
   accent,
   style,
 }: ProgressStepsProps) {
-  const { colors, dark } = useKit();
+  const { colors, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
   const items = steps.map((s) => (typeof s === 'string' ? { label: s } : s));
@@ -118,7 +119,7 @@ export function ProgressSteps({
         Animated.timing(pulse, { toValue: 1, duration: 1500, easing: Easing.out(Easing.quad), useNativeDriver: true }),
         Animated.delay(250),
       ]),
-      { resetBeforeIteration: true }
+      { iterations: -1, resetBeforeIteration: true }
     );
     loop.start();
     return () => loop.stop();
@@ -146,6 +147,7 @@ export function ProgressSteps({
             numberOfLines={1}
             style={[
               styles.barLabel,
+              ff,
               { color: failed ? colors.danger : colors.foreground },
               {
                 opacity: labelIn,
@@ -155,7 +157,7 @@ export function ProgressSteps({
           >
             {done ? 'All done' : items[shown]!.label}
           </Animated.Text>
-          <Text style={[styles.barStep, { color: colors.mutedForeground }]}>
+          <Text style={[styles.barStep, ff, { color: colors.mutedForeground }]}>
             {done ? `${n} of ${n}` : `Step ${shown + 1} of ${n}`}
           </Text>
         </View>
@@ -255,7 +257,8 @@ function Step({
   reduce: boolean;
   onPress?: () => void;
 }) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const press = useRef(new Animated.Value(0)).current;
   const pressTo = (v: number) =>
     Animated.spring(press, { toValue: v, useNativeDriver: true, ...(v ? motion.snappy : motion.bouncy) }).start();
@@ -301,9 +304,9 @@ function Step({
           {!last ? line(styles.vLine) : null}
         </View>
         <View style={[styles.vBody, !last && styles.vBodyGap]}>
-          <Text style={[styles.vLabel, { color: labelColor }]}>{step.label}</Text>
+          <Text style={[styles.vLabel, ff, { color: labelColor }]}>{step.label}</Text>
           {step.description ? (
-            <Text style={[styles.vDesc, { color: state === 'error' ? colors.danger : colors.mutedForeground }]}>
+            <Text style={[styles.vDesc, ff, { color: state === 'error' ? colors.danger : colors.mutedForeground }]}>
               {step.description}
             </Text>
           ) : null}
@@ -315,11 +318,11 @@ function Step({
   return (
     <Wrapper {...a11y} {...pressProps} style={styles.hCol}>
       <View style={styles.hTop}>{node}</View>
-      <Text numberOfLines={2} style={[styles.hLabel, { color: labelColor }]}>
+      <Text numberOfLines={2} style={[styles.hLabel, ff, { color: labelColor }]}>
         {step.label}
       </Text>
       {step.description ? (
-        <Text numberOfLines={2} style={[styles.hDesc, { color: colors.mutedForeground }]}>
+        <Text numberOfLines={2} style={[styles.hDesc, ff, { color: colors.mutedForeground }]}>
           {step.description}
         </Text>
       ) : null}
@@ -344,7 +347,8 @@ function Node({
   color: string;
   reduce: boolean;
 }) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const clamp = 'clamp' as const;
   const round = { borderRadius: radius.capsule(NODE) };
   const activeIn = pNative.interpolate({ inputRange: [i - 0.3, i], outputRange: [0, 1], extrapolate: clamp });
@@ -370,7 +374,7 @@ function Node({
       <View
         style={[styles.node, round, { borderWidth: 1.5, borderColor: alpha(colors.foreground, dark ? 0.22 : 0.16) }]}
       >
-        <Text style={[styles.num, { color: colors.mutedForeground }]}>{i + 1}</Text>
+        <Text style={[styles.num, ff, { color: colors.mutedForeground }]}>{i + 1}</Text>
       </View>
 
       {/* Current: soft halo, a ring that breathes outwards, accent ring with a tinted core. */}
@@ -411,7 +415,7 @@ function Node({
         ]}
       >
         <View style={[StyleSheet.absoluteFill, round, { backgroundColor: alpha(color, 0.12) }]} />
-        <Text style={[styles.num, { color }]}>{i + 1}</Text>
+        <Text style={[styles.num, ff, { color }]}>{i + 1}</Text>
       </Animated.View>
 
       {/* Done: solid disc that pops in, then the check draws itself. */}

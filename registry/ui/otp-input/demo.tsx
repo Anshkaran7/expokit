@@ -4,13 +4,19 @@ import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { OtpInput } from '@/components/ui/otp-input';
 import { useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ style, screen, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
-        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },
+        { padding: 16, gap: 12 },
+        screen
+          ? { flex: 1, backgroundColor: colors.background }
+          : { borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },
         style,
       ]}
       {...rest}
@@ -28,7 +34,7 @@ function Header({ title, body }: { title: string; body: string }) {
   );
 }
 
-export function VerifyPhone() {
+export function VerifyPhone({ screen }: DemoProps) {
   const { colors } = useKit();
   const [code, setCode] = useState('');
   const [left, setLeft] = useState(24);
@@ -39,7 +45,7 @@ export function VerifyPhone() {
   }, [left]);
   const done = code.length === 6;
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Verify your number" body="Enter the code sent to +91 98•••• 4210" />
       <OtpInput
         value={code}
@@ -64,28 +70,28 @@ export function VerifyPhone() {
   );
 }
 
-export function Pin() {
+export function Pin({ screen }: DemoProps) {
   const [pin, setPin] = useState('');
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Enter your PIN" body="Confirm the transfer of ₹2,400 to Ananya" />
       <OtpInput variant="pill" length={4} secure value={pin} onChangeText={setPin} maxCellSize={56} />
     </Card>
   );
 }
 
-export function Underline() {
+export function Underline({ screen }: DemoProps) {
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Check your inbox" body="We emailed a 6-digit code to karan@…" />
       <OtpInput variant="underline" helperText="Code expires in 10 minutes" />
     </Card>
   );
 }
 
-export function WithSeparator() {
+export function WithSeparator({ screen }: DemoProps) {
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Two-factor authentication" body="Open your authenticator app" />
       <OtpInput separatorAfter={3} maxCellSize={46} />
     </Card>

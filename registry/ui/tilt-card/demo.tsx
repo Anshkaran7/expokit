@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 
+import { GrainGradient } from '@/components/ui/grain';
 import { TiltCard, TiltLayer } from '@/components/ui/tilt-card';
 import { alpha, useKit } from '@/lib/kit';
 
-/** Any photo works (`require()` or a URL). `blur` gives soft, abstract art. */
-const photo = (id: number, w: number, h: number, blur = false) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}${blur ? '?blur=10' : ''}` });
+/** Any photo works (`require()` or a URL). */
+const photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });
 
 /** A screen title, as it sits above the card in your app. */
 function Header({ title, sub, right }: { title: string; sub?: string; right?: React.ReactNode }) {
@@ -86,8 +87,8 @@ export function NowPlaying() {
         </View>
         <Text style={{ color: colors.foreground, fontSize: 20 }}>⋯</Text>
       </View>
-      <TiltCard idle image={photo(888, 300, 300, true)} shade={0.35} radius={20} accessibilityLabel="Midnight Bloom by Lumen" style={{ width: 250 }}>
-        <View style={{ height: 250 }} />
+      <TiltCard idle radius={20} accessibilityLabel="Midnight Bloom by Lumen" style={{ width: 250 }}>
+        <GrainGradient palette="noir" seed={1} style={{ height: 250 }} />
         <TiltLayer depth={1}>
           <View style={{ position: 'absolute', left: 18, bottom: 16 }}>
             <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -1, lineHeight: 30 }}>MIDNIGHT</Text>

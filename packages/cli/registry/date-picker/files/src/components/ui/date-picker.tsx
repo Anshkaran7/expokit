@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -251,7 +251,7 @@ export function DatePicker(props: DatePickerProps) {
   const [draft, setDraft] = useState<Picked>(null);
   const [calMonth, setCalMonth] = useState(new Date());
   const [anchor, setAnchor] = useState({ x: 0, y: 0, w: 0, h: 0 });
-  const fieldRef = useRef<View>(null);
+  const fieldRef = useRef<ComponentRef<typeof View>>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const ok = !error && !!success;

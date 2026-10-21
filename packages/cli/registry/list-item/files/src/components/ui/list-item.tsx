@@ -140,7 +140,8 @@ export function ListItem({
   accessibilityLabel,
   style,
 }: ListItemProps) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const s = SIZES[size];
   const pressable = !!(onPress || onLongPress);
@@ -192,18 +193,18 @@ export function ListItem({
       ) : null}
       <View style={styles.body}>
         <View style={styles.titleRow}>
-          <Text numberOfLines={1} style={[styles.title, { fontSize: s.title, color: titleColor }, titleStyle]}>
+          <Text numberOfLines={1} style={[styles.title, ff, { fontSize: s.title, color: titleColor }, titleStyle]}>
             {title}
           </Text>
-          {meta ? <Text style={[styles.meta, { color: colors.mutedForeground }]}>{meta}</Text> : null}
+          {meta ? <Text style={[styles.meta, ff, { color: colors.mutedForeground }]}>{meta}</Text> : null}
         </View>
         {subtitle ? (
-          <Text numberOfLines={1} style={[styles.sub, { fontSize: s.sub, color: colors.mutedForeground }]}>
+          <Text numberOfLines={1} style={[styles.sub, ff, { fontSize: s.sub, color: colors.mutedForeground }]}>
             {subtitle}
           </Text>
         ) : null}
         {description ? (
-          <Text numberOfLines={numberOfLines} style={[styles.desc, { fontSize: s.sub, lineHeight: s.sub * 1.36, color: colors.mutedForeground }]}>
+          <Text numberOfLines={numberOfLines} style={[styles.desc, ff, { fontSize: s.sub, lineHeight: s.sub * 1.36, color: colors.mutedForeground }]}>
             {description}
           </Text>
         ) : null}
@@ -211,17 +212,17 @@ export function ListItem({
       {value || badge || checked || trailing !== undefined || showChevron ? (
         <View style={styles.trailing}>
           {value ? (
-            <Text numberOfLines={1} style={[styles.value, { color: colors.mutedForeground }]}>
+            <Text numberOfLines={1} style={[styles.value, ff, { color: colors.mutedForeground }]}>
               {value}
             </Text>
           ) : null}
           {badge === true ? <View style={[styles.dot, { backgroundColor: tint }]} /> : null}
           {badgeText ? (
             <View style={[styles.badge, { borderRadius: radius.capsule(22), backgroundColor: tint }]}>
-              <Text style={[styles.badgeText, { color: readableOn(tint) }]}>{badgeText}</Text>
+              <Text style={[styles.badgeText, ff, { color: readableOn(tint) }]}>{badgeText}</Text>
             </View>
           ) : null}
-          {isTextNode(trailing) ? <Text style={[styles.value, { color: colors.mutedForeground }]}>{trailing}</Text> : trailing}
+          {isTextNode(trailing) ? <Text style={[styles.value, ff, { color: colors.mutedForeground }]}>{trailing}</Text> : trailing}
           {checked ? <Check color={tint} /> : null}
           {showChevron ? <Chevron color={alpha(colors.mutedForeground, 0.7)} /> : null}
         </View>
@@ -282,11 +283,12 @@ export interface ListGroupProps {
  * between rows that start past the icon so they line up with the text.
  */
 export function ListGroup({ header, footer, background, children, style }: ListGroupProps) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   return (
     <View style={[styles.group, style]}>
       {header ? (
-        <Text accessibilityRole="header" style={[styles.header, { color: colors.mutedForeground }]}>
+        <Text accessibilityRole="header" style={[styles.header, ff, { color: colors.mutedForeground }]}>
           {header}
         </Text>
       ) : null}
@@ -298,7 +300,7 @@ export function ListGroup({ header, footer, background, children, style }: ListG
       >
         {withDividers(children)}
       </View>
-      {footer ? <Text style={[styles.footer, { color: colors.mutedForeground }]}>{footer}</Text> : null}
+      {footer ? <Text style={[styles.footer, ff, { color: colors.mutedForeground }]}>{footer}</Text> : null}
     </View>
   );
 }
@@ -315,16 +317,17 @@ export interface ListSectionProps {
 
 /** Plain full-width section: header text, then rows with inset separators. */
 export function ListSection({ header, footer, dividerAfterLast, children, style }: ListSectionProps) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   return (
     <View style={style}>
       {header ? (
-        <Text accessibilityRole="header" style={[styles.sectionHeader, { color: colors.mutedForeground }]}>
+        <Text accessibilityRole="header" style={[styles.sectionHeader, ff, { color: colors.mutedForeground }]}>
           {header}
         </Text>
       ) : null}
       {withDividers(children, dividerAfterLast)}
-      {footer ? <Text style={[styles.footer, { color: colors.mutedForeground }]}>{footer}</Text> : null}
+      {footer ? <Text style={[styles.footer, ff, { color: colors.mutedForeground }]}>{footer}</Text> : null}
     </View>
   );
 }
@@ -341,7 +344,8 @@ function withDividers(children: React.ReactNode, last = false) {
 }
 
 function AvatarCircle({ src, name = '', color, online, size, ring }: ListItemAvatar & { size: number; ring: string }) {
-  const { colors } = useKit();
+  const { colors, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const [failed, setFailed] = useState(false);
   const initials = name
     .split(/\s+/)
@@ -356,7 +360,7 @@ function AvatarCircle({ src, name = '', color, online, size, ring }: ListItemAva
   return (
     <View style={{ width: size, height: size }}>
       <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2, backgroundColor: bg }]}>
-        <Text style={{ color: readableOn(bg), fontSize: size * 0.38, fontWeight: '400' }}>{initials}</Text>
+        <Text style={[{ color: readableOn(bg), fontSize: size * 0.38, fontWeight: '400' }, ff]}>{initials}</Text>
         {src && !failed ? (
           <Image source={{ uri: src }} onError={() => setFailed(true)} style={[StyleSheet.absoluteFill, { borderRadius: size / 2 }]} />
         ) : null}

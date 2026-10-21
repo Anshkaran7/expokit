@@ -151,7 +151,8 @@ interface ChipProps {
 }
 
 function Chip({ option, active, onPress, variant, size, tint, showCheck, multiple, disabled }: ChipProps) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   // p: colours, check width + stroke (JS driver). press: squish (native, on the outer view).
   const p = useRef(new Animated.Value(active ? 1 : 0)).current;
   const press = useRef(new Animated.Value(1)).current;
@@ -237,7 +238,7 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
           {option.label ? (
             <Animated.Text
               numberOfLines={1}
-              style={[styles.label, { fontSize: size.font, color: p.interpolate({ ...range, outputRange: l.fg }) }]}
+              style={[styles.label, ff, { fontSize: size.font, color: p.interpolate({ ...range, outputRange: l.fg }) }]}
             >
               {option.label}
             </Animated.Text>
@@ -246,6 +247,7 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
             <Animated.Text
               style={[
                 styles.count,
+                ff,
                 { fontSize: size.font - 1.5, color: p.interpolate({ ...range, outputRange: [colors.mutedForeground, l.fg[1]] }) },
               ]}
             >

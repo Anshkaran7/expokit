@@ -118,7 +118,8 @@ export function Stepper({
   buttonStyle,
   valueStyle,
 }: StepperProps) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const variant: StepperVariant = variantProp in LEGACY ? LEGACY[variantProp as StepperLegacyVariant] : (variantProp as StepperVariant);
   const vertical = variant !== 'cart' && (orientation ? orientation === 'vertical' : variantProp === 'vertical');
   const tint = accent ?? colors.accent;
@@ -199,6 +200,7 @@ export function Stepper({
     fontSize,
     lineHeight: Math.round(fontSize * 1.3),
     color: numColor,
+    ...ff,
     ...flatValue,
   };
 
@@ -312,8 +314,8 @@ export function Stepper({
   return (
     <View style={[styles.labelled, style]}>
       <View style={styles.texts}>
-        {title ? <Text style={[styles.label, { color: colors.foreground }]}>{title}</Text> : null}
-        {description ? <Text style={[styles.description, { color: colors.mutedForeground }]}>{description}</Text> : null}
+        {title ? <Text style={[styles.label, ff, { color: colors.foreground }]}>{title}</Text> : null}
+        {description ? <Text style={[styles.description, ff, { color: colors.mutedForeground }]}>{description}</Text> : null}
       </View>
       {control}
     </View>
@@ -361,6 +363,8 @@ function CartControl({
   onAdd: () => void;
   onAddEnd: () => void;
 } & React.ComponentProps<typeof View>) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   // Natural widths, measured off-screen so the spring always lands on the real size.
   const [textW, setTextW] = useState(0);
   const [addW, setAddW] = useState(0);
@@ -438,7 +442,7 @@ function CartControl({
               style={({ pressed }) => [styles.add, { height: s.btn, paddingHorizontal: Math.round(s.btn * 0.36) }, pressed && { backgroundColor: alpha(fg, 0.16) }]}
             >
               <Glyph d={ICON.plus} size={s.icon} color={fg} />
-              <Text style={[styles.addText, { color: fg, fontSize: s.font - 2 }]}>{addLabel}</Text>
+              <Text style={[styles.addText, ff, { color: fg, fontSize: s.font - 2 }]}>{addLabel}</Text>
             </Pressable>
           </Animated.View>
         </View>

@@ -181,14 +181,17 @@ export function useKit(): Theme {
   return useMemo(() => build(scheme, ctx?.overrides), [scheme, ctx?.overrides]);
 }
 
-/** Shared motion presets so the whole kit moves the same way. */
+/**
+ * Shared motion presets so the whole kit moves the same way. Every spring is critically damped
+ * (damping ≥ 2·√(stiffness·mass)): it settles smoothly with no overshoot or wobble.
+ */
 export const motion = {
   /** Toggles, selection indicators. */
-  snappy: { damping: 18, stiffness: 260, mass: 0.8 },
-  /** Press feedback, pops. */
-  bouncy: { damping: 11, stiffness: 220, mass: 0.7 },
+  snappy: { damping: 30, stiffness: 260, mass: 0.8 },
+  /** Press feedback, pops. (Kept under its old name; it no longer bounces.) */
+  bouncy: { damping: 26, stiffness: 220, mass: 0.7 },
   /** Sheets, layout changes. */
-  gentle: { damping: 22, stiffness: 160, mass: 1 },
+  gentle: { damping: 27, stiffness: 160, mass: 1 },
   fast: 160,
   normal: 240,
 };

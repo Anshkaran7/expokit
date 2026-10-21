@@ -137,7 +137,8 @@ export function Dialog({
   accent,
   style,
 }: DialogProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduceMotion = useReduceMotion();
   const destructive = variant === 'destructive';
@@ -331,6 +332,7 @@ export function Dialog({
       selectionColor={accent ?? colors.accent}
       style={[
         ios ? styles.inputIos : styles.input,
+        ff,
         {
           color: colors.foreground,
           backgroundColor: alpha(colors.foreground, dark ? 0.07 : 0.04),
@@ -351,19 +353,19 @@ export function Dialog({
       {title ? (
         <Text
           accessibilityRole="header"
-          style={[ios ? styles.titleIos : styles.title, { color: colors.foreground }, centred && styles.textCenter]}
+          style={[ios ? styles.titleIos : styles.title, ff, { color: colors.foreground }, centred && styles.textCenter]}
         >
           {title}
         </Text>
       ) : null}
       {description ? (
-        <Text style={[ios ? styles.descIos : styles.desc, { color: colors.mutedForeground }, centred && styles.textCenter]}>
+        <Text style={[ios ? styles.descIos : styles.desc, ff, { color: colors.mutedForeground }, centred && styles.textCenter]}>
           {description}
         </Text>
       ) : null}
       {field ? <View style={ios ? styles.fieldIos : styles.field}>{field}</View> : null}
       {error ? (
-        <Text accessibilityLiveRegion="polite" style={[styles.error, { color: colors.danger }, centred && styles.textCenter]}>
+        <Text accessibilityLiveRegion="polite" style={[styles.error, ff, { color: colors.danger }, centred && styles.textCenter]}>
           {error}
         </Text>
       ) : null}
@@ -514,6 +516,8 @@ function PillButton({
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const press = useRef(new Animated.Value(0)).current;
   const to = (v: number) => Animated.spring(press, { toValue: v, useNativeDriver: true, ...motion.snappy }).start();
   return (
@@ -538,7 +542,7 @@ function PillButton({
           },
         ]}
       >
-        <Text numberOfLines={1} style={[styles.pillText, { color: fg, opacity: loading ? 0 : 1 }]}>
+        <Text numberOfLines={1} style={[styles.pillText, ff, { color: fg, opacity: loading ? 0 : 1 }]}>
           {label}
         </Text>
         {loading ? <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color={fg} /> : null}
@@ -565,6 +569,8 @@ function IosButton({
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const hl = useRef(new Animated.Value(0)).current;
   return (
     <Pressable
@@ -581,7 +587,7 @@ function IosButton({
       style={[styles.iosButton, style]}
     >
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: highlight, opacity: hl }]} />
-      <Text numberOfLines={1} style={[styles.iosText, { color, opacity: loading ? 0 : disabled ? 0.4 : 1 }]}>
+      <Text numberOfLines={1} style={[styles.iosText, ff, { color, opacity: loading ? 0 : disabled ? 0.4 : 1 }]}>
         {label}
       </Text>
       {loading ? <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color={color} /> : null}

@@ -4,18 +4,25 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Textarea } from '@/components/ui/textarea';
 import { useKit } from '@/lib/kit';
 
-function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
+function Card({ title, subtitle, screen, children }: { title: string; subtitle?: string; screen?: boolean; children: React.ReactNode }) {
   const { colors, radius } = useKit();
   return (
     <View
-      style={{
-        padding: 16,
-        gap: 12,
-        borderRadius: radius.xl,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: colors.border,
-        backgroundColor: colors.card,
-      }}
+      style={
+        screen
+          ? { flex: 1, padding: 16, gap: 12, backgroundColor: colors.background }
+          : {
+              padding: 16,
+              gap: 12,
+              borderRadius: radius.xl,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            }
+      }
     >
       <View style={{ gap: 2, marginBottom: 2 }}>
         <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>
@@ -96,11 +103,11 @@ export function Composer() {
   );
 }
 
-export function Review() {
+export function Review({ screen }: DemoProps) {
   const [review, setReview] = useState('Great coffee, but');
   const length = review.trim().length;
   return (
-    <Card title="Rate Blue Bottle, Hayes Valley" subtitle="Reviews are public and show your first name.">
+    <Card screen={screen} title="Rate Blue Bottle, Hayes Valley" subtitle="Reviews are public and show your first name.">
       <Textarea
         label="Your review"
         value={review}
@@ -115,9 +122,9 @@ export function Review() {
   );
 }
 
-export function Feedback() {
+export function Feedback({ screen }: DemoProps) {
   return (
-    <Card title="Send feedback" subtitle="Goes straight to the product team.">
+    <Card screen={screen} title="Send feedback" subtitle="Goes straight to the product team.">
       <Textarea
         variant="filled"
         label="What could be better?"

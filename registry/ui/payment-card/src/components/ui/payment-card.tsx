@@ -13,6 +13,7 @@ import Svg, { Circle, ClipPath, Defs, G, Line, LinearGradient, Path, Rect, Stop 
 
 import { FlipCard, useFlipProgress } from '@/components/ui/flip-card';
 import { TiltCard } from '@/components/ui/tilt-card';
+import { useKit } from '@/lib/kit';
 
 export type PaymentCardBrand = 'visa' | 'mastercard' | 'amex' | 'rupay' | 'none';
 
@@ -30,8 +31,8 @@ export interface PaymentCardProps {
   bank?: string;
   /** Small label top-right, e.g. "Debit", "World Elite". */
   label?: string;
-  /** Card art — a photo or texture (`require('./card.jpg')` or `{ uri }`). Default: brushed graphite. */
-  image?: ImageSourcePropType;
+  /** Card art — a photo or texture (`require('./card.jpg')` or `{ uri }`). Or any element drawn as the art, e.g. `<GrainGradient palette=\"ocean\" style={{ flex: 1 }} />`. Default: brushed graphite. */
+  image?: ImageSourcePropType | React.ReactElement;
   /** `light` text for dark art (default), `dark` text for pale art. */
   tone?: 'light' | 'dark';
   /** EMV chip finish. */
@@ -222,6 +223,8 @@ export function PaymentCard({
   labels,
   style,
 }: PaymentCardProps) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const controlled = flippedProp !== undefined;
   const [own, setOwn] = useState(defaultFlipped);
   // A frozen card always shows its front (where the frost and the label are).
@@ -253,7 +256,17 @@ export function PaymentCard({
 
   const art = (darken: number) => (
     <>
-      {image ? <Image alt="" source={image} style={StyleSheet.absoluteFill} resizeMode="cover" accessibilityIgnoresInvertColors /> : <Graphite />}
+      {image ? (
+        React.isValidElement(image) ? (
+          <View style={StyleSheet.absoluteFill} pointerEvents="none">
+            {image}
+          </View>
+        ) : (
+          <Image alt="" source={image} style={StyleSheet.absoluteFill} resizeMode="cover" accessibilityIgnoresInvertColors />
+        )
+      ) : (
+        <Graphite />
+      )}
       {darken > 0 ? <View style={[StyleSheet.absoluteFill, { backgroundColor: `rgba(0,0,0,${darken})` }]} /> : null}
     </>
   );
@@ -265,28 +278,28 @@ export function PaymentCard({
       {tone === 'light' ? <Shade strength={image ? 0.38 : 0.2} /> : null}
       <View style={styles.inner}>
         <View style={styles.row}>
-          <Text style={[{ color: ink, fontSize: 16, fontWeight: '700', letterSpacing: -0.2 }, emboss]}>{bank ?? ''}</Text>
-          {label ? <Text style={[{ color: soft, fontSize: 11, fontWeight: '600', letterSpacing: 1 }, emboss]}>{label.toUpperCase()}</Text> : null}
+          <Text style={[{ color: ink, fontSize: 16, fontWeight: '700', letterSpacing: -0.2 }, ff, emboss]}>{bank ?? ''}</Text>
+          {label ? <Text style={[{ color: soft, fontSize: 11, fontWeight: '600', letterSpacing: 1 }, ff, emboss]}>{label.toUpperCase()}</Text> : null}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Chip finish={chip} />
           <Contactless ink={ink} />
         </View>
         <View style={{ gap: 10 }}>
-          <Text style={[{ color: ink, fontSize: 19, fontWeight: '500', letterSpacing: 2, fontVariant: ['tabular-nums'] }, emboss]}>
+          <Text style={[{ color: ink, fontSize: 19, fontWeight: '500', letterSpacing: 2, fontVariant: ['tabular-nums'] }, ff, emboss]}>
             {formatNumber(number, brand, masked)}
           </Text>
           <View style={[styles.row, { alignItems: 'flex-end' }]}>
             <View style={{ flexDirection: 'row', gap: 20, flexShrink: 1 }}>
               <View style={{ flexShrink: 1 }}>
-                <Text style={[styles.tiny, { color: soft }]}>{text.cardholder}</Text>
-                <Text style={[{ color: ink, fontSize: 13, fontWeight: '600', letterSpacing: 0.8 }, emboss]} numberOfLines={1}>
+                <Text style={[styles.tiny, ff, { color: soft }]}>{text.cardholder}</Text>
+                <Text style={[{ color: ink, fontSize: 13, fontWeight: '600', letterSpacing: 0.8 }, ff, emboss]} numberOfLines={1}>
                   {name.toUpperCase()}
                 </Text>
               </View>
               <View>
-                <Text style={[styles.tiny, { color: soft }]}>{text.validThru}</Text>
-                <Text style={[{ color: ink, fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] }, emboss]}>{expiry}</Text>
+                <Text style={[styles.tiny, ff, { color: soft }]}>{text.validThru}</Text>
+                <Text style={[{ color: ink, fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] }, ff, emboss]}>{expiry}</Text>
               </View>
             </View>
             <BrandMark brand={brand} ink={ink} />
@@ -296,7 +309,7 @@ export function PaymentCard({
       {frozen ? (
         <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: 'rgba(214,232,255,0.28)' }]}>
           <View style={styles.frozenPill}>
-            <Text style={{ color: '#ffffff', fontSize: 13, fontWeight: '700', letterSpacing: 0.4 }}>❄︎  {text.frozen}</Text>
+            <Text style={[{ color: '#ffffff', fontSize: 13, fontWeight: '700', letterSpacing: 0.4 }, ff]}>❄︎  {text.frozen}</Text>
           </View>
         </View>
       ) : null}
@@ -317,15 +330,15 @@ export function PaymentCard({
           </Svg>
         </View>
         <View style={styles.cvv}>
-          <Text style={{ color: '#111', fontSize: 15, fontWeight: '700', fontStyle: 'italic', letterSpacing: 1.5, fontVariant: ['tabular-nums'] }}>{cvv ?? '•••'}</Text>
+          <Text style={[{ color: '#111', fontSize: 15, fontWeight: '700', fontStyle: 'italic', letterSpacing: 1.5, fontVariant: ['tabular-nums'] }, ff]}>{cvv ?? '•••'}</Text>
         </View>
       </View>
       <View style={styles.backFoot}>
         <View style={{ flex: 1, gap: 3 }}>
-          <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 9, lineHeight: 12 }}>
+          <Text style={[{ color: 'rgba(255,255,255,0.78)', fontSize: 9, lineHeight: 12 }, ff]}>
             {fill(text.legal)}
           </Text>
-          <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 10, fontWeight: '600' }}>{fill(text.back)}</Text>
+          <Text style={[{ color: 'rgba(255,255,255,0.9)', fontSize: 10, fontWeight: '600' }, ff]}>{fill(text.back)}</Text>
         </View>
         {/* Security hologram. */}
         <Svg width={40} height={30} viewBox="0 0 40 30">

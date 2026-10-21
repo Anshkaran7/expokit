@@ -105,7 +105,8 @@ export function Button3D({
   accessibilityLabel,
   style,
 }: Button3DProps) {
-  const { dark } = useKit();
+  const { dark, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const s = SIZES[size];
   const depth = depthProp ?? s.depth;
   const kind = appearance === 'auto' ? (dark ? 'light' : 'dark') : appearance;
@@ -122,7 +123,7 @@ export function Button3D({
   ) : isTextNode(children) ? (
     // No numberOfLines: on a narrow fixed-width key ("esc", "Q") the label may use the padding
     // instead of being cut to an ellipsis.
-    <Text style={{ color: m.ink, fontSize: round ? s.font + 4 : s.font, fontWeight: '600', letterSpacing: 0.1, flexShrink: 0, textAlign: 'center' }}>
+    <Text style={[{ color: m.ink, fontSize: round ? s.font + 4 : s.font, fontWeight: '600', letterSpacing: 0.1, flexShrink: 0, textAlign: 'center' }, ff]}>
       {children}
     </Text>
   ) : (

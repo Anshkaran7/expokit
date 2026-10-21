@@ -4,12 +4,21 @@ import { StyleSheet, Text, View, type ViewProps } from 'react-native';
 import { Slider } from '@/components/ui/slider';
 import { useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ screen, style, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
-      style={[s.card, { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl }, style]}
+      style={[
+        s.card,
+        screen
+          ? { flex: 1, backgroundColor: colors.background, borderWidth: 0 }
+          : { backgroundColor: colors.card, borderColor: colors.border, borderRadius: radius.xl },
+        style,
+      ]}
       {...rest}
     />
   );
@@ -25,10 +34,10 @@ function Header({ title, value }: { title: string; value?: string }) {
   );
 }
 
-export function ControlCenter() {
+export function ControlCenter({ screen }: DemoProps) {
   const [brightness, setBrightness] = useState(72);
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Display & sound" />
       <Slider
         variant="bar"
@@ -46,10 +55,10 @@ export function ControlCenter() {
   );
 }
 
-export function Default() {
+export function Default({ screen }: DemoProps) {
   const [volume, setVolume] = useState(64);
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Media volume" value={`${volume}%`} />
       <Slider
         value={volume}
@@ -67,13 +76,13 @@ const PRICE_MAX = 2000;
 const rupees = (v: number) => `₹${String(v).replace(/(\d)(?=(\d\d)+\d$)/g, '$1,')}`;
 const PRICES = [2, 4, 7, 11, 16, 22, 30, 34, 38, 33, 29, 26, 21, 18, 14, 12, 9, 7, 5, 4, 3, 2, 2, 1];
 
-export function PriceRange() {
+export function PriceRange({ screen }: DemoProps) {
   const { colors } = useKit();
   const [price, setPrice] = useState<[number, number]>([400, 1400]);
   const per = PRICE_MAX / PRICES.length;
   const results = PRICES.reduce((n, c, i) => (i * per + per / 2 >= price[0] && i * per + per / 2 <= price[1] ? n + c : n), 0);
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Price" value={`${rupees(price[0])} – ${rupees(price[1])}${price[1] === PRICE_MAX ? '+' : ''}`} />
       <Slider
         range
@@ -94,12 +103,12 @@ export function PriceRange() {
   );
 }
 
-export function FontSize() {
+export function FontSize({ screen }: DemoProps) {
   const { colors } = useKit();
   const [size, setSize] = useState(17);
   const glyph = (px: number) => <Text style={{ color: colors.mutedForeground, fontSize: px, fontWeight: '400' }}>A</Text>;
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Text size" value={`${size} pt`} />
       <Text style={{ color: colors.foreground, fontSize: size, lineHeight: size * 1.35 }}>
         Your reading view will look like this.
@@ -120,11 +129,11 @@ export function FontSize() {
   );
 }
 
-export function Sizes() {
+export function Sizes({ screen }: DemoProps) {
   const { colors } = useKit();
   const label = (t: string) => <Text style={[s.label, { color: colors.mutedForeground }]}>{t}</Text>;
   return (
-    <Card>
+    <Card screen={screen}>
       {label('Small')}
       <Slider size="sm" defaultValue={25} accessibilityLabel="Small" />
       {label('Medium')}
@@ -137,10 +146,10 @@ export function Sizes() {
   );
 }
 
-export function Colors() {
+export function Colors({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card>
+    <Card screen={screen}>
       <Header title="Daily goals" />
       <Slider defaultValue={80} accent={colors.success} showValue="always" formatValue={(v) => `${v}% steps`} accessibilityLabel="Steps" />
       <Slider variant="bar" size="sm" defaultValue={55} accent={colors.warning} accessibilityLabel="Calories" />

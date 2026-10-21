@@ -694,25 +694,30 @@ function Ellipsis({
   color: string;
   fontSize: number;
 }) {
+  const { font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const t = useLoop(1400 / speed, linear, true, !reduce);
   const base = text.replace(/(…|\.{1,3})\s*$/, '');
   return (
     <View style={styles.ellipsis}>
-      <Text style={[styles.label, { color, fontSize }]}>{base}</Text>
+      <Text style={[styles.label, ff, { color, fontSize }]}>{base}</Text>
       {[0, 1, 2].map((i) => (
         <Animated.Text
           key={i}
-          style={{
-            color,
-            fontSize,
-            fontWeight: '400',
-            opacity: reduce
-              ? 1
-              : t.interpolate({
-                  inputRange: [0, 0.15 + i * 0.18, 0.3 + i * 0.18, 0.85, 1],
-                  outputRange: [0, 0, 1, 1, 0],
-                }),
-          }}
+          style={[
+            ff,
+            {
+              color,
+              fontSize,
+              fontWeight: '400',
+              opacity: reduce
+                ? 1
+                : t.interpolate({
+                    inputRange: [0, 0.15 + i * 0.18, 0.3 + i * 0.18, 0.85, 1],
+                    outputRange: [0, 0, 1, 1, 0],
+                  }),
+            },
+          ]}
         >
           .
         </Animated.Text>

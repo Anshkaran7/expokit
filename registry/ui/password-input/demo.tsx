@@ -5,18 +5,24 @@ import { FloatingInput } from '@/components/ui/floating-input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useKit } from '@/lib/kit';
 
-function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
+function Card({ title, subtitle, screen, children }: { title: string; subtitle?: string; screen?: boolean; children: React.ReactNode }) {
   const { colors, radius } = useKit();
   return (
     <View
-      style={{
-        padding: 16,
-        gap: 12,
-        borderRadius: radius.xl,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: colors.border,
-        backgroundColor: colors.card,
-      }}
+      style={[
+        { padding: 16, gap: 12 },
+        screen
+          ? { flex: 1, backgroundColor: colors.background }
+          : {
+              borderRadius: radius.xl,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            },
+      ]}
     >
       <View style={{ gap: 2, marginBottom: 2 }}>
         <Text style={{ fontSize: 16, fontWeight: '400', color: colors.foreground }}>{title}</Text>
@@ -27,21 +33,21 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
   );
 }
 
-export function CreatePassword() {
+export function CreatePassword({ screen }: DemoProps) {
   const [password, setPassword] = useState('Sunset');
   const [confirm, setConfirm] = useState('');
   return (
-    <Card title="Choose a password" subtitle="You'll use it to sign in on new devices.">
+    <Card screen={screen} title="Choose a password" subtitle="You'll use it to sign in on new devices.">
       <PasswordInput label="New password" value={password} onChangeText={setPassword} requirements />
       <PasswordInput label="Confirm password" value={confirm} onChangeText={setConfirm} confirmOf={password} />
     </Card>
   );
 }
 
-export function SignIn() {
+export function SignIn({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card title="Welcome back">
+    <Card screen={screen} title="Welcome back">
       <FloatingInput label="Email" defaultValue="maya@studio.io" keyboardType="email-address" autoCapitalize="none" />
       <PasswordInput label="Password" strength={false} defaultValue="correct horse" />
       <Text style={{ alignSelf: 'flex-end', fontSize: 13, fontWeight: '400', color: colors.accent }}>Forgot password?</Text>
@@ -58,9 +64,9 @@ export function StrengthMeter() {
   );
 }
 
-export function CustomRules() {
+export function CustomRules({ screen }: DemoProps) {
   return (
-    <Card title="Wi-Fi password" subtitle="Your router needs 12+ characters and no spaces.">
+    <Card screen={screen} title="Wi-Fi password" subtitle="Your router needs 12+ characters and no spaces.">
       <PasswordInput
         variant="filled"
         label="Network password"

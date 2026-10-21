@@ -201,7 +201,8 @@ export function Calendar(props: CalendarProps) {
     accent,
     style,
   } = props as unknown as FlatProps;
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const fmt = useFormatters(locale);
 
@@ -368,6 +369,7 @@ export function Calendar(props: CalendarProps) {
             numberOfLines={1}
             style={[
               styles.title,
+              ff,
               { color: view === 'days' ? colors.foreground : tint },
               view === 'days'
                 ? {
@@ -390,7 +392,7 @@ export function Calendar(props: CalendarProps) {
               hitSlop={4}
               style={({ pressed }) => [styles.todayBtn, { borderRadius: radius.capsule(32), backgroundColor: pressed ? colors.secondary : colors.muted }]}
             >
-              <Text style={[styles.todayText, { color: tint }]}>Today</Text>
+              <Text style={[styles.todayText, ff, { color: tint }]}>Today</Text>
             </Pressable>
           ) : null}
           <NavButton dir={-1} disabled={prevDisabled} onPress={() => step(-1)} />
@@ -407,7 +409,7 @@ export function Calendar(props: CalendarProps) {
         >
           <View style={styles.weekRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             {weekdays.map((w) => (
-              <Text key={w.long} numberOfLines={1} style={[styles.weekday, { color: colors.mutedForeground }]}>
+              <Text key={w.long} numberOfLines={1} style={[styles.weekday, ff, { color: colors.mutedForeground }]}>
                 {w.short}
               </Text>
             ))}
@@ -486,7 +488,7 @@ export function Calendar(props: CalendarProps) {
                       },
                     ]}
                   >
-                    <Text style={[styles.pickText, { color: selected ? readableOn(tint) : isNow ? tint : colors.foreground }]}>{label}</Text>
+                    <Text style={[styles.pickText, ff, { color: selected ? readableOn(tint) : isNow ? tint : colors.foreground }]}>{label}</Text>
                   </View>
                 )}
               </Pressable>
@@ -638,7 +640,8 @@ const DayCell = memo(function DayCell({
   tint,
   onPress,
 }: DayCellProps) {
-  const { colors, radius } = useKit();
+  const { colors, radius, font } = useKit();
+  const ff = font.family ? { fontFamily: font.family } : null;
   const r = tileRadius(radius.md);
   const pop = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: circle scale + opacity
   const bandIn = useRef(new Animated.Value(band === 'none' ? 0 : 1)).current; // native: band opacity
@@ -719,6 +722,7 @@ const DayCell = memo(function DayCell({
             <Text
               style={[
                 styles.day,
+                ff,
                 { color: textColor },
                 (today || selected) && styles.dayStrong,
                 outside && !selected && styles.outside,

@@ -5,21 +5,26 @@ import { Button } from '@/components/ui/button';
 import { toast, Toaster, ToastProvider, useToast } from '@/components/ui/toast';
 import { useKit } from '@/lib/kit';
 
-/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Frame({ style, ...rest }: ViewProps) {
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
+/** Demo frame that follows the kit theme, so the docs radius / accent picker reshapes it too. In screen mode it is the screen. */
+function Frame({ screen, style, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
-        {
-          height: 300,
-          overflow: 'hidden',
-          padding: 16,
-          backgroundColor: colors.card,
-          borderColor: colors.border,
-          borderWidth: StyleSheet.hairlineWidth,
-          borderRadius: radius.xl,
-        },
+        { padding: 16 },
+        screen
+          ? { flex: 1, backgroundColor: colors.background }
+          : {
+              height: 300,
+              overflow: 'hidden',
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              borderWidth: StyleSheet.hairlineWidth,
+              borderRadius: radius.xl,
+            },
         style,
       ]}
       {...rest}
@@ -31,10 +36,10 @@ const row = { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: 8 }
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 const fail = (ms: number) => new Promise<void>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
 
-export function Default() {
+export function Default({ screen }: DemoProps) {
   const to = { toaster: 'demo-default' };
   return (
-    <Frame>
+    <Frame screen={screen}>
       <View style={row}>
         <Button
           size="sm"
@@ -62,11 +67,11 @@ export function Default() {
   );
 }
 
-export function RichColors() {
+export function RichColors({ screen }: DemoProps) {
   const { colors } = useKit();
   const to = { toaster: 'demo-rich' };
   return (
-    <Frame>
+    <Frame screen={screen}>
       <View style={row}>
         <Button
           size="sm"
@@ -97,10 +102,10 @@ export function RichColors() {
 }
 
 /** Dynamic Island: a black capsule at the top that springs open, morphs between toasts and folds away. */
-export function Island() {
+export function Island({ screen }: DemoProps) {
   const to = { toaster: 'demo-island' };
   return (
-    <Frame style={{ justifyContent: 'flex-end' }}>
+    <Frame screen={screen} style={{ justifyContent: 'flex-end' }}>
       <View style={row}>
         <Button
           size="sm"
@@ -145,10 +150,10 @@ export function Island() {
 }
 
 /** The spinner arc keeps turning while it closes into a circle, then the mark draws in. */
-export function PromiseMorph() {
+export function PromiseMorph({ screen }: DemoProps) {
   const to = { toaster: 'demo-promise' };
   return (
-    <Frame>
+    <Frame screen={screen}>
       <View style={row}>
         <Button
           size="sm"
@@ -184,10 +189,10 @@ export function PromiseMorph() {
   );
 }
 
-export function Minimal() {
+export function Minimal({ screen }: DemoProps) {
   const to = { toaster: 'demo-minimal' };
   return (
-    <Frame style={{ justifyContent: 'flex-end' }}>
+    <Frame screen={screen} style={{ justifyContent: 'flex-end' }}>
       <View style={row}>
         <Button size="sm" variant="secondary" onPress={() => toast('Copied to clipboard', to)}>
           Copy link
@@ -204,10 +209,10 @@ export function Minimal() {
   );
 }
 
-export function WithAction() {
+export function WithAction({ screen }: DemoProps) {
   const to = { toaster: 'demo-action' };
   return (
-    <Frame>
+    <Frame screen={screen}>
       <Button
         variant="destructive"
         size="sm"
@@ -227,7 +232,7 @@ export function WithAction() {
   );
 }
 
-export function Expanded() {
+export function Expanded({ screen }: DemoProps) {
   const to = { toaster: 'demo-expanded' };
   const messages = [
     () => toast.info('Maya joined #design', to),
@@ -237,7 +242,7 @@ export function Expanded() {
   ];
   const n = useRef(0);
   return (
-    <Frame style={{ justifyContent: 'flex-end' }}>
+    <Frame screen={screen} style={{ justifyContent: 'flex-end' }}>
       <Button size="sm" style={{ alignSelf: 'flex-start' }} onPress={() => messages[n.current++ % messages.length]()}>
         Send notification
       </Button>
@@ -247,18 +252,18 @@ export function Expanded() {
 }
 
 /** Isolated stack via ToastProvider + useToast (no global `toast` / toaster id needed). */
-export function WithProvider() {
+export function WithProvider({ screen }: DemoProps) {
   return (
     <ToastProvider>
-      <ProviderDemo />
+      <ProviderDemo screen={screen} />
     </ToastProvider>
   );
 }
 
-function ProviderDemo() {
+function ProviderDemo({ screen }: { screen?: boolean }) {
   const toast = useToast();
   return (
-    <Frame>
+    <Frame screen={screen}>
       <View style={row}>
         <Button
           size="sm"

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -97,7 +97,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
  * optional floating label, a focus halo, a counter that morphs into a progress ring near
  * `maxLength`, and a `toolbar` slot for chat composers.
  */
-export const Textarea = forwardRef<TextInput, TextareaProps>(function Textarea(
+export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps>(function Textarea(
   {
     label,
     floatingLabel = true,
@@ -143,16 +143,18 @@ export const Textarea = forwardRef<TextInput, TextareaProps>(function Textarea(
   const LINE = typeof userInput.lineHeight === 'number' ? userInput.lineHeight : Math.round((FONT * S.line) / S.font);
   const corner = typeof userField.borderRadius === 'number' ? userField.borderRadius : radius.md;
   // The hidden mirror must measure text exactly like the input does.
-  const metrics: TextStyle = { ...ff };
-  if (userInput.fontFamily !== undefined) metrics.fontFamily = userInput.fontFamily;
-  if (userInput.fontWeight !== undefined) metrics.fontWeight = userInput.fontWeight;
-  if (userInput.fontStyle !== undefined) metrics.fontStyle = userInput.fontStyle;
-  if (userInput.letterSpacing !== undefined) metrics.letterSpacing = userInput.letterSpacing;
+  const metrics: TextStyle = {
+    ...ff,
+    ...(userInput.fontFamily !== undefined ? { fontFamily: userInput.fontFamily } : null),
+    ...(userInput.fontWeight !== undefined ? { fontWeight: userInput.fontWeight } : null),
+    ...(userInput.fontStyle !== undefined ? { fontStyle: userInput.fontStyle } : null),
+    ...(userInput.letterSpacing !== undefined ? { letterSpacing: userInput.letterSpacing } : null),
+  };
   const tint = accent ?? colors.accent;
   const bg = surface ?? colors.background;
   const filled = variant === 'filled';
-  const inputRef = useRef<TextInput>(null);
-  useImperativeHandle(ref, () => inputRef.current as TextInput);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+  useImperativeHandle(ref, () => inputRef.current as ComponentRef<typeof TextInput>);
 
   const [focused, setFocused] = useState(false);
   const [inner, setInner] = useState(defaultValue ?? '');

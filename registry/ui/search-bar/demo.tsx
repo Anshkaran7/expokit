@@ -4,13 +4,19 @@ import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';
 import { alpha, useKit } from '@/lib/kit';
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
 /** Demo card that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Card({ style, ...rest }: ViewProps) {
+function Card({ screen, style, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
     <View
       style={[
-        { padding: 16, gap: 12, borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },
+        { padding: 16, gap: 12 },
+        screen
+          ? { flex: 1, backgroundColor: colors.background }
+          : { borderRadius: radius.xl, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, backgroundColor: colors.card },
         style,
       ]}
       {...rest}
@@ -27,13 +33,13 @@ const SUGGESTIONS: SearchSuggestion[] = [
   { key: 's2', label: 'Coffee grinder', hint: 'Kitchen' },
 ];
 
-export function WithSuggestions() {
+export function WithSuggestions({ screen }: DemoProps) {
   const { colors } = useKit();
   const [query, setQuery] = useState('');
   const [picked, setPicked] = useState<string | null>(null);
   return (
     // Reserve room for the open list, so the bar stays put when suggestions drop down below it.
-    <View style={{ gap: 10, minHeight: 400 }}>
+    <View style={[{ gap: 10 }, screen ? { flex: 1 } : { minHeight: 400 }]}>
       <SearchBar
         value={query}
         onChangeText={setQuery}
@@ -55,7 +61,7 @@ const CONTACTS = [
   { name: 'Vikram Rao', role: 'Backend engineer' },
 ];
 
-export function LiveResults() {
+export function LiveResults({ screen }: DemoProps) {
   const { colors } = useKit();
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -68,7 +74,7 @@ export function LiveResults() {
   const q = query.trim().toLowerCase();
   const results = CONTACTS.filter((c) => c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q));
   return (
-    <Card>
+    <Card screen={screen}>
       <SearchBar variant="filled" value={query} onChangeText={setQuery} loading={loading} placeholder="Search people" />
       {loading ? (
         <Text style={{ fontSize: 13, color: colors.mutedForeground }}>Searching your team…</Text>
@@ -91,10 +97,10 @@ export function LiveResults() {
   );
 }
 
-export function Minimal() {
+export function Minimal({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
-    <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+    <Card screen={screen} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
       <Text style={{ fontSize: 22, fontWeight: '400', letterSpacing: -0.4, color: colors.foreground }}>Inbox</Text>
       <SearchBar variant="minimal" align="right" placeholder="Search mail" style={{ flex: 1 }} />
     </Card>

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View, type TextInput } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -50,7 +50,7 @@ export function scorePassword(pw: string) {
  * Floating-label password field with an eye / eye-off toggle that cross-fades, a spring-filled
  * strength meter, an optional requirements checklist and a confirm-password mode.
  */
-export const PasswordInput = forwardRef<TextInput, PasswordInputProps>(function PasswordInput(
+export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, PasswordInputProps>(function PasswordInput(
   {
     strength = true,
     score = scorePassword,

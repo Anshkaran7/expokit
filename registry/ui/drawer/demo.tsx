@@ -19,24 +19,26 @@ import { alpha, useKit } from '@/lib/kit';
 
 const STATUS_H = 40;
 
+/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
+type DemoProps = { screen?: boolean; bottomInset?: number };
+
+/** True when the demo fills a real phone screen: the frame and the fake status bar step aside. */
+const ScreenMode = React.createContext(false);
+
 /** Phone-sized frame that follows the kit theme, so the docs radius / accent picker reshapes it too. */
-function Frame({ style, ...rest }: ViewProps) {
+function Frame({ style, screen = false, ...rest }: ViewProps & { screen?: boolean }) {
   const { colors, radius } = useKit();
   return (
-    <View
-      style={[
-        {
-          height: 600,
-          borderRadius: radius.scale(28),
-          borderWidth: StyleSheet.hairlineWidth,
-          borderColor: colors.border,
-          backgroundColor: colors.background,
-          overflow: 'hidden',
-        },
-        style,
-      ]}
-      {...rest}
-    />
+    <ScreenMode.Provider value={screen}>
+      <View
+        style={[
+          { backgroundColor: colors.background, overflow: 'hidden' },
+          screen ? { flex: 1 } : { height: 600, borderRadius: radius.scale(28), borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border },
+          style,
+        ]}
+        {...rest}
+      />
+    </ScreenMode.Provider>
   );
 }
 
@@ -67,9 +69,10 @@ function StatusBar() {
 /** The app screen behind the drawer: status bar plus your content. */
 function Phone({ children }: { children: React.ReactNode }) {
   const { colors } = useKit();
+  const screen = React.useContext(ScreenMode);
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <StatusBar />
+      {screen ? null : <StatusBar />}
       {children}
     </View>
   );
@@ -196,7 +199,7 @@ function MailRow({ from, service, subject, snippet, time, unread }: (typeof MAIL
 }
 
 /** Mail app with the push look: the inbox shrinks into a card and slides aside. */
-export function AppNavigation() {
+export function AppNavigation({ screen, bottomInset }: DemoProps) {
   const { colors, radius, dark } = useKit();
   const [page, setPage] = useState('Inbox');
   const nav: [DrawerIconName, string, number?][] = [
@@ -213,11 +216,12 @@ export function AppNavigation() {
     ['Travel', colors.warning, 1],
   ];
   return (
-    <Frame>
+    <Frame screen={screen}>
       <Drawer
         variant="push"
         width="78%"
-        topInset={STATUS_H}
+        topInset={screen ? undefined : STATUS_H}
+        bottomInset={bottomInset}
         header={<DrawerProfile name="Maya Patel" email="maya@northwind.app" status="online" onPress={() => {}} />}
         content={
           <>
@@ -253,7 +257,7 @@ export function AppNavigation() {
             style={{
               position: 'absolute',
               right: 16,
-              bottom: 18,
+              bottom: 18 + (bottomInset ?? 0),
               height: 52,
               paddingHorizontal: 18,
               flexDirection: 'row',
@@ -355,16 +359,17 @@ function TaskCard({ id, title, state, due, done, total, people }: (typeof TASKS)
 }
 
 /** Project tracker with an overlay drawer whose header switches workspace in place. */
-export function WorkspaceSwitcher() {
+export function WorkspaceSwitcher({ screen, bottomInset }: DemoProps) {
   const { colors, radius } = useKit();
   const [workspace, setWorkspace] = useState(WORKSPACES[0]);
   const [picking, setPicking] = useState(false);
   const [page, setPage] = useState('My issues');
   const [filter, setFilter] = useState('Active');
   return (
-    <Frame>
+    <Frame screen={screen}>
       <Drawer
-        topInset={STATUS_H}
+        topInset={screen ? undefined : STATUS_H}
+        bottomInset={bottomInset}
         header={<DrawerProfile name={workspace.name} email={workspace.detail} onPress={() => setPicking((v) => !v)} accessibilityHint="Switch workspace" />}
         content={
           picking ? (
@@ -463,7 +468,7 @@ export function WorkspaceSwitcher() {
 /* Stays (right panel) --------------------------------------------------------------------------- */
 
 /** Right-side filter panel, opened from a button. */
-export function RightPanel() {
+export function RightPanel({ screen, bottomInset }: DemoProps) {
   const { colors, radius } = useKit();
   const [open, setOpen] = useState(false);
   const [price, setPrice] = useState('Any price');
@@ -472,13 +477,14 @@ export function RightPanel() {
   const count = 48 - tags.length * 9 - (price === 'Any price' ? 0 : 11);
   const active = tags.length + (price !== 'Any price' ? 1 : 0);
   return (
-    <Frame>
+    <Frame screen={screen}>
       <Drawer
         open={open}
         onOpenChange={setOpen}
         side="right"
         width="86%"
-        topInset={STATUS_H}
+        topInset={screen ? undefined : STATUS_H}
+        bottomInset={bottomInset}
         accessibilityLabel="Filters"
         header={<DrawerHeader title="Filters" subtitle="Porto · Jun 3 – 7 · 2 guests" showClose onClose={() => setOpen(false)} />}
         content={
@@ -683,16 +689,17 @@ const TRACKS: { title: string; artist: string; time: string; art: ArtKind; playi
 ];
 
 /** Music app with the push look and a stacked profile. */
-export function PushLayout() {
+export function PushLayout({ screen, bottomInset }: DemoProps) {
   const { colors, radius, dark } = useKit();
   const [view, setView] = useState('Listen now');
   const [playing, setPlaying] = useState(true);
   return (
-    <Frame>
+    <Frame screen={screen}>
       <Drawer
         variant="push"
         width={252}
-        topInset={STATUS_H}
+        topInset={screen ? undefined : STATUS_H}
+        bottomInset={bottomInset}
         header={<DrawerProfile layout="stacked" name="Jonas Weber" email="Premium · 2 devices" />}
         content={
           <>
