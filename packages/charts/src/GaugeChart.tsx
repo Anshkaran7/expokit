@@ -72,7 +72,7 @@ const GaugeChartInner = ({
       needle.setValue(fractionOf(value));
       return;
     }
-    const config = { toValue: fractionOf(value), duration: 1000, easing: Easing.out(Easing.back(1.1)) };
+    const config = { toValue: fractionOf(value), duration: 1000, easing: Easing.bezier(0.32, 0.72, 0, 1) };
     const animation = Animated.parallel([
       Animated.timing(arc, { ...config, useNativeDriver: false }),
       Animated.timing(needle, { ...config, useNativeDriver: true }),
