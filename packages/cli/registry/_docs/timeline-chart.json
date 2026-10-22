@@ -25,6 +25,12 @@
       "(v) => string",
       "compact",
       "Axis labels."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "auto summary",
+      "What screen readers announce; defaults to a summary of the data."
     ]
   ],
   "behavior": [],

@@ -61,6 +61,12 @@
       "boolean",
       "true",
       "Fade colour upwards."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "auto summary",
+      "What screen readers announce; defaults to a summary of the data."
     ]
   ],
   "behavior": [],

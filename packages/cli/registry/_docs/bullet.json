@@ -19,6 +19,12 @@
       "number",
       "52 / 14",
       "Sizing."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "auto summary",
+      "What screen readers announce; defaults to a summary of the data."
     ]
   ],
   "behavior": [],

@@ -312,7 +312,7 @@ export function kitVersion(text) {
 }
 
 /**
- * Packages a registry item may depend on that work in the Expo Go app (SDK 58): native modules Expo Go
+ * Packages a registry item may depend on that work in the Expo Go app (SDK 57): native modules Expo Go
  * ships, plus pure-JS packages. Anything else needs a development build (`npx expo run:ios|android`).
  * Keep in sync with the Expo Go module list when the SDK moves.
  */

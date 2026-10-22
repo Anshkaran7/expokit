@@ -25,6 +25,12 @@
       "string[]",
       "theme palette",
       "Tile colours."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "auto summary",
+      "What screen readers announce; defaults to a summary of the data."
     ]
   ],
   "behavior": [],

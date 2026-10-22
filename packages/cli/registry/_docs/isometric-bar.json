@@ -67,6 +67,12 @@
       "string",
       "palette[0]",
       "Bar colour."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "auto summary",
+      "What screen readers announce; defaults to a summary of the data."
     ]
   ],
   "behavior": [],
