@@ -9,6 +9,9 @@ import { ListIcon, ListItem, ListSection } from '@/components/ui/list-item';
 import { Switch } from '@/components/ui/switch';
 import { alpha, readableOn, useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 function useMuted() {
   const { colors } = useKit();
   return { fontSize: 14, lineHeight: 20, color: colors.mutedForeground };
@@ -40,7 +43,7 @@ export function Basic() {
           {['Ana Costa', 'Luis Moreno', 'Priya Shah', 'Tom Becker', 'Mei Lin'].map((name) => (
             <Pressable key={name} accessibilityRole="button" accessibilityLabel={`Send to ${name}`} style={{ alignItems: 'center', gap: 6, width: 58 }}>
               <Avatar name={name} size={54} />
-              <Text numberOfLines={1} style={{ fontSize: 12, color: colors.foreground }}>
+              <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 12, color: colors.foreground }}>
                 {name.split(' ')[0]}
               </Text>
             </Pressable>
@@ -61,7 +64,7 @@ export function Basic() {
               >
                 <ListIcon name={icon} color={readableOn(color)} size={24} />
               </View>
-              <Text style={{ fontSize: 12, color: colors.mutedForeground }}>{label}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground }}>{label}</Text>
             </Pressable>
           ))}
         </View>
@@ -99,20 +102,20 @@ export function SnapPoints() {
         accessibilityLabel="Ride details"
       >
         <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <View>
+          <View style={{ flexShrink: 1 }}>
             <Text style={{ fontSize: 24, letterSpacing: -0.5, color: colors.foreground }}>Arriving in 4 min</Text>
             <Text style={[muted, { marginTop: 2 }]}>Silver Toyota Prius · 7KJ 482</Text>
           </View>
           <View
             style={{
               paddingHorizontal: 10,
-              height: 28,
+              minHeight: 28,
               justifyContent: 'center',
               borderRadius: radius.capsule(28),
               backgroundColor: alpha(colors.success, 0.14),
             }}
           >
-            <Text style={{ fontSize: 13, color: colors.success }}>On time</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, color: colors.success }}>On time</Text>
           </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 18 }}>
@@ -141,7 +144,7 @@ export function SnapPoints() {
         ].map(([label, place, color]) => (
           <View key={label} style={{ flexDirection: 'row', gap: 12, paddingVertical: 10 }}>
             <View style={{ width: 10, height: 10, marginTop: 5, borderRadius: radius.capsule(10), backgroundColor: color }} />
-            <View>
+            <View style={{ flexShrink: 1 }}>
               <Text style={muted}>{label}</Text>
               <Text style={{ fontSize: 15, color: colors.foreground }}>{place}</Text>
             </View>
@@ -154,8 +157,8 @@ export function SnapPoints() {
           ['Promo SPRING10', '−₹35'],
           ['Total · Visa ••42', '₹348'],
         ].map(([item, price], i, all) => (
-          <View key={item} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10 }}>
-            <Text style={[muted, i === all.length - 1 && { color: colors.foreground }]}>{item}</Text>
+          <View key={item} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, paddingVertical: 10 }}>
+            <Text style={[muted, { flexShrink: 1 }, i === all.length - 1 && { color: colors.foreground }]}>{item}</Text>
             <Text style={{ fontSize: 14, color: colors.foreground }}>{price}</Text>
           </View>
         ))}
@@ -203,7 +206,7 @@ export function Filters() {
         title="Filters"
         headerRight={
           <Pressable onPress={reset} accessibilityRole="button" hitSlop={12}>
-            <Text style={{ fontSize: 15, color: colors.accent }}>Reset</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color: colors.accent }}>Reset</Text>
           </Pressable>
         }
         footer={

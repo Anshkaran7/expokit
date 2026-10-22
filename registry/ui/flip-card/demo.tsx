@@ -4,6 +4,9 @@ import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { FlipCard } from '@/components/ui/flip-card';
 import { useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 /** Any photo works (`require()` or a URL). */
 const photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });
 const hand = Platform.select({ ios: 'Noteworthy', android: 'casual', default: '"Bradley Hand", "Segoe Print", cursive' });
@@ -48,18 +51,18 @@ export function Polaroid() {
       front={
         <View style={paper}>
           <Image alt="" source={photo(419, 480, 480)} style={{ width: 216, height: 216, backgroundColor: '#ddd' }} />
-          <Text style={{ fontFamily: hand, fontSize: 19, color: '#2b2b2b', textAlign: 'center', paddingVertical: 14 }}>Lisbon, June ’25</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontFamily: hand, fontSize: 19, color: '#2b2b2b', textAlign: 'center', paddingVertical: 14 }}>Lisbon, June ’25</Text>
         </View>
       }
       back={
         <View style={[paper, { flex: 1, padding: 22, backgroundColor: '#efe9dc', justifyContent: 'space-between' }]}>
-          <Text style={{ fontFamily: hand, fontSize: 18, lineHeight: 27, color: '#2f2a22' }}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontFamily: hand, fontSize: 18, lineHeight: 27, color: '#2f2a22' }}>
             Tram 28 all the way up to Graça. Pastéis de nata still warm. Best trip yet — come back next year?
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <Text style={{ fontFamily: hand, fontSize: 16, color: '#5b5245' }}>— M.</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontFamily: hand, fontSize: 16, color: '#5b5245' }}>— M.</Text>
             <View style={{ paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1.5, borderColor: '#b04a3a', borderRadius: 4, transform: [{ rotate: '6deg' }] }}>
-              <Text style={{ color: '#b04a3a', fontSize: 10, fontWeight: '800', letterSpacing: 1 }}>LISBOA · 14 JUN</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#b04a3a', fontSize: 10, fontWeight: '800', letterSpacing: 1 }}>LISBOA · 14 JUN</Text>
             </View>
           </View>
         </View>
@@ -85,19 +88,19 @@ export function Recipe() {
           <Image alt="" source={photo(292, 720, 520)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
           <Scrim />
           <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18, gap: 2 }}>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>45 MIN · SERVES 4</Text>
-            <Text style={{ color: '#fff', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 }}>Roasted roots</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Tap for ingredients</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>45 MIN · SERVES 4</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 }}>Roasted roots</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Tap for ingredients</Text>
           </View>
         </View>
       }
       back={
         <View style={{ flex: 1, padding: 20, backgroundColor: '#f6f1e7', gap: 10 }}>
-          <Text style={{ color: '#3b3226', fontSize: 12, fontWeight: '800', letterSpacing: 1.2 }}>INGREDIENTS</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#3b3226', fontSize: 12, fontWeight: '800', letterSpacing: 1.2 }}>INGREDIENTS</Text>
           {items.map((it) => (
             <View key={it} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(59,50,38,0.12)' }}>
               <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#c9a227' }} />
-              <Text style={{ color: '#3b3226', fontSize: 15 }}>{it}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#3b3226', fontSize: 15 }}>{it}</Text>
             </View>
           ))}
         </View>
@@ -106,12 +109,12 @@ export function Recipe() {
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {['45 min', 'Serves 4', '520 kcal'].map((t) => (
           <View key={t} style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 12, backgroundColor: colors.muted }}>
-            <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>{t}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>{t}</Text>
           </View>
         ))}
       </View>
       <Pressable accessibilityRole="button" style={{ alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary }}>
-        <Text style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Start cooking</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Start cooking</Text>
       </Pressable>
     </View>
   );
@@ -132,22 +135,22 @@ export function Profile() {
           <Image alt="" source={photo(1027, 500, 640)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
           <Scrim />
           <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18 }}>
-            <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.4 }}>Ana Lima</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>Lead designer · Lisbon</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.4 }}>Ana Lima</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>Lead designer · Lisbon</Text>
           </View>
         </View>
       }
       back={
         <View style={{ flex: 1, padding: 22, backgroundColor: '#141416', justifyContent: 'space-between' }}>
-          <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: '700', letterSpacing: 1.2 }}>THIS YEAR</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: '700', letterSpacing: 1.2 }}>THIS YEAR</Text>
           {[
             ['Projects shipped', '24'],
             ['Design reviews', '138'],
             ['Mentees', '6'],
           ].map(([k, v]) => (
             <View key={k}>
-              <Text style={{ color: '#fff', fontSize: 34, fontWeight: '800', letterSpacing: -1 }}>{v}</Text>
-              <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>{k}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 34, fontWeight: '800', letterSpacing: -1 }}>{v}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>{k}</Text>
             </View>
           ))}
         </View>
@@ -155,10 +158,10 @@ export function Profile() {
       />
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <Pressable accessibilityRole="button" style={{ flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary }}>
-          <Text style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Message Ana</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Message Ana</Text>
         </Pressable>
         <Pressable accessibilityRole="button" style={{ flex: 1, alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.muted }}>
-          <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '600' }}>View work</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 15, fontWeight: '600' }}>View work</Text>
         </Pressable>
       </View>
     </View>
@@ -189,16 +192,16 @@ export function Flashcard() {
             <Image alt="" source={photo(1080, 720, 400)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
             <Scrim max={0.8} />
             <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18 }}>
-              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>SPANISH</Text>
-              <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800' }}>la fresa</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>SPANISH</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '800' }}>la fresa</Text>
             </View>
           </View>
         }
         back={
           <View style={{ flex: 1, padding: 20, backgroundColor: colors.card, justifyContent: 'center', gap: 6 }}>
-            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>ENGLISH</Text>
-            <Text style={{ color: colors.foreground, fontSize: 30, fontWeight: '800' }}>the strawberry</Text>
-            <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>“Me encantan las fresas con nata.”</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>ENGLISH</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 30, fontWeight: '800' }}>the strawberry</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.mutedForeground, fontSize: 14 }}>“Me encantan las fresas con nata.”</Text>
           </View>
         }
       />
@@ -210,7 +213,7 @@ export function Flashcard() {
             accessibilityRole="button"
             style={{ flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: 12, backgroundColor: colors.muted }}
           >
-            <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '600' }}>{label}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 14, fontWeight: '600' }}>{label}</Text>
           </Pressable>
         ))}
       </View>

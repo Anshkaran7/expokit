@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
-import React, { useId, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   ActivityIndicator,
   Animated,
   Pressable,
@@ -54,6 +55,10 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }
+
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 const SIZES: Record<ButtonSize, { h: number; px: number; font: number; gap: number }> = {
   sm: { h: 36, px: 14, font: 14, gap: 6 },
@@ -119,6 +124,7 @@ export function Button({
   const { colors, radius, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const gid = 'btn' + useId().replace(/[^a-zA-Z0-9]/g, '');
+  const reduce = useReduceMotion();
   const scale = useRef(new Animated.Value(1)).current;
   const isDisabled = disabled || loading;
   const tint = color ?? colors.accent;
@@ -145,11 +151,16 @@ export function Button({
   const solid = bg !== 'transparent';
   const quiet = variant === 'ghost' || variant === 'outline' || variant === 'link';
 
-  const spring = (to: number) => Animated.spring(scale, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  // Reduce Motion: no squish; the pressed wash / opacity still marks the press.
+  const spring = (to: number) => {
+    if (reduce) return scale.setValue(1);
+    Animated.spring(scale, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  };
 
   const label = isTextNode(children) ? (
     <Text
       numberOfLines={1}
+      maxFontSizeMultiplier={FONT_CAP}
       style={[styles.label, ff, { color: fg, fontSize: s.font }, variant === 'link' && styles.link, textStyle]}
     >
       {children}
@@ -185,7 +196,8 @@ export function Button({
         style={({ pressed }) => [
           styles.base,
           {
-            height: s.h,
+            minHeight: s.h,
+            height: size === 'icon' ? s.h : undefined,
             width: size === 'icon' ? s.h : undefined,
             paddingHorizontal: variant === 'link' ? 0 : s.px,
             gap: s.gap,
@@ -236,7 +248,7 @@ export function Button({
               <View style={styles.row}>
                 <ActivityIndicator size="small" color={fg} />
                 {size !== 'icon' && isTextNode(children) ? (
-                  <Text style={[styles.label, ff, { color: fg, fontSize: s.font, opacity: 0.85 }]}>{children}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.label, ff, { color: fg, fontSize: s.font, opacity: 0.85 }]}>{children}</Text>
                 ) : null}
               </View>
             ) : (
@@ -251,6 +263,22 @@ export function Button({
       </Pressable>
     </Animated.View>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

@@ -4,6 +4,9 @@ import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { Stepper } from '@/components/ui/stepper';
 import { useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -46,7 +49,7 @@ export function Cart({ screen }: DemoProps) {
       {MENU.map((it) => (
         <View key={it.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <View style={{ width: 44, height: 44, borderRadius: radius.scale(12), backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ fontSize: 22 }}>{it.emoji}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 22 }}>{it.emoji}</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={{ fontSize: 15, fontWeight: '400', color: colors.foreground }}>{it.name}</Text>
@@ -64,7 +67,7 @@ export function Cart({ screen }: DemoProps) {
       ))}
       <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: colors.border }} />
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
-        <Text style={{ fontSize: 15, fontWeight: '400', color: colors.foreground }}>Subtotal</Text>
+        <Text style={{ flexShrink: 1, fontSize: 15, fontWeight: '400', color: colors.foreground }}>Subtotal</Text>
         <Text style={{ fontSize: 18, fontWeight: '400', color: colors.foreground, fontVariant: ['tabular-nums'] }}>{money(total)}</Text>
       </View>
     </Card>
@@ -108,7 +111,7 @@ export function AddToBag({ screen }: DemoProps) {
           accessibilityRole="button"
           style={({ pressed }) => ({
             flex: 1,
-            height: 44,
+            minHeight: 44,
             borderRadius: radius.capsule(44),
             backgroundColor: colors.primary,
             alignItems: 'center',
@@ -116,7 +119,7 @@ export function AddToBag({ screen }: DemoProps) {
             opacity: pressed ? 0.85 : 1,
           })}
         >
-          <Text style={{ fontSize: 15, fontWeight: '400', color: colors.primaryForeground, fontVariant: ['tabular-nums'] }}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, fontWeight: '400', color: colors.primaryForeground, fontVariant: ['tabular-nums'] }}>
             Add to bag · {money(price * qty)}
           </Text>
         </Pressable>
@@ -152,7 +155,7 @@ export function Sizes({ screen }: DemoProps) {
   const { colors } = useKit();
   const row = (name: string, el: React.ReactNode) => (
     <View key={name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 48 }}>
-      <Text style={{ fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>{name}</Text>
+      <Text style={{ flexShrink: 1, fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>{name}</Text>
       {el}
     </View>
   );

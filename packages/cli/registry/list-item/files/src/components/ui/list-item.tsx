@@ -104,6 +104,9 @@ const SIZES: Record<ListItemSize, { minH: number; tile: number; glyph: number; a
   lg: { minH: 68, tile: 38, glyph: 21, avatar: 48, title: 17, sub: 14, padY: 14 },
 };
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const PAD_X = 16;
 const GAP = 12;
 const AVATAR_COLORS = ['#f97316', '#0ea5e9', '#22c55e', '#a855f7', '#ec4899', '#14b8a6', '#6366f1', '#eab308'];
@@ -219,7 +222,9 @@ export function ListItem({
           {badge === true ? <View style={[styles.dot, { backgroundColor: tint }]} /> : null}
           {badgeText ? (
             <View style={[styles.badge, { borderRadius: radius.capsule(22), backgroundColor: tint }]}>
-              <Text style={[styles.badgeText, ff, { color: readableOn(tint) }]}>{badgeText}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.badgeText, ff, { color: readableOn(tint) }]}>
+                {badgeText}
+              </Text>
             </View>
           ) : null}
           {isTextNode(trailing) ? <Text style={[styles.value, ff, { color: colors.mutedForeground }]}>{trailing}</Text> : trailing}
@@ -360,7 +365,9 @@ function AvatarCircle({ src, name = '', color, online, size, ring }: ListItemAva
   return (
     <View style={{ width: size, height: size }}>
       <View style={[styles.avatar, { width: size, height: size, borderRadius: size / 2, backgroundColor: bg }]}>
-        <Text style={[{ color: readableOn(bg), fontSize: size * 0.38, fontWeight: '400' }, ff]}>{initials}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: readableOn(bg), fontSize: size * 0.38, fontWeight: '400' }, ff]}>
+          {initials}
+        </Text>
         {src && !failed ? (
           <Image source={{ uri: src }} onError={() => setFailed(true)} style={[StyleSheet.absoluteFill, { borderRadius: size / 2 }]} />
         ) : null}
@@ -499,7 +506,7 @@ const styles = StyleSheet.create({
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0, maxWidth: '50%' },
   value: { fontSize: 15, flexShrink: 1 },
   dot: { width: 9, height: 9, borderRadius: 5 },
-  badge: { minWidth: 22, height: 22, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center' },
+  badge: { minWidth: 22, minHeight: 22, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center' },
   badgeText: { fontSize: 12, fontWeight: '400', fontVariant: ['tabular-nums'] },
   divider: { position: 'absolute', right: 0, bottom: 0, height: StyleSheet.hairlineWidth },
   avatar: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },

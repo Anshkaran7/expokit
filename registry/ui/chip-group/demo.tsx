@@ -3,6 +3,9 @@ import { Text, View } from 'react-native';
 
 import { ChipGroup } from '@/components/ui/chip-group';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 export function Solid() {
   return (
     <ChipGroup
@@ -49,11 +52,11 @@ export function Scrollable() {
       onValueChange={setPicked}
       options={[
         { value: 'all', label: 'All' },
-        { value: 'coffee', label: 'Coffee', icon: <Text>☕️</Text> },
-        { value: 'bakery', label: 'Bakery', icon: <Text>🥐</Text> },
-        { value: 'brunch', label: 'Brunch', icon: <Text>🍳</Text> },
-        { value: 'pizza', label: 'Pizza', icon: <Text>🍕</Text> },
-        { value: 'sushi', label: 'Sushi', icon: <Text>🍣</Text> },
+        { value: 'coffee', label: 'Coffee', icon: <Text maxFontSizeMultiplier={FONT_CAP}>☕️</Text> },
+        { value: 'bakery', label: 'Bakery', icon: <Text maxFontSizeMultiplier={FONT_CAP}>🥐</Text> },
+        { value: 'brunch', label: 'Brunch', icon: <Text maxFontSizeMultiplier={FONT_CAP}>🍳</Text> },
+        { value: 'pizza', label: 'Pizza', icon: <Text maxFontSizeMultiplier={FONT_CAP}>🍕</Text> },
+        { value: 'sushi', label: 'Sushi', icon: <Text maxFontSizeMultiplier={FONT_CAP}>🍣</Text> },
       ]}
     />
   );

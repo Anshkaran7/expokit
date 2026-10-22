@@ -93,6 +93,10 @@ export interface TimelineProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 const ENTER_STAGGER = 70;
 const FILL_START = 160;
 /** Where the fill point sits in the viewport at the top of the scroll (it slides to the bottom by the end). */
@@ -479,7 +483,7 @@ function Row({
               key={`t-${t}`}
               style={[styles.tag, { borderRadius: radius.capsule(22), backgroundColor: alpha(tint, dark ? 0.2 : 0.1) }]}
             >
-              <Text style={[styles.tagText, ff, { color: tint }]}>{t}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.tagText, ff, { color: tint }]}>{t}</Text>
             </View>
           ))}
           {item.links?.map((l) => (
@@ -941,7 +945,7 @@ function Photo({ uri, delay, style, more }: { uri: string; delay: number; style:
       />
       {more > 0 ? (
         <View style={[StyleSheet.absoluteFill, styles.more]}>
-          <Text style={[styles.moreText, ff]}>+{more}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.moreText, ff]}>+{more}</Text>
         </View>
       ) : null}
     </View>
@@ -1039,10 +1043,11 @@ const styles = StyleSheet.create({
   mini: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
   bodyWrap: { flex: 1, minWidth: 0 },
   card: { borderWidth: 1 },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  // Wraps only when the time no longer fits beside the title (large text sizes): it drops below.
+  titleRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: 10 },
   compactRow: { alignItems: 'center' },
   title: { flex: 1, fontWeight: '400', letterSpacing: -0.2 },
-  time: { fontSize: 12.5, fontWeight: '400', fontVariant: ['tabular-nums'] },
+  time: { flexShrink: 1, fontSize: 12.5, fontWeight: '400', fontVariant: ['tabular-nums'] },
   desc: { fontSize: 14, fontWeight: '400', lineHeight: 20, marginTop: 3 },
   gallery: { marginTop: 12, width: '100%', overflow: 'hidden', borderWidth: 1 },
   grid: { flexDirection: 'row', gap: 3 },

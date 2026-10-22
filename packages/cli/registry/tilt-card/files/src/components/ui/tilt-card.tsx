@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Image,
@@ -92,7 +93,8 @@ export interface TiltState {
   height: number;
 }
 
-const Ctx = createContext<TiltState | null>(null);
+// `reduce` (Reduce Motion) rides along privately so layers stay flat too; useTilt still returns a TiltState.
+const Ctx = createContext<(TiltState & { reduce: boolean }) | null>(null);
 
 /** The surrounding TiltCard's live tilt (null outside one) — for your own layers and effects. */
 export function useTilt() {
@@ -105,6 +107,8 @@ const PAINT = 96;
 
 // Six colour cycles across the paint, so a couple of bands cross the card like real foil. Cool
 // pinks, violets and cyans stay clean when blended over dark cards (yellow and green turn olive).
+const SMOOTH = Easing.bezier(0.32, 0.72, 0, 1);
+
 const HOLO = Array.from({ length: 37 }, (_, i) => ['#ff6bd6', '#b38cff', '#6fb6ff', '#5ff0ff', '#a7ffe0', '#ffc2ef'][i % 6]);
 
 function GlarePaint({ variant }: { variant: 'soft' | 'sharp' }) {
@@ -256,6 +260,7 @@ export function TiltCard({
   accessibilityLabel,
   style,
 }: TiltCardProps) {
+  const reduce = useReduceMotion();
   const [size, setSize] = useState({ w: 0, h: 0 });
   const sizeRef = useRef(size);
   sizeRef.current = size;
@@ -270,11 +275,13 @@ export function TiltCard({
   const viewRef = useRef<ComponentRef<typeof View>>(null);
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
+  const reduceRef = useRef(reduce);
+  reduceRef.current = reduce;
 
   // Idle sway: a slow figure-eight while nobody is touching.
   const idleLoop = useRef<Animated.CompositeAnimation | null>(null);
   const startIdle = () => {
-    if (!idle) return;
+    if (!idle || reduce) return;
     const ease = Easing.inOut(Easing.sin);
     const leg = (v: Animated.Value, to: number, ms: number) =>
       Animated.timing(v, {
@@ -292,10 +299,15 @@ export function TiltCard({
     idleLoop.current.start();
   };
   useEffect(() => {
+    // Reduce Motion: no sway; settle where it stopped back at rest.
+    if (reduce && !touching.current) {
+      tx.setValue(0);
+      ty.setValue(0);
+    }
     startIdle();
     return () => idleLoop.current?.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idle]);
+  }, [idle, reduce]);
 
   const aim = (pageX: number, pageY: number) => {
     const { w, h } = sizeRef.current;
@@ -307,6 +319,12 @@ export function TiltCard({
   const release = (tapped: boolean) => {
     touching.current = false;
     if (tapped && !moved.current) onPressRef.current?.();
+    if (reduce) {
+      // The card never leaves flat, so only the light has to settle: a short ease, no spring.
+      const settle = (v: Animated.Value) => Animated.timing(v, { toValue: 0, duration: 150, easing: SMOOTH, useNativeDriver: true });
+      Animated.parallel([settle(tx), settle(ty), settle(press)]).start();
+      return;
+    }
     Animated.parallel([
       Animated.spring(tx, {
         toValue: 0,
@@ -355,11 +373,15 @@ export function TiltCard({
             if (typeof px === 'number' && typeof py === 'number') origin.current = { x: px, y: py };
           });
           aim(pageX, pageY);
-          Animated.spring(press, {
-            toValue: 1,
-            ...motion.snappy,
-            useNativeDriver: true,
-          }).start();
+          if (reduceRef.current) {
+            Animated.timing(press, { toValue: 1, duration: 150, easing: SMOOTH, useNativeDriver: true }).start();
+          } else {
+            Animated.spring(press, {
+              toValue: 1,
+              ...motion.snappy,
+              useNativeDriver: true,
+            }).start();
+          }
         },
         onPanResponderMove: (e, g) => {
           if (Math.abs(g.dx) + Math.abs(g.dy) > 6) moved.current = true;
@@ -380,21 +402,24 @@ export function TiltCard({
     if (width !== size.w || height !== size.h) setSize({ w: width, h: height });
   };
 
+  // Reduce Motion keeps the card flat and still: no tilt, lift or parallax. The reflection (light,
+  // not movement of the content) still follows the finger.
+  const tilt = reduce ? 0 : maxTilt;
   const rotateY = tx.interpolate({
     inputRange: [-1, 1],
-    outputRange: [`${-maxTilt}deg`, `${maxTilt}deg`],
+    outputRange: [`${-tilt}deg`, `${tilt}deg`],
   });
   const rotateX = ty.interpolate({
     inputRange: [-1, 1],
-    outputRange: [`${maxTilt}deg`, `${-maxTilt}deg`],
+    outputRange: [`${tilt}deg`, `${-tilt}deg`],
   });
   const scale = press.interpolate({
     inputRange: [0, 1],
-    outputRange: [1, pressScale],
+    outputRange: [1, reduce ? 1 : pressScale],
   });
 
-  const ctx = useMemo(() => ({ tx, ty, press, width: size.w, height: size.h }), [tx, ty, press, size.w, size.h]);
-  const drift = Math.min(10, size.w * 0.03);
+  const ctx = useMemo(() => ({ tx, ty, press, width: size.w, height: size.h, reduce }), [tx, ty, press, size.w, size.h, reduce]);
+  const drift = reduce ? 0 : Math.min(10, size.w * 0.03);
   // The plate sits well inside the outline — far enough that it never shows through a notch or a
   // see-through corner, even at full tilt; the shadow offset does the downward shift.
   const body = shadowRect ?? { x: 0, y: 0, width: size.w, height: size.h };
@@ -433,7 +458,7 @@ export function TiltCard({
                 {
                   scale: press.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [1, 1.035],
+                    outputRange: [1, reduce ? 1 : 1.035],
                   }),
                 },
                 { scaleX: shadowScaleX ?? 1 },
@@ -516,7 +541,7 @@ export function TiltCard({
 export function TiltLayer({ children, depth = 0.5, style }: TiltLayerProps) {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error('TiltLayer must be inside TiltCard');
-  const d = depth * 14;
+  const d = ctx.reduce ? 0 : depth * 14;
   return (
     <Animated.View
       pointerEvents="box-none"
@@ -539,7 +564,7 @@ export function TiltLayer({ children, depth = 0.5, style }: TiltLayerProps) {
             {
               scale: ctx.press.interpolate({
                 inputRange: [0, 1],
-                outputRange: [1, 1 + Math.max(0, depth) * 0.035],
+                outputRange: [1, ctx.reduce ? 1 : 1 + Math.max(0, depth) * 0.035],
               }),
             },
           ],
@@ -614,6 +639,22 @@ export function TiltFoil({ children, radius = 8, base = '#d7dbe2', style }: Tilt
       {children}
     </View>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

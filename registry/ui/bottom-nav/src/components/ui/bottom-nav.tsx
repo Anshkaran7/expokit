@@ -99,6 +99,10 @@ export interface BottomNavProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 const ROW_H = 60;
 const PAD_X = 6;
 const PAD_TOP = 6;
@@ -512,6 +516,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
               >
                 <Animated.Text
                   numberOfLines={1}
+                  maxFontSizeMultiplier={FONT_CAP}
                   style={[
                     styles.pillLabel,
                     ff,
@@ -531,7 +536,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
           {/* Invisible measurer: the label's natural width, so it never ellipsizes while growing. */}
           {showLabels ? (
             <View pointerEvents="none" style={styles.measure} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-              <Text style={[styles.pillLabel, styles.selfStart, ff]} onLayout={(e) => setLabelW(Math.ceil(e.nativeEvent.layout.width))}>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.pillLabel, styles.selfStart, ff]} onLayout={(e) => setLabelW(Math.ceil(e.nativeEvent.layout.width))}>
                 {item.label}
               </Text>
             </View>
@@ -561,6 +566,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
         {showLabels ? (
           <Animated.Text
             numberOfLines={1}
+            maxFontSizeMultiplier={FONT_CAP}
             style={[
               styles.label,
               styles.floatLabel,
@@ -591,7 +597,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
           {badge}
         </Animated.View>
         {showLabels ? (
-          <Text numberOfLines={1} style={[styles.label, ff, { color: active ? tint : idle }]}>
+          <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.label, ff, { color: active ? tint : idle }]}>
             {item.label}
           </Text>
         ) : null}
@@ -677,7 +683,7 @@ function CentreAction({
         </FabFace>
       </Animated.View>
       {showLabel ? (
-        <Text numberOfLines={1} style={[styles.label, styles.abs, ff, { top: labelTop, color: labelColor }]}>
+        <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.label, styles.abs, ff, { top: labelTop, color: labelColor }]}>
           {item.label}
         </Text>
       ) : null}
@@ -791,7 +797,7 @@ function Badge({ value, ring, reduce }: { value: true | number; ring: string; re
         },
       ]}
     >
-      {!dot && <Text style={[styles.badgeText, ff, { color: colors.dangerForeground }]}>{text}</Text>}
+      {!dot && <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.badgeText, ff, { color: colors.dangerForeground }]}>{text}</Text>}
     </Animated.View>
   );
 }
@@ -1043,7 +1049,7 @@ const styles = StyleSheet.create({
     top: -6,
     right: -11,
     minWidth: 19,
-    height: 19,
+    minHeight: 19,
     paddingHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',

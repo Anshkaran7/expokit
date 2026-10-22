@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { alpha, useKit } from '@/lib/kit';
@@ -39,6 +39,7 @@ export function Checkbox({
   style,
 }: CheckboxProps) {
   const { colors, radius, font } = useKit();
+  const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const corner = shape === 'circle' ? size / 2 : Math.min(size / 2, radius.sm + 1);
@@ -50,12 +51,17 @@ export function Checkbox({
   const burst = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // Reduce Motion: a short fill fade, no burst ring and no press squish.
+    if (reduce) {
+      Animated.timing(progress, { toValue: on ? 1 : 0, duration: 150, useNativeDriver: false }).start();
+      return;
+    }
     Animated.spring(progress, { toValue: on ? 1 : 0, useNativeDriver: false, speed: 14, bounciness: 0 }).start();
     if (on) {
       burst.setValue(0);
       Animated.timing(burst, { toValue: 1, duration: 450, useNativeDriver: true }).start();
     }
-  }, [on, progress, burst]);
+  }, [on, progress, burst, reduce]);
 
   const toggle = () => {
     if (checked === undefined) setInner(!on);
@@ -72,8 +78,8 @@ export function Checkbox({
       accessibilityState={{ checked: on, disabled }}
       disabled={disabled}
       onPress={toggle}
-      onPressIn={() => Animated.spring(press, { toValue: 0.82, useNativeDriver: true, speed: 50 }).start()}
-      onPressOut={() => Animated.spring(press, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 0 }).start()}
+      onPressIn={() => !reduce && Animated.spring(press, { toValue: 0.82, useNativeDriver: true, speed: 50, bounciness: 0 }).start()}
+      onPressOut={() => !reduce && Animated.spring(press, { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 0 }).start()}
       style={[styles.row, { opacity: disabled ? 0.5 : 1 }, style]}
     >
       <Animated.View style={{ transform: [{ scale: press }] }}>
@@ -137,6 +143,22 @@ export function Checkbox({
       ) : null}
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

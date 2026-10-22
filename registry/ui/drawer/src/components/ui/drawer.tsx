@@ -38,6 +38,10 @@ const INLINE_BOTTOM = Platform.select({ ios: 18, android: 12, default: 10 }) ?? 
 const MODAL_TOP = Platform.select({ ios: 52, android: (StatusBar.currentHeight ?? 24) + 8, default: 16 }) ?? 16;
 const MODAL_BOTTOM = Platform.select({ ios: 28, android: 16, default: 12 }) ?? 12;
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 /** Panel surface hidden past the screen edge, so overshoot and rubber-banding never show a gap. */
 const EXTRA = 48;
 /** Extra travel when closed so the panel's shadow is off-screen too. */
@@ -673,7 +677,7 @@ function ProfileAvatar({ name, src, size, status }: { name: string; src?: string
           },
         ]}
       >
-        <Text style={[{ color: ink, fontSize: size * 0.36, fontWeight: '400', letterSpacing: -0.2 }, ff]}>{initials}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize: size * 0.36, fontWeight: '400', letterSpacing: -0.2 }, ff]}>{initials}</Text>
         {src ? <Image source={{ uri: src }} alt="" style={StyleSheet.absoluteFill} /> : null}
       </View>
       {status ? (
@@ -925,7 +929,7 @@ export function DrawerItem({
               { borderRadius: radius.capsule(22), backgroundColor: badgeColors.bg, transform: [{ scale: badgePop }] },
             ]}
           >
-            <Text style={[styles.badgeText, ff, { color: badgeColors.fg }]}>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.badgeText, ff, { color: badgeColors.fg }]}>
               {typeof badge === 'number' && badge > 99 ? '99+' : badge}
             </Text>
           </Animated.View>
@@ -1117,7 +1121,7 @@ const styles = StyleSheet.create({
   item: { minHeight: ITEM_H, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 14 },
   itemIcon: { width: 24, alignItems: 'center', justifyContent: 'center' },
   itemLabel: { flex: 1, fontSize: 15.5, fontWeight: '400', letterSpacing: -0.15 },
-  badge: { minWidth: 22, height: 22, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center' },
+  badge: { minWidth: 22, minHeight: 22, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center' },
   badgePlain: { paddingHorizontal: 2, minWidth: 0 },
   badgeText: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },
   section: {
@@ -1131,7 +1135,7 @@ const styles = StyleSheet.create({
     paddingBottom: 2,
   },
   sectionFlush: { paddingTop: 10 },
-  sectionText: { fontSize: 13, lineHeight: 18, fontWeight: '400', letterSpacing: 0.1 },
+  sectionText: { flexShrink: 1, fontSize: 13, lineHeight: 18, fontWeight: '400', letterSpacing: 0.1 },
   divider: { height: StyleSheet.hairlineWidth, marginHorizontal: 14, marginTop: 10, marginBottom: 4 },
   footerRow: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 12, paddingVertical: 8 },
   footerText: { flex: 1, minWidth: 0, gap: 5 },

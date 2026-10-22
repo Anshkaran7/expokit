@@ -5,6 +5,9 @@ import { GrainGradient } from '@/components/ui/grain';
 import { TiltCard, TiltLayer } from '@/components/ui/tilt-card';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 /** Any photo works (`require()` or a URL). */
 const photo = (id: number, w: number, h: number) => ({ uri: `https://picsum.photos/id/${id}/${w}/${h}` });
 
@@ -38,7 +41,7 @@ export function TravelCard() {
   return (
     <View style={{ gap: 18 }}>
       <Header title="Explore" sub="Stays our guests loved this month" />
-      <View style={{ flexDirection: 'row', gap: 8 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
         {['Coast', 'Mountains', 'Cities', 'Lakes'].map((t) => {
           const on = t === tab;
           return (
@@ -49,7 +52,7 @@ export function TravelCard() {
               accessibilityState={{ selected: on }}
               style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 999, backgroundColor: on ? colors.foreground : colors.muted }}
             >
-              <Text style={{ color: on ? colors.background : colors.foreground, fontSize: 13, fontWeight: '600' }}>{t}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: on ? colors.background : colors.foreground, fontSize: 13, fontWeight: '600' }}>{t}</Text>
             </Pressable>
           );
         })}
@@ -58,14 +61,14 @@ export function TravelCard() {
       <View style={{ height: 360 }} />
       <TiltLayer depth={1.2}>
         <View style={[glass, { position: 'absolute', top: 16, right: 16 }]}>
-          <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>★ 4.9</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>★ 4.9</Text>
         </View>
       </TiltLayer>
       <TiltLayer depth={0.8}>
         <View style={{ position: 'absolute', left: 20, right: 20, bottom: 20, gap: 2 }}>
-          <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '600', letterSpacing: 1 }}>CINQUE TERRE · ITALY</Text>
-          <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Manarola</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>3 nights · from €140</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, fontWeight: '600', letterSpacing: 1 }}>CINQUE TERRE · ITALY</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Manarola</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>3 nights · from €140</Text>
         </View>
       </TiltLayer>
       </TiltCard>
@@ -80,19 +83,19 @@ export function NowPlaying() {
   return (
     <View style={{ alignItems: 'center', gap: 18 }}>
       <View style={{ alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <Text style={{ color: colors.foreground, fontSize: 20 }}>⌄</Text>
-        <View style={{ alignItems: 'center' }}>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 20 }}>⌄</Text>
+        <View style={{ flexShrink: 1, alignItems: 'center' }}>
           <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>PLAYING FROM</Text>
           <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>Late night drive</Text>
         </View>
-        <Text style={{ color: colors.foreground, fontSize: 20 }}>⋯</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 20 }}>⋯</Text>
       </View>
       <TiltCard idle radius={20} accessibilityLabel="Midnight Bloom by Lumen" style={{ width: 250 }}>
         <GrainGradient palette="noir" seed={1} style={{ height: 250 }} />
         <TiltLayer depth={1}>
           <View style={{ position: 'absolute', left: 18, bottom: 16 }}>
-            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -1, lineHeight: 30 }}>MIDNIGHT</Text>
-            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '300', letterSpacing: -1, lineHeight: 32 }}>bloom</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -1, lineHeight: 30 }}>MIDNIGHT</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '300', letterSpacing: -1, lineHeight: 32 }}>bloom</Text>
           </View>
         </TiltLayer>
       </TiltCard>
@@ -109,16 +112,16 @@ export function NowPlaying() {
           <Text style={{ color: colors.mutedForeground, fontSize: 11, fontVariant: ['tabular-nums'] }}>−2:21</Text>
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 34 }}>
-          <Text style={{ color: colors.foreground, fontSize: 22 }}>⏮</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 22 }}>⏮</Text>
           <Pressable
             onPress={() => setPlaying((p) => !p)}
             accessibilityRole="button"
             accessibilityLabel={playing ? 'Pause' : 'Play'}
             style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: colors.foreground, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ color: colors.background, fontSize: 20 }}>{playing ? '❚❚' : '▶'}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.background, fontSize: 20 }}>{playing ? '❚❚' : '▶'}</Text>
           </Pressable>
-          <Text style={{ color: colors.foreground, fontSize: 22 }}>⏭</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 22 }}>⏭</Text>
         </View>
       </View>
     </View>
@@ -135,7 +138,7 @@ export function Product() {
         sub="Film cameras, serviced and tested"
         right={
           <View style={{ paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: colors.muted }}>
-            <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>Bag · 2</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>Bag · 2</Text>
           </View>
         }
       />
@@ -149,13 +152,13 @@ export function Product() {
       <TiltLayer depth={0.4}>
         <View style={{ position: 'absolute', left: 24, right: 24, bottom: 22, gap: 12 }}>
           <View>
-            <Text style={{ color: '#8a8378', fontSize: 11, fontWeight: '700', letterSpacing: 1.2 }}>FILM CAMERA</Text>
-            <Text style={{ color: '#1b1915', fontSize: 22, fontWeight: '800', letterSpacing: -0.4 }}>Rangefinder 35</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#8a8378', fontSize: 11, fontWeight: '700', letterSpacing: 1.2 }}>FILM CAMERA</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#1b1915', fontSize: 22, fontWeight: '800', letterSpacing: -0.4 }}>Rangefinder 35</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ color: '#1b1915', fontSize: 20, fontWeight: '700' }}>$1,290</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#1b1915', fontSize: 20, fontWeight: '700' }}>$1,290</Text>
             <View style={{ paddingHorizontal: 16, paddingVertical: 10, borderRadius: 999, backgroundColor: '#1b1915' }}>
-              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>Add to bag</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 13, fontWeight: '700' }}>Add to bag</Text>
             </View>
           </View>
         </View>

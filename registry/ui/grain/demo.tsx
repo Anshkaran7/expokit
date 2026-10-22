@@ -4,6 +4,9 @@ import { Text, View } from 'react-native';
 import { GRAIN_PALETTES, GrainGradient } from '@/components/ui/grain';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -13,8 +16,8 @@ export function Hero({ screen }: DemoProps) {
   return (
     <GrainGradient palette="ember" seed={1} style={screen ? { flex: 1 } : { height: 460, borderRadius: radius.xl }}>
       <View style={{ flex: 1, justifyContent: 'flex-end', padding: 24, gap: 6 }}>
-        <Text style={{ color: '#ffffff', fontSize: 34, fontWeight: '700', letterSpacing: -0.8 }}>Golden hour</Text>
-        <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15 }}>Warm light, soft grain, no photo needed.</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#ffffff', fontSize: 34, fontWeight: '700', letterSpacing: -0.8 }}>Golden hour</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 15 }}>Warm light, soft grain, no photo needed.</Text>
       </View>
     </GrainGradient>
   );
@@ -27,7 +30,7 @@ export function Palettes({ screen }: DemoProps) {
     <View style={[{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }, screen && { padding: 16 }]}>
       {GRAIN_PALETTES.map((p, i) => (
         <GrainGradient key={p} palette={p} seed={i} style={{ width: '47%', flexGrow: 1, height: 120, borderRadius: radius.lg }}>
-          <Text style={{ margin: 12, color: ['peach', 'mint', 'lavender'].includes(p) ? '#1d1a26' : '#ffffff', fontWeight: '600', textTransform: 'capitalize' }}>{p}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ margin: 12, color: ['peach', 'mint', 'lavender'].includes(p) ? '#1d1a26' : '#ffffff', fontWeight: '600', textTransform: 'capitalize' }}>{p}</Text>
         </GrainGradient>
       ))}
     </View>

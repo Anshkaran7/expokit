@@ -4,6 +4,9 @@ import { Text, View } from 'react-native';
 import { BottomNav, type BottomNavItem } from '@/components/ui/bottom-nav';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 type Row = [title: string, subtitle: string, meta: string];
 
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
@@ -22,7 +25,7 @@ function Screen({ title, rows, screen, children }: { title: string; rows: Row[];
       ]}
     >
       <View style={{ paddingHorizontal: 18, paddingTop: 18, gap: 14 }}>
-        <Text style={{ fontSize: 22, fontWeight: '400', letterSpacing: -0.5, color: colors.foreground }}>{title}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 22, fontWeight: '400', letterSpacing: -0.5, color: colors.foreground }}>{title}</Text>
         {rows.map(([t, s, m]) => (
           <View key={t} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View
@@ -35,13 +38,13 @@ function Screen({ title, rows, screen, children }: { title: string; rows: Row[];
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{t.slice(0, 1)}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{t.slice(0, 1)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text numberOfLines={1} style={{ fontSize: 14.5, fontWeight: '400', color: colors.foreground }}>{t}</Text>
-              <Text numberOfLines={1} style={{ fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>{s}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 14.5, fontWeight: '400', color: colors.foreground }}>{t}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>{s}</Text>
             </View>
-            <Text style={{ fontSize: 12, fontWeight: '400', color: colors.mutedForeground }}>{m}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, fontWeight: '400', color: colors.mutedForeground }}>{m}</Text>
           </View>
         ))}
       </View>

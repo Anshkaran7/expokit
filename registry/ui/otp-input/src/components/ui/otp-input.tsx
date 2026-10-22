@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Platform,
@@ -55,6 +56,9 @@ export interface OtpInputProps {
 type CellState = 'idle' | 'error' | 'success';
 
 const GAP = 8;
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way. A capped digit (1.35 × 0.46w, line 1.2×) still fits the shortest cell (pill, 1w).
+const FONT_CAP = 1.35;
 /** react-native-web draws the browser focus outline; our border + halo is the focus indicator. */
 const webNoOutline = Platform.OS === 'web' ? ({ outlineStyle: 'none', outlineWidth: 0 } as object) : null;
 const SEP = 22;
@@ -84,6 +88,7 @@ export function OtpInput({
   style,
 }: OtpInputProps) {
   const { colors } = useKit();
+  const reduce = useReduceMotion();
   const input = useRef<ComponentRef<typeof TextInput>>(null);
   const [inner, setInner] = useState('');
   const [focused, setFocused] = useState(false);
@@ -92,12 +97,13 @@ export function OtpInput({
   const shake = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (!error) return;
+    // Reduce Motion: no shake; the cells still turn the danger colour.
+    if (!error || reduce) return;
     shake.setValue(0);
     Animated.sequence(
       [10, -9, 7, -5, 3, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 45, useNativeDriver: true }))
     ).start();
-  }, [error, shake]);
+  }, [error, shake, reduce]);
 
   const change = (raw: string) => {
     // No maxLength on the input, so pasting "123-456" or a longer SMS snippet still fills every cell.
@@ -152,6 +158,7 @@ export function OtpInput({
                 variant={variant}
                 w={cell}
                 h={cellH}
+                reduce={reduce}
               />
             </React.Fragment>
           ))}
@@ -176,7 +183,7 @@ export function OtpInput({
         importantForAccessibility="yes"
         style={[styles.hidden, webNoOutline]}
       />
-      {message ? <Message text={message} kind={state} /> : null}
+      {message ? <Message text={message} kind={state} reduce={reduce} /> : null}
     </View>
   );
 }
@@ -191,6 +198,7 @@ function Cell({
   variant,
   w,
   h,
+  reduce,
 }: {
   index: number;
   char?: string;
@@ -201,6 +209,7 @@ function Cell({
   variant: OtpInputVariant;
   w: number;
   h: number;
+  reduce: boolean;
 }) {
   const { colors, radius, font: kitFont } = useKit();
   const ff = kitFont.family ? { fontFamily: kitFont.family } : null;
@@ -214,17 +223,22 @@ function Cell({
   const ring = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (char) {
+    if (char && reduce) {
+      // Reduce Motion: the digit appears without the pop.
+      pop.setValue(1);
+    } else if (char) {
       pop.setValue(0.3);
       Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
     } else {
       Animated.timing(pop, { toValue: 0, duration: 110, useNativeDriver: true }).start();
     }
-  }, [char, pop]);
+  }, [char, pop, reduce]);
 
   useEffect(() => {
     const to = active ? 1 : 0;
-    Animated.spring(halo, { toValue: to, useNativeDriver: true, ...motion.snappy }).start();
+    // Reduce Motion: the halo only fades (its scale is pinned below). The caret keeps blinking.
+    if (reduce) Animated.timing(halo, { toValue: to, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(halo, { toValue: to, useNativeDriver: true, ...motion.snappy }).start();
     Animated.timing(ring, { toValue: to, duration: motion.fast, useNativeDriver: false }).start();
     if (!active) return;
     caret.setValue(1);
@@ -238,17 +252,17 @@ function Cell({
     );
     blink.start();
     return () => blink.stop();
-  }, [active, halo, ring, caret]);
+  }, [active, halo, ring, caret, reduce]);
 
   useEffect(() => {
-    if (state !== 'success') return;
+    if (state !== 'success' || reduce) return;
     pulse.setValue(0);
     Animated.sequence([
       Animated.delay(index * 55),
       Animated.timing(pulse, { toValue: 1, duration: 140, easing: Easing.out(Easing.quad), useNativeDriver: true }),
       Animated.spring(pulse, { toValue: 0, useNativeDriver: true, ...motion.bouncy }),
     ]).start();
-  }, [state, index, pulse]);
+  }, [state, index, pulse, reduce]);
 
   const underline = variant === 'underline';
   const pill = variant === 'pill';
@@ -289,7 +303,7 @@ function Cell({
             borderRadius: underline ? 10 : r + 4,
             backgroundColor: alpha(tone, 0.18),
             opacity: halo,
-            transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.86, 1] }) }],
+            transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.86, 1] }) }],
           },
         ]}
       />
@@ -306,7 +320,7 @@ function Cell({
             {secure ? (
               <View style={{ width: dot, height: dot, borderRadius: dot / 2, backgroundColor: fg }} />
             ) : (
-              <Text style={[styles.char, ff, { color: fg, fontSize: font, lineHeight: Math.round(font * 1.2) }]}>{char}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.char, ff, { color: fg, fontSize: font, lineHeight: Math.round(font * 1.2) }]}>{char}</Text>
             )}
           </Animated.View>
         ) : active ? (
@@ -317,8 +331,8 @@ function Cell({
   );
 }
 
-/** Helper / error / success line that fades and slides in whenever its text changes. */
-function Message({ text, kind }: { text: string; kind: CellState }) {
+/** Helper / error / success line that fades and slides in whenever its text changes (only fades with Reduce Motion). */
+function Message({ text, kind, reduce }: { text: string; kind: CellState; reduce: boolean }) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const enter = useRef(new Animated.Value(0)).current;
@@ -326,12 +340,13 @@ function Message({ text, kind }: { text: string; kind: CellState }) {
 
   useEffect(() => {
     enter.setValue(0);
-    Animated.timing(enter, { toValue: 1, duration: motion.normal, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-    draw.setValue(0);
-    if (kind === 'success') {
+    Animated.timing(enter, { toValue: 1, duration: reduce ? 150 : motion.normal, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    // Reduce Motion: the tick is drawn at once.
+    draw.setValue(reduce ? 1 : 0);
+    if (kind === 'success' && !reduce) {
       Animated.timing(draw, { toValue: 1, duration: 360, delay: 120, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
     }
-  }, [text, kind, enter, draw]);
+  }, [text, kind, enter, draw, reduce]);
 
   const color = kind === 'error' ? colors.danger : kind === 'success' ? colors.success : colors.mutedForeground;
   return (
@@ -339,7 +354,7 @@ function Message({ text, kind }: { text: string; kind: CellState }) {
       accessibilityLiveRegion="polite"
       style={[
         styles.message,
-        { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }] },
+        { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 4, 0] }) }] },
       ]}
     >
       {kind === 'error' ? (
@@ -366,6 +381,22 @@ function Message({ text, kind }: { text: string; kind: CellState }) {
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   root: { alignSelf: 'stretch' },
   disabled: { opacity: 0.5 },
@@ -377,6 +408,6 @@ const styles = StyleSheet.create({
   sep: { alignItems: 'center', justifyContent: 'center' },
   dash: { width: 10, height: 2, borderRadius: 1, opacity: 0.6 },
   message: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6 },
-  messageText: { fontSize: 12.5, lineHeight: 17, fontWeight: '400' },
+  messageText: { flexShrink: 1, fontSize: 12.5, lineHeight: 17, fontWeight: '400' },
   hidden: { position: 'absolute', width: 1, height: 1, opacity: 0 },
 });

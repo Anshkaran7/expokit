@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { Badge, BadgeIcon, BadgeIconTile, NotificationBadge, type BadgeIconName, type BadgeTone } from '@/components/ui/badge';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 const TONES = ['neutral', 'accent', 'success', 'warning', 'danger'] as const;
 
 export function Variants() {
@@ -54,14 +57,14 @@ export function LiveStatus() {
   const tint = { neutral: colors.mutedForeground, accent: colors.accent, success: colors.success, warning: colors.warning, danger: colors.danger }[tone];
   return (
     <View style={{ gap: 12 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <Text style={{ fontSize: 15, color: colors.foreground }}>web-checkout #482</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+        <Text style={{ flexShrink: 1, fontSize: 15, color: colors.foreground }}>web-checkout #482</Text>
         <Badge tone={tone} icon={<BadgeIcon name={icon} color={tint} size={14} />}>
           {label}
         </Badge>
       </View>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <Text style={{ fontSize: 15, color: colors.foreground }}>api-gateway #117</Text>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+        <Text style={{ flexShrink: 1, fontSize: 15, color: colors.foreground }}>api-gateway #117</Text>
         <Badge variant="solid" tone={tone} size="lg">
           {label}
         </Badge>
@@ -75,7 +78,7 @@ export function LiveStatus() {
 
 export function Sizes() {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
       <Badge size="sm" tone="accent">Small</Badge>
       <Badge size="md" tone="accent">Medium</Badge>
       <Badge size="lg" tone="accent">Large</Badge>
@@ -99,7 +102,7 @@ export function Notifications() {
           <BadgeIconTile name="package" backgroundColor={alpha(colors.success, 0.12)} color={colors.success} />
         </NotificationBadge>
       </View>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {[
           ['+ New', () => setCount((c) => c + 1)],
           ['Mark all read', () => setCount(0)],
@@ -107,9 +110,9 @@ export function Notifications() {
           <Pressable
             key={label as string}
             onPress={onPress as () => void}
-            style={{ paddingHorizontal: 14, height: 36, borderRadius: radius.capsule(36), justifyContent: 'center', backgroundColor: colors.muted }}
+            style={{ paddingHorizontal: 14, minHeight: 36, borderRadius: radius.capsule(36), justifyContent: 'center', backgroundColor: colors.muted }}
           >
-            <Text style={{ fontWeight: '400', color: colors.foreground }}>{label as string}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontWeight: '400', color: colors.foreground }}>{label as string}</Text>
           </Pressable>
         ))}
       </View>

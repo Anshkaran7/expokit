@@ -105,7 +105,7 @@
     {
       "name": "GradientAndGlow",
       "title": "Gradient And Glow",
-      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\nexport default function GradientAndGlow() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 12 }}>\n      <Button\n        variant=\"gradient\"\n        size=\"lg\"\n        block\n        pill\n        right={<Text style={{ color: readableOn(colors.accent), fontSize: 18 }}>→</Text>}\n      >\n        Get started\n      </Button>\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        <Button variant=\"glow\" pill style={{ flex: 1 }}>\n          Go live\n        </Button>\n        <Button variant=\"gradient\" pill style={{ flex: 1 }}>\n          Boost\n        </Button>\n      </View>\n    </View>\n  );\n}\n"
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\nimport { readableOn, useKit } from '@/lib/kit';\n\n/** Controls stop at iOS's largest standard text size; content text stays uncapped. */\nconst FONT_CAP = 1.35;\n\nexport default function GradientAndGlow() {\n  const { colors } = useKit();\n  return (\n    <View style={{ gap: 12 }}>\n      <Button\n        variant=\"gradient\"\n        size=\"lg\"\n        block\n        pill\n        right={<Text maxFontSizeMultiplier={FONT_CAP} style={{ color: readableOn(colors.accent), fontSize: 18 }}>→</Text>}\n      >\n        Get started\n      </Button>\n      <View style={{ flexDirection: 'row', gap: 10 }}>\n        <Button variant=\"glow\" pill style={{ flex: 1 }}>\n          Go live\n        </Button>\n        <Button variant=\"gradient\" pill style={{ flex: 1 }}>\n          Boost\n        </Button>\n      </View>\n    </View>\n  );\n}\n"
     },
     {
       "name": "DynamicColor",
@@ -115,7 +115,7 @@
     {
       "name": "Sizes",
       "title": "Sizes",
-      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>\n      <Button size=\"sm\">Small</Button>\n      <Button size=\"md\">Medium</Button>\n      <Button size=\"lg\">Large</Button>\n      <Button size=\"icon\" variant=\"outline\">\n        <Text style={{ fontSize: 18 }}>♥</Text>\n      </Button>\n    </View>\n  );\n}\n"
+      "code": "import { Pressable, Text, View } from 'react-native';\nimport { Button } from '@/components/ui/button';\n\n/** Controls stop at iOS's largest standard text size; content text stays uncapped. */\nconst FONT_CAP = 1.35;\n\nexport default function Sizes() {\n  return (\n    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>\n      <Button size=\"sm\">Small</Button>\n      <Button size=\"md\">Medium</Button>\n      <Button size=\"lg\">Large</Button>\n      <Button size=\"icon\" variant=\"outline\">\n        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 18 }}>♥</Text>\n      </Button>\n    </View>\n  );\n}\n"
     },
     {
       "name": "Loading",

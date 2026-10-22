@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Dimensions,
   Easing,
@@ -135,6 +136,9 @@ const EDGE = 12; // keep the dropdown this far from the window edges
 const PANEL_PAD = 6;
 const SEARCH_H = 46;
 const FOOT_H = 48;
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 const normalize = <T extends string | number>(o: T | SelectOption<T>): SelectOption<T> =>
   typeof o === 'object' ? o : { label: String(o), value: o };
@@ -190,6 +194,7 @@ export function Select<T extends string | number = string>({
   optionTextStyle,
 }: SelectProps<T>) {
   const { colors, radius, dark, font } = useKit();
+  const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const bg = surface ?? colors.background;
@@ -226,6 +231,9 @@ export function Select<T extends string | number = string>({
   const viewH = useRef(0);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alive = useRef(true);
+  // Read by the sheet's pan responder, which is created once.
+  const reduceRef = useRef(reduce);
+  reduceRef.current = reduce;
 
   const floating = open || picked.length > 0;
   const float = useRef(new Animated.Value(floating ? 1 : 0)).current; // native
@@ -244,29 +252,35 @@ export function Select<T extends string | number = string>({
   }, []);
 
   useEffect(() => {
-    Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [floating, float]);
+    if (reduce) float.setValue(floating ? 1 : 0);
+    else Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [floating, float, reduce]);
 
   useEffect(() => {
     Animated.timing(focus, { toValue: open ? 1 : 0, duration: 160, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
-    Animated.spring(halo, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [open, focus, halo]);
+    // Reduce Motion: the halo only fades (its scale is pinned below).
+    if (reduce) Animated.timing(halo, { toValue: open ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(halo, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [open, focus, halo, reduce]);
 
   useEffect(() => {
-    if (!error) return;
+    if (!error || reduce) return;
     shake.setValue(0);
     Animated.sequence(
       [10, -8, 6, -4, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 55, useNativeDriver: true }))
     ).start();
-  }, [error, shake]);
+  }, [error, shake, reduce]);
 
   useEffect(() => {
     if (open) {
       drag.setValue(0);
-      if (asSheet) Animated.spring(show, { toValue: 1, useNativeDriver: true, ...motion.gentle }).start();
+      // Reduce Motion: the panel's slide / scale is pinned below, so `show` only fades it in place.
+      if (reduce) Animated.timing(show, { toValue: 1, duration: 150, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+      else if (asSheet) Animated.spring(show, { toValue: 1, useNativeDriver: true, ...motion.gentle }).start();
       else Animated.timing(show, { toValue: 1, duration: 170, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
     } else if (mounted) {
-      Animated.timing(show, { toValue: 0, duration: asSheet ? motion.fast + 40 : 120, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(
+      const duration = asSheet ? (reduce ? 150 : motion.fast + 40) : 120;
+      Animated.timing(show, { toValue: 0, duration, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(
         ({ finished }) => finished && setMounted(false)
       );
     }
@@ -451,19 +465,21 @@ export function Select<T extends string | number = string>({
   }, [open]);
 
   // Drag the sheet's grabber down to dismiss.
-  const pan = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-        onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
-        onPanResponderRelease: (_, g) => {
-          if (g.dy > 110 || g.vy > 1.1) setOpen(false);
-          else Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
-        },
-        onPanResponderTerminate: () => Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start(),
-      }),
-    [drag]
-  );
+  const pan = useMemo(() => {
+    const back = () =>
+      reduceRef.current
+        ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
+        : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
+    return PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+      onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
+      onPanResponderRelease: (_, g) => {
+        if (g.dy > 110 || g.vy > 1.1) setOpen(false);
+        else back();
+      },
+      onPanResponderTerminate: back,
+    });
+  }, [drag]);
 
   const active = error ? colors.danger : tint;
   const borderColor = focus.interpolate({
@@ -499,6 +515,7 @@ export function Select<T extends string | number = string>({
         autoFocus={isWeb}
         returnKeyType="done"
         accessibilityLabel={searchPlaceholder}
+        maxFontSizeMultiplier={FONT_CAP}
         style={[styles.searchInput, ff, { color: colors.foreground, fontSize: dense ? 15 : 16 }, webInput]}
       />
       {query ? (
@@ -553,6 +570,7 @@ export function Select<T extends string | number = string>({
                     rowRadius={rowRadius}
                     query={q}
                     tint={tint}
+                    reduce={reduce}
                     rowStyle={optionStyle}
                     textStyle={optionTextStyle}
                     onPress={() => choose(o)}
@@ -591,17 +609,21 @@ export function Select<T extends string | number = string>({
                 { borderRadius: radius.capsule(32), opacity: many.length ? 1 : 0.4, backgroundColor: pressed ? colors.muted : 'transparent' },
               ]}
             >
-              <Text style={[styles.footDenseText, ff, { color: colors.mutedForeground }]}>Clear</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footDenseText, ff, { color: colors.mutedForeground }]}>
+                Clear
+              </Text>
             </Pressable>
             <View style={styles.footMid}>
-              <CountBadge count={many.length} tint={tint} />
+              <CountBadge count={many.length} tint={tint} reduce={reduce} />
             </View>
             <Pressable
               onPress={close}
               accessibilityRole="button"
               style={({ pressed }) => [styles.footSolid, { backgroundColor: tint, borderRadius: radius.capsule(32), opacity: pressed ? 0.85 : 1 }]}
             >
-              <Text style={[styles.footDenseText, styles.footStrong, ff, { color: readableOn(tint) }]}>Done</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footDenseText, styles.footStrong, ff, { color: readableOn(tint) }]}>
+                Done
+              </Text>
             </Pressable>
           </View>
         ) : (
@@ -612,14 +634,16 @@ export function Select<T extends string | number = string>({
               accessibilityRole="button"
               style={({ pressed }) => [styles.footBtn, { borderRadius: radius.md, opacity: many.length ? (pressed ? 0.6 : 1) : 0.4 }]}
             >
-              <Text style={[styles.footText, ff, { color: colors.foreground }]}>Clear</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>
+                Clear
+              </Text>
             </Pressable>
             <Pressable
               onPress={close}
               accessibilityRole="button"
               style={({ pressed }) => [styles.footBtn, styles.footMain, { backgroundColor: tint, borderRadius: radius.md, opacity: pressed ? 0.85 : 1 }]}
             >
-              <Text style={[styles.footText, styles.footStrong, styles.tabular, ff, { color: readableOn(tint) }]}>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, styles.footStrong, styles.tabular, ff, { color: readableOn(tint) }]}>
                 {many.length ? `Done · ${many.length}` : 'Done'}
               </Text>
             </Pressable>
@@ -691,14 +715,14 @@ export function Select<T extends string | number = string>({
                   borderRadius: fieldRadius + 4,
                   borderColor: alpha(active, 0.2),
                   opacity: halo,
-                  transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) }],
+                  transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.97, 1] }) }],
                 },
               ]}
             />
             <Animated.View
               style={[
                 styles.field,
-                { height: HEIGHT, borderRadius: fieldRadius, backgroundColor: bg },
+                { minHeight: HEIGHT, borderRadius: fieldRadius, backgroundColor: bg },
                 userField,
                 { borderColor: hovered && !open && !error ? colors.mutedForeground : borderColor },
               ]}
@@ -707,13 +731,13 @@ export function Select<T extends string | number = string>({
               {showChips ? (
                 <View style={[styles.chips, { paddingLeft: sz.pad - 6, paddingRight: sz.pad + sz.icon + 8 }]}>
                   {chips.map(({ key, item, leaving, appear }) => (
-                    <AnimatedChip key={key} leaving={leaving} appear={appear} gap={6} shrink={!!item.option} onGone={() => chipGone(key)}>
+                    <AnimatedChip key={key} leaving={leaving} appear={appear} gap={6} shrink={!!item.option} reduce={reduce} onGone={() => chipGone(key)}>
                       {item.option ? (
                         <View
                           style={[
                             styles.chip,
                             {
-                              height: sz.chip,
+                              minHeight: sz.chip,
                               paddingLeft: item.option.icon ? 3 : 10,
                               paddingRight: removableChips && !disabled ? 4 : 10,
                               backgroundColor: chipBg,
@@ -726,7 +750,7 @@ export function Select<T extends string | number = string>({
                               {item.option.icon}
                             </View>
                           ) : null}
-                          <Text numberOfLines={1} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont }]}>
+                          <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont }]}>
                             {item.option.label}
                           </Text>
                           {removableChips && !disabled ? (
@@ -753,12 +777,18 @@ export function Select<T extends string | number = string>({
                         <View
                           accessible
                           accessibilityLabel={maxChips > 0 ? `${item.more} more` : `${item.more} selected`}
-                          style={[styles.chip, styles.more, { height: sz.chip, backgroundColor: chipBg, borderRadius: radius.capsule(sz.chip) }]}
+                          style={[styles.chip, styles.more, { minHeight: sz.chip, backgroundColor: chipBg, borderRadius: radius.capsule(sz.chip) }]}
                         >
-                          {maxChips > 0 ? <Text style={[styles.chipText, styles.tabular, ff, { color: tint, fontSize: sz.chipFont }]}>+</Text> : null}
-                          <RollingNumber value={item.more} distance={sz.chipFont} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont }]} />
+                          {maxChips > 0 ? (
+                            <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.chipText, styles.tabular, ff, { color: tint, fontSize: sz.chipFont }]}>
+                              +
+                            </Text>
+                          ) : null}
+                          <RollingNumber value={item.more} distance={sz.chipFont} reduce={reduce} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont }]} />
                           {maxChips > 0 ? null : (
-                            <Text style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont, marginLeft: 3 }]}>selected</Text>
+                            <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont, marginLeft: 3 }]}>
+                              selected
+                            </Text>
                           )}
                         </View>
                       )}
@@ -768,6 +798,7 @@ export function Select<T extends string | number = string>({
               ) : (
                 <Text
                   numberOfLines={1}
+                  maxFontSizeMultiplier={FONT_CAP}
                   style={[
                     ff,
                     {
@@ -802,17 +833,21 @@ export function Select<T extends string | number = string>({
                   ]}
                 >
                   {/* The notch: the label paints the surface over the border, so it matches the rendered width. */}
-                  <Animated.Text numberOfLines={1} style={[styles.label, ff, { fontSize: sz.font, backgroundColor: bg }, labelStyle, { color: labelColor }]}>
+                  <Animated.Text
+                    numberOfLines={1}
+                    maxFontSizeMultiplier={FONT_CAP}
+                    style={[styles.label, ff, { fontSize: sz.font, backgroundColor: bg }, labelStyle, { color: labelColor }]}
+                  >
                     {label}
                   </Animated.Text>
                 </Animated.View>
               ) : null}
-              <Chevron open={open} size={sz.icon} right={sz.pad - 4} color={open ? active : (iconColor ?? colors.mutedForeground)} />
+              <Chevron open={open} reduce={reduce} size={sz.icon} right={sz.pad - 4} color={open ? active : (iconColor ?? colors.mutedForeground)} />
             </Animated.View>
           </>
         )}
       </Pressable>
-      {message ? <FieldMessage text={message} error={!!error} style={messageStyle} /> : null}
+      {message ? <FieldMessage text={message} error={!!error} reduce={reduce} style={messageStyle} /> : null}
 
       <Modal visible={mounted} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: asSheet ? colors.overlay : 'transparent', opacity: show }]}>
@@ -838,11 +873,15 @@ export function Select<T extends string | number = string>({
                   ? {
                       opacity: show,
                       transform: [
-                        { scale: show.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) },
-                        { translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }), drag) },
+                        { scale: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.94, 1] }) },
+                        { translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 16, 0] }), drag) },
                       ],
                     }
-                  : { transform: [{ translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [winH * 0.8, 0] }), drag) }] },
+                  : {
+                      // Reduce Motion: fade in place instead of sliding up.
+                      opacity: reduce ? show : 1,
+                      transform: [{ translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : winH * 0.8, 0] }), drag) }],
+                    },
               ]}
             >
               <View {...pan.panHandlers} style={styles.sheetHeader}>
@@ -851,7 +890,7 @@ export function Select<T extends string | number = string>({
                 {multiple ? (
                   <View style={styles.subtitleRow}>
                     {many.length ? (
-                      <CountBadge count={many.length} tint={tint} />
+                      <CountBadge count={many.length} tint={tint} reduce={reduce} />
                     ) : (
                       <Text style={[styles.subtitle, ff, { color: colors.mutedForeground }]}>Choose one or more</Text>
                     )}
@@ -880,8 +919,8 @@ export function Select<T extends string | number = string>({
               {
                 opacity: show,
                 transform: [
-                  { translateY: show.interpolate({ inputRange: [0, 1], outputRange: [below ? -6 : 6, 0] }) },
-                  { scale: show.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) },
+                  { translateY: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : below ? -6 : 6, 0] }) },
+                  { scale: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.97, 1] }) },
                 ],
               },
               below ? { top: anchor.y + anchor.h + GAP } : { bottom: Math.max(EDGE, winH - anchor.y + GAP) },
@@ -912,6 +951,7 @@ function OptionRow<T extends string | number>({
   rowRadius,
   query,
   tint,
+  reduce,
   rowStyle,
   textStyle,
   onPress,
@@ -926,6 +966,7 @@ function OptionRow<T extends string | number>({
   rowRadius: number;
   query: string;
   tint: string;
+  reduce: boolean;
   rowStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   onPress: () => void;
@@ -936,8 +977,10 @@ function OptionRow<T extends string | number>({
   const ff = font.family ? { fontFamily: font.family } : null;
   const check = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: scale + opacity
   useEffect(() => {
-    Animated.spring(check, { toValue: selected ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [selected, check]);
+    // Reduce Motion: the check only fades (no pop / twist).
+    if (reduce) Animated.timing(check, { toValue: selected ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(check, { toValue: selected ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [selected, check, reduce]);
   const on = readableOn(tint);
   const box = dense ? 18 : 22;
   const hoverBg = alpha(colors.foreground, 0.06);
@@ -966,7 +1009,7 @@ function OptionRow<T extends string | number>({
     >
       {multiple ? (
         <View style={[styles.box, { width: box, height: box, borderColor: selected ? tint : colors.input, borderRadius: radius.scale(5) }]}>
-          <Animated.View style={[styles.boxFill, { backgroundColor: tint, borderRadius: radius.scale(5), opacity: check, transform: [{ scale: check }] }]}>
+          <Animated.View style={[styles.boxFill, { backgroundColor: tint, borderRadius: radius.scale(5), opacity: check, transform: [{ scale: reduce ? 1 : check }] }]}>
             <Icon name="check" size={dense ? 12 : 14} color={on} strokeWidth={2.8} />
           </Animated.View>
         </View>
@@ -994,7 +1037,9 @@ function OptionRow<T extends string | number>({
             styles.checkWrap,
             {
               opacity: check,
-              transform: [{ scale: check }, { rotate: check.interpolate({ inputRange: [0, 1], outputRange: ['-30deg', '0deg'] }) }],
+              transform: reduce
+                ? []
+                : [{ scale: check }, { rotate: check.interpolate({ inputRange: [0, 1], outputRange: ['-30deg', '0deg'] }) }],
             },
           ]}
         >
@@ -1055,6 +1100,7 @@ function AnimatedChip({
   appear,
   gap,
   shrink,
+  reduce,
   onGone,
   children,
 }: {
@@ -1063,6 +1109,8 @@ function AnimatedChip({
   gap: number;
   /** Whether the slot may shrink when the row is tight (chips yes, the "+N" counter no). */
   shrink: boolean;
+  /** Reduce Motion: fade only — no pop, and neighbours close the gap at once. */
+  reduce: boolean;
   onGone: () => void;
   children: React.ReactNode;
 }) {
@@ -1076,25 +1124,27 @@ function AnimatedChip({
     let alive = true;
     let anims: Animated.CompositeAnimation[];
     if (leaving) {
-      let left = 2;
+      anims = [Animated.timing(pop, { toValue: 0, duration: 150, easing: Easing.out(Easing.quad), useNativeDriver: true })];
+      if (!reduce) anims.push(Animated.timing(size, { toValue: 0, duration: 230, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }));
+      let left = anims.length;
       const end = ({ finished }: { finished: boolean }) => {
         if (finished && alive && --left === 0) gone.current();
       };
-      anims = [
-        Animated.timing(pop, { toValue: 0, duration: 150, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-        Animated.timing(size, { toValue: 0, duration: 230, easing: Easing.inOut(Easing.cubic), useNativeDriver: false }),
-      ];
       anims.forEach((a) => a.start(end));
     } else {
       size.setValue(1);
-      anims = [Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.snappy })];
+      anims = [
+        reduce
+          ? Animated.timing(pop, { toValue: 1, duration: 150, useNativeDriver: true })
+          : Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.snappy }),
+      ];
       anims.forEach((a) => a.start());
     }
     return () => {
       alive = false;
       anims.forEach((a) => a.stop());
     };
-  }, [leaving, pop, size]);
+  }, [leaving, pop, size, reduce]);
 
   const collapsing = leaving && w > 0;
   return (
@@ -1119,7 +1169,7 @@ function AnimatedChip({
           collapsing && { width: w, flexShrink: 0 },
           {
             opacity: pop.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-            transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+            transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.85, 1] }) }],
           },
         ]}
       >
@@ -1129,24 +1179,26 @@ function AnimatedChip({
   );
 }
 
-/** A number that rolls (native translateY + opacity) up when it grows and down when it shrinks. */
-function RollingNumber({ value, style, distance = 10 }: { value: number; style?: StyleProp<TextStyle>; distance?: number }) {
+/** A number that rolls (native translateY + opacity) up when it grows and down when it shrinks. Reduce Motion shows the new value at once. */
+function RollingNumber({ value, style, distance = 10, reduce }: { value: number; style?: StyleProp<TextStyle>; distance?: number; reduce: boolean }) {
   const [state, setState] = useState({ cur: value, prev: value, dir: 1 });
   if (state.cur !== value) setState({ cur: value, prev: state.cur, dir: value > state.cur ? 1 : -1 });
   // A fresh value per change starts at 0 in the same render, so there's no one-frame flash.
-  const roll = useMemo(() => new Animated.Value(state.cur === state.prev ? 1 : 0), [state]);
+  const roll = useMemo(() => new Animated.Value(state.cur !== state.prev && !reduce ? 0 : 1), [state, reduce]);
+  const moving = state.cur !== state.prev && !reduce;
   useEffect(() => {
+    if (!moving) return;
     const a = Animated.spring(roll, { toValue: 1, useNativeDriver: true, ...motion.snappy });
     a.start();
     return () => a.stop();
-  }, [roll]);
-  const moving = state.cur !== state.prev;
+  }, [roll, moving]);
   return (
     <View style={styles.roll}>
       {moving ? (
         <Animated.Text
           accessible={false}
           importantForAccessibility="no"
+          maxFontSizeMultiplier={FONT_CAP}
           style={[
             style,
             styles.tabular,
@@ -1161,6 +1213,7 @@ function RollingNumber({ value, style, distance = 10 }: { value: number; style?:
         </Animated.Text>
       ) : null}
       <Animated.Text
+        maxFontSizeMultiplier={FONT_CAP}
         style={[
           style,
           styles.tabular,
@@ -1177,7 +1230,7 @@ function RollingNumber({ value, style, distance = 10 }: { value: number; style?:
 }
 
 /** "N selected" pill whose number rolls; it pops out when the count drops to 0. */
-function CountBadge({ count, tint }: { count: number; tint: string }) {
+function CountBadge({ count, tint, reduce }: { count: number; tint: string; reduce: boolean }) {
   const { radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const on = count > 0;
@@ -1185,10 +1238,12 @@ function CountBadge({ count, tint }: { count: number; tint: string }) {
   const last = useRef(count);
   if (on) last.current = count;
   useEffect(() => {
-    const a = Animated.spring(vis, { toValue: on ? 1 : 0, useNativeDriver: true, ...motion.snappy });
+    const a = reduce
+      ? Animated.timing(vis, { toValue: on ? 1 : 0, duration: 150, useNativeDriver: true })
+      : Animated.spring(vis, { toValue: on ? 1 : 0, useNativeDriver: true, ...motion.snappy });
     a.start();
     return () => a.stop();
-  }, [on, vis]);
+  }, [on, vis, reduce]);
   const text = [styles.badgeText, ff, { color: tint }];
   return (
     <Animated.View
@@ -1201,12 +1256,14 @@ function CountBadge({ count, tint }: { count: number; tint: string }) {
           backgroundColor: alpha(tint, 0.12),
           borderRadius: radius.capsule(24),
           opacity: vis.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-          transform: [{ scale: vis.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] }) }],
+          transform: [{ scale: vis.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.85, 1] }) }],
         },
       ]}
     >
-      <RollingNumber value={last.current} distance={9} style={text} />
-      <Text style={[text, styles.badgeSuffix]}>selected</Text>
+      <RollingNumber value={last.current} distance={9} reduce={reduce} style={text} />
+      <Text maxFontSizeMultiplier={FONT_CAP} style={[text, styles.badgeSuffix]}>
+        selected
+      </Text>
     </Animated.View>
   );
 }
@@ -1231,20 +1288,21 @@ function Highlight({ text, query, tint, style }: { text: string; query: string; 
 }
 
 /** Helper / error line that fades and slides in; errors get an icon and are announced. */
-function FieldMessage({ text, error, style }: { text: string; error: boolean; style?: StyleProp<TextStyle> }) {
+function FieldMessage({ text, error, reduce, style }: { text: string; error: boolean; reduce: boolean; style?: StyleProp<TextStyle> }) {
   const { colors, font } = useKit();
   const enter = useRef(new Animated.Value(0)).current; // native
   useEffect(() => {
     enter.setValue(0);
-    Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [text, error, enter]);
+    if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [text, error, enter, reduce]);
   const color = error ? colors.danger : colors.mutedForeground;
   return (
     <Animated.View
       accessibilityLiveRegion="polite"
       style={[
         styles.message,
-        { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }] },
+        { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 4, 0] }) }] },
       ]}
     >
       {error ? <Icon name="alert" size={14} color={color} /> : null}
@@ -1253,11 +1311,12 @@ function FieldMessage({ text, error, style }: { text: string; error: boolean; st
   );
 }
 
-function Chevron({ open, color, size, right }: { open: boolean; color: string; size: number; right: number }) {
+function Chevron({ open, reduce, color, size, right }: { open: boolean; reduce: boolean; color: string; size: number; right: number }) {
   const turn = useRef(new Animated.Value(open ? 1 : 0)).current;
   useEffect(() => {
-    Animated.spring(turn, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [open, turn]);
+    if (reduce) turn.setValue(open ? 1 : 0);
+    else Animated.spring(turn, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [open, turn, reduce]);
   return (
     <Animated.View
       pointerEvents="none"
@@ -1294,6 +1353,22 @@ function Icon({ name, size, color, strokeWidth = 1.8 }: { name: 'chevron' | 'che
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   field: { borderWidth: 1.5, justifyContent: 'center' },
   halo: { position: 'absolute', top: -5, left: -5, right: -5, bottom: -5, borderWidth: 3.5 },
@@ -1308,7 +1383,7 @@ const styles = StyleSheet.create({
   tabular: { fontVariant: ['tabular-nums'], fontWeight: '400' },
   roll: { overflow: 'hidden' },
   rollPrev: { position: 'absolute', left: 0, top: 0 },
-  badge: { flexDirection: 'row', alignItems: 'center', height: 24, paddingHorizontal: 9 },
+  badge: { flexDirection: 'row', alignItems: 'center', minHeight: 24, paddingHorizontal: 9 },
   badgeText: { fontSize: 12.5, fontWeight: '400' },
   badgeSuffix: { marginLeft: 3 },
   chipX: { alignItems: 'center', justifyContent: 'center' },
@@ -1332,11 +1407,11 @@ const styles = StyleSheet.create({
   sheetHeader: { alignItems: 'center', paddingTop: 10, paddingBottom: 12 },
   grabber: { width: 40, height: 5, borderRadius: 3, marginBottom: 12 },
   title: { fontSize: 17, fontWeight: '400', letterSpacing: -0.2, marginTop: 4 },
-  subtitleRow: { height: 26, marginTop: 4, alignItems: 'center', justifyContent: 'center' },
+  subtitleRow: { minHeight: 26, marginTop: 4, alignItems: 'center', justifyContent: 'center' },
   subtitle: { fontSize: 13 },
-  search: { height: 44, marginBottom: 8, marginHorizontal: 4, flexDirection: 'row', alignItems: 'center', paddingLeft: 12, paddingRight: 10, gap: 8 },
+  search: { minHeight: 44, marginBottom: 8, marginHorizontal: 4, flexDirection: 'row', alignItems: 'center', paddingLeft: 12, paddingRight: 10, gap: 8 },
   searchDense: {
-    height: SEARCH_H,
+    minHeight: SEARCH_H,
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 13,
@@ -1344,7 +1419,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  searchInput: { flex: 1, height: 44, paddingVertical: 0 },
+  searchInput: { flex: 1, minHeight: 44, paddingVertical: 0 },
   clear: { width: 20, height: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   scroll: { flexGrow: 0, flexShrink: 1 },
   listContent: { paddingBottom: 6 },
@@ -1359,20 +1434,20 @@ const styles = StyleSheet.create({
   emptyTitle: { fontWeight: '400', textAlign: 'center' },
   emptyText: { fontSize: 13, marginTop: 3, textAlign: 'center' },
   footer: { flexDirection: 'row', gap: 8, paddingTop: 10, paddingHorizontal: 4, borderTopWidth: StyleSheet.hairlineWidth },
-  footBtn: { height: 44, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
+  footBtn: { minHeight: 44, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center' },
   footMain: { flex: 1 },
   footText: { fontSize: 15, fontWeight: '400' },
   footStrong: { fontWeight: '400' },
   footDense: {
-    height: FOOT_H,
+    minHeight: FOOT_H,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 8,
     gap: 8,
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  footGhost: { height: 32, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
-  footSolid: { height: 32, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
+  footGhost: { minHeight: 32, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  footSolid: { minHeight: 32, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
   footMid: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   footDenseText: { fontSize: 14, fontWeight: '400' },
   dropdown: {

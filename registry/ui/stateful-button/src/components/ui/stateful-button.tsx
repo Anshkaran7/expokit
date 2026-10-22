@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   View,
+  useWindowDimensions,
   type LayoutChangeEvent,
   type StyleProp,
   type TextStyle,
@@ -67,6 +68,9 @@ const SIZES: Record<StatefulButtonSize, { h: number; px: number; font: number; i
   lg: { h: 54, px: 22, font: 17, icon: 20, gap: 9 },
 };
 const STAGGER = 22;
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const END = 1e6;
 // Connected scripts (Arabic, Indic, Thai…) roll as one piece instead of letter by letter.
 const CONNECTED = /[֐-ࣿऀ-෿฀-໿ༀ-࿿က-႟ក-៿יִ-﷿ﹰ-﻿]/;
@@ -131,6 +135,7 @@ function Letters({ text, style, lh, space, anims, onLayout }: LettersProps) {
           <View key={i} style={{ height: lh, overflow: 'hidden' }}>
             <Animated.Text
               numberOfLines={1}
+              maxFontSizeMultiplier={FONT_CAP}
               style={[style, anims?.[i] && { opacity: anims[i].opacity, transform: [{ translateY: anims[i].translateY }] }]}
             >
               {ch}
@@ -252,8 +257,11 @@ export function StatefulButton({
   const reduce = useReduceMotion();
   const s = SIZES[size];
   const fontSize = StyleSheet.flatten(textStyle)?.fontSize ?? s.font;
-  const lh = Math.round(fontSize * 1.3);
-  const space = fontSize * 0.28;
+  // Letter boxes clip to one line, so they grow with the (capped) text size; the Text's own lineHeight scales itself.
+  const textScale = Math.min(Math.max(useWindowDimensions().fontScale || 1, 1), FONT_CAP);
+  const lineHeight = Math.round(fontSize * 1.3);
+  const lh = Math.ceil(lineHeight * textScale);
+  const space = fontSize * 0.28 * textScale;
 
   const [inner, setInner] = useState<StatefulButtonState>('idle');
   const current = state ?? inner;
@@ -421,7 +429,7 @@ export function StatefulButton({
     setWidths((prev) => (prev[text] === w ? prev : { ...prev, [text]: w }));
   };
 
-  const textBase: StyleProp<TextStyle> = [styles.label, { fontSize: s.font, fontFamily: font.family }, textStyle, { lineHeight: lh }];
+  const textBase: StyleProp<TextStyle> = [styles.label, { fontSize: s.font, fontFamily: font.family }, textStyle, { lineHeight }];
   // Press feedback: a light wash on dark fills, a faint shade on light or transparent ones.
   const wash = variant === 'primary' && readableOn(look[0].bg) === '#ffffff' ? alpha('#ffffff', 0.14) : alpha(colors.foreground, 0.07);
   const corner = pill ? radius.capsule(s.h) : radius.md;
@@ -444,7 +452,7 @@ export function StatefulButton({
             style={[
               styles.surface,
               {
-                height: s.h,
+                minHeight: s.h,
                 minWidth: s.h,
                 paddingHorizontal: s.px,
                 borderRadius: corner,

@@ -4,6 +4,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Textarea } from '@/components/ui/textarea';
 import { useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -40,9 +43,9 @@ function ToolButton({ glyph, label }: { glyph: string; label: string }) {
       accessibilityRole="button"
       accessibilityLabel={label}
       hitSlop={6}
-      style={{ width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.muted }}
+      style={{ width: 32, minHeight: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.muted }}
     >
-      <Text style={{ fontSize: 17, fontWeight: '400', color: colors.mutedForeground }}>{glyph}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 17, fontWeight: '400', color: colors.mutedForeground }}>{glyph}</Text>
     </Pressable>
   );
 }
@@ -85,7 +88,7 @@ export function Composer() {
               accessibilityLabel="Send message"
               hitSlop={6}
               style={{
-                height: 32,
+                minHeight: 32,
                 paddingHorizontal: 14,
                 borderRadius: radius.capsule(32),
                 alignItems: 'center',
@@ -94,7 +97,7 @@ export function Composer() {
                 opacity: canSend ? 1 : 0.4,
               }}
             >
-              <Text style={{ color: colors.accentForeground, fontSize: 14, fontWeight: '400' }}>Send ↑</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.accentForeground, fontSize: 14, fontWeight: '400' }}>Send ↑</Text>
             </Pressable>
           </>
         }

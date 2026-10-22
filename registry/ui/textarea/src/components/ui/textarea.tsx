@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Platform,
@@ -8,6 +9,7 @@ import {
   Text,
   TextInput,
   View,
+  useWindowDimensions,
   type StyleProp,
   type TextInputProps,
   type TextStyle,
@@ -79,6 +81,9 @@ export const TEXTAREA_SIZES = {
   lg: { font: 18, line: 26, floated: 13.5, padX: 18, padY: 16 },
 };
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const BORDER = 1.5;
 const HALO = 4;
 /** Font size of the static label used when `floatingLabel` is false. */
@@ -133,6 +138,7 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
   ref
 ) {
   const { colors, radius, font } = useKit();
+  const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const S = TEXTAREA_SIZES[size];
   // Height is driven by rows, so the user's `height` is dropped; their border colour replaces the resting one.
@@ -142,6 +148,12 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
   const FONT = typeof userInput.fontSize === 'number' ? userInput.fontSize : S.font;
   const LINE = typeof userInput.lineHeight === 'number' ? userInput.lineHeight : Math.round((FONT * S.line) / S.font);
   const corner = typeof userField.borderRadius === 'number' ? userField.borderRadius : radius.md;
+  // The typed text is content, so it scales with the system text size (lineHeight too). Row maths use
+  // the rendered line height, so rows, the resting label and the check stay on the lines.
+  const { fontScale } = useWindowDimensions();
+  const userCap = props.maxFontSizeMultiplier;
+  const textScale = props.allowFontScaling === false ? 1 : userCap && userCap >= 1 ? Math.min(fontScale, userCap) : fontScale;
+  const ROW = LINE * textScale;
   // The hidden mirror must measure text exactly like the input does.
   const metrics: TextStyle = {
     ...ff,
@@ -173,11 +185,11 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
 
   const lo = Math.max(1, minRows);
   const hi = Math.max(lo, maxRows);
-  const lines = Math.round((contentH ?? LINE) / LINE);
+  const lines = Math.round((contentH ?? ROW) / ROW);
   const rows = Math.min(hi, Math.max(lo, lines));
   const padTop = filled && inLabel ? S.padY + 14 : S.padY;
   const padBottom = toolbar ? 4 : filled ? S.padY - 2 : S.padY;
-  const height = padTop + rows * LINE + padBottom + (toolbar ? toolbarH ?? 0 : 0) + BORDER * 2;
+  const height = padTop + rows * ROW + padBottom + (toolbar ? toolbarH ?? 0 : 0) + BORDER * 2;
 
   const grow = useRef(new Animated.Value(height)).current; // JS: height
   const focus = useRef(new Animated.Value(0)).current; // JS: colours
@@ -188,35 +200,40 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
   const settled = useRef(false);
 
   useEffect(() => {
-    // Snap to the first measured size; glide on every change after that.
-    if (!settled.current) {
+    // Snap to the first measured size (and always with Reduce Motion); glide on every change after that.
+    if (!settled.current || reduce) {
       grow.setValue(height);
       if (contentH !== null && toolbarH !== null) settled.current = true;
       return;
     }
     Animated.timing(grow, { toValue: height, duration: 200, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
-  }, [height, grow, contentH, toolbarH]);
+  }, [height, grow, contentH, toolbarH, reduce]);
 
   useEffect(() => {
-    Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [floating, float]);
+    if (reduce) float.setValue(floating ? 1 : 0);
+    else Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [floating, float, reduce]);
 
   useEffect(() => {
     Animated.timing(focus, { toValue: isFocused ? 1 : 0, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
-    Animated.spring(glow, { toValue: isFocused ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [isFocused, focus, glow]);
+    // Reduce Motion: the halo only fades (its scale is pinned below).
+    if (reduce) Animated.timing(glow, { toValue: isFocused ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(glow, { toValue: isFocused ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [isFocused, focus, glow, reduce]);
 
   useEffect(() => {
-    Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [ok, check]);
+    if (reduce) Animated.timing(check, { toValue: ok ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [ok, check, reduce]);
 
   useEffect(() => {
-    if (!error) return;
+    // Reduce Motion: no shake; the red border and message still flag the error.
+    if (!error || reduce) return;
     shake.setValue(0);
     Animated.sequence(
       [10, -8, 6, -4, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 55, useNativeDriver: true }))
     ).start();
-  }, [error, shake]);
+  }, [error, shake, reduce]);
 
   const setText = (next: string) => {
     if (value === undefined) setInner(next);
@@ -237,7 +254,7 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
   });
 
   // Label rests on the first line; floats onto the border (outlined) or into the top padding (filled).
-  const restCenter = padTop + LINE / 2;
+  const restCenter = padTop + ROW / 2;
   const floatY = filled ? S.padY + 1 - restCenter : -restCenter - BORDER / 2;
   const floatX = filled ? 0 : 12 - S.padX;
   const floatScale = S.floated / S.font;
@@ -272,7 +289,7 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
               borderRadius: corner + HALO,
               backgroundColor: active,
               opacity: glow.interpolate({ inputRange: [0, 1], outputRange: [0, 0.18], extrapolate: 'clamp' }),
-              transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.98, 1] }) }],
+              transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.98, 1] }) }],
             },
           ]}
         />
@@ -292,6 +309,8 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
             {/* Invisible mirror of the text: its height tells us how many lines to show, on every platform. */}
             <View pointerEvents="none" style={[styles.mirrorBox, { left: S.padX - BORDER, right: S.padX - BORDER + (ok ? 28 : 0) }]}>
               <Text
+                allowFontScaling={props.allowFontScaling}
+                maxFontSizeMultiplier={props.maxFontSizeMultiplier}
                 onLayout={(e) => setContentH(e.nativeEvent.layout.height)}
                 style={[styles.mirror, metrics, { fontSize: FONT, lineHeight: LINE }]}
               >
@@ -350,7 +369,7 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
                     top: padTop,
                     left: S.padX - BORDER,
                     right: S.padX,
-                    height: LINE,
+                    height: ROW,
                     transform: [
                       { translateY: float.interpolate({ inputRange: [0, 1], outputRange: [0, floatY] }) },
                       { translateX: float.interpolate({ inputRange: [0, 1], outputRange: [0, floatX] }) },
@@ -360,6 +379,7 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
                 ]}
               >
                 <Animated.Text
+                  maxFontSizeMultiplier={FONT_CAP}
                   numberOfLines={1}
                   style={[
                     styles.label,
@@ -384,12 +404,12 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
               style={[
                 styles.check,
                 {
-                  top: padTop - BORDER + (LINE - checkSize) / 2,
+                  top: padTop - BORDER + (ROW - checkSize) / 2,
                   right: S.padX - BORDER - 4,
                   opacity: check.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
                   transform: [
-                    { scale: check.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) },
-                    { rotate: check.interpolate({ inputRange: [0, 1], outputRange: ['-30deg', '0deg'] }) },
+                    { scale: check.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.3, 1] }) },
+                    { rotate: check.interpolate({ inputRange: [0, 1], outputRange: [reduce ? '0deg' : '-30deg', '0deg'] }) },
                   ],
                 },
               ]}
@@ -405,9 +425,9 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
       {message || counting ? (
         <View style={styles.footer}>
           <View style={styles.messageSlot}>
-            {message ? <FieldMessage key={tone + message} text={message} tone={tone} color={toneColor} style={messageStyle} /> : null}
+            {message ? <FieldMessage key={tone + message} text={message} tone={tone} color={toneColor} style={messageStyle} reduce={reduce} /> : null}
           </View>
-          {counting ? <Counter length={text.length} max={maxLength} tint={tint} style={counterStyle} /> : null}
+          {counting ? <Counter length={text.length} max={maxLength} tint={tint} style={counterStyle} reduce={reduce} /> : null}
         </View>
       ) : null}
     </Animated.View>
@@ -416,13 +436,27 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
 
 type MessageTone = 'error' | 'success' | 'helper';
 
-/** Helper / error / success line. Error and success slide up and fade in. */
-function FieldMessage({ text, tone, color, style }: { text: string; tone: MessageTone; color: string; style?: StyleProp<TextStyle> }) {
+/** Helper / error / success line. Error and success slide up and fade in (only fade with Reduce Motion). */
+function FieldMessage({
+  text,
+  tone,
+  color,
+  style,
+  reduce,
+}: {
+  text: string;
+  tone: MessageTone;
+  color: string;
+  style?: StyleProp<TextStyle>;
+  reduce: boolean;
+}) {
   const { font } = useKit();
   const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
   useEffect(() => {
-    if (tone !== 'helper') Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [tone, enter]);
+    if (tone === 'helper') return;
+    if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [tone, enter, reduce]);
 
   return (
     <Animated.View
@@ -430,7 +464,7 @@ function FieldMessage({ text, tone, color, style }: { text: string; tone: Messag
         styles.message,
         {
           opacity: enter.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-          transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }],
+          transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 4, 0] }) }],
         },
       ]}
     >
@@ -458,7 +492,19 @@ function FieldMessage({ text, tone, color, style }: { text: string; tone: Messag
 }
 
 /** "42/280", turning into a filling ring with the characters left once you get close. */
-function Counter({ length, max, tint, style }: { length: number; max: number; tint: string; style?: StyleProp<TextStyle> }) {
+function Counter({
+  length,
+  max,
+  tint,
+  style,
+  reduce,
+}: {
+  length: number;
+  max: number;
+  tint: string;
+  style?: StyleProp<TextStyle>;
+  reduce: boolean;
+}) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const remaining = max - length;
@@ -471,19 +517,22 @@ function Counter({ length, max, tint, style }: { length: number; max: number; ti
   const progress = useRef(new Animated.Value(Math.min(1, ratio))).current; // JS (SVG prop)
 
   useEffect(() => {
-    Animated.spring(mode, { toValue: near ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [near, mode]);
+    // Reduce Motion: cross-fade only (the ring's scale is pinned below).
+    if (reduce) Animated.timing(mode, { toValue: near ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(mode, { toValue: near ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [near, mode, reduce]);
 
   useEffect(() => {
-    Animated.spring(progress, { toValue: Math.min(1, ratio), useNativeDriver: false, ...motion.snappy }).start();
-  }, [ratio, progress]);
+    if (reduce) progress.setValue(Math.min(1, ratio));
+    else Animated.spring(progress, { toValue: Math.min(1, ratio), useNativeDriver: false, ...motion.snappy }).start();
+  }, [ratio, progress, reduce]);
 
   const limitHit = remaining <= 0;
   useEffect(() => {
-    if (!limitHit) return;
+    if (!limitHit || reduce) return;
     pulse.setValue(1.35);
     Animated.spring(pulse, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [limitHit, pulse]);
+  }, [limitHit, pulse, reduce]);
 
   return (
     <View
@@ -493,6 +542,7 @@ function Counter({ length, max, tint, style }: { length: number; max: number; ti
       accessibilityLabel={remaining >= 0 ? `${remaining} of ${max} characters left` : `${-remaining} characters over the ${max} limit`}
     >
       <Animated.Text
+        maxFontSizeMultiplier={FONT_CAP}
         style={[
           styles.count,
           ff,
@@ -506,10 +556,12 @@ function Counter({ length, max, tint, style }: { length: number; max: number; ti
       <Animated.View
         style={[
           styles.ringRow,
-          { opacity: mode, transform: [{ scale: mode.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }] },
+          { opacity: mode, transform: [{ scale: mode.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.6, 1] }) }] },
         ]}
       >
-        <Text style={[styles.count, ff, { color: colors.mutedForeground }, style, ratio >= 0.9 && { color }]}>{remaining}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.count, ff, { color: colors.mutedForeground }, style, ratio >= 0.9 && { color }]}>
+          {remaining}
+        </Text>
         <Animated.View style={{ transform: [{ scale: pulse }] }}>
           <Svg width={RING} height={RING}>
             <Circle cx={RING / 2} cy={RING / 2} r={RING_R} stroke={colors.border} strokeWidth={RING_STROKE} fill="none" />
@@ -532,6 +584,22 @@ function Counter({ length, max, tint, style }: { length: number; max: number; ti
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   disabled: { opacity: 0.5 },
   halo: { position: 'absolute', top: -HALO, left: -HALO, right: -HALO, bottom: -HALO },
@@ -549,7 +617,7 @@ const styles = StyleSheet.create({
   message: { flexDirection: 'row', alignItems: 'flex-start', gap: 5 },
   messageIcon: { marginTop: 1.5 },
   helper: { flexShrink: 1, fontSize: 12.5, lineHeight: 17 },
-  counter: { minWidth: 56, height: RING, alignItems: 'flex-end', justifyContent: 'center' },
+  counter: { minWidth: 56, minHeight: RING, alignItems: 'flex-end', justifyContent: 'center' },
   count: { fontSize: 12.5, fontVariant: ['tabular-nums'], fontWeight: '400' },
   ringRow: { position: 'absolute', right: 0, flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

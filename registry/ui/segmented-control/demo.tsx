@@ -4,6 +4,9 @@ import { Text, View } from 'react-native';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 export function Pill() {
   return <SegmentedControl options={['Day', 'Week', 'Month', 'Year']} defaultValue="Week" />;
 }
@@ -30,7 +33,7 @@ export function Outline() {
 }
 
 export function WithIcons() {
-  const glyph = (g: string) => ({ color }: { color: string }) => <Text style={{ fontSize: 15, color }}>{g}</Text>;
+  const glyph = (g: string) => ({ color }: { color: string }) => <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color }}>{g}</Text>;
   return (
     <SegmentedControl
       defaultValue="grid"

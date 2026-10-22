@@ -53,6 +53,9 @@ const RING = {
   lg: { d: 112, w: 9, font: 24 },
 };
 const WHITE = '#ffffff';
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
@@ -838,9 +841,13 @@ function Ring({
               ],
             }}
           >
-            <Text style={[styles.ringValue, ff, { color: fg, fontSize: font }]}>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.ringValue, ff, { color: fg, fontSize: font }]}>
               {format ? format() : <RingPercent fill={fill} initial={ratio} />}
-              {format ? null : <Text style={{ fontSize: font * 0.6, color: alpha(fg, 0.55) }}>%</Text>}
+              {format ? null : (
+                <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: font * 0.6, color: alpha(fg, 0.55) }}>
+                  %
+                </Text>
+              )}
             </Text>
           </Animated.View>
           {done ? (

@@ -1,6 +1,8 @@
 import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
+  Easing,
   PanResponder,
   Pressable,
   StyleSheet,
@@ -98,6 +100,9 @@ type FlatProps = CalendarBaseProps & {
   onChange?: (value: CalendarValue) => void;
 };
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const CELL_H = 48;
 const CIRCLE = 38;
 const CIRCLE_TOP = 2;
@@ -205,6 +210,7 @@ export function Calendar(props: CalendarProps) {
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const fmt = useFormatters(locale);
+  const reduce = useReduceMotion();
 
   const [inner, setInner] = useState<CalendarValue>(defaultValue ?? null);
   const current = value !== undefined ? value : inner;
@@ -252,7 +258,11 @@ export function Calendar(props: CalendarProps) {
     setLeaving({ month: prev, dir });
     slide.stopAnimation();
     slide.setValue(0);
-    Animated.spring(slide, { toValue: 1, useNativeDriver: true, ...motion.gentle }).start(({ finished }) => {
+    // Reduce Motion: a short cross-fade in place (the translate interpolations are flat).
+    const anim = reduce
+      ? Animated.timing(slide, { toValue: 1, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true })
+      : Animated.spring(slide, { toValue: 1, useNativeDriver: true, ...motion.gentle });
+    anim.start(({ finished }) => {
       if (finished) setLeaving(null);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -267,7 +277,8 @@ export function Calendar(props: CalendarProps) {
     if (next !== 'days' && view === 'days') setPickYear(visible.getFullYear());
     setView(next);
     viewAnim.setValue(0);
-    Animated.spring(viewAnim, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+    if (reduce) Animated.timing(viewAnim, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(viewAnim, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
   };
 
   /* selection */
@@ -332,11 +343,13 @@ export function Calendar(props: CalendarProps) {
     manyKeys: many ? many.map(toDateKey).join('|') : undefined,
     tint,
     fullLabel: fmt.full,
+    reduce,
     onDayPress,
   };
 
   const W = width || 320;
-  const dir = dirRef.current;
+  // Reduce Motion: months swap with a fade only, no sideways slide.
+  const dir = reduce ? 0 : dirRef.current;
   const prevDisabled = view === 'days' ? monthIndex(visible) - 1 < minM : view === 'months' ? pickYear * 12 - 1 < minM : false;
   const nextDisabled = view === 'days' ? monthIndex(visible) + 1 > maxM : view === 'months' ? (pickYear + 1) * 12 > maxM : false;
   const decadeStart = Math.floor(pickYear / 12) * 12;
@@ -381,7 +394,7 @@ export function Calendar(props: CalendarProps) {
           >
             {title}
           </Animated.Text>
-          {monthPicker ? <Chevron turned={view !== 'days'} color={view === 'days' ? colors.mutedForeground : tint} /> : null}
+          {monthPicker ? <Chevron turned={view !== 'days'} color={view === 'days' ? colors.mutedForeground : tint} reduce={reduce} /> : null}
         </Pressable>
         <View style={styles.navs}>
           {showJump ? (
@@ -392,7 +405,9 @@ export function Calendar(props: CalendarProps) {
               hitSlop={4}
               style={({ pressed }) => [styles.todayBtn, { borderRadius: radius.capsule(32), backgroundColor: pressed ? colors.secondary : colors.muted }]}
             >
-              <Text style={[styles.todayText, ff, { color: tint }]}>Today</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.todayText, ff, { color: tint }]}>
+                Today
+              </Text>
             </Pressable>
           ) : null}
           <NavButton dir={-1} disabled={prevDisabled} onPress={() => step(-1)} />
@@ -404,12 +419,12 @@ export function Calendar(props: CalendarProps) {
         <Animated.View
           style={{
             opacity: viewAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-            transform: [{ scale: viewAnim.interpolate({ inputRange: [0, 1], outputRange: [1.04, 1] }) }],
+            transform: [{ scale: viewAnim.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 1.04, 1] }) }],
           }}
         >
           <View style={styles.weekRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             {weekdays.map((w) => (
-              <Text key={w.long} numberOfLines={1} style={[styles.weekday, ff, { color: colors.mutedForeground }]}>
+              <Text key={w.long} numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.weekday, ff, { color: colors.mutedForeground }]}>
                 {w.short}
               </Text>
             ))}
@@ -422,7 +437,7 @@ export function Calendar(props: CalendarProps) {
                   styles.leaving,
                   {
                     opacity: slide.interpolate({ inputRange: [0, 0.7], outputRange: [1, 0], extrapolate: 'clamp' }),
-                    transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, -leaving.dir * W * 0.6] }) }],
+                    transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [0, reduce ? 0 : -leaving.dir * W * 0.6] }) }],
                   },
                 ]}
               >
@@ -446,7 +461,7 @@ export function Calendar(props: CalendarProps) {
             { minHeight: gridH ? gridH + 28 : undefined },
             {
               opacity: viewAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-              transform: [{ scale: viewAnim.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }],
+              transform: [{ scale: viewAnim.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.94, 1] }) }],
             },
           ]}
         >
@@ -488,7 +503,9 @@ export function Calendar(props: CalendarProps) {
                       },
                     ]}
                   >
-                    <Text style={[styles.pickText, ff, { color: selected ? readableOn(tint) : isNow ? tint : colors.foreground }]}>{label}</Text>
+                    <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.pickText, ff, { color: selected ? readableOn(tint) : isNow ? tint : colors.foreground }]}>
+                      {label}
+                    </Text>
                   </View>
                 )}
               </Pressable>
@@ -520,6 +537,7 @@ interface MonthGridProps {
   manyKeys?: string;
   tint: string;
   fullLabel: (d: Date) => string;
+  reduce: boolean;
   onDayPress: (d: Date) => void;
 }
 
@@ -541,6 +559,7 @@ const MonthGrid = memo(function MonthGrid({
   manyKeys,
   tint,
   fullLabel,
+  reduce,
   onDayPress,
 }: MonthGridProps) {
   const weeks = useMemo(() => buildWeeks(month, weekStartsOn, fixedWeeks), [month, weekStartsOn, fixedWeeks]);
@@ -595,6 +614,7 @@ const MonthGrid = memo(function MonthGrid({
                 highlight={highlightedDates?.[key]}
                 tile={tiles && inMonth && !inBand}
                 tint={tint}
+                reduce={reduce}
                 onPress={onDayPress}
               />
             );
@@ -620,6 +640,7 @@ interface DayCellProps {
   highlight?: string;
   tile: boolean;
   tint: string;
+  reduce: boolean;
   onPress: (d: Date) => void;
 }
 
@@ -638,6 +659,7 @@ const DayCell = memo(function DayCell({
   highlight,
   tile,
   tint,
+  reduce,
   onPress,
 }: DayCellProps) {
   const { colors, radius, font } = useKit();
@@ -646,8 +668,10 @@ const DayCell = memo(function DayCell({
   const pop = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: circle scale + opacity
   const bandIn = useRef(new Animated.Value(band === 'none' ? 0 : 1)).current; // native: band opacity
   useEffect(() => {
-    Animated.spring(pop, { toValue: selected ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [selected, pop]);
+    // Reduce Motion: the selection fills in with a quick fade, no scale pop.
+    if (reduce) Animated.timing(pop, { toValue: selected ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(pop, { toValue: selected ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [selected, pop, reduce]);
   useEffect(() => {
     Animated.timing(bandIn, { toValue: band === 'none' ? 0 : 1, duration: motion.normal, useNativeDriver: true }).start();
   }, [band, bandIn]);
@@ -714,12 +738,13 @@ const DayCell = memo(function DayCell({
                 borderRadius: r,
                 backgroundColor: tint,
                 opacity: pop.interpolate({ inputRange: [0, 0.4], outputRange: [0, 1], extrapolate: 'clamp' }),
-                transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [0.45, 1] }) }],
+                transform: [{ scale: pop.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.45, 1] }) }],
               },
             ]}
           />
           <View pointerEvents="none" style={styles.label}>
             <Text
+              maxFontSizeMultiplier={FONT_CAP}
               style={[
                 styles.day,
                 ff,
@@ -772,11 +797,15 @@ function NavButton({ dir, disabled, onPress }: { dir: 1 | -1; disabled: boolean;
   );
 }
 
-function Chevron({ turned, color }: { turned: boolean; color: string }) {
+function Chevron({ turned, color, reduce }: { turned: boolean; color: string; reduce: boolean }) {
   const turn = useRef(new Animated.Value(turned ? 1 : 0)).current; // native
   useEffect(() => {
+    if (reduce) {
+      turn.setValue(turned ? 1 : 0);
+      return;
+    }
     Animated.spring(turn, { toValue: turned ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [turned, turn]);
+  }, [turned, turn, reduce]);
   return (
     <Animated.View style={{ transform: [{ rotate: turn.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] }) }] }}>
       <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
@@ -786,6 +815,22 @@ function Chevron({ turned, color }: { turned: boolean; color: string }) {
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   root: { alignSelf: 'stretch' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, minHeight: 40 },
@@ -793,7 +838,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 17, fontWeight: '400', letterSpacing: -0.3, flexShrink: 1 },
   navs: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   nav: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  todayBtn: { height: 32, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  todayBtn: { minHeight: 32, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
   todayText: { fontSize: 13, fontWeight: '400' },
   weekRow: { flexDirection: 'row', marginBottom: 6 },
   weekday: { flex: 1, textAlign: 'center', fontSize: 13, fontWeight: '400', letterSpacing: 0.2 },
@@ -821,6 +866,6 @@ const styles = StyleSheet.create({
   dot: { width: 5, height: 5, borderRadius: 2.5 },
   pickGrid: { flexDirection: 'row', flexWrap: 'wrap', alignContent: 'center', paddingTop: 4 },
   pickCell: { width: '33.333%', height: 56, alignItems: 'center', justifyContent: 'center' },
-  pickInner: { minWidth: 76, height: 40, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
+  pickInner: { minWidth: 76, minHeight: 40, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1.5 },
   pickText: { fontSize: 15, fontWeight: '400' },
 });

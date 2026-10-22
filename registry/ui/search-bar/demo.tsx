@@ -4,6 +4,9 @@ import { Pressable, StyleSheet, Text, View, type ViewProps } from 'react-native'
 import { SearchBar, type SearchSuggestion } from '@/components/ui/search-bar';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -82,9 +85,9 @@ export function LiveResults({ screen }: DemoProps) {
         results.slice(0, 4).map((c) => (
           <View key={c.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: alpha(colors.accent, 0.16), alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{c.name.split(' ').map((p) => p[0]).join('')}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{c.name.split(' ').map((p) => p[0]).join('')}</Text>
             </View>
-            <View>
+            <View style={{ flexShrink: 1 }}>
               <Text style={{ fontSize: 15, fontWeight: '400', color: colors.foreground }}>{c.name}</Text>
               <Text style={{ fontSize: 12.5, color: colors.mutedForeground }}>{c.role}</Text>
             </View>
@@ -101,7 +104,7 @@ export function Minimal({ screen }: DemoProps) {
   const { colors } = useKit();
   return (
     <Card screen={screen} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-      <Text style={{ fontSize: 22, fontWeight: '400', letterSpacing: -0.4, color: colors.foreground }}>Inbox</Text>
+      <Text style={{ flexShrink: 1, fontSize: 22, fontWeight: '400', letterSpacing: -0.4, color: colors.foreground }}>Inbox</Text>
       <SearchBar variant="minimal" align="right" placeholder="Search mail" style={{ flex: 1 }} />
     </Card>
   );
@@ -115,14 +118,14 @@ function FilterButton({ count, onPress }: { count: number; onPress: () => void }
       hitSlop={8}
       accessibilityRole="button"
       accessibilityLabel={`Filters, ${count} active`}
-      style={{ height: 32, paddingHorizontal: 10, borderRadius: radius.capsule(32), backgroundColor: count ? colors.accent : colors.muted, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+      style={{ minHeight: 32, paddingHorizontal: 10, borderRadius: radius.capsule(32), backgroundColor: count ? colors.accent : colors.muted, flexDirection: 'row', alignItems: 'center', gap: 6 }}
     >
       <View style={{ gap: 3, alignItems: 'center' }}>
         {[14, 10, 6].map((w) => (
           <View key={w} style={{ width: w, height: 2, borderRadius: 1, backgroundColor: count ? colors.accentForeground : colors.mutedForeground }} />
         ))}
       </View>
-      {count ? <Text style={{ fontSize: 12.5, fontWeight: '400', color: colors.accentForeground }}>{count}</Text> : null}
+      {count ? <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12.5, fontWeight: '400', color: colors.accentForeground }}>{count}</Text> : null}
     </Pressable>
   );
 }

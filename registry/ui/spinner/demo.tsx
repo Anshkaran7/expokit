@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { Spinner, type SpinnerVariant } from '@/components/ui/spinner';
 import { readableOn, useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -43,7 +46,7 @@ export function LoaderGallery() {
               style={variant === 'line' ? { width: '72%' } : undefined}
             />
           </View>
-          <Text style={{ fontSize: 12, color: colors.mutedForeground }}>{variant}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground }}>{variant}</Text>
         </View>
       ))}
     </View>
@@ -63,7 +66,7 @@ export function InButton() {
         setTimeout(() => setBusy(false), 2200);
       }}
       style={{
-        height: 48,
+        minHeight: 48,
         borderRadius: radius.capsule(48),
         backgroundColor: colors.accent,
         alignItems: 'center',
@@ -74,7 +77,7 @@ export function InButton() {
       {busy ? (
         <Spinner size="sm" color={fg} label="Placing order" labelPosition="right" />
       ) : (
-        <Text style={{ color: fg, fontSize: 16, fontWeight: '400' }}>Place order · ₹749</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: fg, fontSize: 16, fontWeight: '400' }}>Place order · ₹749</Text>
       )}
     </Pressable>
   );

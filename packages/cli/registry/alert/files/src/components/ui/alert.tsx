@@ -64,6 +64,9 @@ export interface AlertProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const HALO = 34;
 const HALO_COMPACT = 28;
 
@@ -454,11 +457,11 @@ function Pill({
       hitSlop={(44 - height) / 2}
       style={({ pressed }) => [
         styles.pill,
-        { height, borderRadius: radius, backgroundColor: bg, paddingHorizontal: height >= 32 ? 14 : 12 },
+        { minHeight: height, borderRadius: radius, backgroundColor: bg, paddingHorizontal: height >= 32 ? 14 : 12 },
         pressed ? { opacity: 0.75, transform: [{ scale: 0.97 }] } : null,
       ]}
     >
-      <Text style={[styles.pillText, ff, { color: fg }]} numberOfLines={1}>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.pillText, ff, { color: fg }]} numberOfLines={1}>
         {action.label}
       </Text>
     </Pressable>

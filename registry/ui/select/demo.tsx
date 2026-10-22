@@ -5,6 +5,9 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { Select } from '@/components/ui/select';
 import { alpha, readableOn, useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -70,7 +73,7 @@ const ICON = {
   building: 'M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18ZM6 12H4a2 2 0 0 0-2 2v8h4M18 9h2a2 2 0 0 1 2 2v11h-4M10 6h4M10 10h4M10 14h4M10 18h4',
 };
 
-const flag = (f: string) => <Text style={s.flag}>{f}</Text>;
+const flag = (f: string) => <Text maxFontSizeMultiplier={FONT_CAP} style={s.flag}>{f}</Text>;
 
 /**
  * Clean product form — label above the field, helper + error, CTA.
@@ -110,7 +113,7 @@ export function Validation({ screen }: DemoProps) {
         accessibilityRole="button"
         style={({ pressed }) => [s.button, { backgroundColor: colors.primary, borderRadius: radius.md, opacity: pressed ? 0.88 : 1 }]}
       >
-        <Text style={[s.buttonText, { color: colors.primaryForeground }]}>Add to bag</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[s.buttonText, { color: colors.primaryForeground }]}>Add to bag</Text>
       </Pressable>
     </Card>
   );
@@ -174,7 +177,7 @@ export function Country({ screen }: DemoProps) {
 
 const avatar = (initials: string, color: string) => (
   <View style={[s.avatar, { backgroundColor: color }]}>
-    <Text style={[s.initials, { color: readableOn(color) }]}>{initials}</Text>
+    <Text maxFontSizeMultiplier={FONT_CAP} style={[s.initials, { color: readableOn(color) }]}>{initials}</Text>
   </View>
 );
 
@@ -305,6 +308,6 @@ const s = StyleSheet.create({
   flag: { fontSize: 18 },
   avatar: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   initials: { fontSize: 10.5, fontWeight: '400' },
-  button: { height: 44, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  button: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   buttonText: { fontSize: 15, fontWeight: '400' },
 });

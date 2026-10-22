@@ -271,6 +271,9 @@ export interface ToasterProps {
 
 const PEEK = 12;
 const GUESS_HEIGHT = 64;
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 /**
  * Hosts the toasts. It fills its parent absolutely (touches pass through), so drop it at the
@@ -595,7 +598,9 @@ function ToastItem({
                     { borderRadius: radius.capsule(32), backgroundColor: look.actionBg, opacity: pressed ? 0.7 : 1 },
                   ]}
                 >
-                  <Text style={[styles.actionText, ff, { color: look.actionFg }]}>{data.action.label}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.actionText, ff, { color: look.actionFg }]}>
+                    {data.action.label}
+                  </Text>
                 </Pressable>
               ) : null}
               {closeButton ? (
@@ -906,7 +911,9 @@ function IslandToaster({ store, toasts, duration, offset, haptics, reduceMotion,
                       </View>
                       {!expanded && shown.action ? (
                         <View style={[styles.islandChip, { borderRadius: radius.capsule(24), backgroundColor: alpha(fg, 0.14) }]}>
-                          <Text style={[styles.islandChipText, ff, { color: fg }]}>{shown.action.label}</Text>
+                          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.islandChipText, ff, { color: fg }]}>
+                            {shown.action.label}
+                          </Text>
                         </View>
                       ) : null}
                     </Pressable>
@@ -923,7 +930,9 @@ function IslandToaster({ store, toasts, duration, offset, haptics, reduceMotion,
                             { borderRadius: radius.capsule(44), backgroundColor: alpha(fg, pressed ? 0.24 : 0.16) },
                           ]}
                         >
-                          <Text style={[styles.title, ff, { color: fg }]}>{shown.action.label}</Text>
+                          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.title, ff, { color: fg }]}>
+                            {shown.action.label}
+                          </Text>
                         </Pressable>
                       </View>
                     ) : null}
@@ -1267,7 +1276,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 14.5, fontWeight: '400', lineHeight: 20, letterSpacing: -0.1 },
   desc: { fontSize: 13.5, fontWeight: '400', lineHeight: 19 },
   descMinimal: { fontSize: 13, lineHeight: 17 },
-  action: { paddingHorizontal: 12, height: 32, alignItems: 'center', justifyContent: 'center' },
+  action: { paddingHorizontal: 12, minHeight: 32, alignItems: 'center', justifyContent: 'center' },
   actionText: { fontSize: 13, fontWeight: '400' },
   close: { alignSelf: 'flex-start', padding: 2, marginRight: -4 },
   bar: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, transformOrigin: 'left' },
@@ -1277,10 +1286,10 @@ const styles = StyleSheet.create({
   islandPlace: { position: 'absolute', top: 0 },
   islandPad: { paddingVertical: 14, paddingHorizontal: 20 },
   islandPadIcon: { paddingTop: 13, paddingBottom: 15, paddingLeft: 14, paddingRight: 18 },
-  islandChip: { paddingHorizontal: 10, height: 24, justifyContent: 'center' },
+  islandChip: { paddingHorizontal: 10, minHeight: 24, justifyContent: 'center' },
   islandChipText: { fontSize: 12.5, fontWeight: '400' },
   islandActions: { paddingHorizontal: 14, paddingBottom: 16, marginTop: -2 },
-  islandAction: { height: 44, alignItems: 'center', justifyContent: 'center' },
+  islandAction: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   islandTrack: { position: 'absolute', left: 28, right: 28, bottom: 6, height: 2, borderRadius: 1, overflow: 'hidden' },
   islandFill: { flex: 1, transformOrigin: 'left' },
 });

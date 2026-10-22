@@ -56,14 +56,14 @@ export function VerifyPhone({ screen }: DemoProps) {
         errorText="That code didn't match. Try 123456."
         helperText="Tip: the demo code is 123456"
       />
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16 }}>
-        <Pressable disabled={left > 0} onPress={() => { setLeft(24); setCode(''); }} hitSlop={10}>
-          <Text style={{ fontSize: 13, fontWeight: '400', color: left > 0 ? colors.mutedForeground : colors.accent }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', columnGap: 16, rowGap: 8 }}>
+        <Pressable disabled={left > 0} onPress={() => { setLeft(24); setCode(''); }} hitSlop={10} style={{ flexShrink: 1 }}>
+          <Text style={{ fontSize: 13, fontWeight: '400', textAlign: 'center', color: left > 0 ? colors.mutedForeground : colors.accent }}>
             {left > 0 ? `Resend in 0:${String(left).padStart(2, '0')}` : 'Resend code'}
           </Text>
         </Pressable>
-        <Pressable hitSlop={10} accessibilityRole="button">
-          <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>Change number</Text>
+        <Pressable hitSlop={10} accessibilityRole="button" style={{ flexShrink: 1 }}>
+          <Text style={{ fontSize: 13, fontWeight: '400', textAlign: 'center', color: colors.accent }}>Change number</Text>
         </Pressable>
       </View>
     </Card>

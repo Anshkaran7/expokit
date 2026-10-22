@@ -4,6 +4,9 @@ import { Image, Pressable, Text, View } from 'react-native';
 import { PaymentCard } from '@/components/ui/payment-card';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 /** Soft, blurred photos make premium card art — any image works (`require()` or a URL). */
 const art = (id: number) => ({ uri: `https://picsum.photos/id/${id}/240/151?blur=10` });
 
@@ -46,13 +49,13 @@ export function WalletScreen() {
   return (
     <View style={{ gap: 20 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <View>
+        <View style={{ flexShrink: 1 }}>
           <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>Total balance</Text>
           <Text style={{ color: colors.foreground, fontSize: 30, fontWeight: '700', letterSpacing: -0.8, fontVariant: ['tabular-nums'] }}>₹1,24,580.20</Text>
           <Text style={{ color: colors.success, fontSize: 12, fontWeight: '500' }}>+₹2,140 this week</Text>
         </View>
         <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>MP</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>MP</Text>
         </View>
       </View>
 
@@ -71,9 +74,9 @@ export function WalletScreen() {
         {actions.map(([glyph, label]) => (
           <View key={label} style={{ alignItems: 'center', gap: 6, width: 64 }}>
             <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: colors.foreground, fontSize: 20, fontWeight: '500' }}>{glyph}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 20, fontWeight: '500' }}>{glyph}</Text>
             </View>
-            <Text style={{ color: colors.mutedForeground, fontSize: 12 }}>{label}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.mutedForeground, fontSize: 12 }}>{label}</Text>
           </View>
         ))}
       </View>
@@ -83,7 +86,7 @@ export function WalletScreen() {
         {activity.map(([initial, what, when, amount]) => (
           <View key={what} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 }}>
             <View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>{initial}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>{initial}</Text>
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '500' }}>{what}</Text>
@@ -180,7 +183,7 @@ export function ChooseDesign() {
         })}
       </View>
       <Pressable accessibilityRole="button" style={{ alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary, marginTop: 8 }}>
-        <Text style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Order this card</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Order this card</Text>
       </Pressable>
     </View>
   );
@@ -201,9 +204,9 @@ export function AddCard() {
             key={k}
             onPress={() => setDigits((d) => (d.length >= 16 ? '4821' : d + k))}
             accessibilityRole="button"
-            style={{ width: 58, height: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.muted }}
+            style={{ width: 58, minHeight: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.muted }}
           >
-            <Text style={{ color: colors.foreground, fontSize: 19, fontWeight: '500' }}>{k}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 19, fontWeight: '500' }}>{k}</Text>
           </Pressable>
         ))}
       </View>

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
   type LayoutChangeEvent,
   type StyleProp,
   type TextStyle,
@@ -152,6 +153,7 @@ function useReduceMotion() {
 
 interface Ctx {
   glyph: StyleProp<TextStyle>;
+  /** Line height as rendered (after the user's text size). */
   lh: number;
   space: number;
   justify: ViewStyle['justifyContent'];
@@ -584,6 +586,9 @@ export function AnimatedText({
 }: AnimatedTextProps) {
   const { colors, font, text: type } = useKit();
   const reduce = useReduceMotion();
+  // Content text: it scales all the way with the user's text size, so the one-line clip windows,
+  // roll distances and word gaps (all derived from the line height) scale with it.
+  const { fontScale } = useWindowDimensions();
   const text = String(children ?? '');
   const mode = trigger ?? (variant === 'cascade' || variant === 'typewriter' ? 'change' : 'mount');
 
@@ -603,8 +608,8 @@ export function AnimatedText({
   const layout = useMemo(() => tokenize(text), [text]);
   const ctx: Ctx = {
     glyph: [styles.glyph, { fontSize, fontFamily: font.family }, textStyle, { lineHeight: lh, color: tint }],
-    lh,
-    space: fontSize * 0.28,
+    lh: lh * fontScale,
+    space: fontSize * 0.28 * fontScale,
     justify,
     reduce,
     live,

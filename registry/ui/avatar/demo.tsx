@@ -4,6 +4,9 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Avatar, AvatarGroup } from '@/components/ui/avatar';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -31,7 +34,7 @@ export function ProfileHeader({ screen }: DemoProps) {
         <Text style={{ fontSize: 19, fontWeight: '400', letterSpacing: -0.3, color: colors.foreground }}>Ava Rossi</Text>
         <Text style={{ fontSize: 14, color: colors.mutedForeground }}>Product designer · Milan</Text>
       </View>
-      <View style={{ flexDirection: 'row', gap: 24, marginTop: 4 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 24, marginTop: 4 }}>
         {[
           ['248', 'Posts'],
           ['12.4k', 'Followers'],
@@ -72,7 +75,7 @@ export function ChatList() {
           <Avatar size={48} name={c.name} src={'src' in c ? c.src : undefined} status={c.status} />
           <View style={{ flex: 1, minWidth: 0 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 15, color: colors.foreground }}>{c.name}</Text>
+              <Text style={{ flexShrink: 1, fontSize: 15, color: colors.foreground }}>{c.name}</Text>
               <Text style={{ fontSize: 12, color: c.unread ? colors.accent : colors.mutedForeground }}>{c.time}</Text>
             </View>
             <Text numberOfLines={1} style={{ fontSize: 14, color: colors.mutedForeground, marginTop: 2 }}>
@@ -109,7 +112,7 @@ export function Stories() {
             ringSpin={i === 1 && !seen.includes(p.short)}
             onPress={() => setSeen((s) => (s.includes(p.short) ? s.filter((n) => n !== p.short) : [...s, p.short]))}
           />
-          <Text style={{ fontSize: 12, color: seen.includes(p.short) ? colors.mutedForeground : colors.foreground }}>{p.short}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: seen.includes(p.short) ? colors.mutedForeground : colors.foreground }}>{p.short}</Text>
         </View>
       ))}
     </ScrollView>
@@ -131,7 +134,7 @@ export function Group() {
         }}
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View>
+          <View style={{ flexShrink: 1 }}>
             <Text style={{ fontSize: 15, color: colors.foreground }}>Mobile launch</Text>
             <Text style={{ fontSize: 13, color: colors.mutedForeground }}>Design · Engineering</Text>
           </View>
@@ -148,7 +151,7 @@ export function Group() {
           <Avatar name="Ben Carter" />
           <Avatar name="Chloe Dubois" />
         </AvatarGroup>
-        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>1,284 members</Text>
+        <Text style={{ flexShrink: 1, fontSize: 13, color: colors.mutedForeground }}>1,284 members</Text>
       </View>
       <AvatarGroup size="lg" shape="rounded" max={5}>
         {['Priya Patel', 'Omar Haddad', 'Sven Larsen', 'Iris Okafor'].map((n) => (
@@ -209,7 +212,7 @@ export function Status() {
       {rows.map((r) => (
         <View key={r.name} style={{ alignItems: 'center', gap: 6 }}>
           <Avatar size="lg" src={r.img ? `https://i.pravatar.cc/150?img=${r.img}` : undefined} name={r.name} status={r.status} />
-          <Text style={{ fontSize: 12, color: colors.mutedForeground }}>{r.status[0].toUpperCase() + r.status.slice(1)}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground }}>{r.status[0].toUpperCase() + r.status.slice(1)}</Text>
         </View>
       ))}
     </View>
@@ -223,15 +226,15 @@ export function Badges() {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 22 }}>
       <Pressable accessibilityRole="button" accessibilityLabel="Add a notification" onPress={() => setCount((c) => c + 1)} style={{ alignItems: 'center', gap: 6 }}>
         <Avatar size="lg" src="https://i.pravatar.cc/150?img=22" name="Maya Chen" badge={count} />
-        <Text style={{ fontSize: 12, color: colors.mutedForeground }}>Tap +1</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground }}>Tap +1</Text>
       </Pressable>
       <View style={{ alignItems: 'center', gap: 6 }}>
         <Avatar size="lg" src="https://i.pravatar.cc/150?img=9" name="Leo Park" badge={128} status="online" />
-        <Text style={{ fontSize: 12, color: colors.mutedForeground }}>Mentions</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground }}>Mentions</Text>
       </View>
       <View style={{ alignItems: 'center', gap: 6 }}>
         <Avatar size="lg" name="Design Team" shape="rounded" badge verified />
-        <Text style={{ fontSize: 12, color: colors.mutedForeground }}>Workspace</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground }}>Workspace</Text>
       </View>
     </View>
   );

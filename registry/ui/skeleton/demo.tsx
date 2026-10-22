@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -116,7 +119,7 @@ export function LoadingSwap() {
       >
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 }}>
           <View style={{ width: 44, height: 44, borderRadius: radius.full, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: colors.accentForeground, fontSize: 16, fontWeight: '400' }}>MC</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.accentForeground, fontSize: 16, fontWeight: '400' }}>MC</Text>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[text.md, { color: colors.foreground, fontWeight: '400' }]}>Maya Chen</Text>

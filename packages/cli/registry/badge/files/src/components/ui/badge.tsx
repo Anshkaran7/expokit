@@ -222,7 +222,7 @@ function span(v: Animated.Value, start: number, end: number, from: number, to: n
 }
 
 const easeIn = Easing.in(Easing.cubic);
-const easeBack = Easing.out(Easing.back(1.7));
+const easeSettle = Easing.bezier(0.32, 0.72, 0, 1);
 const easeLinear = Easing.linear;
 
 /** One side of a label roll: letters (or the whole label) slide up out of / up into the clipped slot. */
@@ -260,7 +260,7 @@ function RollingLabel({
             style={{
               opacity: out ? span(progress, begin, fade, 1, 0, easeLinear) : span(progress, begin, fade, 0, 1, easeLinear),
               transform: [
-                { translateY: out ? span(progress, begin, end, 0, -distance, easeIn) : span(progress, begin, end, distance, 0, easeBack) },
+                { translateY: out ? span(progress, begin, end, 0, -distance, easeIn) : span(progress, begin, end, distance, 0, easeSettle) },
               ],
             }}
           >

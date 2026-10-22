@@ -5,6 +5,9 @@ import { BottomNavIcon } from '@/components/ui/bottom-nav';
 import { Tabs } from '@/components/ui/tabs';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 function Panel({ title, body }: { title: string; body: string }) {
   const { colors } = useKit();
   return (
@@ -33,7 +36,7 @@ function Feed({ posts }: { posts: Post[] }) {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{who.slice(0, 1)}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, fontWeight: '400', color: colors.accent }}>{who.slice(0, 1)}</Text>
           </View>
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={{ fontSize: 13, fontWeight: '400', color: colors.mutedForeground }}>

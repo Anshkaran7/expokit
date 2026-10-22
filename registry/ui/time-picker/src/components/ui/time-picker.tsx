@@ -1,5 +1,6 @@
 import React, { memo, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Modal,
@@ -105,6 +106,10 @@ export interface TimePickerProps {
   menuStyle?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 const ITEM = 44;
 const VISIBLE = 5;
 const PAD = ITEM * Math.floor(VISIBLE / 2);
@@ -166,6 +171,7 @@ export function TimePicker({
   ...rest
 }: TimePickerProps) {
   const [inner, setInner] = useState<TimeValue | null>(defaultValue);
+  const reduce = useReduceMotion();
   const current = value !== undefined ? value : inner;
   const h12 = useMemo(() => hour12 ?? uses12Hour(locale), [hour12, locale]);
   const step = Math.max(1, Math.min(60, minuteInterval ?? (variant === 'chips' ? 30 : 1)));
@@ -175,11 +181,11 @@ export function TimePicker({
   };
 
   if (presentation === 'sheet') {
-    return <TimeField {...rest} variant={variant} hour12={h12} step={step} current={current} commit={commit} />;
+    return <TimeField {...rest} variant={variant} hour12={h12} step={step} current={current} commit={commit} reduce={reduce} />;
   }
-  if (variant === 'chips') return <SlotGrid {...rest} hour12={h12} step={step} value={current} onPick={commit} />;
-  if (variant === 'clock') return <Clock hour12={h12} step={step} value={current} onChange={commit} accent={rest.accent} style={rest.style} />;
-  return <Wheel hour12={h12} step={step} value={current} onChange={commit} accent={rest.accent} style={rest.style} />;
+  if (variant === 'chips') return <SlotGrid {...rest} hour12={h12} step={step} value={current} onPick={commit} reduce={reduce} />;
+  if (variant === 'clock') return <Clock hour12={h12} step={step} value={current} onChange={commit} accent={rest.accent} style={rest.style} reduce={reduce} />;
+  return <Wheel hour12={h12} step={step} value={current} onChange={commit} accent={rest.accent} style={rest.style} reduce={reduce} />;
 }
 
 /* ───────────────────────────── wheel ───────────────────────────── */
@@ -191,9 +197,10 @@ interface WheelProps {
   onChange: (t: TimeValue) => void;
   accent?: string;
   style?: StyleProp<ViewStyle>;
+  reduce: boolean;
 }
 
-function Wheel({ hour12, step, value, onChange, accent, style }: WheelProps) {
+function Wheel({ hour12, step, value, onChange, accent, style, reduce }: WheelProps) {
   const { colors, radius, font, dark } = useKit();
   const tint = accent ?? colors.accent;
   const t = value ?? { hours: 9, minutes: 0 };
@@ -227,13 +234,23 @@ function Wheel({ hour12, step, value, onChange, accent, style }: WheelProps) {
         style={[styles.band, { top: PAD, height: ITEM, borderRadius: radius.scale(12), backgroundColor: alpha(tint, dark ? 0.16 : 0.11) }]}
       />
       <View style={styles.wheelGroup}>
-        <WheelColumn items={hours} index={hIdx} onIndexChange={(h) => set({ h })} label="Hour" width={64} align="right" />
+        <WheelColumn items={hours} index={hIdx} onIndexChange={(h) => set({ h })} label="Hour" width={64} align="right" reduce={reduce} />
         <View pointerEvents="none" style={styles.colon}>
-          <Text style={[styles.colonText, font.family ? { fontFamily: font.family } : null, { color: colors.mutedForeground }]}>:</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.colonText, font.family ? { fontFamily: font.family } : null, { color: colors.mutedForeground }]}>:</Text>
         </View>
-        <WheelColumn items={minutes} index={mIdx} onIndexChange={(m) => set({ m })} label="Minute" width={64} align="left" />
+        <WheelColumn items={minutes} index={mIdx} onIndexChange={(m) => set({ m })} label="Minute" width={64} align="left" reduce={reduce} />
         {hour12 ? (
-          <WheelColumn items={periods} index={pIdx} onIndexChange={(p) => set({ p })} label="AM or PM" width={60} align="center" small style={styles.periodCol} />
+          <WheelColumn
+            items={periods}
+            index={pIdx}
+            onIndexChange={(p) => set({ p })}
+            label="AM or PM"
+            width={60}
+            align="center"
+            small
+            style={styles.periodCol}
+            reduce={reduce}
+          />
         ) : null}
       </View>
     </View>
@@ -249,9 +266,11 @@ interface WheelColumnProps {
   align: 'left' | 'right' | 'center';
   small?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Reduce Motion: programmatic scrolls jump; finger scrolling (and its row tilt) is unchanged. */
+  reduce: boolean;
 }
 
-const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, label, width, align, small, style }: WheelColumnProps) {
+const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, label, width, align, small, style, reduce }: WheelColumnProps) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const scrollY = useRef(new Animated.Value(index * ITEM)).current; // native, driven by the scroll view
@@ -262,11 +281,14 @@ const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, lab
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cb = useRef(onIndexChange);
   cb.current = onIndexChange;
+  // Read by settle(), which also runs from the scroll listener created once.
+  const animated = useRef(!reduce);
+  animated.current = !reduce;
 
   useEffect(() => {
     if (index !== settled.current && !dragging.current) {
       settled.current = index;
-      ref.current?.scrollTo({ y: index * ITEM, animated: true });
+      ref.current?.scrollTo({ y: index * ITEM, animated: animated.current });
     }
   }, [index]);
   useEffect(() => () => {
@@ -276,7 +298,7 @@ const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, lab
   const settle = () => {
     const y = lastY.current;
     const i = Math.max(0, Math.min(items.length - 1, Math.round(y / ITEM)));
-    if (Math.abs(y - i * ITEM) > 0.5) ref.current?.scrollTo({ y: i * ITEM, animated: true });
+    if (Math.abs(y - i * ITEM) > 0.5) ref.current?.scrollTo({ y: i * ITEM, animated: animated.current });
     if (i !== settled.current) {
       settled.current = i;
       cb.current(i);
@@ -289,7 +311,7 @@ const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, lab
   const goTo = (i: number) => {
     const n = Math.max(0, Math.min(items.length - 1, i));
     lastY.current = n * ITEM;
-    ref.current?.scrollTo({ y: n * ITEM, animated: true });
+    ref.current?.scrollTo({ y: n * ITEM, animated: !reduce });
     schedule();
   };
 
@@ -360,7 +382,7 @@ const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, lab
                   },
                 ]}
               >
-                <Text numberOfLines={1} style={[styles.itemText, size, ff, { color: colors.foreground, textAlign: align }]}>
+                <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.itemText, size, ff, { color: colors.foreground, textAlign: align }]}>
                   {item}
                 </Text>
               </Animated.View>
@@ -383,6 +405,7 @@ interface ClockProps {
   onChange: (t: TimeValue) => void;
   accent?: string;
   style?: StyleProp<ViewStyle>;
+  reduce: boolean;
 }
 
 const DIAL_MAX = 280;
@@ -400,7 +423,7 @@ const handAngle = (t: TimeValue, mode: ClockMode) => (mode === 'hour' ? (t.hours
  * hours and minutes, an AM / PM toggle, and a face you drag anywhere on. The hand rotates on the
  * native driver and snaps to hours, then auto-advances to minutes when you let go.
  */
-function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
+function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockProps) {
   const { colors, radius, font, dark } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
@@ -426,11 +449,14 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
     const target = handAngle(t, mode);
     const d = ((((target - angle.current) % 360) + 540) % 360) - 180;
     angle.current += d;
-    Animated.spring(rot, { toValue: angle.current, useNativeDriver: true, ...motion.snappy }).start();
+    if (reduce) rot.setValue(angle.current);
+    else Animated.spring(rot, { toValue: angle.current, useNativeDriver: true, ...motion.snappy }).start();
   }, [t.hours, t.minutes, mode, rot]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    Animated.timing(modeAnim, { toValue: mode === 'minute' ? 1 : 0, duration: motion.normal - 20, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
-  }, [mode, modeAnim]);
+    // Reduce Motion: the numbers crossfade without the zoom (scale pinned below).
+    const duration = reduce ? 150 : motion.normal - 20;
+    Animated.timing(modeAnim, { toValue: mode === 'minute' ? 1 : 0, duration, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  }, [mode, modeAnim, reduce]);
 
   // Latest values for the pan responder, which is created once.
   const live = useRef({ t, mode, hour12, step, onChange, c, outer, inner, touched: value !== null });
@@ -503,7 +529,7 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
       const a = (i * Math.PI) / 6;
       return (
         <View key={l} style={[styles.num, { left: c + r * Math.sin(a) - KNOB, top: c - r * Math.cos(a) - KNOB }]}>
-          <Text style={[styles.numText, small && styles.numSmall, ff, { color: small ? colors.mutedForeground : colors.foreground }]}>{l}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.numText, small && styles.numSmall, ff, { color: small ? colors.mutedForeground : colors.foreground }]}>{l}</Text>
         </View>
       );
     });
@@ -521,7 +547,7 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
           { width: segW, height: segH, borderRadius: radius.scale(12), backgroundColor: on ? alpha(tint, dark ? 0.22 : 0.14) : colors.muted, opacity: pressed ? 0.75 : 1 },
         ]}
       >
-        <Text style={[styles.segText, ff, { fontSize: segFont, color: on ? tint : colors.foreground }]}>{text}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.segText, ff, { fontSize: segFont, color: on ? tint : colors.foreground }]}>{text}</Text>
       </Pressable>
     );
   };
@@ -530,7 +556,7 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
     <View style={[styles.clock, style]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       <View style={styles.clockHead}>
         {segment('hour', hourText, 'Hour')}
-        <Text style={[styles.clockColon, ff, { fontSize: segFont, color: colors.mutedForeground }]}>:</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.clockColon, ff, { fontSize: segFont, color: colors.mutedForeground }]}>:</Text>
         {segment('minute', pad2(t.minutes), 'Minute')}
         {hour12 ? (
           <View
@@ -552,7 +578,7 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
                     i === 1 && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: colors.border },
                   ]}
                 >
-                  <Text style={[styles.periodText, ff, { color: on ? tint : colors.mutedForeground }]}>{p}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.periodText, ff, { color: on ? tint : colors.mutedForeground }]}>{p}</Text>
                 </Pressable>
               );
             })}
@@ -579,14 +605,17 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
           <Animated.View
             style={[
               StyleSheet.absoluteFill,
-              { opacity: modeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }), transform: [{ scale: modeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0.88] }) }] },
+              {
+                opacity: modeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+                transform: [{ scale: modeAnim.interpolate({ inputRange: [0, 1], outputRange: [1, reduce ? 1 : 0.88] }) }],
+              },
             ]}
           >
             {ring(HOUR_OUTER, outer)}
             {hour12 ? null : ring(HOUR_INNER, inner, true)}
           </Animated.View>
           <Animated.View
-            style={[StyleSheet.absoluteFill, { opacity: modeAnim, transform: [{ scale: modeAnim.interpolate({ inputRange: [0, 1], outputRange: [1.1, 1] }) }] }]}
+            style={[StyleSheet.absoluteFill, { opacity: modeAnim, transform: [{ scale: modeAnim.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 1.1, 1] }) }] }]}
           >
             {ring(MINUTE_LABELS, outer)}
           </Animated.View>
@@ -599,6 +628,7 @@ function Clock({ hour12, step, value, onChange, accent, style }: ClockProps) {
             </Svg>
             <View style={[styles.num, { left: c - KNOB, top: c - handR - KNOB }]}>
               <Animated.Text
+                maxFontSizeMultiplier={FONT_CAP}
                 style={[styles.numText, mode === 'hour' && innerHour && styles.numSmall, ff, { color: ink, transform: [{ rotate: counter }] }]}
               >
                 {knobLabel}
@@ -618,6 +648,7 @@ interface SlotGridProps extends Pick<TimePickerProps, 'startTime' | 'endTime' | 
   step: number;
   value: TimeValue | null;
   onPick: (t: TimeValue) => void;
+  reduce: boolean;
 }
 
 function SlotGrid({
@@ -634,6 +665,7 @@ function SlotGrid({
   step,
   value,
   onPick,
+  reduce,
 }: SlotGridProps) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
@@ -680,6 +712,7 @@ function SlotGrid({
                     booked={booked.has(n)}
                     disabled={off.has(n)}
                     tint={tint}
+                    reduce={reduce}
                     onPick={onPick}
                   />
                 </View>
@@ -699,27 +732,29 @@ interface ChipProps {
   booked: boolean;
   disabled: boolean;
   tint: string;
+  /** Reduce Motion: no press shrink or select pop; the fill still fades. */
+  reduce: boolean;
   onPick: (t: TimeValue) => void;
 }
 
-const Chip = memo(function Chip({ minutes, label, selected, booked, disabled, tint, onPick }: ChipProps) {
+const Chip = memo(function Chip({ minutes, label, selected, booked, disabled, tint, reduce, onPick }: ChipProps) {
   const { colors, radius, font } = useKit();
   const pop = useRef(new Animated.Value(1)).current; // native: press + select spring
   const on = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: fill opacity
   useEffect(() => {
     Animated.timing(on, { toValue: selected ? 1 : 0, duration: motion.fast, useNativeDriver: true }).start();
-    if (selected) {
+    if (selected && !reduce) {
       pop.setValue(0.9);
       Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
     }
-  }, [selected, on, pop]);
+  }, [selected, on, pop, reduce]);
   const blocked = booked || disabled;
 
   return (
     <Pressable
       onPress={() => onPick(fromMin(minutes))}
-      onPressIn={() => Animated.spring(pop, { toValue: 0.95, useNativeDriver: true, ...motion.snappy }).start()}
-      onPressOut={() => Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start()}
+      onPressIn={reduce ? undefined : () => Animated.spring(pop, { toValue: 0.95, useNativeDriver: true, ...motion.snappy }).start()}
+      onPressOut={reduce ? undefined : () => Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start()}
       disabled={blocked}
       accessibilityRole="radio"
       accessibilityLabel={`${label}${booked ? ', booked' : disabled ? ', unavailable' : ''}`}
@@ -740,6 +775,7 @@ const Chip = memo(function Chip({ minutes, label, selected, booked, disabled, ti
         <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tint, borderRadius: radius.md - 1, opacity: on }]} />
         <Text
           numberOfLines={1}
+          maxFontSizeMultiplier={FONT_CAP}
           style={[
             styles.chipText,
             font.family ? { fontFamily: font.family } : null,
@@ -761,6 +797,7 @@ interface TimeFieldProps extends Omit<TimePickerProps, 'value' | 'defaultValue' 
   step: number;
   current: TimeValue | null;
   commit: (t: TimeValue) => void;
+  reduce: boolean;
 }
 
 function TimeField({
@@ -769,6 +806,7 @@ function TimeField({
   step,
   current,
   commit,
+  reduce,
   label = 'Time',
   floatingLabel = true,
   title,
@@ -810,6 +848,9 @@ function TimeField({
   const [mounted, setMounted] = useState(false);
   const [draft, setDraft] = useState<TimeValue | null>(current);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Read by the sheet's pan responder, which is created once.
+  const reduceRef = useRef(reduce);
+  reduceRef.current = reduce;
 
   const ok = !error && !!success;
   const floating = open || !!current;
@@ -822,26 +863,32 @@ function TimeField({
   const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
 
   useEffect(() => {
-    Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [floating, float]);
+    if (reduce) float.setValue(floating ? 1 : 0);
+    else Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [floating, float, reduce]);
   useEffect(() => {
     Animated.timing(focus, { toValue: open ? 1 : 0, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
-    Animated.spring(halo, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [open, focus, halo]);
+    // Reduce Motion: the halo only fades (its scale is pinned below).
+    if (reduce) Animated.timing(halo, { toValue: open ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(halo, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [open, focus, halo, reduce]);
   useEffect(() => {
-    Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [ok, check]);
+    if (reduce) Animated.timing(check, { toValue: ok ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [ok, check, reduce]);
   useEffect(() => {
-    if (!error) return;
+    if (!error || reduce) return;
     shake.setValue(0);
     Animated.sequence([10, -8, 6, -4, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 55, useNativeDriver: true }))).start();
-  }, [error, shake]);
+  }, [error, shake, reduce]);
   useEffect(() => {
     if (open) {
       drag.setValue(0);
-      Animated.spring(show, { toValue: 1, useNativeDriver: true, ...motion.gentle }).start();
+      // Reduce Motion: the sheet's slide / scale is pinned below, so `show` only fades it in place.
+      if (reduce) Animated.timing(show, { toValue: 1, duration: 150, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+      else Animated.spring(show, { toValue: 1, useNativeDriver: true, ...motion.gentle }).start();
     } else if (mounted) {
-      Animated.timing(show, { toValue: 0, duration: motion.fast + 40, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(
+      Animated.timing(show, { toValue: 0, duration: reduce ? 150 : motion.fast + 40, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(
         ({ finished }) => finished && setMounted(false)
       );
     }
@@ -870,19 +917,21 @@ function TimeField({
     }
   };
 
-  const pan = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-        onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
-        onPanResponderRelease: (_, g) => {
-          if (g.dy > 110 || g.vy > 1.1) setOpen(false);
-          else Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
-        },
-        onPanResponderTerminate: () => Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start(),
-      }),
-    [drag]
-  );
+  const pan = useMemo(() => {
+    const back = () =>
+      reduceRef.current
+        ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
+        : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
+    return PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+      onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
+      onPanResponderRelease: (_, g) => {
+        if (g.dy > 110 || g.vy > 1.1) setOpen(false);
+        else back();
+      },
+      onPanResponderTerminate: back,
+    });
+  }, [drag]);
 
   const active = error ? colors.danger : tint;
   const rest = error ? colors.danger : ok ? colors.success : ((userBorder as string | undefined) ?? colors.input);
@@ -928,13 +977,14 @@ function TimeField({
               borderRadius: fieldRadius + 4,
               borderColor: alpha(active, 0.2),
               opacity: halo,
-              transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) }],
+              transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.97, 1] }) }],
             },
           ]}
         />
-        <Animated.View style={[styles.field, { height: sz.h, borderRadius: fieldRadius, backgroundColor: bg }, userField, { borderColor }]}>
+        <Animated.View style={[styles.field, { minHeight: sz.h, borderRadius: fieldRadius, backgroundColor: bg }, userField, { borderColor }]}>
           <Text
             numberOfLines={1}
+            maxFontSizeMultiplier={FONT_CAP}
             style={[
               styles.value,
               ff,
@@ -962,14 +1012,14 @@ function TimeField({
               ]}
             >
               {/* The notch: the label paints the surface over the border, so it matches the rendered width. */}
-              <Animated.Text numberOfLines={1} style={[styles.label, ff, { fontSize: sz.font, backgroundColor: bg }, labelStyle, { color: labelColor }]}>
+              <Animated.Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.label, ff, { fontSize: sz.font, backgroundColor: bg }, labelStyle, { color: labelColor }]}>
                 {label}
               </Animated.Text>
             </Animated.View>
           ) : null}
           <View pointerEvents="none" style={[styles.adorn, { right: sz.pad - 2 }]}>
             <Animated.View
-              style={{ display: ok ? 'flex' : 'none', opacity: check, transform: [{ scale: check.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }] }}
+              style={{ display: ok ? 'flex' : 'none', opacity: check, transform: [{ scale: check.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.3, 1] }) }] }}
             >
               <Icon name="check" size={sz.icon} color={colors.success} />
             </Animated.View>
@@ -977,7 +1027,7 @@ function TimeField({
           </View>
         </Animated.View>
       </Pressable>
-      {message ? <FieldMessage key={tone + message} text={message} tone={tone} style={messageStyle} /> : null}
+      {message ? <FieldMessage key={tone + message} text={message} tone={tone} reduce={reduce} style={messageStyle} /> : null}
 
       <Modal visible={mounted} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay, opacity: show }]}>
@@ -997,11 +1047,15 @@ function TimeField({
                 ? {
                     opacity: show,
                     transform: [
-                      { scale: show.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) },
-                      { translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }), drag) },
+                      { scale: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.94, 1] }) },
+                      { translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 16, 0] }), drag) },
                     ],
                   }
-                : { transform: [{ translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [winH * 0.7, 0] }), drag) }] },
+                : {
+                    // Reduce Motion: fade in place instead of sliding up.
+                    opacity: reduce ? show : 1,
+                    transform: [{ translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : winH * 0.7, 0] }), drag) }],
+                  },
             ]}
           >
             <View {...pan.panHandlers} style={styles.sheetHeader}>
@@ -1013,17 +1067,17 @@ function TimeField({
             </View>
             <ScrollView style={styles.sheetBody} contentContainerStyle={styles.sheetContent} bounces={false} scrollEnabled={variant === 'chips'}>
               {variant === 'chips' ? (
-                <SlotGrid {...chipProps} accent={tint} hour12={hour12} step={step} value={draft} onPick={pick} />
+                <SlotGrid {...chipProps} accent={tint} hour12={hour12} step={step} value={draft} onPick={pick} reduce={reduce} />
               ) : variant === 'clock' ? (
-                <Clock hour12={hour12} step={step} value={draft} onChange={pick} accent={tint} />
+                <Clock hour12={hour12} step={step} value={draft} onChange={pick} accent={tint} reduce={reduce} />
               ) : (
-                <Wheel hour12={hour12} step={step} value={draft} onChange={pick} accent={tint} />
+                <Wheel hour12={hour12} step={step} value={draft} onChange={pick} accent={tint} reduce={reduce} />
               )}
             </ScrollView>
             {staged ? (
               <View style={[styles.footer, { borderTopColor: colors.border }]}>
                 <Pressable onPress={close} accessibilityRole="button" style={({ pressed }) => [styles.footBtn, { borderRadius: radius.md, opacity: pressed ? 0.6 : 1 }]}>
-                  <Text style={[styles.footText, ff, { color: colors.foreground }]}>Cancel</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => {
@@ -1038,7 +1092,7 @@ function TimeField({
                     { backgroundColor: tint, borderRadius: radius.md, opacity: !draft ? 0.4 : pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Text style={[styles.footText, ff, { color: readableOn(tint) }]}>{draft ? `Set ${formatTime(draft, hour12)}` : 'Done'}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: readableOn(tint) }]}>{draft ? `Set ${formatTime(draft, hour12)}` : 'Done'}</Text>
                 </Pressable>
               </View>
             ) : null}
@@ -1050,17 +1104,28 @@ function TimeField({
 }
 
 /** Helper / error / success line that slides in; error and success carry an icon. */
-function FieldMessage({ text, tone, style }: { text: string; tone: 'error' | 'success' | 'helper'; style?: StyleProp<TextStyle> }) {
+function FieldMessage({
+  text,
+  tone,
+  reduce,
+  style,
+}: {
+  text: string;
+  tone: 'error' | 'success' | 'helper';
+  reduce: boolean;
+  style?: StyleProp<TextStyle>;
+}) {
   const { colors, font } = useKit();
   const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
   useEffect(() => {
-    Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [enter]);
+    if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [enter, reduce]);
   const color = tone === 'error' ? colors.danger : tone === 'success' ? colors.success : colors.mutedForeground;
   return (
     <Animated.View
       accessibilityLiveRegion="polite"
-      style={[styles.message, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }] }]}
+      style={[styles.message, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 4, 0] }) }] }]}
     >
       {tone !== 'helper' ? <Icon name={tone === 'error' ? 'alert' : 'checkCircle'} size={14} color={color} /> : null}
       <Text style={[styles.helper, font.family ? { fontFamily: font.family } : null, { color }, style, tone !== 'helper' && { color }]}>{text}</Text>
@@ -1095,6 +1160,22 @@ function Icon({ name, size, color }: { name: 'clock' | 'check' | 'checkCircle' |
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   wheel: { flexDirection: 'row', justifyContent: 'center', alignSelf: 'stretch', overflow: 'hidden' },
   band: { position: 'absolute', left: 8, right: 8 },
@@ -1119,12 +1200,12 @@ const styles = StyleSheet.create({
   numSmall: { fontSize: 13 },
   slots: { alignSelf: 'stretch', gap: 14 },
   slotGroup: { gap: 6 },
-  groupHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingHorizontal: 2 },
-  groupTitle: { fontSize: 13.5, fontWeight: '400' },
+  groupHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, paddingHorizontal: 2 },
+  groupTitle: { flexShrink: 1, fontSize: 13.5, fontWeight: '400' },
   groupCount: { fontSize: 12.5, fontWeight: '400' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4 },
   chipCell: { padding: 4 },
-  chip: { height: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  chip: { minHeight: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   chipText: { fontSize: 14.5, fontWeight: '400', fontVariant: ['tabular-nums'] },
   struck: { textDecorationLine: 'line-through' },
   field: { borderWidth: 1.5, justifyContent: 'center' },
@@ -1153,7 +1234,7 @@ const styles = StyleSheet.create({
   sheetBody: { flexGrow: 0, flexShrink: 1 },
   sheetContent: { paddingHorizontal: 16, paddingBottom: 12 },
   footer: { flexDirection: 'row', gap: 8, paddingTop: 12, paddingHorizontal: 16, borderTopWidth: StyleSheet.hairlineWidth },
-  footBtn: { height: 46, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
+  footBtn: { minHeight: 46, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
   footMain: { flex: 1 },
   footText: { fontSize: 15, fontWeight: '400' },
 });

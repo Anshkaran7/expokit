@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { AnimatedText } from '@/components/ui/text-animation';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 function Chip({ label, onPress }: { label: string; onPress: () => void }) {
   const { colors, radius } = useKit();
   return (
@@ -11,9 +14,9 @@ function Chip({ label, onPress }: { label: string; onPress: () => void }) {
       accessibilityRole="button"
       onPress={onPress}
       hitSlop={4}
-      style={{ height: 36, paddingHorizontal: 14, borderRadius: radius.capsule(36), justifyContent: 'center', alignSelf: 'flex-start', backgroundColor: colors.muted }}
+      style={{ minHeight: 36, paddingHorizontal: 14, borderRadius: radius.capsule(36), justifyContent: 'center', alignSelf: 'flex-start', backgroundColor: colors.muted }}
     >
-      <Text style={{ color: colors.foreground, fontSize: 14 }}>{label}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 14 }}>{label}</Text>
     </Pressable>
   );
 }
@@ -51,9 +54,9 @@ export function DeployStatus() {
   const live = status === 'Live';
   return (
     <View style={{ gap: 16 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
         <View style={{ width: 10, height: 10, borderRadius: radius.capsule(10), backgroundColor: live ? colors.success : colors.warning }} />
-        <Text style={{ fontSize: 17, color: colors.mutedForeground }}>expokit.dev</Text>
+        <Text style={{ flexShrink: 1, fontSize: 17, color: colors.mutedForeground }}>expokit.dev</Text>
         <AnimatedText variant="cascade" color={live ? colors.success : colors.foreground} textStyle={{ fontSize: 17, fontWeight: '600' }}>
           {status}
         </AnimatedText>

@@ -4,6 +4,9 @@ import { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } fro
 import { DatePicker, type DatePickerPresentation, type DateRange } from '@/components/ui/date-picker';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -59,7 +62,7 @@ function Header({ title, opens, onOpens }: { title: string; opens: Opens; onOpen
               accessibilityLabel={`Open as ${o.label}`}
               style={[s.switchItem, { borderRadius: Math.max(0, radius.md - 3) }, on && { backgroundColor: colors.background }]}
             >
-              <Text style={[s.switchText, { color: on ? colors.foreground : colors.mutedForeground }]}>{o.label}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[s.switchText, { color: on ? colors.foreground : colors.mutedForeground }]}>{o.label}</Text>
             </Pressable>
           );
         })}
@@ -143,7 +146,7 @@ export function Deadline({ screen }: DemoProps) {
         style={({ pressed }) => [s.button, { backgroundColor: colors.accent, borderRadius: radius.md, opacity: pressed ? 0.85 : 1 }]}
         accessibilityRole="button"
       >
-        <Text style={[s.buttonText, { color: colors.accentForeground }]}>Create task</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[s.buttonText, { color: colors.accentForeground }]}>Create task</Text>
       </Pressable>
     </Card>
   );
@@ -168,12 +171,12 @@ export function Sizes({ screen }: DemoProps) {
 const s = StyleSheet.create({
   card: { padding: 16, gap: 14 },
   cardFrame: { borderWidth: StyleSheet.hairlineWidth },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  header: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },
   switch: { flexDirection: 'row', padding: 3 },
-  switchItem: { height: 28, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
+  switchItem: { minHeight: 28, paddingHorizontal: 10, alignItems: 'center', justifyContent: 'center' },
   switchText: { fontSize: 12.5, fontWeight: '400' },
   label: { fontSize: 12, fontWeight: '400', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: -6 },
-  button: { height: 46, alignItems: 'center', justifyContent: 'center' },
+  button: { minHeight: 46, alignItems: 'center', justifyContent: 'center' },
   buttonText: { fontSize: 15, fontWeight: '400' },
 });

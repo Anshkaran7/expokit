@@ -4,6 +4,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FloatingInput } from '@/components/ui/floating-input';
 import { readableOn, useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -155,7 +158,7 @@ export function Payment({ screen }: DemoProps) {
         accessibilityRole="button"
         accessibilityState={{ disabled: !ready }}
         style={({ pressed }) => ({
-          height: 50,
+          minHeight: 50,
           marginTop: 4,
           borderRadius: radius.md,
           alignItems: 'center',
@@ -164,7 +167,7 @@ export function Payment({ screen }: DemoProps) {
           opacity: pressed ? 0.85 : 1,
         })}
       >
-        <Text style={{ fontSize: 16, fontWeight: '400', color: ready ? readableOn(colors.accent) : colors.mutedForeground }}>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 16, fontWeight: '400', color: ready ? readableOn(colors.accent) : colors.mutedForeground }}>
           {paid ? 'Paid ✓' : `Pay ${rupees(Number(amount) || 0)}`}
         </Text>
       </Pressable>

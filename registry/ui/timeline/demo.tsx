@@ -5,6 +5,9 @@ import { Avatar } from '@/components/ui/avatar';
 import { Timeline } from '@/components/ui/timeline';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -13,7 +16,7 @@ export function OrderTracking() {
   return (
     <View style={{ gap: 18 }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        <View style={{ gap: 2 }}>
+        <View style={{ flexShrink: 1, gap: 2 }}>
           <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>ORDER #4821</Text>
           <Text style={{ fontSize: 20, letterSpacing: -0.4, color: colors.foreground }}>Arriving today</Text>
         </View>
@@ -25,7 +28,7 @@ export function OrderTracking() {
             backgroundColor: alpha(colors.accent, dark ? 0.2 : 0.1),
           }}
         >
-          <Text style={{ fontSize: 12.5, color: colors.accent }}>by 6 PM</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12.5, color: colors.accent }}>by 6 PM</Text>
         </View>
       </View>
       <Timeline
@@ -104,7 +107,7 @@ export function Activity() {
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 11, color: colors.danger }}>PDF</Text>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 11, color: colors.danger }}>PDF</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text numberOfLines={1} style={{ fontSize: 14, color: colors.foreground }}>Q4 brand guidelines.pdf</Text>
@@ -144,7 +147,7 @@ export function Release() {
                     backgroundColor: alpha(colors.accent, dark ? 0.2 : 0.1),
                   }}
                 >
-                  <Text style={{ fontSize: 12, color: colors.accent }}>{t}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.accent }}>{t}</Text>
                 </View>
               ))}
             </View>
@@ -178,7 +181,7 @@ export function Support() {
     <View style={{ gap: 14 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <Avatar size="sm" name="Support" status="online" />
-        <Text style={{ fontSize: 15, color: colors.foreground }}>Refund request #RF-2207</Text>
+        <Text style={{ flexShrink: 1, fontSize: 15, color: colors.foreground }}>Refund request #RF-2207</Text>
       </View>
       <Timeline
         variant="compact"

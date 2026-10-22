@@ -4,6 +4,9 @@ import { Text, View } from 'react-native';
 import { StatefulButton, type StatefulButtonState } from '@/components/ui/stateful-button';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export function SaveChanges() {
@@ -57,6 +60,7 @@ export function Controlled() {
         {ORDER.map((s) => (
           <Text
             key={s}
+            maxFontSizeMultiplier={FONT_CAP}
             accessibilityRole="button"
             accessibilityState={{ selected: s === state }}
             onPress={() => setState(s)}

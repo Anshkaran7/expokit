@@ -1,10 +1,12 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Pressable,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
   type AccessibilityActionEvent,
   type LayoutChangeEvent,
   type StyleProp,
@@ -65,6 +67,10 @@ export interface StepperProps {
   valueStyle?: StyleProp<TextStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 /** Every dimension in one table so the sizes read clearly different. */
 const SIZES: Record<StepperSize | 'xs', { btn: number; font: number; icon: number; num: number }> = {
   xs: { btn: 28, font: 15, icon: 12, num: 26 },
@@ -120,6 +126,7 @@ export function Stepper({
 }: StepperProps) {
   const { colors, radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
+  const reduce = useReduceMotion();
   const variant: StepperVariant = variantProp in LEGACY ? LEGACY[variantProp as StepperLegacyVariant] : (variantProp as StepperVariant);
   const vertical = variant !== 'cart' && (orientation ? orientation === 'vertical' : variantProp === 'vertical');
   const tint = accent ?? colors.accent;
@@ -134,9 +141,11 @@ export function Stepper({
   const [track, setTrack] = useState({ v: current, dir: 1 });
   if (track.v !== current) setTrack({ v: current, dir: current > track.v ? 1 : -1 });
 
-  // Press past a limit: the number nudges toward the wall and springs back.
+  // Press past a limit: the number nudges toward the wall and springs back (not with Reduce Motion;
+  // the dimmed button already says it's the limit).
   const bump = useRef(new Animated.Value(0)).current;
   const nudge = (dir: 1 | -1) => {
+    if (reduce) return;
     Animated.sequence([
       Animated.timing(bump, { toValue: dir * 4, duration: 60, useNativeDriver: true }),
       Animated.spring(bump, { toValue: 0, useNativeDriver: true, ...motion.bouncy }),
@@ -238,6 +247,7 @@ export function Stepper({
       limit={dir === 1 ? atMax : atMin}
       disabled={!!disabled}
       label={a11y ?? `${dir === 1 ? 'Increase' : 'Decrease'}${title ? ` ${title}` : ''}`}
+      reduce={reduce}
       style={buttonStyle}
       onPressIn={() => startRepeat(dir)}
       onPressOut={stopRepeat}
@@ -246,9 +256,9 @@ export function Stepper({
 
   const number = (
     <View style={styles.roll}>
-      <RollingText text={text} dir={track.dir} style={numStyle} />
+      <RollingText text={text} dir={track.dir} style={numStyle} reduce={reduce} />
       {suffixText ? (
-        <Text style={[styles.num, styles.suffix, numStyle, { fontSize: fontSize * 0.82, color: isCart ? alpha(onCart, 0.8) : colors.mutedForeground }]}>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.num, styles.suffix, numStyle, { fontSize: fontSize * 0.82, color: isCart ? alpha(onCart, 0.8) : colors.mutedForeground }]}>
           {suffixText}
         </Text>
       ) : null}
@@ -287,6 +297,7 @@ export function Stepper({
       addLabel={addLabel}
       bump={bump}
       disabled={!!disabled}
+      reduce={reduce}
       dec={button(-1, removes ? ICON.trash : ICON.minus, removes ? `Remove${title ? ` ${title}` : ''}` : undefined)}
       inc={button(1)}
       onAdd={() => startRepeat(1)}
@@ -300,7 +311,7 @@ export function Stepper({
           styles.value,
           vertical
             ? { minHeight: s.num, minWidth: s.btn, paddingVertical: 2 }
-            : { minWidth: s.num, height: s.btn, paddingHorizontal: variant === 'outline' ? 8 : 4 },
+            : { minWidth: s.num, minHeight: s.btn, paddingHorizontal: variant === 'outline' ? 8 : 4 },
           { transform: [vertical ? { translateY: Animated.multiply(bump, -1) } : { translateX: bump }] },
         ]}
       >
@@ -340,6 +351,7 @@ function CartControl({
   addLabel,
   bump,
   disabled,
+  reduce,
   dec,
   inc,
   onAdd,
@@ -358,6 +370,7 @@ function CartControl({
   addLabel?: string;
   bump: Animated.Value;
   disabled: boolean;
+  reduce: boolean;
   dec: React.ReactNode;
   inc: React.ReactNode;
   onAdd: () => void;
@@ -380,18 +393,20 @@ function CartControl({
 
   const measured = textW > 0 && (!addLabel || addW > 0);
   useEffect(() => {
-    // Snap until the rulers have reported; after that every change springs.
-    if (!settled.current) {
+    // Snap until the rulers have reported; after that every change springs (or snaps, with Reduce Motion).
+    if (!settled.current || reduce) {
       width.setValue(target);
       settled.current = measured;
       return;
     }
     Animated.spring(width, { toValue: target, useNativeDriver: false, ...motion.snappy }).start();
-  }, [target, measured, width]);
+  }, [target, measured, width, reduce]);
 
   useEffect(() => {
-    Animated.spring(open, { toValue: collapsed ? 0 : 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [collapsed, open]);
+    // Reduce Motion: − and the number only fade in (their slide is flattened below).
+    if (reduce) Animated.timing(open, { toValue: collapsed ? 0 : 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(open, { toValue: collapsed ? 0 : 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [collapsed, open, reduce]);
 
   const measure = (set: (n: number) => void) => (e: LayoutChangeEvent) => set(Math.ceil(e.nativeEvent.layout.width));
 
@@ -407,15 +422,15 @@ function CartControl({
       {/* Off-screen rulers inside a wide box, so nothing squeezes them. */}
       <View pointerEvents="none" style={[styles.ruler, styles.hidden]}>
         <View onLayout={measure(setTextW)} style={styles.row}>
-          <Text style={[styles.num, numStyle]}>{text}</Text>
-          {suffixText ? <Text style={[styles.num, styles.suffix, numStyle, { fontSize: (numStyle.fontSize ?? s.font) * 0.82 }]}>{suffixText}</Text> : null}
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.num, numStyle]}>{text}</Text>
+          {suffixText ? <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.num, styles.suffix, numStyle, { fontSize: (numStyle.fontSize ?? s.font) * 0.82 }]}>{suffixText}</Text> : null}
         </View>
       </View>
 
       <View style={[styles.cartRow, { width: openW }]} pointerEvents="box-none">
         <Animated.View
           pointerEvents={collapsed ? 'none' : 'auto'}
-          style={[styles.row, { opacity: open, transform: [{ translateX: open.interpolate({ inputRange: [0, 1], outputRange: [s.btn * 0.5, 0] }) }] }]}
+          style={[styles.row, { opacity: open, transform: [{ translateX: open.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : s.btn * 0.5, 0] }) }] }]}
         >
           {dec}
           <Animated.View style={[styles.value, { width: valueW, height: s.btn, transform: [{ translateX: bump }] }]}>{number}</Animated.View>
@@ -441,8 +456,8 @@ function CartControl({
               onPressOut={onAddEnd}
               style={({ pressed }) => [styles.add, { height: s.btn, paddingHorizontal: Math.round(s.btn * 0.36) }, pressed && { backgroundColor: alpha(fg, 0.16) }]}
             >
-              <Glyph d={ICON.plus} size={s.icon} color={fg} />
-              <Text style={[styles.addText, ff, { color: fg, fontSize: s.font - 2 }]}>{addLabel}</Text>
+              <Glyph d={ICON.plus} size={s.icon} color={fg} reduce={reduce} />
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.addText, ff, { color: fg, fontSize: s.font - 2 }]}>{addLabel}</Text>
             </Pressable>
           </Animated.View>
         </View>
@@ -470,6 +485,7 @@ function StepButton({
   limit,
   disabled,
   label,
+  reduce,
   style,
   onPressIn,
   onPressOut,
@@ -485,6 +501,7 @@ function StepButton({
   limit: boolean;
   disabled: boolean;
   label: string;
+  reduce: boolean;
   style?: StyleProp<ViewStyle>;
   onPressIn: () => void;
   onPressOut: () => void;
@@ -492,7 +509,11 @@ function StepButton({
   // Scale and dim share one native-driven view; nothing JS-driven touches it.
   const scale = useRef(new Animated.Value(1)).current;
   const dim = useRef(new Animated.Value(limit ? 0.32 : 1)).current;
-  const spring = (to: number) => Animated.spring(scale, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  // Reduce Motion: no press squeeze; the pressed background still shows the press.
+  const spring = (to: number) => {
+    if (reduce) scale.setValue(1);
+    else Animated.spring(scale, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  };
 
   useEffect(() => {
     Animated.timing(dim, { toValue: limit ? 0.32 : 1, duration: motion.fast, useNativeDriver: true }).start();
@@ -533,22 +554,23 @@ function StepButton({
           style,
         ]}
       >
-        <Glyph d={glyph} size={icon} color={fg} />
+        <Glyph d={glyph} size={icon} color={fg} reduce={reduce} />
       </Pressable>
     </Animated.View>
   );
 }
 
 /** Stroked icon; pops in when its shape changes (− ↔ trash). */
-function Glyph({ d, size, color }: { d: string; size: number; color: string }) {
+function Glyph({ d, size, color, reduce }: { d: string; size: number; color: string; reduce: boolean }) {
   const pop = useRef(new Animated.Value(1)).current;
   const prev = useRef(d);
   useEffect(() => {
     if (prev.current === d) return;
     prev.current = d;
+    if (reduce) return;
     pop.setValue(0.55);
     Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [d, pop]);
+  }, [d, pop, reduce]);
   const trash = d === ICON.trash;
   return (
     <Animated.View style={{ transform: [{ scale: pop }] }}>
@@ -559,37 +581,48 @@ function Glyph({ d, size, color }: { d: string; size: number; color: string }) {
   );
 }
 
-/** Text where every changed character slides out and its replacement slides in. */
-function RollingText({ text, dir, style }: { text: string; dir: number; style: TextStyle }) {
+/** Text where every changed character slides out and its replacement slides in (swaps at once with Reduce Motion). */
+function RollingText({ text, dir, style, reduce }: { text: string; dir: number; style: TextStyle; reduce: boolean }) {
   const chars = [...text];
   return (
     <View style={styles.roll}>
       {chars.map((c, i) => (
         // Keyed from the right so the ones digit stays the ones digit when the number grows.
-        <RollingChar key={chars.length - i} char={c} dir={dir} style={style} />
+        <RollingChar key={chars.length - i} char={c} dir={dir} style={style} reduce={reduce} />
       ))}
     </View>
   );
 }
 
-function RollingChar({ char, dir, style }: { char: string; dir: number; style: TextStyle }) {
+function RollingChar({ char, dir, style, reduce }: { char: string; dir: number; style: TextStyle; reduce: boolean }) {
   const [pair, setPair] = useState<{ cur: string; prev: string | null; dir: number }>({ cur: char, prev: null, dir });
   if (pair.cur !== char) setPair({ cur: char, prev: pair.cur, dir });
   const t = useRef(new Animated.Value(1)).current;
-  const h = (style.lineHeight as number) ?? 24;
+  // The digit window follows the text's own (capped) Dynamic Type scale, so a scaled digit isn't cropped.
+  const { fontScale } = useWindowDimensions();
+  const h = ((style.lineHeight as number) ?? 24) * Math.min(fontScale, FONT_CAP);
 
+  // Each change rolls once (a Reduce Motion toggle alone doesn't replay it).
+  const played = useRef(pair);
   useLayoutEffect(() => {
-    if (pair.prev === null) return;
+    if (pair.prev === null || played.current === pair) return;
+    played.current = pair;
+    if (reduce) {
+      // At 1 the old character is gone and the new one is in place: the final value, no roll.
+      t.setValue(1);
+      return;
+    }
     t.setValue(0);
     Animated.spring(t, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [pair, t]);
+  }, [pair, t, reduce]);
 
   const d = pair.dir * h * 0.8;
   return (
     <View style={[styles.charBox, { height: h }]}>
-      <Text style={[styles.num, style, styles.hidden]}>{pair.cur}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.num, style, styles.hidden]}>{pair.cur}</Text>
       {pair.prev !== null ? (
         <Animated.Text
+          maxFontSizeMultiplier={FONT_CAP}
           style={[
             styles.num,
             styles.layer,
@@ -607,6 +640,7 @@ function RollingChar({ char, dir, style }: { char: string; dir: number; style: T
         </Animated.Text>
       ) : null}
       <Animated.Text
+        maxFontSizeMultiplier={FONT_CAP}
         style={[
           styles.num,
           styles.layer,
@@ -621,6 +655,22 @@ function RollingChar({ char, dir, style }: { char: string; dir: number; style: T
       </Animated.Text>
     </View>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import { FlipCard, useFlipProgress } from '@/components/ui/flip-card';
@@ -170,6 +170,10 @@ function contrast(a: string, b: string) {
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 const DAY = 86_400_000;
 const pad2 = (n: number) => String(n).padStart(2, '0');
 
@@ -197,7 +201,7 @@ function useRemaining(at?: Date | number) {
 }
 
 /** The promo code in a dashed chip; a tap copies it and flips the icon to a check for a moment. */
-function CodeChip({ code, color, ink, fontSize, onCopy, labels }: { code: string; color: string; ink: string; fontSize: number; onCopy?: (code: string) => void; labels: Required<CouponLabels> }) {
+function CodeChip({ code, color, ink, fontSize, onCopy, labels, reduce }: { code: string; color: string; ink: string; fontSize: number; onCopy?: (code: string) => void; labels: Required<CouponLabels>; reduce: boolean }) {
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const [copied, setCopied] = useState(false);
@@ -208,8 +212,10 @@ function CodeChip({ code, color, ink, fontSize, onCopy, labels }: { code: string
   const copy = () => {
     onCopy?.(code);
     setCopied(true);
-    pop.setValue(0.4);
-    Animated.spring(pop, { toValue: 1, ...motion.bouncy, useNativeDriver: true }).start();
+    if (!reduce) {
+      pop.setValue(0.4);
+      Animated.spring(pop, { toValue: 1, ...motion.bouncy, useNativeDriver: true }).start();
+    }
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), 1600);
   };
@@ -228,7 +234,7 @@ function CodeChip({ code, color, ink, fontSize, onCopy, labels }: { code: string
           <Rect x={0.75} y={0.75} width={box.w - 1.5} height={box.h - 1.5} rx={8} fill="none" stroke={alpha(color, 0.75)} strokeWidth={1.5} strokeDasharray={[5, 4]} />
         </Svg>
       ) : null}
-      <Text numberOfLines={1} style={[{ color: ink, fontSize, fontWeight: '800', letterSpacing: 1, flexShrink: 1 }, ff]}>
+      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize, fontWeight: '800', letterSpacing: 1, flexShrink: 1 }, ff]}>
         {code}
       </Text>
       {onCopy ? (
@@ -329,6 +335,7 @@ export function Coupon({
 }: CouponProps) {
   const { colors, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
+  const reduce = useReduceMotion();
   const theme = typeof themeProp === 'object' ? themeProp : couponThemes[themeProp];
   const fills = typeof theme.fill === 'string' ? [theme.fill] : theme.fill;
   const accent = theme.accent ?? fills[fills.length - 1];
@@ -424,7 +431,7 @@ export function Coupon({
     left !== undefined && left > 0 && !spent ? (
       <View style={[styles.timer, { backgroundColor: timerBg }]}>
         <Icon d={ICON.clock} size={11} color={timerInk} />
-        <Text style={[{ color: timerInk, fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'] }, ff]}>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: timerInk, fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'] }, ff]}>
           {labels.endsIn} {formatCountdown(left)}
         </Text>
       </View>
@@ -448,15 +455,15 @@ export function Coupon({
   // Value panel ------------------------------------------------------------------------------------
   const valueBlock = (
     <View style={{ alignItems: 'center' }}>
-      {prefix ? <Text style={[{ color: valueSoft, fontSize: 10.5, fontWeight: '900', letterSpacing: 1.6 }, ff, lift]}>{prefix.toUpperCase()}</Text> : null}
+      {prefix ? <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: valueSoft, fontSize: 10.5, fontWeight: '900', letterSpacing: 1.6 }, ff, lift]}>{prefix.toUpperCase()}</Text> : null}
       {locked ? <Icon d={ICON.lock} size={valueSize * 0.6} color={valueInk} /> : null}
       {/* Vertical coupons set "50% OFF" on one line when it fits, and stack a long unit ("CASHBACK"). */}
       <View style={{ flexDirection: inline ? 'row' : 'column', alignItems: inline ? 'flex-end' : 'center', gap: inline ? 6 : 0 }}>
-        <Text numberOfLines={1} adjustsFontSizeToFit style={[{ color: valueInk, fontSize: valueSize, lineHeight: valueSize * 1.08, fontWeight: '900', letterSpacing: -1.2 }, ff, lift]}>
+        <Text numberOfLines={1} adjustsFontSizeToFit maxFontSizeMultiplier={FONT_CAP} style={[{ color: valueInk, fontSize: valueSize, lineHeight: valueSize * 1.08, fontWeight: '900', letterSpacing: -1.2 }, ff, lift]}>
           {value}
         </Text>
         {unit ? (
-          <Text style={[{ color: valueInk, fontSize: horizontal ? 12.5 : 16, fontWeight: '900', letterSpacing: 2.4, marginBottom: inline ? valueSize * 0.14 : 0 }, ff, lift]}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: valueInk, fontSize: horizontal ? 12.5 : 16, fontWeight: '900', letterSpacing: 2.4, marginBottom: inline ? valueSize * 0.14 : 0 }, ff, lift]}>
             {unit.toUpperCase()}
           </Text>
         ) : null}
@@ -508,13 +515,13 @@ export function Coupon({
         {
           marginLeft: 'auto',
           backgroundColor: applied ? '#16a34a' : locked || spent ? alpha(bodyInk, 0.12) : accent,
-          transform: [{ scale: pressed ? 0.95 : 1 }],
+          transform: [{ scale: pressed && !reduce ? 0.95 : 1 }],
           paddingHorizontal: size === 'sm' ? 11 : size === 'md' ? 13 : 16,
         },
       ]}
     >
       {applied || locked ? <Icon d={applied ? ICON.check : ICON.lock} size={13} color={applied ? '#ffffff' : bodySoft} /> : null}
-      <Text numberOfLines={1} style={[{ color: applied ? '#ffffff' : locked || spent ? bodySoft : readableOn(accent), fontSize: s.chip - 0.5, fontWeight: '800' }, ff]}>
+      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[{ color: applied ? '#ffffff' : locked || spent ? bodySoft : readableOn(accent), fontSize: s.chip - 0.5, fontWeight: '800' }, ff]}>
         {applied ? labels.applied : locked ? labels.locked : labels.apply}
       </Text>
     </Pressable>
@@ -523,11 +530,11 @@ export function Coupon({
   const footer =
     expires || canFlip ? (
       <View style={[styles.row, { justifyContent: 'flex-start', gap: 6 }]}>
-        {expires ? <Text style={[{ color: bodySoft, fontSize: 11, fontWeight: '600' }, ff]}>{expires}</Text> : null}
+        {expires ? <Text style={[{ color: bodySoft, fontSize: 11, fontWeight: '600', flexShrink: 1 }, ff]}>{expires}</Text> : null}
         {expires && canFlip ? <Text style={[{ color: bodySoft, fontSize: 11 }, ff]}>·</Text> : null}
         {canFlip ? (
           <Pressable onPress={toggle} hitSlop={10} accessibilityRole="button" accessibilityLabel={labels.termsTitle}>
-            <Text style={[{ color: textAccent, fontSize: 11, fontWeight: '800', textDecorationLine: 'underline' }, ff]}>{labels.terms}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: textAccent, fontSize: 11, fontWeight: '800', textDecorationLine: 'underline' }, ff]}>{labels.terms}</Text>
           </Pressable>
         ) : null}
       </View>
@@ -572,7 +579,7 @@ export function Coupon({
         // The code never gets cut short: when it and the button don't fit side by side, the button
         // wraps under it (and stays right-aligned).
         <View style={[styles.row, { gap: 8, marginTop: 2, flexWrap: 'wrap' }]}>
-          {code ? <CodeChip code={code} color={textAccent} ink={bodyInk} fontSize={s.chip} onCopy={spent || locked ? undefined : onCopy} labels={labels} /> : <View />}
+          {code ? <CodeChip code={code} color={textAccent} ink={bodyInk} fontSize={s.chip} onCopy={spent || locked ? undefined : onCopy} labels={labels} reduce={reduce} /> : <View />}
           {action}
         </View>
       ) : null}
@@ -582,7 +589,8 @@ export function Coupon({
 
   const { width: _w, height: _h, ...shape } = outline;
   const glareClip = measured ? ticketSafeRects(outline) : undefined;
-  const valueWindows = shine && measured && !spent && !locked
+  // The sweep is decorative, so Reduce Motion drops it.
+  const valueWindows = shine && !reduce && measured && !spent && !locked
     ? ticketSafeRects({ width: valueBox.width, height: valueBox.height, corners: valueCorners, edges: valueEdges, edgeSize: v.edgeSize })
     : null;
 
@@ -630,23 +638,23 @@ export function Coupon({
       <TicketShape {...shape} fill={body} style={StyleSheet.absoluteFill}>
         <Pressable onPress={toggle} accessibilityRole="button" accessibilityHint={labels.back} style={[StyleSheet.absoluteFill, { padding: s.pad + edgePad, gap: 6, flexDirection: horizontal ? 'row' : 'column' }]}>
           <View style={{ flex: 1, gap: 4 }}>
-            <Text style={[{ color: bodyInk, fontSize: 12, fontWeight: '800', letterSpacing: 0.3 }, ff]}>{labels.termsTitle}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: bodyInk, fontSize: 12, fontWeight: '800', letterSpacing: 0.3 }, ff]}>{labels.termsTitle}</Text>
             {terms!.slice(0, size === 'lg' ? 5 : 4).map((t, i) => (
               <View key={i} style={{ flexDirection: 'row', gap: 6 }}>
-                <Text style={[{ color: textAccent, fontSize: 11, fontWeight: '900' }, ff]}>•</Text>
-                <Text numberOfLines={2} style={[{ color: bodySoft, fontSize: 11, lineHeight: 14.5, flex: 1 }, ff]}>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: textAccent, fontSize: 11, fontWeight: '900' }, ff]}>•</Text>
+                <Text numberOfLines={2} maxFontSizeMultiplier={FONT_CAP} style={[{ color: bodySoft, fontSize: 11, lineHeight: 14.5, flex: 1 }, ff]}>
                   {t}
                 </Text>
               </View>
             ))}
-            <Text style={[{ color: alpha(bodyInk, 0.4), fontSize: 10, fontWeight: '700', marginTop: 'auto' }, ff]}>{labels.back}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: alpha(bodyInk, 0.4), fontSize: 10, fontWeight: '700', marginTop: 'auto' }, ff]}>{labels.back}</Text>
           </View>
           {code ? (
             <View style={{ alignItems: 'center', justifyContent: 'center', gap: 4 }}>
               <View style={styles.plate}>
                 <BarcodeLike code={code} width={horizontal ? 74 : 200} height={horizontal ? 54 : 46} />
               </View>
-              <Text style={[{ color: bodyInk, fontSize: 10, fontWeight: '800', letterSpacing: 1.2 }, ff]}>{code}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: bodyInk, fontSize: 10, fontWeight: '800', letterSpacing: 1.2 }, ff]}>{code}</Text>
             </View>
           ) : null}
         </Pressable>
@@ -668,7 +676,7 @@ export function Coupon({
   return (
     <Pressable onPress={onPress} disabled={!onPress} accessibilityRole={onPress ? 'button' : undefined} style={style}>
       {({ pressed }) => (
-        <View style={{ transform: [{ scale: pressed ? 0.985 : 1 }] }}>
+        <View style={{ transform: [{ scale: pressed && !reduce ? 0.985 : 1 }] }}>
           {/* The plate waits for the painted outline (no black flash on mount), and a dimmed (used /
               expired) coupon is see-through, so it gets none. */}
           {spent || !measured ? null : <View pointerEvents="none" style={[styles.shadow, { top: inset, bottom: inset - 4, left: inset, right: inset, borderRadius: v.r, shadowOpacity: dark ? 0.5 : 0.2 }]} />}
@@ -678,6 +686,22 @@ export function Coupon({
       )}
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

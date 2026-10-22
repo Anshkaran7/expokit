@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Platform,
@@ -85,6 +86,9 @@ export const FLOATING_INPUT_SIZES = {
   md: { height: 54, font: 16, floated: 12.5, padX: 16, icon: 18, radius: 0 },
   lg: { height: 64, font: 18, floated: 13.5, padX: 18, icon: 20, radius: 4 },
 };
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const HALO = 4;
 /** Font size of the static label used when `floatingLabel` is false. */
 const LABEL_ABOVE_FONT = { sm: 13, md: 14, lg: 14.5 };
@@ -166,6 +170,7 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
   ref
 ) {
   const { colors, radius, font } = useKit();
+  const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const S = FLOATING_INPUT_SIZES[size];
   // The user's border colour only replaces the resting one; numeric height / radius drive the layout maths.
@@ -200,29 +205,36 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
   const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
 
   useEffect(() => {
-    Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [floating, float]);
+    if (reduce) float.setValue(floating ? 1 : 0);
+    else Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [floating, float, reduce]);
 
   useEffect(() => {
     Animated.timing(focus, { toValue: isFocused ? 1 : 0, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
-    Animated.spring(glow, { toValue: isFocused ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [isFocused, focus, glow]);
+    // Reduce Motion: halo and indicator bar only fade (their scales are pinned below).
+    if (reduce) Animated.timing(glow, { toValue: isFocused ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(glow, { toValue: isFocused ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [isFocused, focus, glow, reduce]);
 
   useEffect(() => {
-    Animated.spring(clear, { toValue: clearable && text && editable ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [clearable, text, editable, clear]);
+    const to = clearable && text && editable ? 1 : 0;
+    if (reduce) Animated.timing(clear, { toValue: to, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(clear, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [clearable, text, editable, clear, reduce]);
 
   useEffect(() => {
-    Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [ok, check]);
+    if (reduce) Animated.timing(check, { toValue: ok ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [ok, check, reduce]);
 
   useEffect(() => {
-    if (!error) return;
+    // Reduce Motion: no shake; the red border and message still flag the error.
+    if (!error || reduce) return;
     shake.setValue(0);
     Animated.sequence(
       [10, -8, 6, -4, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 55, useNativeDriver: true }))
     ).start();
-  }, [error, shake]);
+  }, [error, shake, reduce]);
 
   const setText = (next: string) => {
     if (value === undefined) setInner(next);
@@ -310,23 +322,24 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
                 borderRadius: corner + HALO,
                 backgroundColor: active,
                 opacity: glow.interpolate({ inputRange: [0, 1], outputRange: [0, 0.18], extrapolate: 'clamp' }),
-                transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) }],
+                transform: [{ scale: glow.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.97, 1] }) }],
               },
             ]}
           />
         )}
         <Pressable onPress={() => inputRef.current?.focus()} disabled={!editable} accessible={false}>
-          <Animated.View style={[styles.field, boxStyle, { height: HEIGHT }, userField, { borderColor }]}>
+          <Animated.View style={[styles.field, boxStyle, { minHeight: HEIGHT }, userField, { borderColor }]}>
             {left ? <View style={[styles.left, { left: underline ? 2 : S.padX - 2 }, underline && { top: contentTop }]}>{left}</View> : null}
             <View style={[styles.row, { paddingLeft: leftPad, paddingRight: rightPad, paddingTop: contentTop }]}>
               {prefix ? (
-                <Animated.Text style={[styles.affix, styles.prefix, ff, { fontSize: S.font }, { color: colors.mutedForeground }, prefixStyle, { opacity: affixOpacity }]}>
+                <Animated.Text maxFontSizeMultiplier={FONT_CAP} style={[styles.affix, styles.prefix, ff, { fontSize: S.font }, { color: colors.mutedForeground }, prefixStyle, { opacity: affixOpacity }]}>
                   {prefix}
                 </Animated.Text>
               ) : null}
               <TextInput
                 ref={inputRef}
                 accessibilityLabel={label}
+                maxFontSizeMultiplier={FONT_CAP}
                 {...props}
                 maxLength={maxLength}
                 editable={editable}
@@ -347,7 +360,7 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
                 style={[styles.input, ff, { color: colors.foreground, fontSize: S.font }, inputStyle, NO_WEB_OUTLINE]}
               />
               {suffix ? (
-                <Animated.Text style={[styles.affix, styles.suffix, ff, { fontSize: S.font }, { color: colors.mutedForeground }, suffixStyle, { opacity: affixOpacity }]}>
+                <Animated.Text maxFontSizeMultiplier={FONT_CAP} style={[styles.affix, styles.suffix, ff, { fontSize: S.font }, { color: colors.mutedForeground }, suffixStyle, { opacity: affixOpacity }]}>
                   {suffix}
                 </Animated.Text>
               ) : null}
@@ -358,6 +371,7 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
                 style={[styles.labelWrap, { left: leftPad, right: right ? adorn : S.padX - 4, top: contentTop, height: HEIGHT - contentTop }, labelStyle]}
               >
                 <Animated.Text
+                  maxFontSizeMultiplier={FONT_CAP}
                   numberOfLines={1}
                   style={[
                     styles.label,
@@ -380,7 +394,7 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
             ) : null}
             {clearable ? (
               <Animated.View
-                style={[styles.slot, { right: edge, top: contentTop, opacity: clear, transform: [{ scale: clear }] }]}
+                style={[styles.slot, { right: edge, top: contentTop, opacity: clear, transform: [{ scale: reduce ? 1 : clear }] }]}
                 pointerEvents={text && editable ? 'box-none' : 'none'}
               >
                 <Pressable
@@ -408,8 +422,8 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
                   top: contentTop,
                   opacity: check.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
                   transform: [
-                    { scale: check.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) },
-                    { rotate: check.interpolate({ inputRange: [0, 1], outputRange: ['-30deg', '0deg'] }) },
+                    { scale: check.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.3, 1] }) },
+                    { rotate: check.interpolate({ inputRange: [0, 1], outputRange: [reduce ? '0deg' : '-30deg', '0deg'] }) },
                   ],
                 },
               ]}
@@ -423,10 +437,14 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
             {outlined ? null : (
               <>
                 <View pointerEvents="none" style={[styles.baseLine, { height: underline ? 1.5 : 1, backgroundColor: rest }]} />
-                {/* Grows out from the centre on focus. */}
+                {/* Grows out from the centre on focus (fades in with Reduce Motion). */}
                 <Animated.View
                   pointerEvents="none"
-                  style={[styles.bar, { backgroundColor: active, transform: [{ scaleX: glowClamped }] }]}
+                  style={[
+                    styles.bar,
+                    { backgroundColor: active },
+                    reduce ? { opacity: glowClamped } : { transform: [{ scaleX: glowClamped }] },
+                  ]}
                 />
               </>
             )}
@@ -436,10 +454,11 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
       {message || showCounter ? (
         <View style={[styles.footer, underline && styles.footerFlush]}>
           <View style={styles.messageSlot}>
-            {message ? <FieldMessage key={tone + message} text={message} tone={tone} color={toneColor} style={messageStyle} /> : null}
+            {message ? <FieldMessage key={tone + message} text={message} tone={tone} color={toneColor} style={messageStyle} reduce={reduce} /> : null}
           </View>
           {showCounter ? (
             <Text
+              maxFontSizeMultiplier={FONT_CAP}
               style={[
                 styles.count,
                 ff,
@@ -459,13 +478,27 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
 
 type MessageTone = 'error' | 'success' | 'helper';
 
-/** Helper / error / success line. Error and success slide up and fade in. */
-function FieldMessage({ text, tone, color, style }: { text: string; tone: MessageTone; color: string; style?: StyleProp<TextStyle> }) {
+/** Helper / error / success line. Error and success slide up and fade in (only fade with Reduce Motion). */
+function FieldMessage({
+  text,
+  tone,
+  color,
+  style,
+  reduce,
+}: {
+  text: string;
+  tone: MessageTone;
+  color: string;
+  style?: StyleProp<TextStyle>;
+  reduce: boolean;
+}) {
   const { font } = useKit();
   const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
   useEffect(() => {
-    if (tone !== 'helper') Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [tone, enter]);
+    if (tone === 'helper') return;
+    if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [tone, enter, reduce]);
 
   return (
     <Animated.View
@@ -473,7 +506,7 @@ function FieldMessage({ text, tone, color, style }: { text: string; tone: Messag
         styles.message,
         {
           opacity: enter.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-          transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }],
+          transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 4, 0] }) }],
         },
       ]}
     >
@@ -510,11 +543,27 @@ function flattenView(style: StyleProp<ViewStyle>): ViewStyle {
   return style as ViewStyle;
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   disabled: { opacity: 0.5 },
   halo: { position: 'absolute', top: -HALO, left: -HALO, right: -HALO, bottom: -HALO },
   field: { justifyContent: 'center' },
-  row: { flexDirection: 'row', alignItems: 'center', height: '100%' },
+  row: { flexDirection: 'row', alignItems: 'center', flexGrow: 1 },
   input: { flex: 1, alignSelf: 'stretch', paddingVertical: 0, paddingHorizontal: 0 },
   affix: { fontWeight: '400' },
   prefix: { marginRight: 4 },

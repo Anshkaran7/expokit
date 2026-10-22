@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Pressable,
   StyleSheet,
@@ -36,6 +37,7 @@ interface Ctx {
   toggle: (v: string) => void;
   variant: AccordionVariant;
   tint: string;
+  reduce: boolean;
 }
 const AccordionContext = createContext<Ctx | null>(null);
 const PositionContext = createContext({ first: true, last: true });
@@ -53,6 +55,7 @@ export function Accordion({
   style,
 }: AccordionProps) {
   const { colors, radius } = useKit();
+  const reduce = useReduceMotion();
   const [inner, setInner] = useState(defaultValue);
   const open = value ?? inner;
   const openRef = useRef(open);
@@ -72,7 +75,10 @@ export function Accordion({
     [type, collapsible, value, onValueChange]
   );
 
-  const ctx = useMemo(() => ({ open, toggle, variant, tint: accent ?? colors.accent }), [open, toggle, variant, accent, colors.accent]);
+  const ctx = useMemo(
+    () => ({ open, toggle, variant, tint: accent ?? colors.accent, reduce }),
+    [open, toggle, variant, accent, colors.accent, reduce]
+  );
   const items = React.Children.toArray(children);
 
   return (
@@ -117,7 +123,7 @@ export interface AccordionItemProps {
 export function AccordionItem({ value, title, subtitle, icon, children, disabled, style }: AccordionItemProps) {
   const ctx = useContext(AccordionContext);
   if (!ctx) throw new Error('AccordionItem must be used inside <Accordion>');
-  const { open: openValues, toggle, variant, tint } = ctx;
+  const { open: openValues, toggle, variant, tint, reduce } = ctx;
   const { last } = useContext(PositionContext);
   const { colors, radius, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
@@ -129,9 +135,15 @@ export function AccordionItem({ value, title, subtitle, icon, children, disabled
   const turn = useRef(new Animated.Value(open ? 1 : 0)).current;
 
   useEffect(() => {
+    // Reduce Motion: open and close at once, chevron flips without turning.
+    if (reduce) {
+      progress.setValue(open ? 1 : 0);
+      turn.setValue(open ? 1 : 0);
+      return;
+    }
     Animated.spring(progress, { toValue: open ? 1 : 0, useNativeDriver: false, ...motion.gentle, overshootClamping: true }).start();
     Animated.spring(turn, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [open, progress, turn]);
+  }, [open, progress, turn, reduce]);
 
   const onLayout = (e: LayoutChangeEvent) => {
     const h = Math.ceil(e.nativeEvent.layout.height);
@@ -221,6 +233,22 @@ export function AccordionItem({ value, title, subtitle, icon, children, disabled
 }
 
 Accordion.Item = AccordionItem;
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
 
 const styles = StyleSheet.create({
   separated: { gap: 10 },

@@ -4,6 +4,9 @@ import { Pressable, StyleSheet, Text, View, type TextProps, type ViewProps } fro
 import { TimePicker, formatTime, type TimeValue } from '@/components/ui/time-picker';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -48,7 +51,7 @@ export function Alarm({ screen }: DemoProps) {
           <Ink style={s.title}>Wake up</Ink>
           <Ink tone="muted" style={s.meta}>Weekdays · Radar</Ink>
         </View>
-        <Ink tone="muted" style={s.meta}>{until(time)}</Ink>
+        <Ink tone="muted" style={[s.meta, { flexShrink: 1 }]}>{until(time)}</Ink>
       </View>
       <TimePicker value={time} onChange={setTime} hour12 />
     </Card>
@@ -95,7 +98,7 @@ export function Appointment({ screen }: DemoProps) {
         style={[s.button, { backgroundColor: colors.accent, borderRadius: radius.md }, !slot && s.buttonOff]}
         accessibilityRole="button"
       >
-        <Text style={[s.buttonText, { color: colors.accentForeground }]}>{slot ? `Book ${formatTime(slot)} · 30 min` : 'Choose a time'}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[s.buttonText, { color: colors.accentForeground }]}>{slot ? `Book ${formatTime(slot)} · 30 min` : 'Choose a time'}</Text>
       </Pressable>
     </Card>
   );
@@ -106,7 +109,7 @@ export function Reminder({ screen }: DemoProps) {
   return (
     <Card screen={screen}>
       <View style={s.head}>
-        <Ink style={s.title}>Daily journal reminder</Ink>
+        <Ink style={[s.title, { flexShrink: 1 }]}>Daily journal reminder</Ink>
         <Ink tone="muted" style={s.meta}>{formatTime(time, false)}</Ink>
       </View>
       <TimePicker value={time} onChange={setTime} hour12={false} minuteInterval={15} />
@@ -166,13 +169,13 @@ export function ClockInSheet({ screen }: DemoProps) {
 
 const s = StyleSheet.create({
   card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 },
+  head: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', columnGap: 12, rowGap: 4 },
   headText: { flexShrink: 1, gap: 2 },
   title: { fontSize: 15, fontWeight: '400' },
   meta: { fontSize: 13, fontWeight: '400', fontVariant: ['tabular-nums'] },
   hint: { fontSize: 12.5, textAlign: 'center' },
   note: { paddingVertical: 10, alignItems: 'center' },
-  button: { height: 46, alignItems: 'center', justifyContent: 'center' },
+  button: { minHeight: 46, alignItems: 'center', justifyContent: 'center' },
   buttonOff: { opacity: 0.45 },
   buttonText: { fontSize: 15, fontWeight: '400' },
 });

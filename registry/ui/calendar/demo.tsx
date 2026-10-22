@@ -4,6 +4,9 @@ import { StyleSheet, Text, View, type TextProps, type ViewProps } from 'react-na
 import { Calendar, addDays, startOfDay, toDateKey, type DateRange } from '@/components/ui/calendar';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -31,7 +34,7 @@ export function Single({ screen }: DemoProps) {
       <Calendar value={date} onChange={setDate} minDate={today} />
       <View style={s.summary}>
         <Ink tone="muted" style={s.muted}>Arriving</Ink>
-        <Ink style={s.strong}>{day(date)}</Ink>
+        <Ink style={[s.strong, { flexShrink: 1 }]}>{day(date)}</Ink>
       </View>
     </Card>
   );
@@ -55,7 +58,7 @@ export function Range({ screen }: DemoProps) {
           <Ink style={s.strong}>{stay.end ? day(stay.end) : 'Select a date'}</Ink>
         </View>
         <View style={[s.pill, { opacity: nights ? 1 : 0.4, backgroundColor: alpha(colors.accent, 0.14), borderRadius: radius.capsule(30) }]}>
-          <Text style={[s.pillText, { color: colors.accent }]}>{nights ? `${nights} night${nights > 1 ? 's' : ''}` : '0 nights'}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[s.pillText, { color: colors.accent }]}>{nights ? `${nights} night${nights > 1 ? 's' : ''}` : '0 nights'}</Text>
         </View>
       </View>
     </Card>
@@ -140,7 +143,7 @@ const s = StyleSheet.create({
   card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },
   screen: { flex: 1, justifyContent: 'center', padding: 16, gap: 12 },
   title: { fontSize: 15, fontWeight: '400' },
-  summary: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  summary: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', columnGap: 12, rowGap: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   col: { flex: 1, gap: 2 },
   muted: { fontSize: 13 },

@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, type TextInput } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type TextInput } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
 import { FloatingInput, type FloatingInputProps } from '@/components/ui/floating-input';
@@ -33,6 +33,10 @@ export interface PasswordInputProps extends Omit<FloatingInputProps, 'secureText
   /** Message when `confirmOf` doesn't match (default "Passwords don't match"). */
   mismatchMessage?: string;
 }
+
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 const LEVEL_LABELS = ['Too short', 'Weak', 'Okay', 'Strong', 'Very strong'];
 const ICON = { sm: 18, md: 22, lg: 24 };
@@ -70,6 +74,7 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
   ref
 ) {
   const { colors } = useKit();
+  const reduce = useReduceMotion();
   const [hidden, setHidden] = useState(true);
   const [inner, setInner] = useState(defaultValue ?? '');
   const text = value ?? inner;
@@ -84,17 +89,21 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
 
   const eye = useRef(new Animated.Value(hidden ? 0 : 1)).current; // native: 1 = visible
   useEffect(() => {
-    Animated.spring(eye, { toValue: hidden ? 0 : 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [hidden, eye]);
+    if (reduce) Animated.timing(eye, { toValue: hidden ? 0 : 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(eye, { toValue: hidden ? 0 : 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [hidden, eye, reduce]);
 
   const iconColor = iconColorProp ?? colors.mutedForeground;
   const iconSize = ICON[size];
   const fade = (on: 0 | 1) => ({
     opacity: eye.interpolate({ inputRange: [0, 1], outputRange: on ? [0, 1] : [1, 0], extrapolate: 'clamp' }),
-    transform: [
-      { scale: eye.interpolate({ inputRange: [0, 1], outputRange: on ? [0.6, 1] : [1, 0.6] }) },
-      { rotate: eye.interpolate({ inputRange: [0, 1], outputRange: on ? ['-45deg', '0deg'] : ['0deg', '45deg'] }) },
-    ],
+    // Reduce Motion: a plain cross-fade, no spin or scale.
+    transform: reduce
+      ? []
+      : [
+          { scale: eye.interpolate({ inputRange: [0, 1], outputRange: on ? [0.6, 1] : [1, 0.6] }) },
+          { rotate: eye.interpolate({ inputRange: [0, 1], outputRange: on ? ['-45deg', '0deg'] : ['0deg', '45deg'] }) },
+        ],
   });
 
   return (
@@ -137,8 +146,8 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
           </Pressable>
         }
       />
-      {strength && !confirming && text.length > 0 ? <Meter level={level} /> : null}
-      {rules && !confirming ? <Checklist rules={rules} value={text} /> : null}
+      {strength && !confirming && text.length > 0 ? <Meter level={level} reduce={reduce} /> : null}
+      {rules && !confirming ? <Checklist rules={rules} value={text} reduce={reduce} /> : null}
     </View>
   );
 });
@@ -151,7 +160,7 @@ const EYE_OFF =
   'M2 2l20 20';
 
 /** Four segments that spring-fill left to right; the colour slides with the score. */
-function Meter({ level }: { level: number }) {
+function Meter({ level, reduce }: { level: number; reduce: boolean }) {
   const { colors, dark, font } = useKit();
   const palette = [colors.mutedForeground, colors.danger, colors.warning, colors.success, colors.success];
   const fills = useRef([0, 1, 2, 3].map(() => new Animated.Value(0))).current; // native: scaleX
@@ -159,16 +168,24 @@ function Meter({ level }: { level: number }) {
   const enter = useRef(new Animated.Value(0)).current; // native
 
   useEffect(() => {
-    Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+    if (reduce) enter.setValue(1);
+    else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enter]);
 
   useEffect(() => {
+    if (reduce) {
+      // Segments appear filled at once; the colour still fades.
+      fills.forEach((a, i) => a.setValue(i < level ? 1 : 0));
+      Animated.timing(tone, { toValue: level, duration: 150, useNativeDriver: false }).start();
+      return;
+    }
     Animated.stagger(
       50,
       fills.map((a, i) => Animated.spring(a, { toValue: i < level ? 1 : 0, useNativeDriver: true, ...motion.snappy }))
     ).start();
     Animated.timing(tone, { toValue: level, duration: 220, useNativeDriver: false }).start();
-  }, [level, fills, tone]);
+  }, [level, fills, tone, reduce]);
 
   const color = tone.interpolate({ inputRange: [0, 1, 2, 3, 4], outputRange: palette });
   const track = dark ? colors.muted : colors.border;
@@ -199,27 +216,28 @@ function Meter({ level }: { level: number }) {
           </View>
         ))}
       </View>
-      <Text style={[styles.level, font.family ? { fontFamily: font.family } : null, { color: palette[level] }]}>{LEVEL_LABELS[level]}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.level, font.family ? { fontFamily: font.family } : null, { color: palette[level] }]}>{LEVEL_LABELS[level]}</Text>
     </Animated.View>
   );
 }
 
-function Checklist({ rules, value }: { rules: PasswordRequirement[]; value: string }) {
+function Checklist({ rules, value, reduce }: { rules: PasswordRequirement[]; value: string; reduce: boolean }) {
   return (
     <View style={styles.checklist} accessibilityRole="list">
       {rules.map((r) => (
-        <Requirement key={r.label} label={r.label} met={r.test(value)} />
+        <Requirement key={r.label} label={r.label} met={r.test(value)} reduce={reduce} />
       ))}
     </View>
   );
 }
 
-function Requirement({ label, met }: { label: string; met: boolean }) {
+function Requirement({ label, met, reduce }: { label: string; met: boolean; reduce: boolean }) {
   const { colors, dark, font } = useKit();
   const tick = useRef(new Animated.Value(met ? 1 : 0)).current; // native
   useEffect(() => {
-    Animated.spring(tick, { toValue: met ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [met, tick]);
+    if (reduce) Animated.timing(tick, { toValue: met ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(tick, { toValue: met ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [met, tick, reduce]);
 
   return (
     <View
@@ -237,7 +255,7 @@ function Requirement({ label, met }: { label: string; met: boolean }) {
             StyleSheet.absoluteFill,
             {
               opacity: tick.interpolate({ inputRange: [0, 1], outputRange: [0, 1], extrapolate: 'clamp' }),
-              transform: [{ scale: tick.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] }) }],
+              transform: reduce ? [] : [{ scale: tick.interpolate({ inputRange: [0, 1], outputRange: [0.2, 1] }) }],
             },
           ]}
         >
@@ -256,6 +274,22 @@ function Requirement({ label, met }: { label: string; met: boolean }) {
       <Text style={[styles.ruleText, font.family ? { fontFamily: font.family } : null, { color: met ? colors.foreground : colors.mutedForeground }]}>{label}</Text>
     </View>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

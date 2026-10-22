@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
+  Easing,
   PanResponder,
   Pressable,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
   type AccessibilityActionEvent,
   type GestureResponderEvent,
   type StyleProp,
@@ -110,13 +113,22 @@ const SIZES: Record<SliderSize, { track: number; stepped: number; thumb: number;
   md: { track: 4, stepped: 8, thumb: 26, bar: 46, icon: 20, font: 13, hit: 44 },
   lg: { track: 6, stepped: 10, thumb: 30, bar: 58, icon: 24, font: 15, hit: 52 },
 };
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const BUBBLE_H = 28;
 const BUBBLE_GAP = 10;
 const BUBBLE_W = 120;
 /** Below this many points per step the thumb follows the finger and snaps on release. */
 const SNAP_PX = 14;
+const SMOOTH = Easing.bezier(0.32, 0.72, 0, 1);
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+/** Native-driven move to `toValue`: a snappy spring, or a short ease when Reduce Motion is on. */
+const glide = (v: Animated.Value, toValue: number, reduce: boolean) =>
+  reduce
+    ? Animated.timing(v, { toValue, duration: 150, easing: SMOOTH, useNativeDriver: true })
+    : Animated.spring(v, { toValue, useNativeDriver: true, ...motion.snappy });
 const decimals = (n: number) => (String(n).split('.')[1] ?? '').length;
 
 /**
@@ -163,9 +175,12 @@ export function Slider(props: SliderProps) {
 
   const { colors, radius, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
+  const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
   const onTint = accent ? readableOn(accent) : colors.accentForeground;
   const sz = SIZES[size];
+  // Text scale the capped labels actually render at, for the label row's height.
+  const fontScale = Math.min(useWindowDimensions().fontScale, FONT_CAP);
 
   const T = isBar ? 0 : sz.thumb; // thumb diameter
   const inset = T / 2; // thumb centre travels [inset, w - inset]
@@ -211,29 +226,24 @@ export function Slider(props: SliderProps) {
   const held = useRef(new Animated.Value(0)).current;
 
   // Everything the (once-created) PanResponder reads, kept fresh every render.
-  const live = useRef({ vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete });
-  live.current = { vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete };
+  const live = useRef({ vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, reduce, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete });
+  live.current = { vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, reduce, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete };
   const drag = useRef({ dragging: false, thumb: 0, startX: 0, origin: 0, relative: false, moved: false, cur: [] as number[], target: [-1, -1] });
 
   // Follow value changes from outside (controlled updates, a11y, icon taps) when nobody is dragging.
   const key = vals.join(',');
   useEffect(() => {
     if (drag.current.dragging) return;
-    vals.forEach((v, i) => Animated.spring(ratios[i], { toValue: ratioOf(v), useNativeDriver: true, ...motion.snappy }).start());
+    vals.forEach((v, i) => glide(ratios[i], ratioOf(v), reduce).start());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, min, max]);
 
+  // With Reduce Motion these only fade (the scale / lift outputs below are flattened).
   useEffect(() => {
-    press.forEach((p, i) => Animated.spring(p, { toValue: active === i ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start());
-    bubble.forEach((b, i) =>
-      Animated.spring(b, {
-        toValue: bubbleShown || (showValue === 'drag' && active === i) ? 1 : 0,
-        useNativeDriver: true,
-        ...motion.snappy,
-      }).start()
-    );
-    Animated.spring(held, { toValue: active !== null ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [active, bubbleShown, showValue, press, bubble, held]);
+    press.forEach((p, i) => glide(p, active === i ? 1 : 0, reduce).start());
+    bubble.forEach((b, i) => glide(b, bubbleShown || (showValue === 'drag' && active === i) ? 1 : 0, reduce).start());
+    glide(held, active !== null ? 1 : 0, reduce).start();
+  }, [active, bubbleShown, showValue, press, bubble, held, reduce]);
 
   const pan = useMemo(() => {
     const usableOf = () => Math.max(1, live.current.w - 2 * live.current.inset);
@@ -249,7 +259,7 @@ export function Slider(props: SliderProps) {
       const coarse = !!L.step && (L.step / L.span) * usableOf() >= SNAP_PX;
       const target = coarse ? L.ratioOf(snapped) : L.ratioOf(v);
       if (animate || coarse) {
-        if (target !== d.target[i]) Animated.spring(ratios[i], { toValue: target, useNativeDriver: true, ...motion.snappy }).start();
+        if (target !== d.target[i]) glide(ratios[i], target, L.reduce).start();
       } else {
         ratios[i].setValue(target);
       }
@@ -269,7 +279,7 @@ export function Slider(props: SliderProps) {
       const d = drag.current;
       if (!d.dragging) return;
       if (seek) moveTo(d.startX, true);
-      Animated.spring(ratios[d.thumb], { toValue: L.ratioOf(d.cur[d.thumb]), useNativeDriver: true, ...motion.snappy }).start();
+      glide(ratios[d.thumb], L.ratioOf(d.cur[d.thumb]), L.reduce).start();
       d.dragging = false;
       d.target = [-1, -1];
       if (!L.controlled) setInner(d.cur);
@@ -350,17 +360,18 @@ export function Slider(props: SliderProps) {
     };
   }, [w, inset, usable, range, slotW, ratios]);
 
+  // Reduce Motion: no swell, no pop-up — the halo and tooltip just fade.
   const anim = useMemo(
     () => ({
-      thumb: press.map((p) => [{ scale: p.interpolate({ inputRange: [0, 1], outputRange: [1, 1.14] }) }]),
-      halo: press.map((p) => [{ scale: p.interpolate({ inputRange: [0, 1], outputRange: [1, 1.75] }) }]),
+      thumb: press.map((p) => [{ scale: p.interpolate({ inputRange: [0, 1], outputRange: [1, reduce ? 1 : 1.14] }) }]),
+      halo: press.map((p) => [{ scale: p.interpolate({ inputRange: [0, 1], outputRange: [1, reduce ? 1 : 1.75] }) }]),
       bubble: bubble.map((b) => [
-        { translateY: b.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) },
-        { scale: b.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
+        { translateY: b.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 6, 0] }) },
+        { scale: b.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.6, 1] }) },
       ]),
-      held: [{ scale: held.interpolate({ inputRange: [0, 1], outputRange: [1, 1.025] }) }],
+      held: [{ scale: held.interpolate({ inputRange: [0, 1], outputRange: [1, reduce ? 1 : 1.025] }) }],
     }),
-    [press, bubble, held]
+    [press, bubble, held, reduce]
   );
 
   // ---- marks ----------------------------------------------------------------------------------
@@ -413,7 +424,7 @@ export function Slider(props: SliderProps) {
     <View style={[styles.barContent, { width: w, height: trackH, paddingHorizontal: Math.round(trackH * 0.32) }]}>
       <View>{icon !== undefined ? drawIcon(icon, iconColor) : null}</View>
       {showValue === 'always' ? (
-        <Text numberOfLines={1} selectable={false} style={[styles.barValue, ff, { color: textColor, fontSize: sz.font + 1 }, labelStyle]}>
+        <Text numberOfLines={1} selectable={false} maxFontSizeMultiplier={FONT_CAP} style={[styles.barValue, ff, { color: textColor, fontSize: sz.font + 1 }, labelStyle]}>
           {range ? `${fmt(vals[0])} – ${fmt(vals[1])}` : fmt(vals[0])}
         </Text>
       ) : null}
@@ -425,6 +436,7 @@ export function Slider(props: SliderProps) {
       key={key}
       numberOfLines={1}
       selectable={false}
+      maxFontSizeMultiplier={FONT_CAP}
       style={[styles.markLabel, place, ff, { fontSize: sz.font - 1, color: lit ? colors.foreground : colors.mutedForeground }, labelStyle]}
     >
       {text}
@@ -570,7 +582,7 @@ export function Slider(props: SliderProps) {
                           ]}
                         >
                           <View style={[styles.bubble, { backgroundColor: colors.foreground, borderRadius: radius.capsule(BUBBLE_H) }]}>
-                            <Text numberOfLines={1} selectable={false} style={[styles.bubbleText, ff, { color: colors.background, fontSize: sz.font }, labelStyle]}>
+                            <Text numberOfLines={1} selectable={false} maxFontSizeMultiplier={FONT_CAP} style={[styles.bubbleText, ff, { color: colors.background, fontSize: sz.font }, labelStyle]}>
                               {fmt(v)}
                             </Text>
                           </View>
@@ -583,7 +595,7 @@ export function Slider(props: SliderProps) {
           </View>
 
           {hasMarkLabels || minMax ? (
-            <View pointerEvents="none" style={[styles.labels, { height: sz.font + 8 }]}>
+            <View pointerEvents="none" style={[styles.labels, { height: Math.round(sz.font * fontScale) + 8 }]}>
               {hasMarkLabels
                 ? markList.map((m) => {
                     if (!m.label || !w) return null;
@@ -672,6 +684,22 @@ export function SliderIcon({ name, size = 20, color }: { name: SliderIconName; s
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   root: { alignSelf: 'stretch' },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
@@ -700,7 +728,7 @@ const styles = StyleSheet.create({
   },
   bubbleWrap: { position: 'absolute', width: BUBBLE_W, alignItems: 'center', transformOrigin: 'bottom' },
   bubble: {
-    height: BUBBLE_H,
+    minHeight: BUBBLE_H,
     paddingHorizontal: 10,
     minWidth: 36,
     alignItems: 'center',

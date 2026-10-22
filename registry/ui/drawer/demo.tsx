@@ -15,6 +15,9 @@ import {
 } from '@/components/ui/drawer';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 /* Shared phone chrome --------------------------------------------------------------------------- */
 
 const STATUS_H = 40;
@@ -48,7 +51,7 @@ function StatusBar() {
   const ink = colors.foreground;
   return (
     <View style={{ height: STATUS_H, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24 }}>
-      <Text style={{ fontSize: 15, color: ink, fontVariant: ['tabular-nums'] }}>9:41</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color: ink, fontVariant: ['tabular-nums'] }}>9:41</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 2 }}>
           {[4, 6, 8, 10].map((h) => (
@@ -109,14 +112,14 @@ function MenuButton() {
 function TopBar({ title, subtitle, right, menu = true }: { title: string; subtitle?: string; right?: React.ReactNode; menu?: boolean }) {
   const { colors } = useKit();
   return (
-    <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', paddingLeft: menu ? 6 : 16, paddingRight: 8, gap: 4 }}>
+    <View style={{ minHeight: 56, flexDirection: 'row', alignItems: 'center', paddingLeft: menu ? 6 : 16, paddingRight: 8, gap: 4 }}>
       {menu ? <MenuButton /> : null}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text numberOfLines={1} style={{ fontSize: subtitle ? 19 : 22, letterSpacing: -0.4, color: colors.foreground }}>
+        <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: subtitle ? 19 : 22, letterSpacing: -0.4, color: colors.foreground }}>
           {title}
         </Text>
         {subtitle ? (
-          <Text numberOfLines={1} style={{ fontSize: 12.5, color: colors.mutedForeground }}>
+          <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 12.5, color: colors.mutedForeground }}>
             {subtitle}
           </Text>
         ) : null}
@@ -146,7 +149,7 @@ function Initials({ name, size = 32, square, ring }: { name: string; size?: numb
         justifyContent: 'center',
       }}
     >
-      <Text style={{ fontSize: size * 0.38, color: square ? colors.background : colors.accent }}>{letters}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: size * 0.38, color: square ? colors.background : colors.accent }}>{letters}</Text>
     </View>
   );
 }
@@ -179,18 +182,18 @@ function MailRow({ from, service, subject, snippet, time, unread }: (typeof MAIL
       <Initials name={from} size={40} square={service} />
       <View style={{ flex: 1, minWidth: 0, gap: 1 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Text numberOfLines={1} style={{ flex: 1, fontSize: 15, color: unread ? colors.foreground : colors.mutedForeground }}>
+          <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ flex: 1, fontSize: 15, color: unread ? colors.foreground : colors.mutedForeground }}>
             {from}
           </Text>
-          <Text style={{ fontSize: 12.5, color: unread ? colors.accent : colors.mutedForeground }}>{time}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12.5, color: unread ? colors.accent : colors.mutedForeground }}>{time}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Text numberOfLines={1} style={{ flex: 1, fontSize: 14, color: colors.foreground, opacity: unread ? 1 : 0.8 }}>
+          <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ flex: 1, fontSize: 14, color: colors.foreground, opacity: unread ? 1 : 0.8 }}>
             {subject}
           </Text>
           {unread ? <Dot color={colors.accent} size={8} /> : null}
         </View>
-        <Text numberOfLines={1} style={{ fontSize: 13.5, color: colors.mutedForeground }}>
+        <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 13.5, color: colors.mutedForeground }}>
           {snippet}
         </Text>
       </View>
@@ -249,7 +252,7 @@ export function AppNavigation({ screen, bottomInset }: DemoProps) {
               </>
             }
           />
-          <Text style={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 2, fontSize: 13, color: colors.mutedForeground }}>Today</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ paddingHorizontal: 16, paddingTop: 4, paddingBottom: 2, fontSize: 13, color: colors.mutedForeground }}>Today</Text>
           {MAIL.map((m) => (
             <MailRow key={m.subject} {...m} />
           ))}
@@ -258,7 +261,7 @@ export function AppNavigation({ screen, bottomInset }: DemoProps) {
               position: 'absolute',
               right: 16,
               bottom: 18 + (bottomInset ?? 0),
-              height: 52,
+              minHeight: 52,
               paddingHorizontal: 18,
               flexDirection: 'row',
               alignItems: 'center',
@@ -273,7 +276,7 @@ export function AppNavigation({ screen, bottomInset }: DemoProps) {
             }}
           >
             <DrawerIcon name="plus" size={20} color={colors.accentForeground} strokeWidth={2} />
-            <Text style={{ fontSize: 15, color: colors.accentForeground }}>Compose</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color: colors.accentForeground }}>Compose</Text>
           </View>
         </Phone>
       </Drawer>
@@ -302,9 +305,9 @@ function StatePill({ state }: { state: TaskState }) {
   const { colors, radius } = useKit();
   const tone = state === 'In progress' ? colors.accent : state === 'In review' ? colors.warning : colors.mutedForeground;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, height: 24, paddingHorizontal: 9, borderRadius: radius.capsule(24), backgroundColor: alpha(tone, 0.13) }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 24, paddingHorizontal: 9, borderRadius: radius.capsule(24), backgroundColor: alpha(tone, 0.13) }}>
       <Dot color={tone} size={7} />
-      <Text style={{ fontSize: 12, color: colors.foreground }}>{state}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.foreground }}>{state}</Text>
     </View>
   );
 }
@@ -329,19 +332,19 @@ function TaskCard({ id, title, state, due, done, total, people }: (typeof TASKS)
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <StatePill state={state} />
-        <Text style={{ fontSize: 12, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>{id}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>{id}</Text>
       </View>
-      <Text numberOfLines={1} style={{ fontSize: 15.5, letterSpacing: -0.2, color: colors.foreground }}>
+      <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 15.5, letterSpacing: -0.2, color: colors.foreground }}>
         {title}
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
           <DrawerIcon name="calendar" size={14} color={due === 'Today' ? colors.danger : colors.mutedForeground} />
-          <Text style={{ fontSize: 12.5, color: due === 'Today' ? colors.danger : colors.mutedForeground }}>{due}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12.5, color: due === 'Today' ? colors.danger : colors.mutedForeground }}>{due}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
           <DrawerIcon name="check" size={14} color={colors.mutedForeground} />
-          <Text style={{ fontSize: 12.5, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12.5, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>
             {done}/{total}
           </Text>
         </View>
@@ -437,7 +440,7 @@ export function WorkspaceSwitcher({ screen, bottomInset }: DemoProps) {
                   accessibilityRole="button"
                   accessibilityState={{ selected: on }}
                   style={{
-                    height: 32,
+                    minHeight: 32,
                     paddingHorizontal: 12,
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -448,8 +451,8 @@ export function WorkspaceSwitcher({ screen, bottomInset }: DemoProps) {
                     borderColor: on ? alpha(colors.accent, 0.3) : colors.border,
                   }}
                 >
-                  <Text style={{ fontSize: 13.5, color: on ? colors.accent : colors.foreground }}>{label}</Text>
-                  <Text style={{ fontSize: 12.5, color: on ? colors.accent : colors.mutedForeground }}>{n}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13.5, color: on ? colors.accent : colors.foreground }}>{label}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12.5, color: on ? colors.accent : colors.mutedForeground }}>{n}</Text>
                 </Pressable>
               );
             })}
@@ -538,16 +541,16 @@ export function RightPanel({ screen, bottomInset }: DemoProps) {
                 <Art kind={s.art} size={0} height={112} radiusSize={radius.scale(18)} />
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 15, color: colors.foreground }}>{s.name}</Text>
-                    <Text style={{ fontSize: 13, color: colors.mutedForeground }}>{s.meta}</Text>
+                    <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color: colors.foreground }}>{s.name}</Text>
+                    <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, color: colors.mutedForeground }}>{s.meta}</Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                       <DrawerIcon name="star" size={13} color={colors.foreground} />
-                      <Text style={{ fontSize: 13, color: colors.foreground }}>{s.rating}</Text>
+                      <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, color: colors.foreground }}>{s.rating}</Text>
                     </View>
-                    <Text style={{ fontSize: 13, color: colors.mutedForeground }}>
-                      <Text style={{ color: colors.foreground }}>{s.price}</Text> night
+                    <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, color: colors.mutedForeground }}>
+                      <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground }}>{s.price}</Text> night
                     </Text>
                   </View>
                 </View>
@@ -748,11 +751,11 @@ export function PushLayout({ screen, bottomInset }: DemoProps) {
               <View style={{ flexDirection: 'row', gap: 14 }}>
                 <Art kind="sunset" size={92} />
                 <View style={{ flex: 1, minWidth: 0, justifyContent: 'center', gap: 2 }}>
-                  <Text style={{ fontSize: 12, color: colors.accent }}>Now playing</Text>
-                  <Text numberOfLines={1} style={{ fontSize: 17, letterSpacing: -0.3, color: colors.foreground }}>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 12, color: colors.accent }}>Now playing</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 17, letterSpacing: -0.3, color: colors.foreground }}>
                     Midnight City Lights
                   </Text>
-                  <Text numberOfLines={1} style={{ fontSize: 13.5, color: colors.mutedForeground }}>
+                  <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 13.5, color: colors.mutedForeground }}>
                     Nova Arcade · Afterglow
                   </Text>
                 </View>
@@ -762,8 +765,8 @@ export function PushLayout({ screen, bottomInset }: DemoProps) {
                   <View style={{ width: '43%', height: '100%', borderRadius: radius.capsule(4), backgroundColor: colors.accent }} />
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ fontSize: 11.5, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>1:48</Text>
-                  <Text style={{ fontSize: 11.5, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>-2:24</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 11.5, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>1:48</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 11.5, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>-2:24</Text>
                 </View>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 36 }}>
@@ -789,18 +792,18 @@ export function PushLayout({ screen, bottomInset }: DemoProps) {
               </View>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <Text style={{ fontSize: 17, letterSpacing: -0.3, color: colors.foreground }}>Up next</Text>
-              <Text style={{ fontSize: 13.5, color: colors.accent }}>See all</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 17, letterSpacing: -0.3, color: colors.foreground }}>Up next</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13.5, color: colors.accent }}>See all</Text>
             </View>
             <View style={{ gap: 12 }}>
               {TRACKS.map((t) => (
                 <View key={t.title} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                   <Art kind={t.art} size={44} />
                   <View style={{ flex: 1, minWidth: 0 }}>
-                    <Text numberOfLines={1} style={{ fontSize: 15, color: t.playing ? colors.accent : colors.foreground }}>
+                    <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 15, color: t.playing ? colors.accent : colors.foreground }}>
                       {t.title}
                     </Text>
-                    <Text numberOfLines={1} style={{ fontSize: 13, color: colors.mutedForeground }}>
+                    <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={{ fontSize: 13, color: colors.mutedForeground }}>
                       {t.artist}
                     </Text>
                   </View>
@@ -811,7 +814,7 @@ export function PushLayout({ screen, bottomInset }: DemoProps) {
                       ))}
                     </View>
                   ) : (
-                    <Text style={{ fontSize: 13, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>{t.time}</Text>
+                    <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 13, color: colors.mutedForeground, fontVariant: ['tabular-nums'] }}>{t.time}</Text>
                   )}
                 </View>
               ))}

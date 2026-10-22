@@ -1,5 +1,6 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Platform,
@@ -59,6 +60,10 @@ export interface SearchBarProps extends Omit<TextInputProps, 'style'> {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 /** Every dimension comes from one table so the sizes read clearly different. */
 const SIZES: Record<SearchBarSize, { h: number; font: number; icon: number; slot: number; r: number; clear: number; end: number }> = {
   sm: { h: 34, font: 14, icon: 14, slot: 30, r: 9, clear: 16, end: 6 },
@@ -105,6 +110,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
   ref
 ) {
   const { colors, radius, font } = useKit();
+  const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const s = SIZES[size];
   const tint = accent ?? colors.accent;
@@ -140,28 +146,47 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
   useEffect(() => {
     const to = focused ? 1 : 0;
     Animated.timing(focusJS, { toValue: to, duration: motion.fast, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
+    // Reduce Motion: the halo only fades (its scale is pinned below) and the magnifier doesn't pop.
+    if (reduce) {
+      Animated.timing(halo, { toValue: to, duration: 150, useNativeDriver: true }).start();
+      return;
+    }
     Animated.spring(halo, { toValue: to, useNativeDriver: true, ...motion.snappy }).start();
     if (focused) {
       icon.setValue(0.6);
       Animated.spring(icon, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
     }
-  }, [focused, focusJS, halo, icon]);
+  }, [focused, focusJS, halo, icon, reduce]);
 
   useEffect(() => {
     const to = cancelShown ? 1 : 0;
+    // Reduce Motion: the field narrows at once and Cancel fades in place.
+    if (reduce) {
+      cancelJS.setValue(to);
+      Animated.timing(cancelN, { toValue: to, duration: 150, useNativeDriver: true }).start();
+      return;
+    }
     Animated.spring(cancelJS, { toValue: to, useNativeDriver: false, ...motion.snappy }).start();
     Animated.spring(cancelN, { toValue: to, useNativeDriver: true, ...motion.snappy }).start();
-  }, [cancelShown, cancelJS, cancelN]);
+  }, [cancelShown, cancelJS, cancelN, reduce]);
 
   useEffect(() => {
     const to = open ? 1 : 0;
+    // Reduce Motion: 'minimal' snaps to its new width; the contents still fade.
+    if (reduce) {
+      openJS.setValue(to);
+      Animated.timing(openN, { toValue: to, duration: 150, useNativeDriver: true }).start();
+      return;
+    }
     Animated.spring(openJS, { toValue: to, useNativeDriver: false, ...motion.gentle }).start();
     Animated.timing(openN, { toValue: to, duration: open ? motion.normal : motion.fast, delay: open ? 80 : 0, useNativeDriver: true }).start();
-  }, [open, openJS, openN]);
+  }, [open, openJS, openN, reduce]);
 
   useEffect(() => {
-    Animated.spring(clear, { toValue: text && editable && open ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [text, editable, open, clear]);
+    const to = text && editable && open ? 1 : 0;
+    if (reduce) Animated.timing(clear, { toValue: to, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(clear, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [text, editable, open, clear, reduce]);
 
   useEffect(() => {
     Animated.timing(busy, { toValue: loading ? 1 : 0, duration: motion.fast, useNativeDriver: true }).start();
@@ -230,7 +255,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
         onLayout={(e) => setRowW(e.nativeEvent.layout.width)}
         style={[styles.row, minimal && { justifyContent: align === 'right' ? 'flex-end' : 'flex-start' }]}
       >
-        <Animated.View style={minimal ? { width: fieldW, height: s.h } : [styles.flex, { height: s.h }]}>
+        <Animated.View style={minimal ? { width: fieldW, minHeight: s.h } : [styles.flex, { minHeight: s.h }]}>
           <Animated.View
             pointerEvents="none"
             style={[
@@ -239,7 +264,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
                 borderRadius: r + 4,
                 backgroundColor: alpha(tint, 0.18),
                 opacity: halo,
-                transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) }],
+                transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.96, 1] }) }],
               },
             ]}
           />
@@ -276,6 +301,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
                 autoCorrect={false}
                 accessibilityRole="search"
                 accessibilityLabel={props.accessibilityLabel ?? placeholder}
+                maxFontSizeMultiplier={FONT_CAP}
                 {...props}
                 autoFocus={autoFocus}
                 editable={editable}
@@ -294,12 +320,12 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
                   if (minimal && !text) setExpanded(false);
                   onBlur?.(e);
                 }}
-                style={[styles.input, ff, { color: colors.foreground, fontSize: s.font, height: s.h - 3 }, webNoOutline]}
+                style={[styles.input, ff, { color: colors.foreground, fontSize: s.font, minHeight: s.h - 3 }, webNoOutline]}
               />
             </Animated.View>
             <Animated.View
               pointerEvents={text && open ? 'auto' : 'none'}
-              style={[styles.clear, { width: s.clear + 8, opacity: clear, transform: [{ scale: clear }] }]}
+              style={[styles.clear, { width: s.clear + 8, opacity: clear, transform: [{ scale: reduce ? 1 : clear }] }]}
             >
               <Pressable
                 hitSlop={12}
@@ -342,6 +368,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
         {cancelEnabled ? (
           <>
             <Text
+              maxFontSizeMultiplier={FONT_CAP}
               pointerEvents="none"
               onLayout={(e) => setCancelW(Math.ceil(e.nativeEvent.layout.width) + 14)}
               style={[styles.cancelText, styles.measure, ff, { fontSize: s.font }]}
@@ -357,7 +384,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
                   {
                     width: cancelW,
                     opacity: cancelN,
-                    transform: [{ translateX: cancelN.interpolate({ inputRange: [0, 1], outputRange: [24, 0] }) }],
+                    transform: [{ translateX: cancelN.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 24, 0] }) }],
                   },
                 ]}
               >
@@ -367,7 +394,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
                   accessibilityLabel={cancelLabel}
                   onPress={cancel}
                 >
-                  <Text numberOfLines={1} style={[styles.cancelText, ff, { color: tint, fontSize: s.font }]}>
+                  <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={[styles.cancelText, ff, { color: tint, fontSize: s.font }]}>
                     {cancelLabel}
                   </Text>
                 </Pressable>
@@ -378,24 +405,33 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
       </View>
 
       {suggestions ? (
-        <SuggestionPanel open={panelOpen && open && visible.length > 0} items={visible} query={query} tint={tint} onSelect={select} />
+        <SuggestionPanel
+          open={panelOpen && open && visible.length > 0}
+          items={visible}
+          query={query}
+          tint={tint}
+          reduce={reduce}
+          onSelect={select}
+        />
       ) : null}
     </View>
   );
 });
 
-/** Dropdown list under the bar: drops in, rows show an icon, bolded match and a hint. */
+/** Dropdown list under the bar: drops in (fades with Reduce Motion), rows show an icon, bolded match and a hint. */
 function SuggestionPanel({
   open,
   items,
   query,
   tint,
+  reduce,
   onSelect,
 }: {
   open: boolean;
   items: SearchSuggestion[];
   query: string;
   tint: string;
+  reduce: boolean;
   onSelect: (item: SearchSuggestion) => void;
 }) {
   const { colors, radius, font } = useKit();
@@ -408,13 +444,14 @@ function SuggestionPanel({
   useEffect(() => {
     if (open) {
       setMounted(true);
-      Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+      if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+      else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
     } else {
       Animated.timing(enter, { toValue: 0, duration: motion.fast, useNativeDriver: true }).start(({ finished }) => {
         if (finished) setMounted(false);
       });
     }
-  }, [open, enter]);
+  }, [open, enter, reduce]);
 
   if (!mounted) return null;
   return (
@@ -428,8 +465,8 @@ function SuggestionPanel({
           borderRadius: radius.lg,
           opacity: enter,
           transform: [
-            { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [-6, 0] }) },
-            { scale: enter.interpolate({ inputRange: [0, 1], outputRange: [0.98, 1] }) },
+            { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : -6, 0] }) },
+            { scale: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.98, 1] }) },
           ],
         },
       ]}
@@ -496,6 +533,22 @@ function Icon({ name, size, color }: { name: 'search' | 'recent' | 'trending'; s
       )}
     </Svg>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

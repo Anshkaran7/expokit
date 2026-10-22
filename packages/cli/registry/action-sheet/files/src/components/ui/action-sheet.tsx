@@ -104,6 +104,9 @@ export interface ActionSheetProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const DEFAULT_BOTTOM_INSET = Platform.select({ ios: 20, android: 12, default: 16 }) ?? 16;
 
 /** iOS-style resistance: moves 1:1 at first, then ever more slowly towards `limit`. */
@@ -296,7 +299,7 @@ export function ActionSheet({
                   <View style={[styles.tileIcon, { backgroundColor: fill, borderRadius: radius.scale(16) }]}>
                     {icon(a, fg, 24)}
                   </View>
-                  <Text numberOfLines={2} style={[styles.tileLabel, ff, { color: a.destructive ? colors.danger : colors.foreground }]}>
+                  <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={2} style={[styles.tileLabel, ff, { color: a.destructive ? colors.danger : colors.foreground }]}>
                     {a.label}
                   </Text>
                 </Row>

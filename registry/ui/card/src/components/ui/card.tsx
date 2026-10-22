@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useId, useRef, useState, type ComponentRef } from 'react';
+import React, { createContext, useContext, useEffect, useId, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Image,
   Platform,
@@ -67,6 +68,7 @@ export function Card({
   const interactive = !!(onPress || onLongPress || pressable);
   const corner = radius.scale(18);
   const gid = 'card' + useId().replace(/[^a-zA-Z0-9]/g, '');
+  const reduce = useReduceMotion();
 
   const scale = useRef(new Animated.Value(1)).current;
   const glow = useRef(new Animated.Value(0)).current;
@@ -87,15 +89,17 @@ export function Card({
 
   const border = (surfaces[variant].borderWidth as number | undefined) ?? 0;
 
+  // Reduce Motion: no press squish and the spotlight doesn't grow; the glow still fades in and out.
   const pressIn = (e: GestureResponderEvent) => {
-    Animated.spring(scale, { toValue: 0.975, useNativeDriver: true, ...motion.snappy }).start();
+    if (!reduce) Animated.spring(scale, { toValue: 0.975, useNativeDriver: true, ...motion.snappy }).start();
     if (highlight === 'none') return;
     moveSpot(e);
     Animated.spring(glow, { toValue: 1, useNativeDriver: true, ...motion.gentle }).start();
   };
   const pressOut = () => {
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
-    if (highlight !== 'none') Animated.timing(glow, { toValue: 0, duration: 420, useNativeDriver: true }).start();
+    if (reduce) scale.setValue(1);
+    else Animated.spring(scale, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
+    if (highlight !== 'none') Animated.timing(glow, { toValue: 0, duration: reduce ? 150 : 420, useNativeDriver: true }).start();
   };
   // Touch coordinates are relative to whichever child was hit, so work from page coordinates.
   const clipRef = useRef<ComponentRef<typeof View>>(null);
@@ -125,7 +129,7 @@ export function Card({
               transform: [
                 { translateX: spot.x },
                 { translateY: spot.y },
-                { scale: glow.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) },
+                { scale: glow.interpolate({ inputRange: [0, 1], outputRange: reduce ? [1, 1] : [0.4, 1] }) },
               ],
             },
           ]}
@@ -286,6 +290,22 @@ Card.Media = CardMedia;
 function shadow(opacity: number, y: number, blur: number, elevation = 2): ViewStyle {
   if (!opacity) return {};
   return { shadowColor: '#000', shadowOpacity: opacity, shadowRadius: blur / 2, shadowOffset: { width: 0, height: y }, elevation };
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

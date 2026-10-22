@@ -107,7 +107,7 @@
     {
       "name": "WithIcons",
       "title": "With Icons",
-      "code": "import { Text, View } from 'react-native';\nimport { SegmentedControl } from '@/components/ui/segmented-control';\n\nexport default function WithIcons() {\n  const glyph = (g: string) => ({ color }: { color: string }) => <Text style={{ fontSize: 15, color }}>{g}</Text>;\n  return (\n    <SegmentedControl\n      defaultValue=\"grid\"\n      options={[\n        { value: 'list', label: 'List', icon: glyph('☰') },\n        { value: 'grid', label: 'Grid', icon: glyph('▦') },\n        { value: 'map', label: 'Map', icon: glyph('◎') },\n      ]}\n    />\n  );\n}\n"
+      "code": "import { Text, View } from 'react-native';\nimport { SegmentedControl } from '@/components/ui/segmented-control';\n\n/** Controls stop at iOS's largest standard text size; content text stays uncapped. */\nconst FONT_CAP = 1.35;\n\nexport default function WithIcons() {\n  const glyph = (g: string) => ({ color }: { color: string }) => <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color }}>{g}</Text>;\n  return (\n    <SegmentedControl\n      defaultValue=\"grid\"\n      options={[\n        { value: 'list', label: 'List', icon: glyph('☰') },\n        { value: 'grid', label: 'Grid', icon: glyph('▦') },\n        { value: 'map', label: 'Map', icon: glyph('◎') },\n      ]}\n    />\n  );\n}\n"
     },
     {
       "name": "Accent",

@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { Button } from '@/components/ui/button';
 import { readableOn, useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 export function Variants() {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -29,7 +32,7 @@ export function GradientAndGlow() {
         size="lg"
         block
         pill
-        right={<Text style={{ color: readableOn(colors.accent), fontSize: 18 }}>→</Text>}
+        right={<Text maxFontSizeMultiplier={FONT_CAP} style={{ color: readableOn(colors.accent), fontSize: 18 }}>→</Text>}
       >
         Get started
       </Button>
@@ -84,12 +87,12 @@ export function DynamicColor() {
 
 export function Sizes() {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
       <Button size="sm">Small</Button>
       <Button size="md">Medium</Button>
       <Button size="lg">Large</Button>
       <Button size="icon" variant="outline">
-        <Text style={{ fontSize: 18 }}>♥</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 18 }}>♥</Text>
       </Button>
     </View>
   );

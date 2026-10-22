@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Animated, PanResponder, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, PanResponder, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
 import { alpha, motion, readableOn, useKit } from '@/lib/kit';
@@ -66,6 +66,7 @@ export function Switch({
   const { colors, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const gid = 'sw' + useId().replace(/[^a-zA-Z0-9]/g, '');
+  const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
   const [inner, setInner] = useState(defaultValue);
   const on = value ?? inner;
@@ -88,18 +89,21 @@ export function Switch({
   const stretch = useRef(new Animated.Value(0)).current;
   const glyph = useRef(new Animated.Value(on ? 1 : 0)).current;
   const halo = useRef(new Animated.Value(0)).current;
+  // Reduce Motion: the thumb jumps, so the colours follow this instead and still fade (JS driver).
+  const tone = useRef(new Animated.Value(on ? 1 : 0)).current;
 
   useEffect(() => {
-    Animated.spring(pos, { toValue: on ? 1 : 0, useNativeDriver: false, ...motion.snappy }).start();
-    Animated.spring(glyph, { toValue: on ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [on, pos, glyph]);
-
-  // Halo: 0 hidden · 1 held (glow around the thumb) · 2 released (expands and fades out).
-  const press = (to: number) => {
-    Animated.spring(stretch, { toValue: to, useNativeDriver: false, ...(to ? motion.snappy : motion.bouncy) }).start();
-    if (to) Animated.spring(halo, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-    else Animated.timing(halo, { toValue: 2, duration: 420, useNativeDriver: true }).start(({ finished }) => finished && halo.setValue(0));
-  };
+    const to = on ? 1 : 0;
+    if (reduce) {
+      pos.setValue(to);
+      glyph.setValue(to);
+      Animated.timing(tone, { toValue: to, duration: 150, useNativeDriver: false }).start();
+      return;
+    }
+    tone.setValue(to);
+    Animated.spring(pos, { toValue: to, useNativeDriver: false, ...motion.snappy }).start();
+    Animated.spring(glyph, { toValue: to, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [on, reduce, pos, glyph, tone]);
 
   const toggle = () => {
     if (haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -114,8 +118,24 @@ export function Switch({
   // Drag the thumb across: pos follows the finger, release settles on the nearer side.
   // A touch that never moves is a tap and just toggles. On web the wrapping Pressable also
   // gets a click after the gesture, so it ignores presses right after one (`endedAt`).
-  const live = useRef({ on, toggle, travel: c1 - c0 });
-  live.current = { on, toggle, travel: c1 - c0 };
+  const live = useRef({ on, toggle, travel: c1 - c0, reduce });
+  live.current = { on, toggle, travel: c1 - c0, reduce };
+
+  // Halo: 0 hidden · 1 held (glow around the thumb) · 2 released (expands and fades out).
+  // Reduce Motion: no squash & stretch, and the halo only fades (its scale is pinned below).
+  const press = (to: number) => {
+    const still = live.current.reduce;
+    if (!still) Animated.spring(stretch, { toValue: to, useNativeDriver: false, ...(to ? motion.snappy : motion.bouncy) }).start();
+    if (to) Animated.spring(halo, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+    else
+      Animated.timing(halo, { toValue: 2, duration: still ? 150 : 420, useNativeDriver: true }).start(
+        ({ finished }) => finished && halo.setValue(0)
+      );
+  };
+  const settle = (to: number) => {
+    if (live.current.reduce) pos.setValue(to);
+    else Animated.spring(pos, { toValue: to, useNativeDriver: false, ...motion.snappy }).start();
+  };
   const drag = useRef({ from: 0, moved: false, endedAt: 0 });
   const responder = useMemo(
     () =>
@@ -138,12 +158,12 @@ export function Switch({
           press(0);
           if (!drag.current.moved) return flip();
           const next = clamp01(drag.current.from + g.dx / live.current.travel) > 0.5;
-          Animated.spring(pos, { toValue: next ? 1 : 0, useNativeDriver: false, ...motion.snappy }).start();
+          settle(next ? 1 : 0);
           if (next !== now) flip();
         },
         onPanResponderTerminate: () => {
           press(0);
-          Animated.spring(pos, { toValue: live.current.on ? 1 : 0, useNativeDriver: false, ...motion.snappy }).start();
+          settle(live.current.on ? 1 : 0);
         },
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,12 +184,13 @@ export function Switch({
     Animated.multiply(stretch, growH / 2)
   );
 
+  const paint = reduce ? tone : pos;
   const offTrack = material ? alpha(colors.mutedForeground, 0.12) : alpha(colors.foreground, dark ? 0.16 : 0.1);
-  const trackBg = pos.interpolate({ inputRange: [0, 1], outputRange: [offTrack, tint], extrapolate: 'clamp' });
-  const trackBorder = pos.interpolate({ inputRange: [0, 1], outputRange: [colors.mutedForeground, tint], extrapolate: 'clamp' });
+  const trackBg = paint.interpolate({ inputRange: [0, 1], outputRange: [offTrack, tint], extrapolate: 'clamp' });
+  const trackBorder = paint.interpolate({ inputRange: [0, 1], outputRange: [colors.mutedForeground, tint], extrapolate: 'clamp' });
   const onFg = readableOn(tint);
   const thumbBg = material
-    ? pos.interpolate({ inputRange: [0, 1], outputRange: [colors.mutedForeground, onFg], extrapolate: 'clamp' })
+    ? paint.interpolate({ inputRange: [0, 1], outputRange: [colors.mutedForeground, onFg], extrapolate: 'clamp' })
     : '#ffffff';
 
   const iconSize = dOn * 0.62;
@@ -222,7 +243,7 @@ export function Switch({
               borderRadius: haloSize / 2,
               backgroundColor: alpha(on ? tint : colors.mutedForeground, 0.2),
               opacity: halo.interpolate({ inputRange: [0, 1, 2], outputRange: [0, 1, 0] }),
-              transform: [{ scale: halo.interpolate({ inputRange: [0, 1, 2], outputRange: [0.5, 1, 1.45] }) }],
+              transform: [{ scale: halo.interpolate({ inputRange: [0, 1, 2], outputRange: reduce ? [1, 1, 1] : [0.5, 1, 1.45] }) }],
             },
           ]}
         />
@@ -322,6 +343,22 @@ export function Switch({
       {control}
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

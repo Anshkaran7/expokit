@@ -71,6 +71,10 @@ export interface PaymentCardLabels {
   accessibility?: string;
 }
 
+// Everything is printed on a fixed-shape card, so all its text is control text: it stops growing at iOS's largest
+// standard text size (xxxL ≈ 1.35×) so the card keeps its shape.
+const FONT_CAP = 1.35;
+
 /**
  * "4821 7590 1234 0317" → groups of 4 (Amex 4-6-5, 14-digit Diners 4-6-4, 19-digit cards get a
  * fifth group). Masking hides every digit but the last four, whatever the length. Keeps • placeholders.
@@ -111,19 +115,19 @@ function BrandMark({ brand, ink }: { brand: PaymentCardBrand; ink: string }) {
     );
   }
   if (brand === 'visa') {
-    return <Text style={[styles.visa, { color: ink }]}>VISA</Text>;
+    return <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.visa, { color: ink }]}>VISA</Text>;
   }
   if (brand === 'amex') {
     return (
       <View style={[styles.amex, { borderColor: ink }]}>
-        <Text style={{ color: ink, fontSize: 9, fontWeight: '800', letterSpacing: 0.6, lineHeight: 10 }}>AMERICAN</Text>
-        <Text style={{ color: ink, fontSize: 9, fontWeight: '800', letterSpacing: 0.6, lineHeight: 10 }}>EXPRESS</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: ink, fontSize: 9, fontWeight: '800', letterSpacing: 0.6, lineHeight: 10 }}>AMERICAN</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: ink, fontSize: 9, fontWeight: '800', letterSpacing: 0.6, lineHeight: 10 }}>EXPRESS</Text>
       </View>
     );
   }
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-      <Text style={{ color: ink, fontSize: 18, fontWeight: '800', fontStyle: 'italic', letterSpacing: -0.3 }}>RuPay</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: ink, fontSize: 18, fontWeight: '800', fontStyle: 'italic', letterSpacing: -0.3 }}>RuPay</Text>
       <Svg width={14} height={16} viewBox="0 0 14 16">
         <Path d="M2 1 L10 8 L2 15 Z" fill="#F47920" />
         <Path d="M6 1 L14 8 L6 15 Z" fill="#0B8E36" />
@@ -278,28 +282,28 @@ export function PaymentCard({
       {tone === 'light' ? <Shade strength={image ? 0.38 : 0.2} /> : null}
       <View style={styles.inner}>
         <View style={styles.row}>
-          <Text style={[{ color: ink, fontSize: 16, fontWeight: '700', letterSpacing: -0.2 }, ff, emboss]}>{bank ?? ''}</Text>
-          {label ? <Text style={[{ color: soft, fontSize: 11, fontWeight: '600', letterSpacing: 1 }, ff, emboss]}>{label.toUpperCase()}</Text> : null}
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[{ flexShrink: 1, color: ink, fontSize: 16, fontWeight: '700', letterSpacing: -0.2 }, ff, emboss]}>{bank ?? ''}</Text>
+          {label ? <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: soft, fontSize: 11, fontWeight: '600', letterSpacing: 1 }, ff, emboss]}>{label.toUpperCase()}</Text> : null}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Chip finish={chip} />
           <Contactless ink={ink} />
         </View>
         <View style={{ gap: 10 }}>
-          <Text style={[{ color: ink, fontSize: 19, fontWeight: '500', letterSpacing: 2, fontVariant: ['tabular-nums'] }, ff, emboss]}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize: 19, fontWeight: '500', letterSpacing: 2, fontVariant: ['tabular-nums'] }, ff, emboss]}>
             {formatNumber(number, brand, masked)}
           </Text>
           <View style={[styles.row, { alignItems: 'flex-end' }]}>
             <View style={{ flexDirection: 'row', gap: 20, flexShrink: 1 }}>
               <View style={{ flexShrink: 1 }}>
-                <Text style={[styles.tiny, ff, { color: soft }]}>{text.cardholder}</Text>
-                <Text style={[{ color: ink, fontSize: 13, fontWeight: '600', letterSpacing: 0.8 }, ff, emboss]} numberOfLines={1}>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.tiny, ff, { color: soft }]}>{text.cardholder}</Text>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize: 13, fontWeight: '600', letterSpacing: 0.8 }, ff, emboss]} numberOfLines={1}>
                   {name.toUpperCase()}
                 </Text>
               </View>
               <View>
-                <Text style={[styles.tiny, ff, { color: soft }]}>{text.validThru}</Text>
-                <Text style={[{ color: ink, fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] }, ff, emboss]}>{expiry}</Text>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.tiny, ff, { color: soft }]}>{text.validThru}</Text>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize: 13, fontWeight: '600', fontVariant: ['tabular-nums'] }, ff, emboss]}>{expiry}</Text>
               </View>
             </View>
             <BrandMark brand={brand} ink={ink} />
@@ -309,7 +313,7 @@ export function PaymentCard({
       {frozen ? (
         <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: 'rgba(214,232,255,0.28)' }]}>
           <View style={styles.frozenPill}>
-            <Text style={[{ color: '#ffffff', fontSize: 13, fontWeight: '700', letterSpacing: 0.4 }, ff]}>❄︎  {text.frozen}</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: '#ffffff', fontSize: 13, fontWeight: '700', letterSpacing: 0.4 }, ff]}>❄︎  {text.frozen}</Text>
           </View>
         </View>
       ) : null}
@@ -330,15 +334,15 @@ export function PaymentCard({
           </Svg>
         </View>
         <View style={styles.cvv}>
-          <Text style={[{ color: '#111', fontSize: 15, fontWeight: '700', fontStyle: 'italic', letterSpacing: 1.5, fontVariant: ['tabular-nums'] }, ff]}>{cvv ?? '•••'}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: '#111', fontSize: 15, fontWeight: '700', fontStyle: 'italic', letterSpacing: 1.5, fontVariant: ['tabular-nums'] }, ff]}>{cvv ?? '•••'}</Text>
         </View>
       </View>
       <View style={styles.backFoot}>
         <View style={{ flex: 1, gap: 3 }}>
-          <Text style={[{ color: 'rgba(255,255,255,0.78)', fontSize: 9, lineHeight: 12 }, ff]}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: 'rgba(255,255,255,0.78)', fontSize: 9, lineHeight: 12 }, ff]}>
             {fill(text.legal)}
           </Text>
-          <Text style={[{ color: 'rgba(255,255,255,0.9)', fontSize: 10, fontWeight: '600' }, ff]}>{fill(text.back)}</Text>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: 'rgba(255,255,255,0.9)', fontSize: 10, fontWeight: '600' }, ff]}>{fill(text.back)}</Text>
         </View>
         {/* Security hologram. */}
         <Svg width={40} height={30} viewBox="0 0 40 30">

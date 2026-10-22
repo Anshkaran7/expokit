@@ -1,6 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   PanResponder,
   Pressable,
@@ -48,6 +49,10 @@ export interface SegmentedControlProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 const SIZES: Record<SegmentedControlSize, { h: number; font: number; px: number; icon: number }> = {
   sm: { h: 32, font: 13, px: 12, icon: 14 },
   md: { h: 40, font: 14.5, px: 16, icon: 16 },
@@ -81,6 +86,7 @@ export function SegmentedControl({
 }: SegmentedControlProps) {
   const { colors, radius, dark } = useKit();
   const gid = 'sc' + useId().replace(/[^a-zA-Z0-9]/g, '');
+  const reduce = useReduceMotion();
   const items: SegmentOption[] = options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o));
   const [inner, setInner] = useState(defaultValue ?? items[0]?.value);
   const selected = value ?? inner;
@@ -98,7 +104,8 @@ export function SegmentedControl({
   useEffect(() => {
     const l = layouts.current[index];
     if (!l) return;
-    if (!placed.current) {
+    // Reduce Motion: the indicator jumps to the new segment instead of sliding.
+    if (!placed.current || reduce) {
       lx.setValue(l.x);
       rx.setValue(l.x + l.width);
       placed.current = true;
@@ -111,7 +118,7 @@ export function SegmentedControl({
       Animated.spring(lx, { toValue: l.x, useNativeDriver: false, ...(right ? TRAIL : LEAD) }),
       Animated.spring(rx, { toValue: l.x + l.width, useNativeDriver: false, ...(right ? LEAD : TRAIL) }),
     ]).start();
-  }, [index, measured, lx, rx]);
+  }, [index, measured, reduce, lx, rx]);
 
   const onSegmentLayout = (i: number) => (e: LayoutChangeEvent) => {
     const { x: lx, width } = e.nativeEvent.layout;
@@ -253,6 +260,7 @@ export function SegmentedControl({
           activeFg={activeFg}
           idleFg={idleFg}
           disabled={disabled || o.disabled}
+          reduce={reduce}
         />
       ))}
     </View>
@@ -271,9 +279,10 @@ interface SegmentProps {
   activeFg: string;
   idleFg: string;
   disabled?: boolean;
+  reduce: boolean;
 }
 
-function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size, height, activeFg, idleFg, disabled }: SegmentProps) {
+function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size, height, activeFg, idleFg, disabled, reduce }: SegmentProps) {
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   // a: text colour (JS). press: content squish, pop: little bounce on selection (native, same view).
@@ -283,16 +292,19 @@ function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size
   const mounted = useRef(false);
 
   useEffect(() => {
-    Animated.timing(a, { toValue: active ? 1 : 0, duration: 180, useNativeDriver: false }).start();
-    if (active && mounted.current) {
+    Animated.timing(a, { toValue: active ? 1 : 0, duration: reduce ? 150 : 180, useNativeDriver: false }).start();
+    // Reduce Motion: no selection pop and no press squish; the label colour still fades.
+    if (active && mounted.current && !reduce) {
       pop.setValue(0.9);
       Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start();
     }
     mounted.current = true;
-  }, [active, a, pop]);
+  }, [active, reduce, a, pop]);
 
-  const pressTo = (to: number) =>
+  const pressTo = (to: number) => {
+    if (reduce) return press.setValue(1);
     Animated.spring(press, { toValue: to, useNativeDriver: true, ...(to < 1 ? motion.snappy : motion.bouncy) }).start();
+  };
 
   const color = a.interpolate({ inputRange: [0, 1], outputRange: [idleFg, activeFg] });
   const icon =
@@ -312,18 +324,34 @@ function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size
       onPressOut={() => pressTo(1)}
       onLayout={onLayout}
       hitSlop={height < 44 ? { top: (44 - height) / 2, bottom: (44 - height) / 2 } : undefined}
-      style={[styles.segment, fullWidth && styles.flex, { height, paddingHorizontal: size.px }]}
+      style={[styles.segment, fullWidth && styles.flex, { minHeight: height, paddingHorizontal: size.px }]}
     >
       <Animated.View style={[styles.content, { transform: [{ scale: Animated.multiply(press, pop) }] }]}>
         {icon ? <View style={{ minWidth: size.icon, alignItems: 'center' }}>{icon}</View> : null}
         {option.label ? (
-          <Animated.Text numberOfLines={1} style={[styles.label, ff, { fontSize: size.font, color }]}>
+          <Animated.Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.label, ff, { fontSize: size.font, color }]}>
             {option.label}
           </Animated.Text>
         ) : null}
       </Animated.View>
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

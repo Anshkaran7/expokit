@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { alpha, motion, readableOn, useKit } from '@/lib/kit';
@@ -58,6 +58,7 @@ export function RadioGroup({
   style,
 }: RadioGroupProps) {
   const { colors, radius } = useKit();
+  const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
   const [inner, setInner] = useState(defaultValue);
   const selected = value ?? inner;
@@ -95,6 +96,7 @@ export function RadioGroup({
           first={i === 0}
           tint={tint}
           disabled={disabled || o.disabled}
+          reduce={reduce}
         />
       ))}
     </View>
@@ -110,9 +112,10 @@ interface RadioItemProps {
   first: boolean;
   tint: string;
   disabled?: boolean;
+  reduce: boolean;
 }
 
-function RadioItem({ option, active, onPress, variant, horizontal, first, tint, disabled }: RadioItemProps) {
+function RadioItem({ option, active, onPress, variant, horizontal, first, tint, disabled, reduce }: RadioItemProps) {
   const { colors, radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   // p: colours + svg (JS driver). dot: scale/opacity pops (native). press: press feedback (native).
@@ -121,17 +124,24 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
   const dot = useRef(new Animated.Value(active ? 1 : 0)).current;
   const press = useRef(new Animated.Value(1)).current;
   const ripple = useRef(new Animated.Value(1)).current;
-  const mounted = useRef(false);
+  const was = useRef(active);
 
   useEffect(() => {
+    const picked = active && !was.current;
+    was.current = active;
+    // Reduce Motion: colours and the check still fade in, the dot appears at once, no ripple.
+    if (reduce) {
+      Animated.timing(p, { toValue: active ? 1 : 0, duration: 150, useNativeDriver: false }).start();
+      dot.setValue(active ? 1 : 0);
+      return;
+    }
     Animated.spring(p, { toValue: active ? 1 : 0, useNativeDriver: false, ...motion.snappy }).start();
     Animated.spring(dot, { toValue: active ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-    if (active && mounted.current) {
+    if (picked) {
       ripple.setValue(0);
       Animated.timing(ripple, { toValue: 1, duration: 560, useNativeDriver: true }).start();
     }
-    mounted.current = true;
-  }, [active, p, dot, ripple]);
+  }, [active, reduce, p, dot, ripple]);
 
   const rippleStyle = {
     backgroundColor: alpha(tint, 0.35),
@@ -139,8 +149,10 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
     transform: [{ scale: ripple.interpolate({ inputRange: [0, 1], outputRange: [1, 2.3] }) }],
   };
 
-  const pressTo = (to: number) =>
+  const pressTo = (to: number) => {
+    if (reduce) return press.setValue(1);
     Animated.spring(press, { toValue: to, useNativeDriver: true, ...(to < 1 ? motion.snappy : motion.bouncy) }).start();
+  };
 
   const fg = colors.foreground;
   const muted = colors.mutedForeground;
@@ -287,12 +299,28 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
         </Animated.View>
       </Animated.View>
       {horizontal && !option.description ? (
-        <Text style={[styles.label, ff, { color: fg }]}>{option.label}</Text>
+        <Text style={[styles.label, styles.shrink, ff, { color: fg }]}>{option.label}</Text>
       ) : (
         text
       )}
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({
@@ -301,7 +329,9 @@ const styles = StyleSheet.create({
   flex: { flex: 1, minWidth: 0 },
   flexGrow: { flexGrow: 1 },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  rowCompact: { alignItems: 'center' },
+  // A long label wraps at a large text size instead of running past the edge.
+  rowCompact: { alignItems: 'center', flexShrink: 1 },
+  shrink: { flexShrink: 1 },
   ring: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 8, height: 8, borderRadius: 4 },
   ringSlot: { alignItems: 'center', justifyContent: 'center' },

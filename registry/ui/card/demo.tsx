@@ -5,11 +5,14 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 export function Default() {
   const { colors } = useKit();
   return (
     <Card>
-      <Card.Header action={<Text style={{ fontSize: 18, color: colors.mutedForeground }}>⋯</Text>}>
+      <Card.Header action={<Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 18, color: colors.mutedForeground }}>⋯</Text>}>
         <Card.Title>Invite your team</Card.Title>
         <Card.Description>Collaborators can edit boards, leave comments and see version history.</Card.Description>
       </Card.Header>

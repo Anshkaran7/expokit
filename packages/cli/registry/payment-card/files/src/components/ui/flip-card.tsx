@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { motion } from '@/lib/kit';
 
@@ -48,12 +48,15 @@ const SQUEEZE = {
  * The flip as an animated 0 → 1 value, springing like FlipCard's own, plus `shadowScaleX` — pass
  * `progress` to the FlipCard and `shadowScaleX` to a TiltCard wrapped round it, so the tilt
  * shadow narrows as the card turns edge-on instead of showing as a dark box behind it.
+ * With Reduce Motion on, the card turns over at once (no 3D turn).
  */
 export function useFlipProgress(flipped: boolean) {
+  const reduce = useReduceMotion();
   const progress = useRef(new Animated.Value(flipped ? 1 : 0)).current;
   useEffect(() => {
-    Animated.spring(progress, { toValue: flipped ? 1 : 0, ...motion.gentle, useNativeDriver: true }).start();
-  }, [flipped, progress]);
+    if (reduce) progress.setValue(flipped ? 1 : 0);
+    else Animated.spring(progress, { toValue: flipped ? 1 : 0, ...motion.gentle, useNativeDriver: true }).start();
+  }, [flipped, progress, reduce]);
   const shadowScaleX = useMemo(() => progress.interpolate(SQUEEZE), [progress]);
   return { progress, shadowScaleX };
 }
@@ -183,6 +186,22 @@ export function FlipCard({
       {body}
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

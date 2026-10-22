@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { Confetti, type ConfettiHandle } from '@/components/ui/confetti';
 import { useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -18,15 +21,15 @@ export function Celebrate({ screen }: DemoProps) {
         screen ? { flex: 1, backgroundColor: colors.background } : { height: 420, borderRadius: radius.xl, backgroundColor: colors.muted },
       ]}
     >
-      <Text style={{ fontSize: 44 }}>🎉</Text>
-      <Text style={{ color: colors.foreground, fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Order placed!</Text>
-      <Text style={{ color: colors.mutedForeground, fontSize: 14, textAlign: 'center' }}>You saved ₹240 with coupon GLOW50. Arriving Thursday.</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 44 }}>🎉</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Order placed!</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.mutedForeground, fontSize: 14, textAlign: 'center' }}>You saved ₹240 with coupon GLOW50. Arriving Thursday.</Text>
       <Pressable
         onPress={() => confetti.current?.burst()}
         accessibilityRole="button"
         style={{ marginTop: 12, paddingHorizontal: 22, paddingVertical: 13, borderRadius: 999, backgroundColor: colors.primary }}
       >
-        <Text style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '700' }}>Celebrate again</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '700' }}>Celebrate again</Text>
       </Pressable>
       <Confetti ref={confetti} autoplay />
     </View>
@@ -45,7 +48,7 @@ export function Rain({ screen }: DemoProps) {
       ]}
     >
       <Pressable onPress={() => setShower((n) => n + 1)} accessibilityRole="button" style={{ paddingHorizontal: 22, paddingVertical: 13, borderRadius: 999, borderWidth: 1.5, borderColor: colors.foreground }}>
-        <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: '700' }}>Make it rain</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 15, fontWeight: '700' }}>Make it rain</Text>
       </Pressable>
       <Confetti origin="top" count={120} trigger={shower} colors={['#ffd23f', '#ffb000', '#fff3b0', '#ffffff']} />
     </View>
@@ -68,7 +71,7 @@ export function TapToPop({ screen }: DemoProps) {
     >
       {/* Not touchable, so locationX/Y are always relative to the panel. */}
       <View pointerEvents="none">
-        <Text style={{ color: colors.mutedForeground, fontSize: 15, fontWeight: '600' }}>Tap anywhere</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.mutedForeground, fontSize: 15, fontWeight: '600' }}>Tap anywhere</Text>
       </View>
       <Confetti ref={confetti} />
     </Pressable>

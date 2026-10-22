@@ -46,6 +46,9 @@ export interface ProgressStepsProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const NODE = 28;
 const GAP = 6;
 const LINE = 3;
@@ -157,7 +160,7 @@ export function ProgressSteps({
           >
             {done ? 'All done' : items[shown]!.label}
           </Animated.Text>
-          <Text style={[styles.barStep, ff, { color: colors.mutedForeground }]}>
+          <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.barStep, ff, { color: colors.mutedForeground }]}>
             {done ? `${n} of ${n}` : `Step ${shown + 1} of ${n}`}
           </Text>
         </View>
@@ -318,7 +321,7 @@ function Step({
   return (
     <Wrapper {...a11y} {...pressProps} style={styles.hCol}>
       <View style={styles.hTop}>{node}</View>
-      <Text numberOfLines={2} style={[styles.hLabel, ff, { color: labelColor }]}>
+      <Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={2} style={[styles.hLabel, ff, { color: labelColor }]}>
         {step.label}
       </Text>
       {step.description ? (
@@ -374,7 +377,9 @@ function Node({
       <View
         style={[styles.node, round, { borderWidth: 1.5, borderColor: alpha(colors.foreground, dark ? 0.22 : 0.16) }]}
       >
-        <Text style={[styles.num, ff, { color: colors.mutedForeground }]}>{i + 1}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.num, ff, { color: colors.mutedForeground }]}>
+          {i + 1}
+        </Text>
       </View>
 
       {/* Current: soft halo, a ring that breathes outwards, accent ring with a tinted core. */}
@@ -415,7 +420,9 @@ function Node({
         ]}
       >
         <View style={[StyleSheet.absoluteFill, round, { backgroundColor: alpha(color, 0.12) }]} />
-        <Text style={[styles.num, ff, { color }]}>{i + 1}</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.num, ff, { color }]}>
+          {i + 1}
+        </Text>
       </Animated.View>
 
       {/* Done: solid disc that pops in, then the check draws itself. */}

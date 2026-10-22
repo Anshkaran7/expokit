@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Pressable,
   ScrollView,
@@ -56,6 +57,10 @@ export interface ChipGroupProps {
   style?: StyleProp<ViewStyle>;
 }
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
+
 const SIZES: Record<ChipGroupSize, { h: number; px: number; font: number; check: number }> = {
   sm: { h: 30, px: 12, font: 13, check: 14 },
   md: { h: 36, px: 14, font: 14.5, check: 16 },
@@ -84,6 +89,7 @@ export function ChipGroup({
   style,
 }: ChipGroupProps) {
   const { colors } = useKit();
+  const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
   const items: ChipOption[] = options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o));
   const [inner, setInner] = useState<string[]>(defaultValue);
@@ -114,6 +120,7 @@ export function ChipGroup({
       showCheck={showCheck}
       multiple={multiple}
       disabled={disabled || o.disabled}
+      reduce={reduce}
     />
   ));
 
@@ -148,9 +155,10 @@ interface ChipProps {
   showCheck: boolean;
   multiple: boolean;
   disabled?: boolean;
+  reduce: boolean;
 }
 
-function Chip({ option, active, onPress, variant, size, tint, showCheck, multiple, disabled }: ChipProps) {
+function Chip({ option, active, onPress, variant, size, tint, showCheck, multiple, disabled, reduce }: ChipProps) {
   const { colors, radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   // p: colours, check width + stroke (JS driver). press: squish (native, on the outer view).
@@ -158,11 +166,15 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
   const press = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.spring(p, { toValue: active ? 1 : 0, useNativeDriver: false, ...motion.snappy }).start();
-  }, [active, p]);
+    // Reduce Motion: the chip swaps state at once (no widening, no check draw).
+    if (reduce) p.setValue(active ? 1 : 0);
+    else Animated.spring(p, { toValue: active ? 1 : 0, useNativeDriver: false, ...motion.snappy }).start();
+  }, [active, p, reduce]);
 
-  const pressTo = (to: number) =>
+  const pressTo = (to: number) => {
+    if (reduce) return;
     Animated.spring(press, { toValue: to, useNativeDriver: true, ...(to < 1 ? motion.snappy : motion.bouncy) }).start();
+  };
 
   const look: Record<ChipGroupVariant, { bg: [string, string]; border: [string, string]; fg: [string, string] }> = {
     solid: {
@@ -201,7 +213,7 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
           style={[
             styles.chip,
             {
-              height: size.h,
+              minHeight: size.h,
               borderRadius: radius.capsule(size.h),
               paddingHorizontal: size.px - 1,
               backgroundColor: p.interpolate({ ...range, outputRange: l.bg }),
@@ -238,6 +250,7 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
           {option.label ? (
             <Animated.Text
               numberOfLines={1}
+              maxFontSizeMultiplier={FONT_CAP}
               style={[styles.label, ff, { fontSize: size.font, color: p.interpolate({ ...range, outputRange: l.fg }) }]}
             >
               {option.label}
@@ -245,6 +258,7 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
           ) : null}
           {option.count !== undefined ? (
             <Animated.Text
+              maxFontSizeMultiplier={FONT_CAP}
               style={[
                 styles.count,
                 ff,
@@ -258,6 +272,22 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
       </Pressable>
     </Animated.View>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

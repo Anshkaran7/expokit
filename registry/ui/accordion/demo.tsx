@@ -4,6 +4,9 @@ import { Text, View } from 'react-native';
 import { Accordion, AccordionItem } from '@/components/ui/accordion';
 import { useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 export function Default() {
   return (
     <Accordion defaultValue={['shipping']}>
@@ -44,7 +47,7 @@ export function SeparatedCards() {
         ['💳', 'Do you offer refunds?', 'If ExpoKit is not for you, email us within 14 days of purchase and we will refund you in full.'],
         ['🌍', 'Which regions do you host in?', 'Frankfurt, Virginia and Singapore. Pick a region when you create a project.'],
       ].map(([icon, q, a]) => (
-        <AccordionItem key={q} value={q} title={q} icon={<Text style={{ fontSize: 18 }}>{icon}</Text>}>
+        <AccordionItem key={q} value={q} title={q} icon={<Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 18 }}>{icon}</Text>}>
           {a}
         </AccordionItem>
       ))}

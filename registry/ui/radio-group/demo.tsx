@@ -3,6 +3,9 @@ import { Text } from 'react-native';
 
 import { RadioGroup } from '@/components/ui/radio-group';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 export function Default() {
   return (
     <RadioGroup
@@ -54,8 +57,8 @@ export function CardsHorizontal() {
       direction="horizontal"
       defaultValue="card"
       options={[
-        { value: 'card', label: 'Card', description: 'Visa ·· 4242', icon: <Text style={{ fontSize: 20 }}>💳</Text> },
-        { value: 'wallet', label: 'Wallet', description: 'Apple Pay', icon: <Text style={{ fontSize: 20 }}>📱</Text> },
+        { value: 'card', label: 'Card', description: 'Visa ·· 4242', icon: <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 20 }}>💳</Text> },
+        { value: 'wallet', label: 'Wallet', description: 'Apple Pay', icon: <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 20 }}>📱</Text> },
       ]}
     />
   );

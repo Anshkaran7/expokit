@@ -104,6 +104,9 @@ export interface DialogProps {
 }
 
 const SHAKE = [10, -9, 7, -5, 3, 0];
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 /**
  * A centred alert dialog. The scrim fades in while the card springs from 0.92 to full size; an
@@ -325,6 +328,7 @@ export function Dialog({
       maxLength={prompt.maxLength}
       selectTextOnFocus={prompt.selectTextOnFocus ?? true}
       autoFocus
+      maxFontSizeMultiplier={FONT_CAP}
       returnKeyType="done"
       onSubmitEditing={() => run(list[confirmIndex], confirmIndex)}
       onFocus={() => setFocused(true)}
@@ -542,7 +546,7 @@ function PillButton({
           },
         ]}
       >
-        <Text numberOfLines={1} style={[styles.pillText, ff, { color: fg, opacity: loading ? 0 : 1 }]}>
+        <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.pillText, ff, { color: fg, opacity: loading ? 0 : 1 }]}>
           {label}
         </Text>
         {loading ? <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color={fg} /> : null}
@@ -587,7 +591,7 @@ function IosButton({
       style={[styles.iosButton, style]}
     >
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: highlight, opacity: hl }]} />
-      <Text numberOfLines={1} style={[styles.iosText, ff, { color, opacity: loading ? 0 : disabled ? 0.4 : 1 }]}>
+      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.iosText, ff, { color, opacity: loading ? 0 : disabled ? 0.4 : 1 }]}>
         {label}
       </Text>
       {loading ? <ActivityIndicator style={StyleSheet.absoluteFill} size="small" color={color} /> : null}
@@ -750,14 +754,14 @@ const styles = StyleSheet.create({
   textCenter: { textAlign: 'center' },
   field: { marginTop: 16 },
   fieldIos: { marginTop: 14 },
-  input: { height: 48, paddingHorizontal: 14, fontSize: 16, borderWidth: 1 },
-  inputIos: { height: 36, paddingHorizontal: 10, fontSize: 14, borderWidth: StyleSheet.hairlineWidth },
+  input: { minHeight: 48, paddingHorizontal: 14, fontSize: 16, borderWidth: 1 },
+  inputIos: { minHeight: 36, paddingHorizontal: 10, fontSize: 14, borderWidth: StyleSheet.hairlineWidth },
   error: { fontSize: 13, lineHeight: 18, fontWeight: '400', marginTop: 8 },
   children: { marginTop: 14 },
   row: { flexDirection: 'row' },
   flex: { flex: 1 },
   actions: { gap: 10, padding: 22, paddingTop: 22 },
-  pill: { height: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
+  pill: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
   pillText: { fontSize: 16, lineHeight: 21, fontWeight: '400', letterSpacing: -0.1 },
   iosActions: { borderTopWidth: StyleSheet.hairlineWidth },
   iosButton: { minHeight: 46, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },

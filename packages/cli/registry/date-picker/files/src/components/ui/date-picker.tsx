@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
+  AccessibilityInfo,
   Animated,
   Easing,
   Modal,
@@ -132,6 +133,9 @@ type FlatProps = DatePickerBaseProps & {
   presets?: boolean | DatePickerPreset<Picked>[];
 };
 
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 const SIZES: Record<DatePickerSize, { h: number; font: number; pad: number; icon: number }> = {
   sm: { h: 46, font: 15, pad: 12, icon: 17 },
   md: { h: 56, font: 16, pad: 16, icon: 19 },
@@ -241,6 +245,10 @@ export function DatePicker(props: DatePickerProps) {
   const restIcon = iconColor ?? colors.mutedForeground;
   const { width: winW, height: winH } = useWindowDimensions();
   const ranged = mode === 'range';
+  const reduce = useReduceMotion();
+  // The pan responder is built once; it reads Reduce Motion through this ref.
+  const live = useRef({ reduce });
+  live.current = { reduce };
 
   const [inner, setInner] = useState<Picked>(defaultValue);
   const current = value !== undefined ? value : inner;
@@ -269,26 +277,36 @@ export function DatePicker(props: DatePickerProps) {
   const wide = presentation === 'dialog' || (presentation === 'auto' && winW >= 640);
 
   useEffect(() => {
+    if (reduce) {
+      float.setValue(floating ? 1 : 0);
+      return;
+    }
     Animated.spring(float, { toValue: floating ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [floating, float]);
+  }, [floating, float, reduce]);
   useEffect(() => {
     Animated.timing(focus, { toValue: open ? 1 : 0, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: false }).start();
-    Animated.spring(halo, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
-  }, [open, focus, halo]);
+    // Reduce Motion: the halo fades in place (its scale interpolation is flat).
+    if (reduce) Animated.timing(halo, { toValue: open ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(halo, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();
+  }, [open, focus, halo, reduce]);
   useEffect(() => {
-    Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
-  }, [ok, check]);
+    if (reduce) Animated.timing(check, { toValue: ok ? 1 : 0, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(check, { toValue: ok ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
+  }, [ok, check, reduce]);
   useEffect(() => {
-    if (!error) return;
+    // Reduce Motion: no shake — the red border and message carry the error.
+    if (!error || live.current.reduce) return;
     shake.setValue(0);
     Animated.sequence([10, -8, 6, -4, 0].map((x) => Animated.timing(shake, { toValue: x, duration: 55, useNativeDriver: true }))).start();
   }, [error, shake]);
   useEffect(() => {
     if (open) {
       drag.setValue(0);
-      Animated.spring(show, { toValue: 1, useNativeDriver: true, ...(asSheet ? motion.gentle : motion.snappy) }).start();
+      // Reduce Motion: the panel fades in place (its translate / scale interpolations are flat).
+      if (reduce) Animated.timing(show, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+      else Animated.spring(show, { toValue: 1, useNativeDriver: true, ...(asSheet ? motion.gentle : motion.snappy) }).start();
     } else if (mounted) {
-      Animated.timing(show, { toValue: 0, duration: motion.fast + 40, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(
+      Animated.timing(show, { toValue: 0, duration: reduce ? 150 : motion.fast + 40, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(
         ({ finished }) => finished && setMounted(false)
       );
     }
@@ -395,21 +413,23 @@ export function DatePicker(props: DatePickerProps) {
   const same = (a: Picked, b: Picked) =>
     isRange(a) && isRange(b) ? isSameDay(a.start, b.start) && isSameDay(a.end, b.end) : !isRange(a) && !isRange(b) && isSameDay(a, b);
 
-  const pan = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-        onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
-        onPanResponderRelease: (_, g) => {
-          if (g.dy > 110 || g.vy > 1.1) {
-            setOpen(false);
-            onOpenChange?.(false);
-          } else Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
-        },
-        onPanResponderTerminate: () => Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start(),
-      }),
-    [drag, onOpenChange]
-  );
+  const pan = useMemo(() => {
+    const settle = () =>
+      live.current.reduce
+        ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
+        : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
+    return PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+      onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
+      onPanResponderRelease: (_, g) => {
+        if (g.dy > 110 || g.vy > 1.1) {
+          setOpen(false);
+          onOpenChange?.(false);
+        } else settle();
+      },
+      onPanResponderTerminate: settle,
+    });
+  }, [drag, onOpenChange]);
 
   const active = error ? colors.danger : tint;
   const rest = error ? colors.danger : ok ? colors.success : ((userBorder as string | undefined) ?? colors.input);
@@ -469,7 +489,7 @@ export function DatePicker(props: DatePickerProps) {
                   },
                 ]}
               >
-                <Text style={[styles.presetText, ff, { color: on ? tint : colors.foreground }]}>{p.label}</Text>
+                <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.presetText, ff, { color: on ? tint : colors.foreground }]}>{p.label}</Text>
               </Pressable>
             );
           })}
@@ -498,14 +518,16 @@ export function DatePicker(props: DatePickerProps) {
             accessibilityRole="button"
             style={({ pressed }) => [styles.footBtn, { borderRadius: radius.md, opacity: draft ? (pressed ? 0.6 : 1) : 0.4 }]}
           >
-            <Text style={[styles.footText, ff, { color: colors.foreground }]}>Clear</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>
+              Clear
+            </Text>
           </Pressable>
           <Pressable
             onPress={done}
             accessibilityRole="button"
             style={({ pressed }) => [styles.footBtn, styles.footMain, { backgroundColor: tint, borderRadius: radius.md, opacity: pressed ? 0.85 : 1 }]}
           >
-            <Text style={[styles.footText, ff, { color: readableOn(tint) }]}>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: readableOn(tint) }]}>
               {draftDays > 1 ? `Done · ${draftDays} days` : 'Done'}
             </Text>
           </Pressable>
@@ -558,13 +580,14 @@ export function DatePicker(props: DatePickerProps) {
               borderRadius: fieldRadius + 4,
               borderColor: alpha(active, 0.2),
               opacity: halo,
-              transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] }) }],
+              transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.97, 1] }) }],
             },
           ]}
         />
-        <Animated.View style={[styles.field, { height: sz.h, borderRadius: fieldRadius, backgroundColor: bg }, userField, { borderColor }]}>
+        <Animated.View style={[styles.field, { minHeight: sz.h, borderRadius: fieldRadius, backgroundColor: bg }, userField, { borderColor }]}>
           <Text
             numberOfLines={1}
+            maxFontSizeMultiplier={FONT_CAP}
             style={[
               styles.value,
               ff,
@@ -592,7 +615,7 @@ export function DatePicker(props: DatePickerProps) {
               ]}
             >
               {/* The notch: the label paints the surface over the border, so it matches the rendered width. */}
-              <Animated.Text numberOfLines={1} style={[styles.label, ff, { fontSize: sz.font, backgroundColor: bg }, labelStyle, { color: labelColor }]}>
+              <Animated.Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[styles.label, ff, { fontSize: sz.font, backgroundColor: bg }, labelStyle, { color: labelColor }]}>
                 {label}
               </Animated.Text>
             </Animated.View>
@@ -603,7 +626,7 @@ export function DatePicker(props: DatePickerProps) {
               style={{
                 display: ok ? 'flex' : 'none',
                 opacity: check,
-                transform: [{ scale: check.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] }) }],
+                transform: [{ scale: check.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.3, 1] }) }],
               }}
             >
               <Icon name="check" size={sz.icon} color={colors.success} />
@@ -623,7 +646,7 @@ export function DatePicker(props: DatePickerProps) {
           </View>
         </Animated.View>
       </Pressable>
-      {message ? <FieldMessage key={tone + message} text={message} tone={tone} style={messageStyle} /> : null}
+      {message ? <FieldMessage key={tone + message} text={message} tone={tone} reduce={reduce} style={messageStyle} /> : null}
 
       <Modal visible={mounted} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: asSheet ? colors.overlay : 'transparent', opacity: show }]}>
@@ -644,11 +667,15 @@ export function DatePicker(props: DatePickerProps) {
                   ? {
                       opacity: show,
                       transform: [
-                        { scale: show.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) },
-                        { translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [16, 0] }), drag) },
+                        { scale: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.94, 1] }) },
+                        { translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 16, 0] }), drag) },
                       ],
                     }
-                  : { transform: [{ translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [winH * 0.85, 0] }), drag) }] },
+                  : {
+                      // Reduce Motion: the sheet fades in place instead of sliding up.
+                      opacity: reduce ? show : 1,
+                      transform: [{ translateY: Animated.add(show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : winH * 0.85, 0] }), drag) }],
+                    },
               ]}
             >
               <View {...pan.panHandlers} style={styles.sheetHeader}>
@@ -681,8 +708,8 @@ export function DatePicker(props: DatePickerProps) {
               {
                 opacity: show,
                 transform: [
-                  { translateY: show.interpolate({ inputRange: [0, 1], outputRange: [below ? -8 : 8, 0] }) },
-                  { scale: show.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) },
+                  { translateY: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : below ? -8 : 8, 0] }) },
+                  { scale: show.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 1 : 0.96, 1] }) },
                 ],
               },
               below ? { top: anchor.y + anchor.h + 6 } : { bottom: Math.max(12, winH - anchor.y + 6) },
@@ -697,17 +724,28 @@ export function DatePicker(props: DatePickerProps) {
 }
 
 /** Helper / error / success line that slides in; error and success carry an icon. */
-function FieldMessage({ text, tone, style }: { text: string; tone: 'error' | 'success' | 'helper'; style?: StyleProp<TextStyle> }) {
+function FieldMessage({
+  text,
+  tone,
+  reduce,
+  style,
+}: {
+  text: string;
+  tone: 'error' | 'success' | 'helper';
+  reduce: boolean;
+  style?: StyleProp<TextStyle>;
+}) {
   const { colors, font } = useKit();
   const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
   useEffect(() => {
-    Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
-  }, [enter]);
+    if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+    else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
+  }, [enter, reduce]);
   const color = tone === 'error' ? colors.danger : tone === 'success' ? colors.success : colors.mutedForeground;
   return (
     <Animated.View
       accessibilityLiveRegion="polite"
-      style={[styles.message, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [4, 0] }) }] }]}
+      style={[styles.message, { opacity: enter, transform: [{ translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [reduce ? 0 : 4, 0] }) }] }]}
     >
       {tone !== 'helper' ? <Icon name={tone === 'error' ? 'alert' : 'checkCircle'} size={14} color={color} /> : null}
       <Text style={[styles.helper, font.family ? { fontFamily: font.family } : null, { color }, style, tone !== 'helper' && { color }]}>{text}</Text>
@@ -747,6 +785,22 @@ function Icon({ name, size, color, strokeWidth = 1.8 }: { name: IconName; size: 
   );
 }
 
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
+}
+
 const styles = StyleSheet.create({
   field: { borderWidth: 1.5, justifyContent: 'center' },
   halo: { position: 'absolute', top: -4, left: -4, right: -4, bottom: -4, borderWidth: 4 },
@@ -775,11 +829,11 @@ const styles = StyleSheet.create({
   presetScroll: { flexGrow: 0, flexShrink: 0 },
   calendarScroll: { flexGrow: 0, flexShrink: 1 },
   presets: { gap: 8, paddingHorizontal: 16, paddingVertical: 8 },
-  preset: { height: 34, paddingHorizontal: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  preset: { minHeight: 34, paddingHorizontal: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   presetText: { fontSize: 13.5, fontWeight: '400' },
   calendar: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 6 },
   footer: { flexDirection: 'row', flexShrink: 0, gap: 8, paddingTop: 12, paddingHorizontal: 16, borderTopWidth: StyleSheet.hairlineWidth },
-  footBtn: { height: 46, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
+  footBtn: { minHeight: 46, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
   footMain: { flex: 1 },
   footText: { fontSize: 15, fontWeight: '400' },
   popover: {

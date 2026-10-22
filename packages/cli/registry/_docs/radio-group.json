@@ -101,7 +101,7 @@
     {
       "name": "CardsHorizontal",
       "title": "Cards Horizontal",
-      "code": "import { Text } from 'react-native';\nimport { RadioGroup } from '@/components/ui/radio-group';\n\nexport default function CardsHorizontal() {\n  return (\n    <RadioGroup\n      variant=\"card\"\n      direction=\"horizontal\"\n      defaultValue=\"card\"\n      options={[\n        { value: 'card', label: 'Card', description: 'Visa ·· 4242', icon: <Text style={{ fontSize: 20 }}>💳</Text> },\n        { value: 'wallet', label: 'Wallet', description: 'Apple Pay', icon: <Text style={{ fontSize: 20 }}>📱</Text> },\n      ]}\n    />\n  );\n}\n"
+      "code": "import { Text } from 'react-native';\nimport { RadioGroup } from '@/components/ui/radio-group';\n\n/** Controls stop at iOS's largest standard text size; content text stays uncapped. */\nconst FONT_CAP = 1.35;\n\nexport default function CardsHorizontal() {\n  return (\n    <RadioGroup\n      variant=\"card\"\n      direction=\"horizontal\"\n      defaultValue=\"card\"\n      options={[\n        { value: 'card', label: 'Card', description: 'Visa ·· 4242', icon: <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 20 }}>💳</Text> },\n        { value: 'wallet', label: 'Wallet', description: 'Apple Pay', icon: <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 20 }}>📱</Text> },\n      ]}\n    />\n  );\n}\n"
     },
     {
       "name": "GroupedList",

@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
@@ -37,6 +37,10 @@ export interface Button3DProps {
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 }
+
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 const SIZES = {
   sm: { h: 36, px: 14, font: 13, depth: 4, gap: 6 },
@@ -106,6 +110,7 @@ export function Button3D({
   style,
 }: Button3DProps) {
   const { dark, font } = useKit();
+  const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const s = SIZES[size];
   const depth = depthProp ?? s.depth;
@@ -116,14 +121,17 @@ export function Button3D({
   const gid = `b3d-${color ? color.replace('#', '') : kind}`;
 
   const press = useRef(new Animated.Value(0)).current;
-  const to = (v: number) => Animated.spring(press, { toValue: v, ...(v ? motion.snappy : motion.bouncy), useNativeDriver: true }).start();
+  const to = (v: number) =>
+    reduce
+      ? Animated.timing(press, { toValue: v, duration: 120, useNativeDriver: true }).start()
+      : Animated.spring(press, { toValue: v, ...(v ? motion.snappy : motion.bouncy), useNativeDriver: true }).start();
 
   const label = loading ? (
     <ActivityIndicator color={m.ink} size="small" />
   ) : isTextNode(children) ? (
     // No numberOfLines: on a narrow fixed-width key ("esc", "Q") the label may use the padding
     // instead of being cut to an ellipsis.
-    <Text style={[{ color: m.ink, fontSize: round ? s.font + 4 : s.font, fontWeight: '600', letterSpacing: 0.1, flexShrink: 0, textAlign: 'center' }, ff]}>
+    <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: m.ink, fontSize: round ? s.font + 4 : s.font, fontWeight: '600', letterSpacing: 0.1, flexShrink: 0, textAlign: 'center' }, ff]}>
       {children}
     </Text>
   ) : (
@@ -185,12 +193,15 @@ export function Button3D({
           style={[
             styles.face,
             {
-              height: s.h,
+              // A circle keeps its fixed size; other keys may grow taller for a large text size.
+              minHeight: s.h,
+              height: round ? s.h : undefined,
               paddingHorizontal: round ? 0 : s.px,
               gap: s.gap,
               borderRadius: corner,
               elevation: 4,
-              transform: [{ translateY: press.interpolate({ inputRange: [0, 1], outputRange: [0, depth] }) }],
+              // Reduce Motion: the key doesn't sink; only the contact shadow dims.
+              transform: reduce ? [] : [{ translateY: press.interpolate({ inputRange: [0, 1], outputRange: [0, depth] }) }],
             },
           ]}
         >
@@ -204,6 +215,22 @@ export function Button3D({
       </View>
     </Pressable>
   );
+}
+
+function useReduceMotion() {
+  const [reduce, setReduce] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((r) => alive && setReduce(r))
+      .catch(() => {});
+    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+  return reduce;
 }
 
 const styles = StyleSheet.create({

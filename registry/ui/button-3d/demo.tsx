@@ -5,6 +5,9 @@ import { Button3D } from '@/components/ui/button-3d';
 import { GrainGradient } from '@/components/ui/grain';
 import { useKit } from '@/lib/kit';
 
+/** Demo control text (buttons, chips, labels on fixed shapes) stops at iOS's largest standard text size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -35,7 +38,7 @@ export function OnPhoto({ screen }: DemoProps) {
         sub="Your trip starts in 3 days"
         right={
           <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: colors.muted, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>MP</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 14, fontWeight: '700' }}>MP</Text>
           </View>
         }
       />
@@ -44,9 +47,9 @@ export function OnPhoto({ screen }: DemoProps) {
         <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.28)' }} />
         <View style={{ flex: 1, justifyContent: 'flex-end', padding: 22, gap: 16 }}>
           <View>
-            <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 }}>NORTHERN LIGHTS · 4 NIGHTS</Text>
-            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Aurora Weekend</Text>
-            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2 }}>Glass cabins, hot springs and skies that glow green</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.85)', fontSize: 12, fontWeight: '700', letterSpacing: 1.2 }}>NORTHERN LIGHTS · 4 NIGHTS</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '800', letterSpacing: -0.8 }}>Aurora Weekend</Text>
+            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 2 }}>Glass cabins, hot springs and skies that glow green</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
             <Button3D appearance="glass" size="lg" shape="pill" style={{ flex: 1 }} block>
@@ -114,7 +117,7 @@ export function Checkout() {
   ];
   const line = (label: string, value: string, strong = false) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <Text style={{ color: strong ? colors.foreground : colors.mutedForeground, fontSize: strong ? 16 : 14, fontWeight: strong ? '700' : '400' }}>{label}</Text>
+      <Text style={{ flexShrink: 1, color: strong ? colors.foreground : colors.mutedForeground, fontSize: strong ? 16 : 14, fontWeight: strong ? '700' : '400' }}>{label}</Text>
       <Text style={{ color: colors.foreground, fontSize: strong ? 16 : 14, fontWeight: strong ? '700' : '500' }}>{value}</Text>
     </View>
   );

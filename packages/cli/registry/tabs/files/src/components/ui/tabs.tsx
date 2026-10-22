@@ -66,6 +66,9 @@ type Box = { x: number; w: number };
 const LEAD = motion.snappy;
 const TRAIL = { damping: 24, stiffness: 150, mass: 0.9 };
 const UNDERLINE = 3;
+// Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
+// content text scales all the way.
+const FONT_CAP = 1.35;
 
 /**
  * Underline tabs with swipeable content panes. The underline is measured to each label and moves
@@ -455,7 +458,7 @@ function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLa
       hitSlop={slop ? { top: slop, bottom: slop } : undefined}
       style={[
         styles.tab,
-        { height, paddingHorizontal: mode === 'fill' ? 8 : 14, opacity: item.disabled ? 0.4 : 1 },
+        { minHeight: height, paddingHorizontal: mode === 'fill' ? 8 : 14, opacity: item.disabled ? 0.4 : 1 },
         mode === 'fill' && styles.fill,
         mode === 'auto' && styles.grow,
       ]}
@@ -463,7 +466,7 @@ function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLa
       {/* Measured: the underline spans exactly this (icon + label). */}
       <Animated.View onLayout={onLabelLayout} style={[styles.labelRow, { transform: [{ scale: press }] }]}>
         {icon}
-        <Animated.Text numberOfLines={1} style={[styles.label, ff, { color, fontSize }]}>
+        <Animated.Text maxFontSizeMultiplier={FONT_CAP} numberOfLines={1} style={[styles.label, ff, { color, fontSize }]}>
           {item.label}
         </Animated.Text>
       </Animated.View>
@@ -498,7 +501,7 @@ function TabBadge({ value, active, tint, reduce }: { value: number | string; act
         },
       ]}
     >
-      <Animated.Text style={[styles.badgeText, ff, { color: active ? readableOn(tint) : colors.mutedForeground }]}>{text}</Animated.Text>
+      <Animated.Text maxFontSizeMultiplier={FONT_CAP} style={[styles.badgeText, ff, { color: active ? readableOn(tint) : colors.mutedForeground }]}>{text}</Animated.Text>
     </Animated.View>
   );
 }
@@ -533,7 +536,7 @@ const styles = StyleSheet.create({
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   label: { fontWeight: '400', letterSpacing: -0.1 },
   underline: { position: 'absolute', bottom: 0, height: UNDERLINE },
-  badge: { minWidth: 18, height: 18, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' },
+  badge: { minWidth: 18, minHeight: 18, paddingHorizontal: 5, alignItems: 'center', justifyContent: 'center' },
   badgeText: { fontSize: 11, fontWeight: '400', fontVariant: ['tabular-nums'] },
   viewport: { overflow: 'hidden' },
   pager: { flexDirection: 'row', alignItems: 'flex-start' },

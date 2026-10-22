@@ -4,6 +4,9 @@ import { Pressable, Text, View } from 'react-native';
 import { ProgressSteps } from '@/components/ui/progress-steps';
 import { alpha, useKit } from '@/lib/kit';
 
+/** Controls stop at iOS's largest standard text size; content text stays uncapped. */
+const FONT_CAP = 1.35;
+
 function Buttons({ step, max, set, last = 'Place order' }: { step: number; max: number; set: (n: number) => void; last?: string }) {
   const { colors, radius } = useKit();
   const done = step >= max;
@@ -15,7 +18,7 @@ function Buttons({ step, max, set, last = 'Place order' }: { step: number; max: 
         accessibilityRole="button"
         style={({ pressed }) => ({
           flex: 1,
-          height: 48,
+          minHeight: 48,
           borderRadius: radius.capsule(48),
           backgroundColor: alpha(colors.foreground, pressed ? 0.1 : 0.05),
           alignItems: 'center',
@@ -23,14 +26,14 @@ function Buttons({ step, max, set, last = 'Place order' }: { step: number; max: 
           opacity: step === 0 ? 0.4 : 1,
         })}
       >
-        <Text style={{ fontSize: 15, color: colors.foreground }}>Back</Text>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color: colors.foreground }}>Back</Text>
       </Pressable>
       <Pressable
         onPress={() => set(done ? 0 : step + 1)}
         accessibilityRole="button"
         style={({ pressed }) => ({
           flex: 1.5,
-          height: 48,
+          minHeight: 48,
           borderRadius: radius.capsule(48),
           backgroundColor: colors.accent,
           alignItems: 'center',
@@ -38,7 +41,7 @@ function Buttons({ step, max, set, last = 'Place order' }: { step: number; max: 
           transform: [{ scale: pressed ? 0.98 : 1 }],
         })}
       >
-        <Text style={{ fontSize: 15, color: colors.accentForeground }}>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={{ fontSize: 15, color: colors.accentForeground }}>
           {done ? 'Start over' : step === max - 1 ? last : 'Continue'}
         </Text>
       </Pressable>

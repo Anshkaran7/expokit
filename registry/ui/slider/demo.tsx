@@ -4,6 +4,9 @@ import { StyleSheet, Text, View, type ViewProps } from 'react-native';
 import { Slider } from '@/components/ui/slider';
 import { useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 /** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */
 type DemoProps = { screen?: boolean; bottomInset?: number };
 
@@ -106,7 +109,7 @@ export function PriceRange({ screen }: DemoProps) {
 export function FontSize({ screen }: DemoProps) {
   const { colors } = useKit();
   const [size, setSize] = useState(17);
-  const glyph = (px: number) => <Text style={{ color: colors.mutedForeground, fontSize: px, fontWeight: '400' }}>A</Text>;
+  const glyph = (px: number) => <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.mutedForeground, fontSize: px, fontWeight: '400' }}>A</Text>;
   return (
     <Card screen={screen}>
       <Header title="Text size" value={`${size} pt`} />
@@ -160,8 +163,8 @@ export function Colors({ screen }: DemoProps) {
 
 const s = StyleSheet.create({
   card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },
-  head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  title: { fontSize: 15, fontWeight: '400' },
+  head: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline' },
+  title: { flexShrink: 1, fontSize: 15, fontWeight: '400' },
   value: { fontSize: 15, fontWeight: '400', fontVariant: ['tabular-nums'] },
   label: { fontSize: 12, fontWeight: '400', letterSpacing: 0.4, textTransform: 'uppercase', marginBottom: -8 },
   note: { fontSize: 13 },

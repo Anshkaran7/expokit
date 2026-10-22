@@ -12,7 +12,7 @@ export function Linear() {
       <Progress value={value} label="Uploading trip-to-lisbon.mov" showValue />
       <Progress value={value} size="sm" />
       <Progress value={value} size="lg" />
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         <Button size="sm" variant="outline" onPress={() => setValue((v) => Math.max(0, v - 20))}>
           − 20
         </Button>
@@ -113,7 +113,7 @@ export function Steps() {
         showValue
         formatValue={(v, max) => `Step ${Math.min(max, v + 1)} of ${max}`}
       />
-      <View style={{ flexDirection: 'row', gap: 10 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         <Button size="sm" variant="outline" onPress={() => setStep((s) => Math.max(0, s - 1))}>
           Back
         </Button>
