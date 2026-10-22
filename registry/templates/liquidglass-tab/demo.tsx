@@ -5,6 +5,9 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { useKit } from '@/lib/kit';
 
+/** Control text stops at iOS's largest standard size. */
+const FONT_CAP = 1.35;
+
 // Docs preview of the template: a tab app with the floating Liquid Glass bar the template ships for
 // iOS 18 and older, Android and web (on iOS 26 it uses the system NativeTabs instead).
 
@@ -83,7 +86,7 @@ export function Preview() {
             <View key={`${tab}-${i}`} style={styles.card}>
               <Image source={{ uri: p }} alt="" style={StyleSheet.absoluteFill} resizeMode="cover" />
               <View style={styles.cardShade} />
-              <Text style={styles.cardTitle}>{['Lake Braies', 'Dolomites', 'Valley trail', 'Blue ridge', 'Old forest'][(i + offset) % 5]}</Text>
+              <Text maxFontSizeMultiplier={FONT_CAP} style={styles.cardTitle}>{['Lake Braies', 'Dolomites', 'Valley trail', 'Blue ridge', 'Old forest'][(i + offset) % 5]}</Text>
             </View>
           );
         })}
@@ -112,7 +115,7 @@ function GlassBar({
   // 0 = full bar, 1 = folded into a circle (JS driver: it animates the bar's width).
   const fold = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.spring(fold, { toValue: collapsed ? 1 : 0, useNativeDriver: false, damping: 20, stiffness: 220, mass: 0.9 }).start();
+    Animated.spring(fold, { toValue: collapsed ? 1 : 0, useNativeDriver: false, damping: 29, stiffness: 220, mass: 0.9 }).start();
   }, [collapsed, fold]);
   const width = fold.interpolate({ inputRange: [0, 1], outputRange: [w || 1, BAR_H] });
   const rowOpacity = fold.interpolate({ inputRange: [0, 0.45], outputRange: [1, 0], extrapolate: 'clamp' });
@@ -129,10 +132,10 @@ function GlassBar({
   useEffect(() => {
     if (!itemW) return;
     Animated.parallel([
-      Animated.spring(x, { toValue: index * itemW, useNativeDriver: true, damping: 18, stiffness: 220, mass: 0.9 }),
+      Animated.spring(x, { toValue: index * itemW, useNativeDriver: true, damping: 29, stiffness: 220, mass: 0.9 }),
       Animated.sequence([
         Animated.timing(stretch, { toValue: 1.22, duration: 110, useNativeDriver: true }),
-        Animated.spring(stretch, { toValue: 1, useNativeDriver: true, damping: 10, stiffness: 260 }),
+        Animated.spring(stretch, { toValue: 1, useNativeDriver: true, damping: 33, stiffness: 260 }),
       ]),
     ]).start();
   }, [index, itemW, x, stretch]);
@@ -175,11 +178,11 @@ function GlassBar({
                     </Svg>
                     {t.badge ? (
                       <View style={styles.badge}>
-                        <Text style={styles.badgeText}>{t.badge}</Text>
+                        <Text maxFontSizeMultiplier={FONT_CAP} style={styles.badgeText}>{t.badge}</Text>
                       </View>
                     ) : null}
                   </View>
-                  <Text style={[styles.label, { color: c }]}>{t.title}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.label, { color: c }]}>{t.title}</Text>
                 </Pressable>
               );
             })}
@@ -218,6 +221,6 @@ const styles = StyleSheet.create({
   dotPress: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   label: { fontSize: 10.5, fontWeight: '400' },
-  badge: { position: 'absolute', top: -4, right: -10, minWidth: 17, height: 17, borderRadius: 9, paddingHorizontal: 4, backgroundColor: '#ff3b30', alignItems: 'center', justifyContent: 'center' },
+  badge: { position: 'absolute', top: -4, right: -10, minWidth: 17, minHeight: 17, borderRadius: 9, paddingHorizontal: 4, backgroundColor: '#ff3b30', alignItems: 'center', justifyContent: 'center' },
   badgeText: { color: '#ffffff', fontSize: 10.5, fontWeight: '400' },
 });

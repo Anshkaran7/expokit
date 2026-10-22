@@ -157,7 +157,7 @@ function TabButton({
 }) {
   const press = useRef(new Animated.Value(1)).current;
   const to = (v: number) =>
-    Animated.spring(press, { toValue: v, useNativeDriver: true, speed: 40, bounciness: 10 }).start();
+    Animated.spring(press, { toValue: v, useNativeDriver: true, speed: 40, bounciness: 0 }).start();
 
   return (
     <Pressable
