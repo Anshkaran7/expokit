@@ -15,6 +15,7 @@ import { seriesColor, useChartTheme } from "./theme";
 import { ChartSkeleton, GlowFilter, LegendVariant, TooltipVariant, glowUrl } from "./styles";
 import { Defs } from "react-native-svg";
 import { EmptyState, type Datum } from "./CartesianCharts";
+import { onRing } from "./ring-hit";
 
 const AnimatedG = Animated.createAnimatedComponent(G);
 const TAU = Math.PI * 2;
@@ -127,6 +128,9 @@ export interface PieSeriesChartProps extends CircularBaseProps {
   centerLabel?: string;
   showTooltip?: boolean;
   tooltipIndicator?: TooltipIndicator;
+  /** Fired when a drag on the ring starts; disable the parent ScrollView here. */
+  onScrubStart?: () => void;
+  onScrubEnd?: () => void;
 }
 
 function PieInner({
@@ -159,6 +163,8 @@ function PieInner({
   animate = true,
   formatValue = compactNumber,
   onSelect,
+  onScrubStart,
+  onScrubEnd,
   emptyText = "No data",
   accessibilityLabel,
 }: PieSeriesChartProps & { width: number }) {
@@ -324,7 +330,13 @@ function PieInner({
           </View>
         ) : null}
         <TouchLayer
-          scrub
+          // Grab touches on the ring in any direction, so dragging round it doesn't scroll the
+          // page; a swipe that starts in the hole or on the card still scrolls.
+          lockOnGrant={(x, y) =>
+            onRing(x, y, { cx, cy, inner, outer, slack: activeOffset + 24, start: startRad, sweep: sweepRad })
+          }
+          onScrubStart={onScrubStart}
+          onScrubEnd={onScrubEnd}
           onMove={(x, y) => choose(x, y, false)}
           onTap={(x, y) => choose(x, y, true)}
           onRelease={() => {

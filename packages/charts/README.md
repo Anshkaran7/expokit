@@ -10,6 +10,13 @@
 Animated, interactive charts for Expo and React Native, built on `react-native-svg` — line, bar, area, pie, donut,
 radar, gauge, candlestick, heatmap, funnel and more. Works on iOS, Android, web and in Expo Go.
 
+<p align="center">
+  <a href="https://expokit.in/docs/charts"><img src="https://expokit.in/readme/charts.gif" alt="expo-charts on iPhone: scrubbing an area chart and a bar chart, dragging a gauge, tapping through a donut" width="720"></a>
+</p>
+
+**[See every chart live →](https://expokit.in/docs/charts)** · Part of **[ExpoKit](https://expokit.in)**, animated UI
+components for Expo.
+
 ## Install
 
 ```bash
