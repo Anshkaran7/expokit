@@ -9,6 +9,23 @@
 The CLI for **[ExpoKit](https://expokit.in)** — animated UI components for Expo and React Native. It copies
 the component source into your app (like shadcn/ui), so you own the code.
 
+<p align="center">
+  <a href="https://expokit.in/showcase"><img src="https://expokit.in/readme/charts.gif" alt="ExpoKit charts on iPhone: scrubbing an area chart and a bar chart, dragging a gauge, tapping through a donut" width="720"></a>
+</p>
+
+<p align="center">
+  <a href="https://expokit.in/docs/components"><img src="https://expokit.in/readme/screens.jpg" alt="ExpoKit on iPhone in dark and light mode: payment card, flip card, dashboard block and checkout block" width="720"></a>
+  <br>
+  <sub>Payment card and flip card are free; the dashboard and checkout screens are <a href="https://expokit.in/pricing">Pro</a> blocks.</sub>
+</p>
+
+- **Buttons, inputs, cards, sheets, tabs, charts and full screens**, all animated, with light and dark mode
+- **Built for touch**: springs, drag gestures and haptics, on iOS, Android, web and in Expo Go
+- **You own the code**: plain typed files in your app, with no runtime library to lock you in
+
+**[Browse every component with live previews →](https://expokit.in/docs/components)** ·
+**[Try them on your phone in Expo Go →](https://expokit.in/docs/run-on-your-phone)**
+
 ## Usage
 
 In your Expo app's folder:

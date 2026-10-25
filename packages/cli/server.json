@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Anshkaran7/expokit",
+  "title": "ExpoKit",
+  "description": "Search and add animated Expo and React Native UI components, charts and screens to your app.",
+  "websiteUrl": "https://expokit.in/docs/mcp",
+  "repository": {
+    "url": "https://github.com/Anshkaran7/expokit",
+    "source": "github",
+    "subfolder": "packages/cli"
+  },
+  "version": "0.4.2",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@expokit/cli",
+      "version": "0.4.2",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ]
+    }
+  ]
+}
