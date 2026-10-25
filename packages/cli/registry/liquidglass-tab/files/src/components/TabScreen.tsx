@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,13 +16,17 @@ interface TabScreenProps {
   title: string;
   description: string;
   accent: string;
+  /** Label of a button pinned to the bottom of the screen, above the tab bar. */
+  action?: string;
 }
 
-export function TabScreen({ title, description, accent }: TabScreenProps) {
+export function TabScreen({ title, description, accent, action }: TabScreenProps) {
   const isDark = useColorScheme() === 'dark';
   const insets = useSafeAreaInsets();
   const onScroll = useTabBarScroll();
-  const bottomInset = useTabBarInset();
+  const bottomInset = useTabBarInset(24);
+  // Bottom-anchored UI sits on top of the bar's footprint, not on the screen edge.
+  const actionBottom = useTabBarInset(12);
   const bg = isDark ? '#0f0f1a' : '#f2f2f7';
   const text = isDark ? '#fff' : '#1c1c1e';
   const sub = isDark ? '#9898a8' : '#6c6c70';
@@ -32,11 +37,11 @@ export function TabScreen({ title, description, accent }: TabScreenProps) {
         style={{ flex: 1, backgroundColor: bg }}
         contentContainerStyle={[
           styles.scroll,
-          { paddingTop: USE_NATIVE_TABS ? 12 : insets.top + 12, paddingBottom: bottomInset },
+          { paddingTop: insets.top + 12, paddingBottom: bottomInset },
         ]}
         showsVerticalScrollIndicator={false}
-        // Native tabs inset content for the system bars; the glass fallback pads it manually.
-        contentInsetAdjustmentBehavior={USE_NATIVE_TABS ? 'automatic' : 'never'}
+        // Pad by hand on every bar: useTabBarInset() already counts the floating bar and home indicator.
+        contentInsetAdjustmentBehavior="never"
         scrollEventThrottle={16}
         onScroll={onScroll}
       >
@@ -64,12 +69,21 @@ export function TabScreen({ title, description, accent }: TabScreenProps) {
             </Text>
           </View>
         ))}
+        {action ? <View style={{ height: 64 }} /> : null}
       </ScrollView>
+      {action ? (
+        <Pressable
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.action, { bottom: actionBottom, backgroundColor: accent, opacity: pressed ? 0.85 : 1 }]}
+        >
+          <Text style={styles.actionText}>{action}</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
 
-export function TabScreenFromConfig({ tabName }: { tabName: string }) {
+export function TabScreenFromConfig({ tabName, action }: { tabName: string; action?: string }) {
   const tab = getTab(tabName);
   if (!tab) {
     return null;
@@ -83,6 +97,7 @@ export function TabScreenFromConfig({ tabName }: { tabName: string }) {
         'Scroll to test native tab bar minimize behavior on iOS 26+.'
       }
       accent={tab.accent ?? '#6366f1'}
+      action={action}
     />
   );
 }
@@ -119,4 +134,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 17, fontWeight: '400' },
   cardSub: { fontSize: 14, marginTop: 4, lineHeight: 20 },
+  action: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionText: { color: '#fff', fontSize: 16, fontWeight: '500' },
 });

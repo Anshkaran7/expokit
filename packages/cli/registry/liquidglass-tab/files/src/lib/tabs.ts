@@ -14,12 +14,14 @@ export type { IconSetName, TabIconPreset } from '@/lib/tab-icons';
 
 /**
  * Edit this file only — tabs, labels, icons, colors, and screen copy.
- * Each tab needs a route file: src/app/(tabs)/{name}.tsx (use TabScreenFromConfig).
+ * Each tab needs a route file: src/app/(tabs)/{name}.tsx — `npx @expokit/cli@latest update`
+ * creates a missing one.
  *
  * Icons (pick one per tab):
  *   icon: { set: 'Ionicons', name: 'home-outline', selected: 'home' }
  *   library + iconName (any package with getImageSource)
- *   src: require('../assets/icon.png')
+ *   src: require('../assets/icon.png') — or { default, selected }. SVG kits (Hugeicons, Lucide,
+ *     Tabler): npx @expokit/cli@latest icons --from hugeicons --names Home01Icon --out assets/tab-icons
  */
 
 export interface TabItem {

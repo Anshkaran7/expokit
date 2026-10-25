@@ -19,7 +19,8 @@ import type { ColorValue, ImageSourcePropType } from 'react-native';
  * Preset sets (no import needed): Ionicons, Feather, FontAwesome, …
  * Custom font: iconFont() / icoMoon()
  * Custom module: library + icon on TabItem
- * PNG: src on TabItem
+ * PNG: src on TabItem — SVG kits (Hugeicons, Lucide, Tabler) → PNGs with
+ *   npx @expokit/cli@latest icons --from hugeicons --names Home01Icon --out assets/tab-icons
  */
 
 export type IconSetName =
@@ -85,8 +86,10 @@ export function asFamily(mod: unknown): VectorIconFamily {
   }
 
   throw new Error(
-    '[expo-kit] This icon package has no getImageSource (SVG kits like Hugeicons, Tabler, Lucide).\n' +
-      'Use icon.set preset, src PNG, iconFont(), or icoMoon().'
+    '[expo-kit] This icon package has no getImageSource — SVG kits (Hugeicons, Lucide, Tabler) can not be drawn by the native tab bar.\n' +
+      'Render them to PNGs and use `src` on the tab:\n' +
+      '  npx @expokit/cli@latest icons --from hugeicons --names Home01Icon,Search01Icon --out assets/tab-icons\n' +
+      'Or use an icon.set preset, iconFont() or icoMoon().'
   );
 }
 

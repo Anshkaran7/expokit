@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
+// '@react-navigation/bottom-tabs' on SDK 54–55 (the CLI writes the right one).
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 
 import { GLASS_BAR_HEIGHT, setTabBarCollapsed, tabBarCollapse } from '@/lib/tab-bar';

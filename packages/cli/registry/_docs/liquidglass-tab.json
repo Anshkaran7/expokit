@@ -11,6 +11,7 @@
     "src/app/(tabs)/profile.tsx",
     "src/app/_layout.tsx",
     "src/components/GlassTabBar.tsx",
+    "src/components/LiquidGlassTabs.tsx",
     "src/components/TabScreen.tsx",
     "src/lib/tab-bar.ts",
     "src/lib/tab-icons.ts",

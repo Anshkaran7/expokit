@@ -3,8 +3,8 @@ import React, { useEffect } from 'react';
 import { StyleSheet, useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-// SDK 56+: navigation themes come from expo-router itself. Using @react-navigation/native's
-// ThemeProvider here does nothing (expo-router ships its own copy) and causes a white flash.
+// Navigation themes: from 'expo-router' on SDK 56+ (it ships its own copy, so the
+// @react-navigation/native ThemeProvider would do nothing there), '@react-navigation/native' on SDK 54–55.
 import { DarkTheme, DefaultTheme, Slot, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 

@@ -53,9 +53,17 @@ export function useTabBarScroll() {
   }, []);
 }
 
-/** Bottom padding a scrolling screen needs so its last row clears the floating bar. */
-export function useTabBarInset() {
+/**
+ * How far the tab bar covers the bottom of a screen, plus `gap`. Both bars float over the
+ * content — iOS 26's Liquid Glass bar and the glass fallback — so use it for anything that
+ * reaches the bottom edge: a ScrollView's paddingBottom (with
+ * contentInsetAdjustmentBehavior="never"), a bottom-anchored button's `bottom`, or the
+ * paddingBottom of a full-screen layout. Android's system bar (TAB_BAR.legacy = 'native')
+ * sits below the content, so there it is just `gap`.
+ */
+export function useTabBarInset(gap = 8) {
   const insets = useSafeAreaInsets();
-  if (USE_NATIVE_TABS) return 24;
-  return GLASS_BAR_HEIGHT + Math.max(insets.bottom, 12) + 24;
+  if (USE_NATIVE_TABS && Platform.OS === 'android') return gap;
+  // The system bar has no height API; it sits in the same spot as the fallback pill.
+  return GLASS_BAR_HEIGHT + Math.max(insets.bottom, 12) + gap;
 }
