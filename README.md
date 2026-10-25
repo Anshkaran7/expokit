@@ -24,6 +24,28 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT license"></a>
 </p>
 
+<p align="center">
+  <a href="https://expokit.in/showcase"><img src="https://expokit.in/readme/charts.gif" alt="ExpoKit charts on iPhone: scrubbing an area chart and a bar chart, dragging a gauge, tapping through a donut" width="720"></a>
+</p>
+
+<p align="center">
+  <a href="https://expokit.in/docs/components"><img src="https://expokit.in/readme/screens.jpg" alt="ExpoKit on iPhone in dark and light mode: payment card, flip card, dashboard block and checkout block" width="720"></a>
+  <br>
+  <sub>Payment card and flip card are free; the dashboard and checkout screens are <a href="https://expokit.in/pricing">Pro</a> blocks.</sub>
+</p>
+
+## Quick start
+
+In your Expo app's folder:
+
+```bash
+npx @expokit/cli@latest init
+npx @expokit/cli@latest add button otp-input
+```
+
+**[Browse every component with live previews →](https://expokit.in/docs/components)** ·
+**[Try them on your phone in Expo Go →](https://expokit.in/docs/run-on-your-phone)**
+
 ## What is ExpoKit?
 
 ExpoKit works like shadcn/ui for mobile: instead of installing a UI library, the CLI copies each component's source
