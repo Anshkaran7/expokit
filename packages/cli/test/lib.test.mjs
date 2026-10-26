@@ -13,6 +13,7 @@ import {
   isValidItemName,
   kitVersion,
   mergeDependencies,
+  telemetryEnabled,
   needsDevBuild,
   parseRetryAfter,
   pickMainExport,
@@ -272,4 +273,22 @@ test('mcp: malformed lines get an error or no reply, never an exception', () => 
   assert.deepEqual(line([5, { jsonrpc: '2.0', id: 7, method: 'ping' }]), [{ jsonrpc: '2.0', id: 7, result: {} }]);
   // Anything that still throws becomes an Internal error for that request.
   assert.equal(handleLine(JSON.stringify({ jsonrpc: '2.0', id: 8, method: 'initialize' }), null).error.code, -32603);
+});
+
+test('telemetryEnabled: on by default, off for DO_NOT_TRACK, EXPO_KIT_TELEMETRY=0 and CI', () => {
+  assert.equal(telemetryEnabled({}), true);
+  assert.equal(telemetryEnabled({ DO_NOT_TRACK: '' }), true);
+  assert.equal(telemetryEnabled({ DO_NOT_TRACK: '0' }), true);
+  assert.equal(telemetryEnabled({ DO_NOT_TRACK: '1' }), false);
+  assert.equal(telemetryEnabled({ DO_NOT_TRACK: 'true' }), false);
+  for (const v of ['0', 'false', 'off', 'no', 'FALSE']) assert.equal(telemetryEnabled({ EXPO_KIT_TELEMETRY: v }), false, v);
+  assert.equal(telemetryEnabled({ EXPO_KIT_TELEMETRY: '1' }), true);
+  assert.equal(telemetryEnabled({ CI: 'true' }), false);
+  assert.equal(telemetryEnabled({ CI: '1' }), false);
+  assert.equal(telemetryEnabled({ CI: 'false' }), true);
+});
+
+test('needsDevBuild: expo-status-bar and async-storage ship in Expo Go (the app templates use them)', () => {
+  assert.deepEqual(needsDevBuild(['expo-status-bar', '@react-native-async-storage/async-storage', 'expo-router']), []);
+  assert.deepEqual(needsDevBuild(['react-native-mmkv']), ['react-native-mmkv']);
 });

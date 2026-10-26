@@ -50,12 +50,16 @@ Everything else — live previews, props, installation, theming, Pro, AI / MCP s
 
 ## Security
 
-- **No dependencies, no install scripts, no telemetry.**
+- **No dependencies, no install scripts.**
+- **Anonymous install counts only** — after a successful `add`, the CLI sends the item's name (`{"items":["button"]}`)
+  to expokit.in so the site can show how often each component is installed. No token, files, paths or machine details;
+  repeat adds count once a day. Turn it off with `DO_NOT_TRACK=1` or `EXPO_KIT_TELEMETRY=0`; it never runs in CI,
+  `--dry-run` or `update`.
 - **Writes only inside your app** — `components.json`, the `@/*` alias in `tsconfig.json` and the component files.
   `--dry-run` shows every change first; `add` never overwrites a file you changed unless you pass `--force`.
   `paths` in `components.json` that point outside the app are refused. Symlinks inside the app are followed, not
   checked, so a cloned repo that symlinks a folder elsewhere can still send writes there.
-- **Free components need no network** — they ship inside this package. Pro components are downloaded over HTTPS from
+- **Free components need no network to install** — they ship inside this package. Pro components are downloaded over HTTPS from
   expokit.in; your token is stored readable only by you, sent only to that site and never through a redirect.
   In scripts, pipe it to `login` or set `EXPO_KIT_TOKEN` (`--token` leaves it in your shell history).
 - **Runs one command:** `npx expo install` for the packages a component needs — without `EXPO_KIT_TOKEN` in its

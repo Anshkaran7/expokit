@@ -34,6 +34,7 @@ import {
   retryDelayMs,
   retryHint,
   tabComponentName,
+  telemetryEnabled,
   needsDevBuild,
   pickMainExport,
 } from './lib.mjs';
@@ -942,12 +943,33 @@ function cmdInit(cwd, flags, dir) {
   log(`Done. Add items with: ${RUN} add <name>`);
 }
 
-async function cmdAdd(args, cwd) {
+/**
+ * After a successful add: tells the site which item was installed — just its name, no token or project
+ * data (README "Privacy"). Off with DO_NOT_TRACK=1 / EXPO_KIT_TELEMETRY=0 and in CI. Never fails the add.
+ */
+async function reportInstalled(name) {
+  if (!telemetryEnabled(process.env)) return;
+  try {
+    parseSiteUrl(SITE_URL);
+    const res = await fetch(`${SITE_URL}/api/cli/installed`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ items: [name] }),
+      signal: AbortSignal.timeout(1500),
+    });
+    await res.arrayBuffer();
+  } catch {
+    // offline, slow or blocked: the count just misses this one
+  }
+}
+
+/** `report: false` for re-adds that aren't new installs (`update --force`). */
+async function cmdAdd(args, cwd, { report = true } = {}) {
   const { flags, positional } = parseFlags(args);
   // `add a b c` → add each in turn with the same flags.
   if (positional.length > 1 && !positional.includes('--list')) {
     const flagArgs = args.filter((a) => a.startsWith('--'));
-    for (const item of positional) await cmdAdd([item, ...flagArgs], cwd);
+    for (const item of positional) await cmdAdd([item, ...flagArgs], cwd, { report });
     return;
   }
   const name = positional[0];
@@ -1049,6 +1071,7 @@ async function cmdAdd(args, cwd) {
   const depsOk = runExpoInstall(projectRoot, meta.dependencies ?? [], false);
 
   if (depsOk) markTemplateInstalled(projectRoot, config, resolved);
+  if (report) await reportInstalled(resolved);
 
   console.log('');
   if (resolved === 'liquidglass-tab') {
@@ -1092,7 +1115,7 @@ async function cmdUpdate(args, cwd) {
   if (flags.force) {
     for (const resolved of targets) {
       log(`Full overwrite ${resolved} (--force${flags.dryRun ? ', dry run' : ''})…\n`);
-      await cmdAdd([resolved, '--force', ...(flags.dryRun ? ['--dry-run'] : [])], cwd);
+      await cmdAdd([resolved, '--force', ...(flags.dryRun ? ['--dry-run'] : [])], cwd, { report: false });
     }
     return;
   }

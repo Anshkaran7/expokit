@@ -182,3 +182,63 @@ test('update <non-tab item> warns without downloading', () => {
   assert.match(r.out, /Smart update only supports liquidglass-tab/);
   assert.doesNotMatch(r.out, /downloading|Network error/);
 });
+
+/** Runs the CLI against a local fake site that records POST /api/cli/installed bodies. */
+async function runAgainstSite(args, cwd, env = {}) {
+  const posts = [];
+  const site = await new Promise((resolve) => {
+    const server = http
+      .createServer((req, res) => {
+        let body = '';
+        req.on('data', (d) => (body += d));
+        req.on('end', () => {
+          if (req.method === 'POST' && req.url === '/api/cli/installed') {
+            posts.push({ type: req.headers['content-type'], auth: req.headers.authorization, body: JSON.parse(body) });
+          }
+          res.writeHead(202, { 'content-type': 'application/json' }).end('{"counted":1}');
+        });
+      })
+      .listen(0, '127.0.0.1', () => resolve(server));
+  });
+  try {
+    const child = spawn(process.execPath, [CLI, ...args], {
+      cwd,
+      env: { ...process.env, HOME, USERPROFILE: HOME, EXPO_KIT_URL: `http://127.0.0.1:${site.address().port}`, EXPO_KIT_TOKEN: 'secret-token', NO_COLOR: '1', CI: '', DO_NOT_TRACK: '', EXPO_KIT_TELEMETRY: '', ...env },
+    });
+    let out = '';
+    child.stdout.on('data', (d) => (out += d));
+    child.stderr.on('data', (d) => (out += d));
+    const [status] = await once(child, 'close');
+    return { status, out, posts };
+  } finally {
+    site.close();
+  }
+}
+
+test('add reports only the item name, as JSON, without the token', async () => {
+  const dir = makeProject(STOCK_TSCONFIG);
+  const r = await runAgainstSite(['add', 'confetti'], dir);
+  assert.equal(r.status, 0, r.out);
+  assert.deepEqual(r.posts, [{ type: 'application/json', auth: undefined, body: { items: ['confetti'] } }]);
+});
+
+test('no install report for --dry-run, update, DO_NOT_TRACK, EXPO_KIT_TELEMETRY=0 or CI', async () => {
+  const dir = makeProject(STOCK_TSCONFIG);
+  for (const [args, env] of [
+    [['add', 'confetti', '--dry-run'], {}],
+    [['add', 'confetti'], { DO_NOT_TRACK: '1' }],
+    [['add', 'confetti', '--force'], { EXPO_KIT_TELEMETRY: '0' }],
+    [['add', 'confetti', '--force'], { CI: 'true' }],
+  ]) {
+    const r = await runAgainstSite(args, dir, env);
+    assert.equal(r.status, 0, r.out);
+    assert.deepEqual(r.posts, [], `${args.join(' ')} ${JSON.stringify(env)}`);
+  }
+});
+
+test('an unreachable or failing site never breaks add', () => {
+  const dir = makeProject(STOCK_TSCONFIG);
+  const r = run(['add', 'confetti'], dir, { CI: '', DO_NOT_TRACK: '', EXPO_KIT_TELEMETRY: '' });
+  assert.equal(r.status, 0, r.out);
+  assert.doesNotMatch(r.out, /Network error|Unexpected error/);
+});

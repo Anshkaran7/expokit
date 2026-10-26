@@ -318,6 +318,7 @@ export function kitVersion(text) {
  */
 export const EXPO_GO_PACKAGES = new Set([
   '@expo/vector-icons',
+  '@react-native-async-storage/async-storage',
   '@shopify/react-native-skia',
   'expo-blur',
   'expo-charts',
@@ -325,6 +326,7 @@ export const EXPO_GO_PACKAGES = new Set([
   'expo-haptics',
   'expo-router',
   'expo-splash-screen',
+  'expo-status-bar',
   'react-native-gesture-handler',
   'react-native-reanimated',
   'react-native-safe-area-context',
@@ -365,6 +367,18 @@ export function mergeDependencies(...lists) {
 // ---------------------------------------------------------------------------
 
 export const DEFAULT_SITE_URL = 'https://expokit.in';
+
+const OFF = /^(0|false|off|no)$/i;
+const set = (v) => v !== undefined && v !== '' && !OFF.test(v);
+
+/**
+ * Anonymous install counts (README "Privacy"): on unless DO_NOT_TRACK is set, EXPO_KIT_TELEMETRY is
+ * 0/false/off/no, or it's a CI run (builds re-adding items aren't new installs).
+ */
+export function telemetryEnabled(env) {
+  if (set(env.DO_NOT_TRACK) || set(env.CI)) return false;
+  return !(env.EXPO_KIT_TELEMETRY !== undefined && OFF.test(env.EXPO_KIT_TELEMETRY));
+}
 
 export function isLoopbackHost(hostname) {
   return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '[::1]' || hostname === '::1';
