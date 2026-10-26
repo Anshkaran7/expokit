@@ -1,6 +1,6 @@
 {
   "name": "expo-charts",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Animated, interactive charts for Expo and React Native, built on react-native-svg.",
   "license": "MIT",
   "author": "Karan (anshkaran7) <work@karandev.in>",
