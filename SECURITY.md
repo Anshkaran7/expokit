@@ -26,10 +26,13 @@ The latest published version of `@expokit/cli` and `expo-charts`, and the compon
 - Writes only inside your app: `components.json`, the `@/*` alias in `tsconfig.json`, `"main"` in `package.json` and
   the component files under the folders in `components.json`. `--dry-run` shows every change first, and `add` never
   overwrites a file you changed unless you pass `--force`.
-- Free components are bundled in the npm package — adding them needs no network.
+- Free components are bundled in the npm package — adding them needs no network (apart from the install count below).
 - Pro components are downloaded over HTTPS from https://expokit.in. Your token is saved in
   `~/.expo-kit/credentials.json` (readable only by you), is sent only to the site it was created for, and never
   follows a redirect. `expo-kit logout` deletes it.
 - Runs one command: `npx expo install <packages>` for the npm packages a component needs.
 - `expo-kit mcp` reads the bundled registry only; it never uses the network or your token.
-- No telemetry.
+- Anonymous install counts: after a successful `add`, the CLI posts the item's name (e.g. `{"items":["button"]}`)
+  to https://expokit.in/api/cli/installed. No token, project files, paths or machine details are sent; the site keeps
+  only a per-item total (repeat adds from one IP count once a day, via a hashed key — no raw IPs are stored). Off with
+  `DO_NOT_TRACK=1` or `EXPO_KIT_TELEMETRY=0`, and never sent in CI or for `--dry-run` / `update`.
