@@ -492,6 +492,30 @@ export function useReducedMotion() {
 }
 
 /**
+ * Measures the parent's width for a chart that takes a `width` prop, so the chart fills its
+ * container (not the screen) and re-lays out on rotation, split screen, foldables and tablets.
+ * Unlike `responsive`, it leaves the chart's own colour defaults alone.
+ */
+export function fillWidth<P extends { width?: number; height?: number }>(Inner: React.ComponentType<P>, defaultHeight: number) {
+  const Filled = (props: P) => {
+    const [measured, setMeasured] = useState(0);
+    if (props.width !== undefined) return <Inner {...props} />;
+    return (
+      <View
+        onLayout={(event) => {
+          const next = Math.floor(event.nativeEvent.layout.width);
+          setMeasured((previous) => (previous === next ? previous : next));
+        }}
+      >
+        {measured > 0 ? <Inner {...props} width={measured} /> : <View style={{ height: props.height ?? defaultHeight }} />}
+      </View>
+    );
+  };
+  Filled.displayName = `FillWidth(${Inner.displayName ?? Inner.name ?? "Chart"})`;
+  return Filled;
+}
+
+/**
  * Wraps a chart so it fills its parent's width when no `width` prop is given,
  * and re-lays out on rotation / split screen / tablets.
  */

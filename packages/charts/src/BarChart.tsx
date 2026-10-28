@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, Dimensions, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import Svg, {
   Defs,
   G,
@@ -9,11 +9,12 @@ import Svg, {
   Stop,
   Text as SvgText,
 } from "react-native-svg";
+import { fillWidth } from "./internal";
 import type { BarChartProps } from "./types";
 
 const BarChart: React.FC<BarChartProps> = ({
   data = [],
-  width = Dimensions.get("window").width - 40,
+  width = 0,
   height = 220,
   primaryColor = "#2563EB",
   secondaryColor = "#7C3AED",
@@ -196,4 +197,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BarChart;
+// Without a `width`, fills its container (rotation, foldables and tablets included).
+export default fillWidth(BarChart, 220);

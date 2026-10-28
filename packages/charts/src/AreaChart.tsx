@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Dimensions, StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import Svg, {
   Circle,
   Defs,
@@ -10,7 +10,7 @@ import Svg, {
   Stop,
   Text as SvgText,
 } from "react-native-svg";
-import { TouchLayer, clamp, labelStep } from "./internal";
+import { TouchLayer, clamp, labelStep, fillWidth } from "./internal";
 import type { AreaChartProps } from "./types";
 
 // Module-level defaults keep identities stable for the memoized layers below.
@@ -21,7 +21,7 @@ const PADDING = { top: 24, right: 18, bottom: 34, left: 54 };
 
 const AreaChart: React.FC<AreaChartProps> = ({
   data = EMPTY,
-  width = Dimensions.get("window").width - 40,
+  width = 0,
   height = 250,
   color = "#2563EB",
   accentColor = "#7C3AED",
@@ -283,4 +283,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AreaChart;
+// Without a `width`, fills its container (rotation, foldables and tablets included).
+export default fillWidth(AreaChart, 250);
