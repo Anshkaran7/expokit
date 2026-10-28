@@ -149,9 +149,7 @@ export function FlipCard({
       ) : null}
       {/* Faces live in their own (non-collapsing) layer: iOS intersects sibling layers in 3D, so a
           turning face next to the flat shadow plate would be sliced by it. */}
-      {/* On Android the wrapper carries the elevation that keeps the faces above the plate; the faces
-          get none, since a face turned in 3D would cast a warped shadow wedge below the card. */}
-      <View collapsable={false} style={{ elevation: shadow ? 23 : 0 }}>
+      <View collapsable={false}>
         {/* The hidden face stays mounted (for the turn) but is hidden from screen readers. */}
         <Animated.View
           style={[styles.face, face(frontTurn, frontOpacity)]}
@@ -214,11 +212,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#000',
-    shadowColor: '#000',
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 14 },
-    // High enough that Android's shadow spreads past the inset plate (iOS uses the shadow* props).
-    elevation: 22,
+    // boxShadow, not shadow* / elevation: the same soft shadow on iOS, Android and web.
+    boxShadow: '0px 14px 40px rgba(0,0,0,0.4)',
   },
 });

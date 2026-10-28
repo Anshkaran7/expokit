@@ -84,7 +84,7 @@ export function SegmentedControl({
   accessibilityLabel,
   style,
 }: SegmentedControlProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, shadow } = useKit();
   const gid = 'sc' + useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduce = useReduceMotion();
   const items: SegmentOption[] = options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o));
@@ -225,7 +225,7 @@ export function SegmentedControl({
         style={[
           styles.indicator,
           indicator,
-          pill && !accent && styles.shadow,
+          pill && !accent && shadow('md'),
           {
             left: trackBorder ? Animated.add(lx, -trackBorder) : lx,
             width: Animated.subtract(rx, lx),
@@ -358,14 +358,7 @@ const styles = StyleSheet.create({
   track: { flexDirection: 'row', alignItems: 'center' },
   flex: { flex: 1 },
   indicator: { position: 'absolute' },
-  shadow: {
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
   segment: { alignItems: 'center', justifyContent: 'center', minWidth: 0 },
   content: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  label: { fontWeight: '400', letterSpacing: -0.1, userSelect: 'none' },
+  label: { fontWeight: '400', letterSpacing: -0.1, userSelect: 'none', includeFontPadding: false, textAlignVertical: 'center' },
 });

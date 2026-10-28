@@ -248,11 +248,8 @@ export function Avatar({
         { width: px, height: px, borderRadius: faceRadius, backgroundColor: faceBg },
         showElevated
           ? {
-              shadowColor: '#000',
-              shadowOpacity: dark ? 0.5 : 0.14,
-              shadowRadius: px * 0.16,
-              shadowOffset: { width: 0, height: Math.max(2, px * 0.07) },
-              elevation: Math.round(px * 0.1),
+              // boxShadow scales with the avatar and looks the same on iOS, Android and web.
+              boxShadow: `0px ${Math.round(Math.max(2, px * 0.07))}px ${Math.round(px * 0.32)}px rgba(0,0,0,${dark ? 0.5 : 0.14})`,
             }
           : null,
       ]}
@@ -781,13 +778,13 @@ function contrast(a: string, b: string) {
 const styles = StyleSheet.create({
   face: { overflow: 'visible' },
   clip: { flex: 1, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  initials: { fontWeight: '400', includeFontPadding: false, textAlign: 'center' },
+  initials: { fontWeight: '400', includeFontPadding: false, textAlign: 'center', textAlignVertical: 'center' },
   inkShadow: { textShadowColor: 'rgba(0,0,0,0.18)', textShadowRadius: 2, textShadowOffset: { width: 0, height: 0.5 } },
   pulse: { position: 'absolute' },
   dot: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   badge: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
-  badgeText: { fontWeight: '400', letterSpacing: -0.2, includeFontPadding: false },
+  badgeText: { fontWeight: '400', letterSpacing: -0.2, includeFontPadding: false, textAlignVertical: 'center' },
   group: { flexDirection: 'row', alignItems: 'center' },
   more: { alignItems: 'center', justifyContent: 'center' },
-  moreText: { fontWeight: '400', letterSpacing: -0.2 },
+  moreText: { fontWeight: '400', letterSpacing: -0.2, includeFontPadding: false, textAlignVertical: 'center' },
 });

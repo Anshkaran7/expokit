@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
 
 /**
  * `inset` — iOS: grouped rounded cards floating above the home indicator, with a separate Cancel card (default).
@@ -140,6 +140,8 @@ export function ActionSheet({
   const { colors, radius, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const { height: winH } = useWindowDimensions();
+  // Full width on portrait phones; a centred, width-capped card on foldables, tablets and landscape.
+  const { sheetWidth } = useLayout();
   const reduceMotion = useReduceMotion();
   const tint = accent ?? colors.accent;
   const [inner, setInner] = useState(defaultOpen);
@@ -320,7 +322,7 @@ export function ActionSheet({
             borderTopLeftRadius: radius.scale(28),
             borderTopRightRadius: radius.scale(28),
             borderColor: edge,
-            shadowOpacity: dark ? 0.5 : 0.12,
+            boxShadow: `0px -6px 48px rgba(0,0,0,${dark ? 0.5 : 0.12})`,
           },
         ]}
       >
@@ -422,6 +424,7 @@ export function ActionSheet({
           }}
           style={[
             styles.sheet,
+            { maxWidth: sheetWidth },
             inset && { paddingHorizontal: 8, paddingBottom: 8 + bottomInset },
             {
               opacity: reduceMotion ? t : 1,
@@ -459,8 +462,8 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <View style={[styles.cardAmbient, { borderRadius: corner, backgroundColor: bg, shadowOpacity: dark ? 0.5 : 0.14 }]}>
-      <View style={[styles.cardContact, { borderRadius: corner, backgroundColor: bg, shadowOpacity: dark ? 0.3 : 0.06 }]}>
+    <View style={{ borderRadius: corner, backgroundColor: bg, boxShadow: `0px 10px 48px rgba(0,0,0,${dark ? 0.5 : 0.14})` }}>
+      <View style={{ borderRadius: corner, backgroundColor: bg, boxShadow: `0px 1px 4px rgba(0,0,0,${dark ? 0.3 : 0.06})` }}>
         <View style={{ borderRadius: corner, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth, borderColor: edge }}>
           {children}
         </View>
@@ -546,9 +549,7 @@ function useReduceMotion() {
 
 const styles = StyleSheet.create({
   host: { flex: 1, justifyContent: 'flex-end', alignItems: 'center' },
-  sheet: { width: '100%', maxWidth: 480, gap: 8 },
-  cardAmbient: { shadowColor: '#000', shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 10 },
-  cardContact: { shadowColor: '#000', shadowRadius: 2, shadowOffset: { width: 0, height: 1 } },
+  sheet: { width: '100%', gap: 8 },
   head: { paddingHorizontal: 24, paddingTop: 15, paddingBottom: 14, alignItems: 'center', gap: 4 },
   headLeft: { paddingHorizontal: 20, paddingTop: 6, paddingBottom: 10, gap: 4 },
   title: { fontSize: 13.5, lineHeight: 18, fontWeight: '400', textAlign: 'center' },
@@ -566,10 +567,6 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderBottomWidth: 0,
     paddingHorizontal: 8,
-    shadowColor: '#000',
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: -6 },
-    elevation: 16,
   },
   listRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 16 },
   listIcon: { width: 24, alignItems: 'center' },

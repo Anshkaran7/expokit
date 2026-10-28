@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   node: { width: NODE, height: NODE, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   layer: { position: 'absolute', left: 0, top: 0 },
   halo: { position: 'absolute', left: -4, top: -4, width: NODE + 8, height: NODE + 8 },
-  num: { fontSize: 12.5, fontWeight: '400', fontVariant: ['tabular-nums'] },
+  num: { fontSize: 12.5, fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false, textAlignVertical: 'center' },
   vertical: { alignSelf: 'stretch' },
   vRow: { flexDirection: 'row', gap: 14, minHeight: 44, paddingLeft: 4 },
   vRail: { alignItems: 'center', width: NODE, paddingTop: 2 },

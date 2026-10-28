@@ -337,13 +337,6 @@ export function Drawer({
         styles.panel,
         side === 'left' ? { left: -EXTRA } : { right: -EXTRA },
         { width: W + EXTRA, opacity: panelOpacity, transform: [{ translateX: panelX }] },
-        !push && {
-          shadowColor: '#000',
-          shadowOpacity: dark ? 0.45 : 0.12,
-          shadowRadius: 28,
-          shadowOffset: { width: -dir * 8, height: 0 },
-          elevation: 24,
-        },
         panelStyle,
       ]}
     >
@@ -353,10 +346,8 @@ export function Drawer({
           round,
           !push && {
             backgroundColor: surface,
-            shadowColor: '#000',
-            shadowOpacity: dark ? 0.3 : 0.06,
-            shadowRadius: 4,
-            shadowOffset: { width: -dir * 1, height: 0 },
+            // Ambient + contact shadow as boxShadow: the same on iOS, Android and web.
+            boxShadow: `${-dir * 8}px 0px 56px rgba(0,0,0,${dark ? 0.45 : 0.12}), ${-dir}px 0px 8px rgba(0,0,0,${dark ? 0.3 : 0.06})`,
           },
         ]}
       >
@@ -444,13 +435,6 @@ export function Drawer({
           style={[
             StyleSheet.absoluteFill,
             screenTransform && { transform: screenTransform },
-            push &&
-              Platform.OS === 'ios' && {
-                shadowColor: '#000',
-                shadowOpacity: dark ? 0.5 : 0.16,
-                shadowRadius: 24,
-                shadowOffset: { width: dir * 6, height: 8 },
-              },
           ]}
         >
           <Animated.View
@@ -462,8 +446,8 @@ export function Drawer({
                 borderWidth: StyleSheet.hairlineWidth,
                 borderColor: screenEdge,
                 overflow: 'hidden',
-                elevation: push ? 16 : 0,
               },
+              push && { boxShadow: `${dir * 6}px 8px 48px rgba(0,0,0,${dark ? 0.5 : 0.16})` },
             ]}
           >
             {children}

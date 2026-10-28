@@ -84,7 +84,7 @@ export function Card({
       ...shadow(dark ? 0 : 0.04, 2, 6),
     },
     outline: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
-    elevated: { backgroundColor: dark ? colors.popover : colors.card, ...shadow(dark ? 0.5 : 0.1, 10, 28, 8) },
+    elevated: { backgroundColor: dark ? colors.popover : colors.card, ...shadow(dark ? 0.5 : 0.1, 10, 28) },
   };
 
   const border = (surfaces[variant].borderWidth as number | undefined) ?? 0;
@@ -287,9 +287,10 @@ Card.Content = CardContent;
 Card.Footer = CardFooter;
 Card.Media = CardMedia;
 
-function shadow(opacity: number, y: number, blur: number, elevation = 2): ViewStyle {
+/** A boxShadow: the same soft shadow on iOS, Android and web (unlike elevation). */
+function shadow(opacity: number, y: number, blur: number): ViewStyle {
   if (!opacity) return {};
-  return { shadowColor: '#000', shadowOpacity: opacity, shadowRadius: blur / 2, shadowOffset: { width: 0, height: y }, elevation };
+  return { boxShadow: `0px ${y}px ${blur}px rgba(0,0,0,${opacity})` };
 }
 
 function useReduceMotion() {

@@ -131,7 +131,7 @@ export function Button3D({
   ) : isTextNode(children) ? (
     // No numberOfLines: on a narrow fixed-width key ("esc", "Q") the label may use the padding
     // instead of being cut to an ellipsis.
-    <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: m.ink, fontSize: round ? s.font + 4 : s.font, fontWeight: '600', letterSpacing: 0.1, flexShrink: 0, textAlign: 'center' }, ff]}>
+    <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: m.ink, fontSize: round ? s.font + 4 : s.font, fontWeight: '600', letterSpacing: 0.1, flexShrink: 0, textAlign: 'center', includeFontPadding: false, textAlignVertical: 'center' }, ff]}>
       {children}
     </Text>
   ) : (
@@ -180,15 +180,14 @@ export function Button3D({
               top: depth,
               borderRadius: corner,
               backgroundColor: m.edge[1],
-              shadowOpacity: m.shadow,
+              // boxShadow: the same contact shadow on iOS, Android and web.
+              boxShadow: `0px 5px 16px rgba(0,0,0,${m.shadow})`,
               opacity: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.55] }),
             },
-            styles.shadow,
           ]}
         />
         {/* The edge: the keycap's darker side. */}
-        {/* elevation (no background → no shadow) keeps the edge and face above the shadow layer on Android. */}
-        <View style={[styles.fill, { top: depth, borderRadius: corner, overflow: 'hidden', elevation: 3 }]}>{gradient(`${gid}-e`, m.edge)}</View>
+        <View style={[styles.fill, { top: depth, borderRadius: corner, overflow: 'hidden' }]}>{gradient(`${gid}-e`, m.edge)}</View>
         <Animated.View
           style={[
             styles.face,
@@ -199,7 +198,6 @@ export function Button3D({
               paddingHorizontal: round ? 0 : s.px,
               gap: s.gap,
               borderRadius: corner,
-              elevation: 4,
               // Reduce Motion: the key doesn't sink; only the contact shadow dims.
               transform: reduce ? [] : [{ translateY: press.interpolate({ inputRange: [0, 1], outputRange: [0, depth] }) }],
             },
@@ -235,6 +233,5 @@ function useReduceMotion() {
 
 const styles = StyleSheet.create({
   fill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-  shadow: { shadowColor: '#000', shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
   face: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
 });

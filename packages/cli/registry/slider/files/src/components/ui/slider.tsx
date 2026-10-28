@@ -173,7 +173,7 @@ export function Slider(props: SliderProps) {
   const onSlidingStart = props.onSlidingStart as Callback;
   const onSlidingComplete = props.onSlidingComplete as Callback;
 
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
@@ -566,7 +566,7 @@ export function Slider(props: SliderProps) {
                                 borderRadius: radius.capsule(T),
                                 backgroundColor: thumbColor,
                                 borderColor: dark ? 'transparent' : colors.border,
-                                shadowOpacity: dark ? 0.5 : 0.2,
+                                boxShadow: `0px 2px 6px rgba(0,0,0,${dark ? 0.5 : 0.2})`,
                                 transform: anim.thumb[i],
                               },
                               thumbStyle,
@@ -581,7 +581,7 @@ export function Slider(props: SliderProps) {
                             { bottom: bubbleBottom, left: slotW / 2 - BUBBLE_W / 2, opacity: bubble[i], transform: anim.bubble[i] },
                           ]}
                         >
-                          <View style={[styles.bubble, { backgroundColor: colors.foreground, borderRadius: radius.capsule(BUBBLE_H) }]}>
+                          <View style={[styles.bubble, { backgroundColor: colors.foreground, borderRadius: radius.capsule(BUBBLE_H) }, shadow('md')]}>
                             <Text numberOfLines={1} selectable={false} maxFontSizeMultiplier={FONT_CAP} style={[styles.bubbleText, ff, { color: colors.background, fontSize: sz.font }, labelStyle]}>
                               {fmt(v)}
                             </Text>
@@ -721,10 +721,6 @@ const styles = StyleSheet.create({
   halo: { position: 'absolute', left: 0 },
   thumb: {
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
   },
   bubbleWrap: { position: 'absolute', width: BUBBLE_W, alignItems: 'center', transformOrigin: 'bottom' },
   bubble: {
@@ -733,13 +729,8 @@ const styles = StyleSheet.create({
     minWidth: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 4,
   },
-  bubbleText: { fontWeight: '400', fontVariant: ['tabular-nums'] },
+  bubbleText: { fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false, textAlignVertical: 'center' },
   labels: { marginTop: 2 },
   markLabel: { position: 'absolute', width: 80, textAlign: 'center', fontWeight: '400', fontVariant: ['tabular-nums'] },
 });

@@ -15,14 +15,13 @@ import {
   Text,
   TextInput,
   View,
-  useWindowDimensions,
   type StyleProp,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
 
 export type SelectPresentation = 'dropdown' | 'sheet';
 /** @deprecated Use `SelectPresentation`. */
@@ -193,7 +192,7 @@ export function Select<T extends string | number = string>({
   optionStyle,
   optionTextStyle,
 }: SelectProps<T>) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, shadow } = useKit();
   const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
@@ -205,10 +204,12 @@ export function Select<T extends string | number = string>({
   const HEIGHT = typeof userField.height === 'number' ? userField.height : sz.h;
   const fieldRadius = typeof userField.borderRadius === 'number' ? userField.borderRadius : radius.scale(12 + sz.corner);
   const panelRadius = Math.max(fieldRadius, radius.scale(14));
-  const { width: winW, height: winH } = useWindowDimensions();
+  const layout = useLayout();
+  const { width: winW, height: winH } = layout;
   const items = useMemo(() => options.map(normalize), [options]);
   const asSheet = (presentation ?? variant ?? 'dropdown') === 'sheet';
-  const wide = winW >= 640;
+  // A centred card whenever the kit caps the sheet (foldables, tablets, landscape phones).
+  const wide = layout.sheetWidth < winW;
 
   const [inner, setInner] = useState<T | null>(defaultValue);
   const [innerMany, setInnerMany] = useState<T[]>(defaultValues ?? []);
@@ -866,8 +867,14 @@ export function Select<T extends string | number = string>({
                 styles.sheet,
                 { backgroundColor: colors.popover, maxHeight: winH * (wide ? 0.7 : 0.78), borderColor: colors.border },
                 wide
-                  ? { width: Math.min(460, winW - 48), borderRadius: radius.xl, paddingBottom: 8 }
-                  : { alignSelf: 'stretch', borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, paddingBottom: 28 },
+                  ? { width: Math.min(460, layout.sheetWidth), borderRadius: radius.xl, paddingBottom: 8, ...shadow('xl') }
+                  : {
+                      alignSelf: 'stretch',
+                      borderTopLeftRadius: radius.xl + 4,
+                      borderTopRightRadius: radius.xl + 4,
+                      paddingBottom: 28,
+                      boxShadow: `0px -4px 32px rgba(0,0,0,${dark ? 0.45 : 0.18})`,
+                    },
                 menuStyle,
                 wide
                   ? {
@@ -912,7 +919,7 @@ export function Select<T extends string | number = string>({
                 backgroundColor: colors.popover,
                 borderColor: colors.border,
                 borderRadius: panelRadius,
-                shadowOpacity: dark ? 0.5 : 0.12,
+                ...shadow('lg'),
                 transformOrigin: below ? 'top' : 'bottom',
               },
               menuStyle,
@@ -1379,7 +1386,7 @@ const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 4, maxWidth: 150, flexShrink: 1 },
   more: { gap: 0, paddingHorizontal: 9, flexShrink: 0 },
   chipIcon: { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontWeight: '400', flexShrink: 1 },
+  chipText: { fontWeight: '400', flexShrink: 1, includeFontPadding: false, textAlignVertical: 'center' },
   tabular: { fontVariant: ['tabular-nums'], fontWeight: '400' },
   roll: { overflow: 'hidden' },
   rollPrev: { position: 'absolute', left: 0, top: 0 },
@@ -1398,11 +1405,6 @@ const styles = StyleSheet.create({
   sheet: {
     paddingHorizontal: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: -4 },
-    elevation: 16,
   },
   sheetHeader: { alignItems: 'center', paddingTop: 10, paddingBottom: 12 },
   grabber: { width: 40, height: 5, borderRadius: 3, marginBottom: 12 },
@@ -1453,10 +1455,6 @@ const styles = StyleSheet.create({
   dropdown: {
     position: 'absolute',
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 10,
     overflow: 'hidden',
   },
   row: { minHeight: 52, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, gap: 12 },

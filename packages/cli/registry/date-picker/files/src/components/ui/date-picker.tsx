@@ -26,7 +26,7 @@ import {
   type CalendarProps,
   type DateRange,
 } from '@/components/ui/calendar';
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
 
 export type { DateRange } from '@/components/ui/calendar';
 export type DatePickerSize = 'sm' | 'md' | 'lg';
@@ -244,6 +244,7 @@ export function DatePicker(props: DatePickerProps) {
     typeof userField.borderRadius === 'number' ? userField.borderRadius : size === 'sm' ? radius.md - 2 : size === 'lg' ? radius.lg : radius.md;
   const restIcon = iconColor ?? colors.mutedForeground;
   const { width: winW, height: winH } = useWindowDimensions();
+  const layout = useLayout();
   const ranged = mode === 'range';
   const reduce = useReduceMotion();
   // The pan responder is built once; it reads Reduce Motion through this ref.
@@ -273,8 +274,8 @@ export function DatePicker(props: DatePickerProps) {
   const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
 
   const asSheet = presentation !== 'popover';
-  // Centred dialog instead of a bottom sheet.
-  const wide = presentation === 'dialog' || (presentation === 'auto' && winW >= 640);
+  // Centred dialog instead of a bottom sheet: on foldables, tablets and landscape phones.
+  const wide = presentation === 'dialog' || (presentation === 'auto' && (layout.wide || layout.landscape));
 
   useEffect(() => {
     if (reduce) {
@@ -661,7 +662,7 @@ export function DatePicker(props: DatePickerProps) {
                 { backgroundColor: colors.popover, borderColor: colors.border, maxHeight: winH * 0.92 },
                 wide
                   ? { width: Math.min(420, winW - 48), borderRadius: radius.xl, paddingBottom: 14 }
-                  : { alignSelf: 'stretch', borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, paddingBottom: 30 },
+                  : { width: layout.sheetWidth, alignSelf: 'center', borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, paddingBottom: 30 },
                 menuStyle,
                 wide
                   ? {
@@ -816,11 +817,8 @@ const styles = StyleSheet.create({
   centered: { justifyContent: 'center', alignItems: 'center' },
   sheet: {
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: -4 },
-    elevation: 16,
+    // boxShadow, not shadow* / elevation: the same soft shadow on iOS, Android and web.
+    boxShadow: '0px -4px 48px rgba(0,0,0,0.18)',
   },
   sheetHeader: { alignItems: 'center', flexShrink: 0, paddingTop: 10, paddingBottom: 8, paddingHorizontal: 16 },
   grabber: { width: 40, height: 5, borderRadius: 3, marginBottom: 12 },
@@ -830,21 +828,17 @@ const styles = StyleSheet.create({
   calendarScroll: { flexGrow: 0, flexShrink: 1 },
   presets: { gap: 8, paddingHorizontal: 16, paddingVertical: 8 },
   preset: { minHeight: 34, paddingHorizontal: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  presetText: { fontSize: 13.5, fontWeight: '400' },
+  presetText: { fontSize: 13.5, fontWeight: '400', includeFontPadding: false, textAlignVertical: 'center' },
   calendar: { paddingHorizontal: 16, paddingTop: 4, paddingBottom: 6 },
   footer: { flexDirection: 'row', flexShrink: 0, gap: 8, paddingTop: 12, paddingHorizontal: 16, borderTopWidth: StyleSheet.hairlineWidth },
   footBtn: { minHeight: 46, paddingHorizontal: 20, alignItems: 'center', justifyContent: 'center' },
   footMain: { flex: 1 },
-  footText: { fontSize: 15, fontWeight: '400' },
+  footText: { fontSize: 15, fontWeight: '400', includeFontPadding: false, textAlignVertical: 'center' },
   popover: {
     position: 'absolute',
     paddingTop: 10,
     paddingBottom: 10,
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowOpacity: 0.16,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 14,
+    boxShadow: '0px 10px 40px rgba(0,0,0,0.16)',
   },
 });

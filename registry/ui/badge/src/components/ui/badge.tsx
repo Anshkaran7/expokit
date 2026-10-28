@@ -626,7 +626,7 @@ function flattenView(style: StyleProp<ViewStyle>): ViewStyle {
 
 const styles = StyleSheet.create({
   base: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', borderWidth: 1 },
-  label: { fontWeight: '400', letterSpacing: 0.1 },
+  label: { fontWeight: '400', letterSpacing: 0.1, includeFontPadding: false, textAlignVertical: 'center' },
   row: { flexDirection: 'row', alignItems: 'center' },
   // Clips the roll; the 2pt slack (cancelled by negative margins) keeps overshoot and unkerned letters whole.
   clip: { overflow: 'hidden', padding: 2, margin: -2 },
@@ -636,5 +636,5 @@ const styles = StyleSheet.create({
   fill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   anchor: { alignSelf: 'flex-start' },
   bubble: { alignItems: 'center', justifyContent: 'center', borderWidth: 2 },
-  count: { fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false },
+  count: { fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false, textAlignVertical: 'center' },
 });

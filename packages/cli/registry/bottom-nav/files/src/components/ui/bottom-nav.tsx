@@ -371,12 +371,13 @@ export function BottomNav({
   ) : null;
 
   if (look === 'floating') {
-    // Two shadows: a wide soft one on the outer view, a tight contact one on the bar itself.
+    // Two shadows: a wide soft one on the outer view, a tight contact one on the bar itself
+    // (boxShadow, so they look the same on iOS, Android and web).
     return (
       <View
         style={[
           styles.floatOuter,
-          { marginBottom: 12 + bottomInset, borderRadius: floatR, backgroundColor: surface, shadowOpacity: dark ? 0.55 : 0.1 },
+          { marginBottom: 12 + bottomInset, borderRadius: floatR, backgroundColor: surface, boxShadow: `0px 12px 48px rgba(0,0,0,${dark ? 0.55 : 0.1})` },
           style,
         ]}
       >
@@ -390,7 +391,7 @@ export function BottomNav({
               borderRadius: floatR,
               backgroundColor: surface,
               borderColor: hairline,
-              shadowOpacity: dark ? 0.35 : 0.06,
+              boxShadow: `0px 1px 6px rgba(0,0,0,${dark ? 0.35 : 0.06})`,
             },
           ]}
         >
@@ -744,7 +745,7 @@ function FabFace({
           </Svg>
         </Animated.View>
       ) : null}
-      <View style={[styles.fab, { width: size, height: size, borderRadius: r, backgroundColor: from, shadowColor: from }]}>
+      <View style={{ width: size, height: size, borderRadius: r, backgroundColor: from, boxShadow: `0px 6px 24px ${alpha(from, 0.4)}` }}>
         <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
           <Defs>
             {twoTone ? (
@@ -959,16 +960,9 @@ const styles = StyleSheet.create({
   },
   floatOuter: {
     marginHorizontal: 16,
-    shadowColor: '#000',
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 10,
   },
   floatInner: {
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: 1 },
   },
   row: {
     flexDirection: 'row',
@@ -995,6 +989,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: 4,
     letterSpacing: 0.1,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   floatLabel: {
     position: 'absolute',
@@ -1013,6 +1009,8 @@ const styles = StyleSheet.create({
     fontSize: 13.5,
     fontWeight: '400',
     letterSpacing: -0.1,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   measure: {
     position: 'absolute',
@@ -1021,12 +1019,6 @@ const styles = StyleSheet.create({
   },
   selfStart: {
     alignSelf: 'flex-start',
-  },
-  fab: {
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
   },
   home: {
     position: 'absolute',
@@ -1059,5 +1051,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     lineHeight: 12,
     fontVariant: ['tabular-nums'],
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
 });

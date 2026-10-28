@@ -372,11 +372,8 @@ const styles = StyleSheet.create({
   shadow: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(0,0,0,0.06)',
-    shadowColor: '#000',
-    shadowOpacity: 0.22,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+    // boxShadow: the same soft thumb shadow on iOS and Android.
+    boxShadow: '0px 2px 8px rgba(0,0,0,0.22)',
   },
   glyph: { position: 'absolute' },
 });

@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   value: { fontSize: 15, flexShrink: 1 },
   dot: { width: 9, height: 9, borderRadius: 5 },
   badge: { minWidth: 22, minHeight: 22, paddingHorizontal: 7, alignItems: 'center', justifyContent: 'center' },
-  badgeText: { fontSize: 12, fontWeight: '400', fontVariant: ['tabular-nums'] },
+  badgeText: { fontSize: 12, fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false, textAlignVertical: 'center' },
   divider: { position: 'absolute', right: 0, bottom: 0, height: StyleSheet.hairlineWidth },
   avatar: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   online: { position: 'absolute', right: -1, bottom: -1, borderWidth: 2 },

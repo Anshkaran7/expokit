@@ -690,11 +690,11 @@ const styles = StyleSheet.create({
   cartRow: { position: 'absolute', top: 0, bottom: 0, right: 0, flexDirection: 'row', alignItems: 'center' },
   ruler: { position: 'absolute', top: 0, left: 0, width: 9999, flexDirection: 'row', alignItems: 'flex-start' },
   add: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
-  addText: { fontWeight: '400', letterSpacing: 0.1 },
+  addText: { fontWeight: '400', letterSpacing: 0.1, includeFontPadding: false, textAlignVertical: 'center' },
   roll: { flexDirection: 'row', alignItems: 'center' },
   suffix: { fontWeight: '400', marginLeft: 4 },
   charBox: { overflow: 'hidden', justifyContent: 'center' },
-  num: { fontWeight: '400', fontVariant: ['tabular-nums'], textAlign: 'center' },
+  num: { fontWeight: '400', fontVariant: ['tabular-nums'], textAlign: 'center', includeFontPadding: false, textAlignVertical: 'center' },
   layer: { position: 'absolute', left: 0, right: 0 },
   hidden: { opacity: 0 },
 });

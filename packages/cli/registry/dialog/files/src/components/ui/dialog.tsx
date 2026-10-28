@@ -476,13 +476,13 @@ export function Dialog({
               maxWidth: ios ? 300 : 340,
               borderRadius: corner,
               backgroundColor: colors.popover,
-              shadowOpacity: dark ? 0.55 : 0.18,
+              boxShadow: `0px 16px 64px rgba(0,0,0,${dark ? 0.55 : 0.18})`,
             },
             lifted,
             style,
           ]}
         >
-          <View style={[styles.contact, { borderRadius: corner, backgroundColor: colors.popover, shadowOpacity: dark ? 0.3 : 0.06 }]}>
+          <View style={{ borderRadius: corner, backgroundColor: colors.popover, boxShadow: `0px 1px 6px rgba(0,0,0,${dark ? 0.3 : 0.06})` }}>
             <View
               onLayout={(e) => {
                 const { width: w, height: h } = e.nativeEvent.layout;
@@ -734,14 +734,8 @@ function useReduceMotion() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  ambient: {
-    width: '100%',
-    shadowColor: '#000',
-    shadowRadius: 32,
-    shadowOffset: { width: 0, height: 16 },
-    elevation: 18,
-  },
-  contact: { shadowColor: '#000', shadowRadius: 3, shadowOffset: { width: 0, height: 1 } },
+  // Shadows are boxShadow (set inline): the same on iOS, Android and web.
+  ambient: { width: '100%' },
   clip: { overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth },
   content: { paddingHorizontal: 22, paddingTop: 24 },
   contentIos: { paddingHorizontal: 18, paddingTop: 20, paddingBottom: 18 },
@@ -762,8 +756,8 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   actions: { gap: 10, padding: 22, paddingTop: 22 },
   pill: { minHeight: 48, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
-  pillText: { fontSize: 16, lineHeight: 21, fontWeight: '400', letterSpacing: -0.1 },
+  pillText: { fontSize: 16, lineHeight: 21, fontWeight: '400', letterSpacing: -0.1, includeFontPadding: false, textAlignVertical: 'center' },
   iosActions: { borderTopWidth: StyleSheet.hairlineWidth },
   iosButton: { minHeight: 46, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 12 },
-  iosText: { fontSize: 17, lineHeight: 22, fontWeight: '400', letterSpacing: -0.3 },
+  iosText: { fontSize: 17, lineHeight: 22, fontWeight: '400', letterSpacing: -0.3, includeFontPadding: false, textAlignVertical: 'center' },
 });

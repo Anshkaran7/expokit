@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Animated,
   Image,
   Pressable,
   StyleSheet,
@@ -227,7 +228,7 @@ export function PaymentCard({
   labels,
   style,
 }: PaymentCardProps) {
-  const { font } = useKit();
+  const { font, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const controlled = flippedProp !== undefined;
   const [own, setOwn] = useState(defaultFlipped);
@@ -378,7 +379,12 @@ export function PaymentCard({
       {card}
     </TiltCard>
   ) : (
-    <Pressable onPress={toggle} accessibilityRole="button" accessibilityState={{ disabled: frozen }} accessibilityLabel={a11y} style={[styles.flat, { borderRadius: radius }, style]}>
+    <Pressable onPress={toggle} accessibilityRole="button" accessibilityState={{ disabled: frozen }} accessibilityLabel={a11y} style={[{ borderRadius: radius }, style]}>
+      {/* boxShadow on a plate that narrows with the flip, so the shadow (same on iOS and Android) never shows as an empty box edge-on. */}
+      <Animated.View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, styles.plate, { borderRadius: radius, transform: [{ scaleX: flip.shadowScaleX }] }, shadow('lg')]}
+      />
       {card}
     </Pressable>
   );
@@ -398,5 +404,5 @@ const styles = StyleSheet.create({
   signature: { flex: 1, borderRadius: 3, backgroundColor: '#eef0f4', overflow: 'hidden' },
   cvv: { width: 58, borderRadius: 3, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center' },
   backFoot: { position: 'absolute', left: 18, right: 18, bottom: 16, flexDirection: 'row', alignItems: 'flex-end', gap: 12 },
-  flat: { shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 18, shadowOffset: { width: 0, height: 10 }, elevation: 8 },
+  plate: { backgroundColor: '#1c1c20' },
 });

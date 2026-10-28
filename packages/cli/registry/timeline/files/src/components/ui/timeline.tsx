@@ -3,7 +3,6 @@ import {
   AccessibilityInfo,
   Animated,
   Easing,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -383,7 +382,7 @@ function Row({
   lit,
   onNode,
 }: RowProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const compact = variant === 'compact';
   const card = variant === 'card';
@@ -508,15 +507,8 @@ function Row({
     </>
   );
 
-  const cardShadow: ViewStyle =
-    Platform.OS === 'android'
-      ? { elevation: current ? 3 : 1 }
-      : {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: current ? 6 : 3 },
-          shadowOpacity: dark ? 0.35 : current ? 0.08 : 0.04,
-          shadowRadius: current ? 16 : 10,
-        };
+  // boxShadow via the kit: the same soft card shadow on iOS, Android and web.
+  const cardShadow: ViewStyle = shadow(current ? 'md' : 'sm');
 
   const dotWrap = scroll
     ? { transform: [{ scale: pop }] }
@@ -884,12 +876,9 @@ function Sheen({ id, size }: { id: string; size: number }) {
   );
 }
 
+/** A soft tinted glow as boxShadow, identical on iOS, Android and web. */
 function glow(color: string): ViewStyle {
-  return Platform.OS === 'ios'
-    ? { shadowColor: color, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 5 }
-    : Platform.OS === 'android'
-      ? { elevation: 2 }
-      : {};
+  return { boxShadow: `0px 2px 10px ${alpha(color, 0.3)}` };
 }
 
 function srcOf(image: TimelineImageSource) {

@@ -469,9 +469,8 @@ export function TiltCard({
       ) : null}
       {/* The card sits in its own (non-collapsing) layer: iOS intersects sibling layers in 3D, so a
           tilted card next to the flat shadow plate would be sliced by it along a diagonal. */}
-      {/* Android draws siblings by elevation, so the wrapper (not the card inside it) carries the
-          elevation that keeps it above the plate; with no background it casts no shadow itself. */}
-      <View collapsable={false} style={{ elevation: shadow ? 15 : 0 }}>
+      {/* The plate's shadow is a boxShadow (no elevation), so on Android too the card simply paints above it. */}
+      <View collapsable={false}>
         <Animated.View
           ref={viewRef}
           {...responder.panHandlers}
@@ -483,10 +482,8 @@ export function TiltCard({
           onAccessibilityAction={(e) => {
             if (e.nativeEvent.actionName === 'activate') onPressRef.current?.();
           }}
-          // elevation (no background → no extra shadow) keeps the card above its shadow plate on Android.
           style={{
             borderRadius: radius,
-            elevation: shadow ? 15 : 0,
             transform: [{ perspective }, { rotateX }, { rotateY }, { scale }],
           }}
         >
@@ -665,11 +662,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#000',
-    shadowColor: '#000',
-    shadowOpacity: 0.45,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 16 },
-    elevation: 14,
+    // boxShadow draws the same soft shadow on iOS, Android and web.
+    boxShadow: '0px 16px 48px rgba(0,0,0,0.45)',
   },
   clip: { overflow: 'hidden' },
   window: { position: 'absolute', overflow: 'hidden' },

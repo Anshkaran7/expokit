@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: GAP, paddingHorizontal: 4, paddingVertical: 4, justifyContent: 'center', alignItems: 'center' },
   halo: { position: 'absolute', top: -4, left: -4, right: -4, bottom: -4 },
   cell: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  char: { fontWeight: '400', fontVariant: ['tabular-nums'], textAlign: 'center' },
+  char: { fontWeight: '400', fontVariant: ['tabular-nums'], textAlign: 'center', includeFontPadding: false, textAlignVertical: 'center' },
   caret: { width: 2, borderRadius: 1 },
   sep: { alignItems: 'center', justifyContent: 'center' },
   dash: { width: 10, height: 2, borderRadius: 1, opacity: 0.6 },

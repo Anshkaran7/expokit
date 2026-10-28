@@ -234,7 +234,7 @@ function CodeChip({ code, color, ink, fontSize, onCopy, labels, reduce }: { code
           <Rect x={0.75} y={0.75} width={box.w - 1.5} height={box.h - 1.5} rx={8} fill="none" stroke={alpha(color, 0.75)} strokeWidth={1.5} strokeDasharray={[5, 4]} />
         </Svg>
       ) : null}
-      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize, fontWeight: '800', letterSpacing: 1, flexShrink: 1 }, ff]}>
+      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[{ color: ink, fontSize, fontWeight: '800', letterSpacing: 1, flexShrink: 1, includeFontPadding: false, textAlignVertical: 'center' }, ff]}>
         {code}
       </Text>
       {onCopy ? (
@@ -431,7 +431,7 @@ export function Coupon({
     left !== undefined && left > 0 && !spent ? (
       <View style={[styles.timer, { backgroundColor: timerBg }]}>
         <Icon d={ICON.clock} size={11} color={timerInk} />
-        <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: timerInk, fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'] }, ff]}>
+        <Text maxFontSizeMultiplier={FONT_CAP} style={[{ color: timerInk, fontSize: 10.5, fontWeight: '800', fontVariant: ['tabular-nums'], includeFontPadding: false, textAlignVertical: 'center' }, ff]}>
           {labels.endsIn} {formatCountdown(left)}
         </Text>
       </View>
@@ -521,7 +521,7 @@ export function Coupon({
       ]}
     >
       {applied || locked ? <Icon d={applied ? ICON.check : ICON.lock} size={13} color={applied ? '#ffffff' : bodySoft} /> : null}
-      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[{ color: applied ? '#ffffff' : locked || spent ? bodySoft : readableOn(accent), fontSize: s.chip - 0.5, fontWeight: '800' }, ff]}>
+      <Text numberOfLines={1} maxFontSizeMultiplier={FONT_CAP} style={[{ color: applied ? '#ffffff' : locked || spent ? bodySoft : readableOn(accent), fontSize: s.chip - 0.5, fontWeight: '800', includeFontPadding: false, textAlignVertical: 'center' }, ff]}>
         {applied ? labels.applied : locked ? labels.locked : labels.apply}
       </Text>
     </Pressable>
@@ -679,9 +679,8 @@ export function Coupon({
         <View style={{ transform: [{ scale: pressed && !reduce ? 0.985 : 1 }] }}>
           {/* The plate waits for the painted outline (no black flash on mount), and a dimmed (used /
               expired) coupon is see-through, so it gets none. */}
-          {spent || !measured ? null : <View pointerEvents="none" style={[styles.shadow, { top: inset, bottom: inset - 4, left: inset, right: inset, borderRadius: v.r, shadowOpacity: dark ? 0.5 : 0.2 }]} />}
-          {/* Elevation above the shadow plate keeps the coupon on top on Android (no background → no shadow of its own). */}
-          <View style={{ elevation: 7 }}>{card}</View>
+          {spent || !measured ? null : <View pointerEvents="none" style={[styles.shadow, { top: inset, bottom: inset - 4, left: inset, right: inset, borderRadius: v.r, boxShadow: `0px 8px 28px rgba(0,0,0,${dark ? 0.5 : 0.2})` }]} />}
+          <View>{card}</View>
         </View>
       )}
     </Pressable>
@@ -717,9 +716,5 @@ const styles = StyleSheet.create({
   shadow: {
     position: 'absolute',
     backgroundColor: '#000',
-    shadowColor: '#000',
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
   },
 });

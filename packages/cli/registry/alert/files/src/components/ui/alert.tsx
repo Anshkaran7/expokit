@@ -654,7 +654,7 @@ const styles = StyleSheet.create({
   desc: { fontSize: 14, fontWeight: '400', lineHeight: 20 },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   pill: { alignItems: 'center', justifyContent: 'center' },
-  pillText: { fontSize: 14, fontWeight: '400', lineHeight: 18 },
+  pillText: { fontSize: 14, fontWeight: '400', lineHeight: 18, includeFontPadding: false, textAlignVertical: 'center' },
   close: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   timer: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 2 },
 });

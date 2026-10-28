@@ -10,7 +10,6 @@ import {
   StyleSheet,
   Text,
   View,
-  useWindowDimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type StyleProp,
@@ -19,7 +18,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
 
 /** A wall-clock time, 24-hour: `{ hours: 0–23, minutes: 0–59 }`. */
 export interface TimeValue {
@@ -829,7 +828,7 @@ function TimeField({
   menuStyle,
   ...chipProps
 }: TimeFieldProps) {
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, dark, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const bg = surface ?? colors.background;
@@ -840,8 +839,10 @@ function TimeField({
   const sz = typeof userField.height === 'number' ? { ...base, h: userField.height } : base;
   const fieldRadius =
     typeof userField.borderRadius === 'number' ? userField.borderRadius : size === 'sm' ? radius.md - 2 : size === 'lg' ? radius.lg : radius.md;
-  const { width: winW, height: winH } = useWindowDimensions();
-  const wide = winW >= 640;
+  const layout = useLayout();
+  const { height: winH } = layout;
+  // A centred card whenever the kit caps the sheet (foldables, tablets, landscape phones).
+  const wide = layout.sheetWidth < layout.width;
   const staged = confirm ?? variant !== 'chips';
 
   const [open, setOpen] = useState(false);
@@ -1040,8 +1041,14 @@ function TimeField({
               styles.sheet,
               { backgroundColor: colors.popover, borderColor: colors.border, maxHeight: winH * 0.9 },
               wide
-                ? { width: Math.min(420, winW - 48), borderRadius: radius.xl, paddingBottom: 14 }
-                : { alignSelf: 'stretch', borderTopLeftRadius: radius.xl + 4, borderTopRightRadius: radius.xl + 4, paddingBottom: 30 },
+                ? { width: Math.min(420, layout.sheetWidth), borderRadius: radius.xl, paddingBottom: 14, ...shadow('xl') }
+                : {
+                    alignSelf: 'stretch',
+                    borderTopLeftRadius: radius.xl + 4,
+                    borderTopRightRadius: radius.xl + 4,
+                    paddingBottom: 30,
+                    boxShadow: `0px -4px 32px rgba(0,0,0,${dark ? 0.45 : 0.18})`,
+                  },
               menuStyle,
               wide
                 ? {
@@ -1193,7 +1200,7 @@ const styles = StyleSheet.create({
   clockColon: { width: 22, textAlign: 'center', fontWeight: '400', includeFontPadding: false, transform: [{ translateY: -3 }] },
   period: { width: 52, marginLeft: 12, borderWidth: StyleSheet.hairlineWidth * 2, overflow: 'hidden' },
   periodBtn: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  periodText: { fontSize: 14, fontWeight: '400', letterSpacing: 0.3 },
+  periodText: { fontSize: 14, fontWeight: '400', letterSpacing: 0.3, includeFontPadding: false, textAlignVertical: 'center' },
   face: { alignSelf: 'center' },
   num: { position: 'absolute', width: KNOB * 2, height: KNOB * 2, alignItems: 'center', justifyContent: 'center' },
   numText: { fontSize: 16, fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false },
@@ -1206,7 +1213,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -4 },
   chipCell: { padding: 4 },
   chip: { minHeight: 44, borderWidth: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  chipText: { fontSize: 14.5, fontWeight: '400', fontVariant: ['tabular-nums'] },
+  chipText: { fontSize: 14.5, fontWeight: '400', fontVariant: ['tabular-nums'], includeFontPadding: false, textAlignVertical: 'center' },
   struck: { textDecorationLine: 'line-through' },
   field: { borderWidth: 1.5, justifyContent: 'center' },
   halo: { position: 'absolute', top: -4, left: -4, right: -4, bottom: -4, borderWidth: 4 },
@@ -1221,11 +1228,6 @@ const styles = StyleSheet.create({
   centered: { justifyContent: 'center', alignItems: 'center' },
   sheet: {
     borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: -4 },
-    elevation: 16,
   },
   sheetHeader: { alignItems: 'center', paddingTop: 10, paddingBottom: 10, paddingHorizontal: 16 },
   grabber: { width: 40, height: 5, borderRadius: 3, marginBottom: 12 },

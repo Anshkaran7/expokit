@@ -20,7 +20,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { alpha, motion, useKit } from '@/lib/kit';
+import { alpha, motion, useKit, useLayout } from '@/lib/kit';
 
 export type SnapPoint = number | `${number}%`;
 
@@ -126,6 +126,8 @@ export function BottomSheet({
   const ff = font.family ? { fontFamily: font.family } : null;
   const reduceMotion = useReduceMotion();
   const { height: screen } = useWindowDimensions();
+  // Full width on portrait phones; a centred, width-capped card on foldables, tablets and landscape.
+  const { sheetWidth } = useLayout();
 
   // No snap points: one detent at the content's own height, measured before the sheet slides in.
   const auto = !snapPoints || snapPoints.length === 0;
@@ -423,8 +425,8 @@ export function BottomSheet({
               styles.sheet,
               {
                 height: max + OVERDRAG,
+                width: sheetWidth,
                 opacity: measured ? 1 : 0,
-                shadowOpacity: dark ? 0.5 : 0.12,
                 transform: [{ translateY: Animated.add(y, lift) }],
               },
               style,
@@ -439,7 +441,8 @@ export function BottomSheet({
                   borderTopLeftRadius: corner,
                   borderTopRightRadius: corner,
                   borderColor: hairline,
-                  shadowOpacity: dark ? 0.35 : 0.06,
+                  // Ambient + contact shadow as boxShadow: identical on iOS, Android and web.
+                  boxShadow: `0px -8px 64px rgba(0,0,0,${dark ? 0.5 : 0.12}), 0px -1px 6px rgba(0,0,0,${dark ? 0.35 : 0.06})`,
                 },
               ]}
             >
@@ -549,21 +552,11 @@ const styles = StyleSheet.create({
   // No text selection while dragging with a mouse on web.
   grab: Platform.OS === 'web' ? ({ userSelect: 'none', cursor: 'grab' } as object) : {},
   dock: { position: 'absolute', left: 0, right: 0, bottom: -OVERDRAG, alignItems: 'center' },
-  sheet: {
-    width: '100%',
-    maxWidth: 640,
-    shadowColor: '#000',
-    shadowRadius: 32,
-    shadowOffset: { width: 0, height: -8 },
-    elevation: 24,
-  },
+  sheet: { maxWidth: '100%' },
   surface: {
     flex: 1,
     borderWidth: StyleSheet.hairlineWidth,
     borderBottomWidth: 0,
-    shadowColor: '#000',
-    shadowRadius: 3,
-    shadowOffset: { width: 0, height: -1 },
   },
   handleArea: { alignItems: 'center', paddingTop: 8, paddingBottom: 10, minHeight: 28 },
   handle: { width: 36, height: 5 },

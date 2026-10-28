@@ -434,7 +434,7 @@ function SuggestionPanel({
   reduce: boolean;
   onSelect: (item: SearchSuggestion) => void;
 }) {
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const [mounted, setMounted] = useState(open);
   const enter = useRef(new Animated.Value(0)).current;
@@ -459,6 +459,7 @@ function SuggestionPanel({
       accessibilityRole="list"
       style={[
         styles.panel,
+        shadow('md'),
         {
           backgroundColor: colors.popover,
           borderColor: colors.border,
@@ -565,18 +566,13 @@ const styles = StyleSheet.create({
   clearDot: { alignItems: 'center', justifyContent: 'center' },
   trailing: { paddingLeft: 2, alignItems: 'center', justifyContent: 'center' },
   cancel: { position: 'absolute', left: 0, top: 0, bottom: 0, justifyContent: 'center', paddingLeft: 14 },
-  cancelText: { fontWeight: '400' },
+  cancelText: { fontWeight: '400', includeFontPadding: false, textAlignVertical: 'center' },
   measure: { position: 'absolute', opacity: 0, left: 0, top: 0 },
   panel: {
     marginTop: 10,
     paddingVertical: 6,
     borderWidth: StyleSheet.hairlineWidth * 2,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 4,
   },
   option: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 44, paddingHorizontal: 12 },
   optionIcon: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },

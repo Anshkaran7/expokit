@@ -296,6 +296,6 @@ const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', borderWidth: 1 },
   checkWrap: { overflow: 'hidden', flexDirection: 'row', alignItems: 'center' },
   icon: { marginRight: 6 },
-  label: { fontWeight: '400', letterSpacing: -0.1 },
-  count: { marginLeft: 6, fontWeight: '400', fontVariant: ['tabular-nums'], opacity: 0.85 },
+  label: { fontWeight: '400', letterSpacing: -0.1, includeFontPadding: false, textAlignVertical: 'center' },
+  count: { marginLeft: 6, fontWeight: '400', fontVariant: ['tabular-nums'], opacity: 0.85, includeFontPadding: false, textAlignVertical: 'center' },
 });

@@ -121,7 +121,7 @@ export function Button({
   onPressOut,
   ...props
 }: ButtonProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const gid = 'btn' + useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduce = useReduceMotion();
@@ -208,9 +208,9 @@ export function Button({
             opacity: isDisabled ? 0.5 : pressed && variant === 'link' ? 0.6 : 1,
           },
           pressed && quiet && variant !== 'link' && { backgroundColor: color ? alpha(tint, 0.1) : colors.muted },
-          // Coloured glow under the button (iOS / web; Android shows plain elevation).
-          variant === 'glow' && !isDisabled && [styles.glow, { shadowColor: tint }],
-          variant === 'elevated' && styles.elevated,
+          // Coloured glow / soft lift as boxShadow: the same on iOS, Android and web.
+          variant === 'glow' && !isDisabled && { boxShadow: `0px 6px 28px ${alpha(tint, 0.45)}` },
+          variant === 'elevated' && shadow('md'),
         ]}
         {...props}
       >
@@ -285,19 +285,6 @@ const styles = StyleSheet.create({
   base: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   block: { alignSelf: 'stretch' },
-  label: { fontWeight: '400', letterSpacing: -0.1 },
+  label: { fontWeight: '400', letterSpacing: -0.1, includeFontPadding: false, textAlignVertical: 'center' },
   link: { textDecorationLine: 'underline' },
-  glow: {
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-  },
-  elevated: {
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
-  },
 });
