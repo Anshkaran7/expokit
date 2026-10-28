@@ -37,6 +37,8 @@ export function GlassTabBar({ state, navigation, insets }: BottomTabBarProps) {
   const activeTab = getTab(routes[activeIndex]?.name ?? '');
 
   const fullW = Math.min(screenW - 32, 520);
+  // Centre the capped bar on tablets and open foldables (phones keep the 16pt sides).
+  const side = Math.max(16, (screenW - fullW) / 2);
   const itemW = fullW / Math.max(routes.length, 1);
   const bubbleX = useRef(new Animated.Value(activeIndex * itemW)).current;
   const [collapsed, setCollapsed] = useState(false);
@@ -63,7 +65,7 @@ export function GlassTabBar({ state, navigation, insets }: BottomTabBarProps) {
   const dotScale = tabBarCollapse.interpolate({ inputRange: [0.55, 1], outputRange: [0.6, 1], extrapolate: 'clamp' });
 
   return (
-    <View pointerEvents="box-none" style={[styles.host, { bottom: Math.max(insets.bottom, 12) }]}>
+    <View pointerEvents="box-none" style={[styles.host, { left: side, right: side, bottom: Math.max(insets.bottom, 12) }]}>
       <Animated.View style={[styles.shadow, { width }]}>
         <View style={[styles.glass, { borderColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.7)' }]}>
           <BlurView
@@ -225,11 +227,8 @@ const styles = StyleSheet.create({
   shadow: {
     height: GLASS_BAR_HEIGHT,
     borderRadius: GLASS_BAR_HEIGHT / 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 22,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 12,
+    // boxShadow renders the same on iOS, Android (new arch) and web; elevation drew a grey Android shadow.
+    boxShadow: '0px 10px 22px rgba(0,0,0,0.18)',
   },
   glass: {
     flex: 1,
@@ -254,7 +253,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeText: { color: '#fff', fontSize: 10, fontWeight: '400' },
+  badgeText: { color: '#fff', fontSize: 10, fontWeight: '400', includeFontPadding: false, textAlignVertical: 'center' },
   dot: { position: 'absolute', top: 0, left: 0, width: GLASS_BAR_HEIGHT, height: GLASS_BAR_HEIGHT },
   dotPress: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

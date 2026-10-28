@@ -6,6 +6,7 @@ import {
   Text,
   View,
   useColorScheme,
+  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,6 +28,12 @@ export function TabScreen({ title, description, accent, action }: TabScreenProps
   const bottomInset = useTabBarInset(24);
   // Bottom-anchored UI sits on top of the bar's footprint, not on the screen edge.
   const actionBottom = useTabBarInset(12);
+  // Phones: full width, one card per row. Tablets and open foldables: a centred column, two cards per row.
+  const { width } = useWindowDimensions();
+  const columnW = Math.min(width, COLUMN_MAX);
+  const side = Math.max(0, (width - columnW) / 2) + 20;
+  const columns = width >= 600 ? 2 : 1;
+  const cardW = columns > 1 ? (columnW - 40 - CARD_GAP * (columns - 1)) / columns : undefined;
   const bg = isDark ? '#0f0f1a' : '#f2f2f7';
   const text = isDark ? '#fff' : '#1c1c1e';
   const sub = isDark ? '#9898a8' : '#6c6c70';
@@ -38,6 +45,7 @@ export function TabScreen({ title, description, accent, action }: TabScreenProps
         contentContainerStyle={[
           styles.scroll,
           { paddingTop: insets.top + 12, paddingBottom: bottomInset },
+          { width: '100%', maxWidth: COLUMN_MAX, alignSelf: 'center' },
         ]}
         showsVerticalScrollIndicator={false}
         // Pad by hand on every bar: useTabBarInset() already counts the floating bar and home indicator.
@@ -54,27 +62,29 @@ export function TabScreen({ title, description, accent, action }: TabScreenProps
         <Text style={[styles.title, { color: text }]}>{title}</Text>
         <Text style={[styles.subtitle, { color: sub }]}>{description}</Text>
 
-        {SECTIONS.map((n) => (
-          <View
-            key={n}
-            style={[
-              styles.card,
-              { backgroundColor: isDark ? '#1c1c2e' : '#ffffff' },
-            ]}
-          >
-            <Text style={[styles.cardTitle, { color: text }]}>Section {n}</Text>
-            <Text style={[styles.cardSub, { color: sub }]}>
-              iOS 26+ gets the system Liquid Glass bar. Older iOS, Android and web get the
-              blur glass fallback — both merge into a glass circle when you scroll down.
-            </Text>
-          </View>
-        ))}
+        <View style={columns > 1 ? styles.grid : undefined}>
+          {SECTIONS.map((n) => (
+            <View
+              key={n}
+              style={[
+                styles.card,
+                { width: cardW, backgroundColor: isDark ? '#1c1c2e' : '#ffffff' },
+              ]}
+            >
+              <Text style={[styles.cardTitle, { color: text }]}>Section {n}</Text>
+              <Text style={[styles.cardSub, { color: sub }]}>
+                iOS 26+ gets the system Liquid Glass bar. Older iOS, Android and web get the
+                blur glass fallback — both merge into a glass circle when you scroll down.
+              </Text>
+            </View>
+          ))}
+        </View>
         {action ? <View style={{ height: 64 }} /> : null}
       </ScrollView>
       {action ? (
         <Pressable
           accessibilityRole="button"
-          style={({ pressed }) => [styles.action, { bottom: actionBottom, backgroundColor: accent, opacity: pressed ? 0.85 : 1 }]}
+          style={({ pressed }) => [styles.action, { left: side, right: side, bottom: actionBottom, backgroundColor: accent, opacity: pressed ? 0.85 : 1 }]}
         >
           <Text style={styles.actionText}>{action}</Text>
         </Pressable>
@@ -103,6 +113,9 @@ export function TabScreenFromConfig({ tabName, action }: { tabName: string; acti
 }
 
 const SECTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+/** Widest the screen's column gets on tablets. */
+const COLUMN_MAX = 720;
+const CARD_GAP = 10;
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
@@ -127,6 +140,7 @@ const styles = StyleSheet.create({
   },
   title: { fontSize: 34, fontWeight: '400', letterSpacing: -0.5 },
   subtitle: { fontSize: 15, marginTop: 8, marginBottom: 20, lineHeight: 22 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', columnGap: CARD_GAP },
   card: {
     borderRadius: 14,
     padding: 16,
@@ -143,5 +157,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionText: { color: '#fff', fontSize: 16, fontWeight: '500' },
+  actionText: { color: '#fff', fontSize: 16, fontWeight: '500', includeFontPadding: false, textAlignVertical: 'center' },
 });
