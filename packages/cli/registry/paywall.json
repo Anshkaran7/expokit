@@ -1,0 +1,22 @@
+{
+  "name": "paywall",
+  "type": "block",
+  "title": "Paywall",
+  "description": "Animated paywall screens people actually read. A membership card lit by a drifting aurora (drag it to tilt), plans that tint as you pick them, a dark glow layout with an annual toggle and sliding price, and a free-trial timeline that draws itself. Comes with a “You’re Pro” success screen with confetti and a cancel flow that asks why and offers a reason to stay. Respects Reduce Motion.",
+  "tier": "pro",
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit",
+    "switch",
+    "confetti"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx",
+    "components/ui/switch.tsx",
+    "components/ui/confetti.tsx"
+  ],
+  "filesDir": null
+}

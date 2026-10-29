@@ -1,0 +1,144 @@
+{
+  "name": "paywall",
+  "category": "Blocks",
+  "aliases": [],
+  "exportName": "Paywall",
+  "files": [
+    "src/components/blocks/paywall.tsx"
+  ],
+  "summary": "Animated paywall, free-trial timeline, success and win-back screens.",
+  "props": [
+    [
+      "variant",
+      "\"card\" | \"glow\" | \"trial\"",
+      "\"card\"",
+      "Gradient card + plan picker, dark full-bleed with an annual toggle, or how the free trial works."
+    ],
+    [
+      "appName",
+      "string",
+      "'Lumen'",
+      "Shown on the card and the glow pill."
+    ],
+    [
+      "title",
+      "string",
+      "per variant",
+      "Heading."
+    ],
+    [
+      "subtitle",
+      "string",
+      "per variant",
+      "Line under the heading."
+    ],
+    [
+      "features",
+      "{ title, icon? }[]",
+      "per variant",
+      "Feature grid (card) or pills (glow)."
+    ],
+    [
+      "plans",
+      "PaywallPlan[]",
+      "yearly / monthly / lifetime",
+      "{ id, label, price, period, caption?, badge?, trialDays?, cta? }. In glow the toggle picks plans[0] (on) or plans[1] (off)."
+    ],
+    [
+      "plan",
+      "string",
+      "—",
+      "Selected plan id (controlled)."
+    ],
+    [
+      "defaultPlan",
+      "string",
+      "plans[0].id",
+      "Initial plan when uncontrolled."
+    ],
+    [
+      "onPlanChange",
+      "(id: string) => void",
+      "—",
+      "A plan was picked."
+    ],
+    [
+      "onPurchase",
+      "(plan: PaywallPlan) => void",
+      "—",
+      "Pressed the main button."
+    ],
+    [
+      "onRestore",
+      "() => void",
+      "—",
+      "Shows “Restore” in the top-left corner."
+    ],
+    [
+      "onClose",
+      "() => void",
+      "—",
+      "Shows a close button."
+    ],
+    [
+      "reminder",
+      "boolean",
+      "true",
+      "trial: the “remind me” switch (controlled with onReminderChange)."
+    ],
+    [
+      "auroraColors",
+      "[string, string, string]",
+      "orange, violet, cyan",
+      "Colours of the moving aurora."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Button and selected-plan colour."
+    ],
+    [
+      "topInset",
+      "number",
+      "0",
+      "Space above the restore / close buttons, e.g. useSafeAreaInsets().top. Also on PaywallSuccess and PaywallWinback."
+    ],
+    [
+      "bottomInset",
+      "number",
+      "30 on iOS, 16 elsewhere",
+      "Space under the button, e.g. useSafeAreaInsets().bottom + 12."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "behavior": [
+    [
+      "Motion",
+      "The aurora drifts on three loops of different lengths, a sheen sweeps the card, rows rise in one after another and prices slide when the plan changes. Springs are critically damped — nothing bounces."
+    ],
+    [
+      "Touch",
+      "Drag the card to tilt it; it springs flat when you let go. Plan tiles and rows scale down slightly on press."
+    ],
+    [
+      "Reduced motion",
+      "Loops, tilt, lifts and press scaling are off; fades and colour changes stay. Confetti fires fewer pieces."
+    ],
+    [
+      "Screen readers",
+      "Plans and reasons are radio groups and the card reads as one label."
+    ],
+    [
+      "Layout",
+      "Restore sits top-left and close top-right, clear of the button. The button bar stays pinned and content fades out under it. Pass topInset / bottomInset (e.g. from useSafeAreaInsets) for the notch and home indicator."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}
