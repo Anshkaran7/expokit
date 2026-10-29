@@ -1,0 +1,147 @@
+{
+  "name": "ruler-time-picker",
+  "category": "Inputs",
+  "aliases": [
+    "scrub-time-picker",
+    "drag-time-picker",
+    "ruler-date-picker",
+    "scrub-date-picker",
+    "day-ruler"
+  ],
+  "exportName": "RulerTimePicker",
+  "files": [
+    "src/components/ui/ruler-time-picker.tsx"
+  ],
+  "summary": "Drag a tick ruler and the big time or date rolls piece by piece with a motion blur.",
+  "props": [
+    [
+      "mode",
+      "'time' | 'date'",
+      "'time'",
+      "One tick per `step` minutes, or one tick per day with the 1st of each month marked."
+    ],
+    [
+      "value",
+      "{ hours, minutes } | Date",
+      "—",
+      "Controlled value: a 24-hour time, or a Date in date mode (its time of day is kept)."
+    ],
+    [
+      "defaultValue",
+      "{ hours, minutes } | Date",
+      "09:00 · today",
+      "Initial value when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(value) => void",
+      "—",
+      "Called on every tick the ruler passes, while you drag."
+    ],
+    [
+      "label",
+      "string",
+      "—",
+      "Small line above the value, e.g. 'Reminder time:'."
+    ],
+    [
+      "step",
+      "number",
+      "5",
+      "Time: minutes per tick (1–60)."
+    ],
+    [
+      "hour12",
+      "boolean",
+      "true",
+      "Time: 12-hour clock with a rolling am / pm; false for 00–23."
+    ],
+    [
+      "minDate / maxDate",
+      "Date",
+      "—",
+      "Date: earliest / latest pickable day; the ruler resists past them."
+    ],
+    [
+      "showYear",
+      "'auto' | 'always' | 'never'",
+      "'auto'",
+      "Date: 'auto' shows the year only when it isn't this year."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "Date: weekday and month names (Intl), English where Intl isn't available."
+    ],
+    [
+      "size",
+      "'sm' | 'md' | 'lg'",
+      "'md'",
+      "Time at 40 / 52 / 64pt, date at 34 / 44 / 54pt."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Centre needle colour."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "A light tap on every step, a firmer one on each whole hour (time) or new month (date)."
+    ],
+    [
+      "sound",
+      "boolean",
+      "true",
+      "A soft tick on every step, generated in code (no audio file); it plays alongside other audio."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "label",
+      "Name read by screen readers."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container."
+    ],
+    [
+      "textStyle",
+      "StyleProp<TextStyle>",
+      "—",
+      "The big value text (colour, weight, font family)."
+    ]
+  ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag sideways anywhere on the picker to scrub; fling to coast. It snaps to the nearest step when it stops. A touch during a fling catches it. In date mode, past minDate / maxDate the ruler follows at a fraction of your finger and springs back. Every step taps (firmer on the hour or a new month) and ticks softly."
+    ],
+    [
+      "Motion",
+      "Ticks (and month markers) slide, swell and fade on the native driver from one endless pool. Each piece that changes rolls up (later) or down (earlier) with ghosted copies for a motion blur. Reduce Motion swaps the roll for an instant change."
+    ],
+    [
+      "Screen readers",
+      "One adjustable element whose value is the spoken time or full date; increment / decrement move one step, within the limits."
+    ]
+  ],
+  "usage": "import { useState } from 'react';\nimport { RulerTimePicker, type TimeValue } from '@/components/ui/ruler-time-picker';\n\nconst [time, setTime] = useState<TimeValue>({ hours: 2, minutes: 15 });\n<RulerTimePicker label=\"Reminder time:\" value={time} onChange={setTime} />\n\n// One tick per day\nconst [date, setDate] = useState(new Date());\n<RulerTimePicker mode=\"date\" label=\"Delivery date:\" value={date} onChange={setDate} minDate={new Date()} />",
+  "examples": [
+    {
+      "name": "Reminder",
+      "title": "Reminder",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { RulerTimePicker, type TimeValue } from '@/components/ui/ruler-time-picker';\nimport { alpha, useKit } from '@/lib/kit';\n\n/** Controls stop at iOS's largest standard text size; content text stays uncapped. */\nconst FONT_CAP = 1.35;\n\n/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */\ntype DemoProps = { screen?: boolean; bottomInset?: number };\n\nconst BLUR: [number, number][] = [2, 4, 7, 10].flatMap((r, ring) =>\n  Array.from({ length: 8 }, (_, i): [number, number] => {\n    const a = ((i + ring / 2) / 8) * Math.PI * 2;\n    return [Math.cos(a) * r, Math.sin(a) * r];\n  }),\n);\n\n/** The settings screen the sheet was opened from, as blocks: a title, a grouped list and toggles. */\nconst SettingsScreen = React.memo(function SettingsScreen() {\n  const { colors, radius, dark } = useKit();\n  // In dark mode the grouped rows sit a step lighter than the screen, like iOS Settings.\n  const group = dark ? colors.secondary : colors.card;\n  const rows: [number, 'value' | 'on' | 'off'][] = [\n    [0.42, 'value'],\n    [0.3, 'value'],\n    [0.38, 'on'],\n    [0.34, 'on'],\n    [0.4, 'off'],\n    [0.28, 'value'],\n  ];\n  const bar = (w: number | `${number}%`, h: number, color: string) => (\n    <View style={{ width: w, height: h, backgroundColor: color, borderRadius: radius.capsule(h) }} />\n  );\n  return (\n    <View style={s.screen}>\n      {bar(150, 30, alpha(colors.foreground, 0.7))}\n      <View style={[s.group, { backgroundColor: group, borderRadius: radius.lg }]}>\n        {rows.map(([w, kind], i) => (\n          <View key={i} style={[s.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}>\n            {bar(`${w * 100}%`, 14, alpha(colors.foreground, 0.45))}\n            {kind === 'value' ? (\n              bar(64, 14, colors.mutedForeground)\n            ) : (\n              <View style={[s.toggle, { backgroundColor: kind === 'on' ? colors.accent : colors.border, borderRadius: radius.capsule(28) }]}>\n                <View style={[s.knob, { backgroundColor: colors.background, alignSelf: kind === 'on' ? 'flex-end' : 'flex-start', borderRadius: radius.capsule(24) }]} />\n              </View>\n            )}\n          </View>\n        ))}\n      </View>\n      <View style={[s.group, s.card2, { backgroundColor: group, borderRadius: radius.lg }]}>\n        {bar('55%', 14, alpha(colors.foreground, 0.45))}\n        {bar('80%', 12, colors.mutedForeground)}\n      </View>\n    </View>\n  );\n});\n\n/** A bottom sheet over a blurred, dimmed screen, with a Done button under the picker. */\nfunction Sheet({ screen, bottomInset = 0, children }: DemoProps & { children: React.ReactNode }) {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View\n      style={[\n        s.frame,\n        { backgroundColor: colors.muted },\n        screen ? s.frameScreen : { borderRadius: radius.xl, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth },\n      ]}\n    >\n      <View pointerEvents=\"none\" style={StyleSheet.absoluteFill} importantForAccessibility=\"no-hide-descendants\" accessibilityElementsHidden>\n        {BLUR.map(([x, y], i) => (\n          <View key={i} style={[StyleSheet.absoluteFill, { opacity: 1 / 12, transform: [{ translateX: x }, { translateY: y }] }]}>\n            <SettingsScreen />\n          </View>\n        ))}\n        {/* A lighter dim than a modal's, so the screen behind still reads as a screen. */}\n        <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay, opacity: dark ? 0.45 : 0.5 }]} />\n      </View>\n      {/* Raised above the screen: an elevated (lighter) surface in dark mode, and a hairline edge in both. */}\n      <View\n        style={[\n          s.sheet,\n          {\n            backgroundColor: dark ? colors.border : colors.card,\n            borderColor: dark ? alpha(colors.foreground, 0.12) : colors.border,\n            borderRadius: radius.scale(32),\n            marginBottom: 8 + bottomInset,\n          },\n        ]}\n      >\n        <View style={[s.grabber, { backgroundColor: alpha(colors.foreground, dark ? 0.3 : 0.15), borderRadius: radius.capsule(5) }]} />\n        {children}\n        <Pressable\n          accessibilityRole=\"button\"\n          style={({ pressed }) => [s.button, { backgroundColor: colors.primary, borderRadius: radius.lg, opacity: pressed ? 0.85 : 1 }]}\n        >\n          <Text maxFontSizeMultiplier={FONT_CAP} style={[s.buttonText, { color: colors.primaryForeground }]}>Done</Text>\n        </Pressable>\n      </View>\n    </View>\n  );\n}\n\nconst s = StyleSheet.create({\n  frame: { alignSelf: 'stretch', minHeight: 400, justifyContent: 'flex-end', overflow: 'hidden', paddingHorizontal: 8 },\n  frameScreen: { flex: 1 },\n  screen: { flex: 1, paddingHorizontal: 16, paddingTop: 20, gap: 14 },\n  card2: { paddingVertical: 16, gap: 10 },\n  group: { paddingHorizontal: 14 },\n  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 50 },\n  toggle: { width: 46, height: 28, padding: 2, justifyContent: 'center' },\n  knob: { width: 24, height: 24 },\n  sheet: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, gap: 10, borderWidth: StyleSheet.hairlineWidth },\n  grabber: { alignSelf: 'center', width: 40, height: 5 },\n  button: { minHeight: 52, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },\n  buttonText: { fontSize: 16, fontWeight: '600' },\n});\n\nexport default function Reminder(props: DemoProps) {\n  const [time, setTime] = useState<TimeValue>({ hours: 2, minutes: 15 });\n  return (\n    <Sheet {...props}>\n      <RulerTimePicker label=\"Reminder time:\" value={time} onChange={setTime} />\n    </Sheet>\n  );\n}\n"
+    },
+    {
+      "name": "Delivery",
+      "title": "Delivery",
+      "code": "import React, { useState } from 'react';\nimport { Pressable, StyleSheet, Text, View } from 'react-native';\nimport { RulerTimePicker, type TimeValue } from '@/components/ui/ruler-time-picker';\nimport { alpha, useKit } from '@/lib/kit';\n\n/** Controls stop at iOS's largest standard text size; content text stays uncapped. */\nconst FONT_CAP = 1.35;\n\n/** From the Expo Go viewer: `screen` = this IS the phone screen, so no mock frame; `bottomInset` = home indicator. */\ntype DemoProps = { screen?: boolean; bottomInset?: number };\n\nconst BLUR: [number, number][] = [2, 4, 7, 10].flatMap((r, ring) =>\n  Array.from({ length: 8 }, (_, i): [number, number] => {\n    const a = ((i + ring / 2) / 8) * Math.PI * 2;\n    return [Math.cos(a) * r, Math.sin(a) * r];\n  }),\n);\n\n/** The settings screen the sheet was opened from, as blocks: a title, a grouped list and toggles. */\nconst SettingsScreen = React.memo(function SettingsScreen() {\n  const { colors, radius, dark } = useKit();\n  // In dark mode the grouped rows sit a step lighter than the screen, like iOS Settings.\n  const group = dark ? colors.secondary : colors.card;\n  const rows: [number, 'value' | 'on' | 'off'][] = [\n    [0.42, 'value'],\n    [0.3, 'value'],\n    [0.38, 'on'],\n    [0.34, 'on'],\n    [0.4, 'off'],\n    [0.28, 'value'],\n  ];\n  const bar = (w: number | `${number}%`, h: number, color: string) => (\n    <View style={{ width: w, height: h, backgroundColor: color, borderRadius: radius.capsule(h) }} />\n  );\n  return (\n    <View style={s.screen}>\n      {bar(150, 30, alpha(colors.foreground, 0.7))}\n      <View style={[s.group, { backgroundColor: group, borderRadius: radius.lg }]}>\n        {rows.map(([w, kind], i) => (\n          <View key={i} style={[s.row, i > 0 && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}>\n            {bar(`${w * 100}%`, 14, alpha(colors.foreground, 0.45))}\n            {kind === 'value' ? (\n              bar(64, 14, colors.mutedForeground)\n            ) : (\n              <View style={[s.toggle, { backgroundColor: kind === 'on' ? colors.accent : colors.border, borderRadius: radius.capsule(28) }]}>\n                <View style={[s.knob, { backgroundColor: colors.background, alignSelf: kind === 'on' ? 'flex-end' : 'flex-start', borderRadius: radius.capsule(24) }]} />\n              </View>\n            )}\n          </View>\n        ))}\n      </View>\n      <View style={[s.group, s.card2, { backgroundColor: group, borderRadius: radius.lg }]}>\n        {bar('55%', 14, alpha(colors.foreground, 0.45))}\n        {bar('80%', 12, colors.mutedForeground)}\n      </View>\n    </View>\n  );\n});\n\n/** A bottom sheet over a blurred, dimmed screen, with a Done button under the picker. */\nfunction Sheet({ screen, bottomInset = 0, children }: DemoProps & { children: React.ReactNode }) {\n  const { colors, radius, dark } = useKit();\n  return (\n    <View\n      style={[\n        s.frame,\n        { backgroundColor: colors.muted },\n        screen ? s.frameScreen : { borderRadius: radius.xl, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth },\n      ]}\n    >\n      <View pointerEvents=\"none\" style={StyleSheet.absoluteFill} importantForAccessibility=\"no-hide-descendants\" accessibilityElementsHidden>\n        {BLUR.map(([x, y], i) => (\n          <View key={i} style={[StyleSheet.absoluteFill, { opacity: 1 / 12, transform: [{ translateX: x }, { translateY: y }] }]}>\n            <SettingsScreen />\n          </View>\n        ))}\n        {/* A lighter dim than a modal's, so the screen behind still reads as a screen. */}\n        <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay, opacity: dark ? 0.45 : 0.5 }]} />\n      </View>\n      {/* Raised above the screen: an elevated (lighter) surface in dark mode, and a hairline edge in both. */}\n      <View\n        style={[\n          s.sheet,\n          {\n            backgroundColor: dark ? colors.border : colors.card,\n            borderColor: dark ? alpha(colors.foreground, 0.12) : colors.border,\n            borderRadius: radius.scale(32),\n            marginBottom: 8 + bottomInset,\n          },\n        ]}\n      >\n        <View style={[s.grabber, { backgroundColor: alpha(colors.foreground, dark ? 0.3 : 0.15), borderRadius: radius.capsule(5) }]} />\n        {children}\n        <Pressable\n          accessibilityRole=\"button\"\n          style={({ pressed }) => [s.button, { backgroundColor: colors.primary, borderRadius: radius.lg, opacity: pressed ? 0.85 : 1 }]}\n        >\n          <Text maxFontSizeMultiplier={FONT_CAP} style={[s.buttonText, { color: colors.primaryForeground }]}>Done</Text>\n        </Pressable>\n      </View>\n    </View>\n  );\n}\n\nconst s = StyleSheet.create({\n  frame: { alignSelf: 'stretch', minHeight: 400, justifyContent: 'flex-end', overflow: 'hidden', paddingHorizontal: 8 },\n  frameScreen: { flex: 1 },\n  screen: { flex: 1, paddingHorizontal: 16, paddingTop: 20, gap: 14 },\n  card2: { paddingVertical: 16, gap: 10 },\n  group: { paddingHorizontal: 14 },\n  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 50 },\n  toggle: { width: 46, height: 28, padding: 2, justifyContent: 'center' },\n  knob: { width: 24, height: 24 },\n  sheet: { paddingHorizontal: 16, paddingTop: 10, paddingBottom: 16, gap: 10, borderWidth: StyleSheet.hairlineWidth },\n  grabber: { alignSelf: 'center', width: 40, height: 5 },\n  button: { minHeight: 52, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },\n  buttonText: { fontSize: 16, fontWeight: '600' },\n});\n\nexport default function Delivery(props: DemoProps) {\n  const [today] = useState(() => new Date());\n  const [date, setDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2));\n  return (\n    <Sheet {...props}>\n      <RulerTimePicker mode=\"date\" label=\"Delivery date:\" value={date} onChange={setDate} minDate={today} />\n    </Sheet>\n  );\n}\n"
+    }
+  ]
+}

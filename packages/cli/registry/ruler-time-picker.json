@@ -1,0 +1,19 @@
+{
+  "name": "ruler-time-picker",
+  "type": "component",
+  "title": "Ruler Time Picker",
+  "description": "A time or date picker you actually want to drag: scrub or fling a tick ruler and every piece of the big value rolls to its next one with a motion blur. Ticks swell in a bell around the needle, the bump trails your drag, and it snaps to a step when you let go — with a selection haptic on every tick. mode=\"date\" makes each tick a day, marks the 1st of every month and pulls back like a rubber band past min / max dates.",
+  "tier": "free",
+  "dependencies": [
+    "expo-haptics",
+    "expo-audio",
+    "expo-file-system"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "ruler-time-picker/files"
+}
