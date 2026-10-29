@@ -1,0 +1,17 @@
+{
+  "name": "flip-calendar",
+  "type": "component",
+  "title": "Flip Calendar",
+  "description": "A date picker that's a top-bound desk calendar: lift a page and it turns up over the rings toward you in 3D, its plain back showing once it passes upright, with the next day underneath; pull down and yesterday's page swings back over the top onto the pad. The page stays under your finger the whole way, a flick finishes the turn and a hard flick turns several days. Each page has a month band, a huge day number (Sundays in the accent), the weekday and a day-of-year / week footer.",
+  "tier": "free",
+  "dependencies": [
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": "flip-calendar/files"
+}

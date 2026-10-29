@@ -1,0 +1,107 @@
+{
+  "name": "flip-calendar",
+  "title": "Flip Calendar",
+  "tier": "free",
+  "category": "Inputs",
+  "previewHeight": 560,
+  "screen": true,
+  "isNew": true,
+  "description": "A date picker that's a top-bound desk calendar: lift a page and it turns up over the rings toward you in 3D, its plain back showing once it passes upright, with the next day underneath; pull down and yesterday's page swings back over the top onto the pad. The page stays under your finger the whole way, a flick finishes the turn and a hard flick turns several days. Each page has a month band, a huge day number (Sundays in the accent), the weekday and a day-of-year / week footer.",
+  "summary": "A desk calendar: lift a page to flip it over the rings, pull down to bring it back.",
+  "usage": "import { useState } from 'react';\nimport { FlipCalendar } from '@/components/ui/flip-calendar';\n\nconst [date, setDate] = useState(new Date());\n<FlipCalendar value={date} onChange={setDate} minDate={new Date()} />",
+  "behavior": [
+    [
+      "Touch",
+      "Drag up to lift today's page; past upright (or with a flick) it turns over to the next day, otherwise it settles back. Drag down to bring yesterday's page back over the rings. The point you grab stays under your finger. A hard flick turns up to six more pages. At minDate / maxDate the page only lifts or nudges a little."
+    ],
+    [
+      "Motion",
+      "Pages hinge on the rings in 3D on the native driver, darken as they turn away from the light and swap to their plain back exactly at upright. Every page keeps its own angle, so the page underneath is already in place when one turns. Reduce Motion swaps the turn for an instant change."
+    ],
+    [
+      "Screen readers",
+      "One adjustable element whose value is the full date; increment turns to the next day, decrement turns back, within the limits."
+    ]
+  ],
+  "aliases": [
+    "flip-date-picker",
+    "desk-calendar",
+    "daily-calendar",
+    "page-calendar",
+    "tear-off-calendar"
+  ],
+  "dependencies": [
+    "expo-haptics"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "props": [
+    [
+      "value",
+      "Date",
+      "—",
+      "Controlled date; its time of day is kept on every change."
+    ],
+    [
+      "defaultValue",
+      "Date",
+      "today",
+      "Initial date when uncontrolled."
+    ],
+    [
+      "onChange",
+      "(date: Date) => void",
+      "—",
+      "Called when a page turns over (next day) or back (previous day)."
+    ],
+    [
+      "minDate",
+      "Date",
+      "—",
+      "Earliest day; pulling back past it only nudges the page."
+    ],
+    [
+      "maxDate",
+      "Date",
+      "—",
+      "Latest day; lifting past it only raises the page a little."
+    ],
+    [
+      "locale",
+      "string",
+      "device",
+      "Weekday and month names (Intl), English where Intl isn't available."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Month band and Sunday colour (try colors.danger for the classic red)."
+    ],
+    [
+      "maxWidth",
+      "number",
+      "300",
+      "Widest the pad grows; it fills its container up to this."
+    ],
+    [
+      "haptics",
+      "boolean",
+      "true",
+      "A tick as a page passes upright and a soft thud when it lands."
+    ],
+    [
+      "accessibilityLabel",
+      "string",
+      "'Date'",
+      "Name read by screen readers."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root container."
+    ]
+  ]
+}
