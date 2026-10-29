@@ -67,6 +67,9 @@
       "@/components/ui/drawer": [
         "./ui/drawer/src/components/ui/drawer.tsx"
       ],
+      "@/components/ui/flip-calendar": [
+        "./ui/flip-calendar/src/components/ui/flip-calendar.tsx"
+      ],
       "@/components/ui/flip-card": [
         "./ui/flip-card/src/components/ui/flip-card.tsx"
       ],
@@ -96,6 +99,9 @@
       ],
       "@/components/ui/radio-group": [
         "./ui/radio-group/src/components/ui/radio-group.tsx"
+      ],
+      "@/components/ui/ruler-time-picker": [
+        "./ui/ruler-time-picker/src/components/ui/ruler-time-picker.tsx"
       ],
       "@/components/ui/search-bar": [
         "./ui/search-bar/src/components/ui/search-bar.tsx"
