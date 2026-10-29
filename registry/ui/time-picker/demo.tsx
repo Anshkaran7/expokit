@@ -145,6 +145,7 @@ export function InSheet({ screen }: DemoProps) {
   );
 }
 
+/** @pro */
 export function ClockInSheet({ screen }: DemoProps) {
   const [start, setStart] = useState<TimeValue | null>({ hours: 9, minutes: 0 });
   const [end, setEnd] = useState<TimeValue | null>(null);

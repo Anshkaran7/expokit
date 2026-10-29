@@ -106,6 +106,7 @@ export function Marked({ screen }: DemoProps) {
   );
 }
 
+/** @pro */
 export function Booking({ screen }: DemoProps) {
   const booked = useMemo(() => new Set([2, 5, 6, 11, 19].map((n) => toDateKey(addDays(today, n)))), []);
   const [date, setDate] = useState<Date | null>(null);

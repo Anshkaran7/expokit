@@ -42,6 +42,7 @@ export function Variants() {
   );
 }
 
+/** @pro */
 export function Spotlight() {
   const { colors } = useKit();
   const [opened, setOpened] = useState(0);

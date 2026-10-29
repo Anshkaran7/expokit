@@ -149,7 +149,10 @@ export function CardControls() {
   );
 }
 
-/** Choose a design — the card updates live as you pick. */
+/**
+ * Choose a design — the card updates live as you pick.
+ * @pro
+ */
 export function ChooseDesign() {
   const { colors } = useKit();
   const [pick, setPick] = useState(0);

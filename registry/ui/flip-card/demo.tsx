@@ -73,7 +73,10 @@ export function Polaroid() {
   );
 }
 
-/** A recipe card: the dish on the front, ingredients on the back. */
+/**
+ * A recipe card: the dish on the front, ingredients on the back.
+ * @pro
+ */
 export function Recipe() {
   const { colors } = useKit();
   const items = ['3 parsnips, halved', '2 red onions, quartered', '4 carrots', 'Parsley & dill', 'Olive oil, salt, cracked pepper'];

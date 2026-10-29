@@ -101,7 +101,10 @@ export function RichColors({ screen }: DemoProps) {
   );
 }
 
-/** Dynamic Island: a black capsule at the top that springs open, morphs between toasts and folds away. */
+/**
+ * Dynamic Island: a black capsule at the top that springs open, morphs between toasts and folds away.
+ * @pro
+ */
 export function Island({ screen }: DemoProps) {
   const to = { toaster: 'demo-island' };
   return (

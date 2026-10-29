@@ -85,6 +85,7 @@ export function Scramble() {
 const ANSWER =
   'Spring animations feel natural because they keep momentum: a flick carries its speed into the motion, and nothing stops dead.';
 
+/** @pro */
 export function Streaming() {
   const { colors, radius } = useKit();
   const [text, setText] = useState('');

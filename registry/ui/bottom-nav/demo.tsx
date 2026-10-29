@@ -163,6 +163,7 @@ export function PillHighlight({ screen, bottomInset }: DemoProps) {
   );
 }
 
+/** @pro */
 export function CenterFab({ screen, bottomInset }: DemoProps) {
   const [tab, setTab] = useState('home');
   const [posts, setPosts] = useState(0);

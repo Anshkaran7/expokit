@@ -161,7 +161,10 @@ export function Checkout() {
   );
 }
 
-/** Keycaps — press and hold one to feel it sink. */
+/**
+ * Keycaps — press and hold one to feel it sink.
+ * @pro
+ */
 export function Keycaps() {
   const row = (keys: [string, number?][], appearance: 'light' | 'dark') => (
     <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>

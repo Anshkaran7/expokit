@@ -23,6 +23,7 @@ export function Variants() {
   );
 }
 
+/** @pro */
 export function GradientAndGlow() {
   const { colors } = useKit();
   return (

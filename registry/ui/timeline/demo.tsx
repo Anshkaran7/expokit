@@ -229,6 +229,7 @@ export function Journey({ screen }: DemoProps) {
   );
 }
 
+/** @pro */
 export function DeliveryScroll({ screen }: DemoProps) {
   const { colors } = useKit();
   return (

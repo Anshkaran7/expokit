@@ -76,7 +76,10 @@ export function TravelCard() {
   );
 }
 
-/** Album art in a music player — the title floats off the cover. */
+/**
+ * Album art in a music player — the title floats off the cover.
+ * @pro
+ */
 export function NowPlaying() {
   const { colors } = useKit();
   const [playing, setPlaying] = useState(true);

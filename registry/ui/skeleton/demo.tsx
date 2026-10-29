@@ -91,6 +91,7 @@ export function ProfileHeader() {
   );
 }
 
+/** @pro */
 export function LoadingSwap() {
   const { colors, radius, text } = useKit();
   const [loading, setLoading] = useState(true);
