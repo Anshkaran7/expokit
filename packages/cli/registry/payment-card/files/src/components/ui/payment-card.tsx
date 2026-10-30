@@ -26,38 +26,38 @@ export interface PaymentCardProps {
   /** Expiry, e.g. "09/29". */
   expiry: string;
   /** Shown on the back. */
-  cvv?: string;
-  brand?: PaymentCardBrand;
+  cvv?: string | undefined;
+  brand?: PaymentCardBrand | undefined;
   /** Issuer name, top-left. */
-  bank?: string;
+  bank?: string | undefined;
   /** Small label top-right, e.g. "Debit", "World Elite". */
-  label?: string;
+  label?: string | undefined;
   /** Card art — a photo or texture (`require('./card.jpg')` or `{ uri }`). Or any element drawn as the art, e.g. `<GrainGradient palette=\"ocean\" style={{ flex: 1 }} />`. Default: brushed graphite. */
-  image?: ImageSourcePropType | React.ReactElement;
+  image?: ImageSourcePropType | React.ReactElement | undefined;
   /** `light` text for dark art (default), `dark` text for pale art. */
-  tone?: 'light' | 'dark';
+  tone?: 'light' | 'dark' | undefined;
   /** EMV chip finish. */
-  chip?: 'gold' | 'silver';
+  chip?: 'gold' | 'silver' | undefined;
   /** Show only the last 4 digits (default true). */
-  masked?: boolean;
+  masked?: boolean | undefined;
   /** Controlled side: true shows the back. */
-  flipped?: boolean;
-  defaultFlipped?: boolean;
-  onFlip?: (flipped: boolean) => void;
+  flipped?: boolean | undefined;
+  defaultFlipped?: boolean | undefined;
+  onFlip?: ((flipped: boolean) => void) | undefined;
   /** Tilt toward the finger (default true). */
-  tilt?: boolean;
+  tilt?: boolean | undefined;
   /**
    * Tap flips the card (default true). `false` makes it a still card — no tilt, no taps — for use
    * inside something tappable (e.g. a CardStack); a controlled `flipped` still turns it.
    */
-  flippable?: boolean;
+  flippable?: boolean | undefined;
   /** Frozen cards are frosted over with a label and ignore taps. */
-  frozen?: boolean;
+  frozen?: boolean | undefined;
   /** Corner radius (default 16 — a real card's corner at phone size). */
-  radius?: number;
+  radius?: number | undefined;
   /** Every built-in string, for translation ({bank} and {last4} are filled in). */
-  labels?: PaymentCardLabels;
-  style?: StyleProp<ViewStyle>;
+  labels?: PaymentCardLabels | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 export interface PaymentCardLabels {

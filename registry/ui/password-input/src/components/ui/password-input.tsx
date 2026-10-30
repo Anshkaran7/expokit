@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { forwardRef, useEffect, useMemo, useState, type ComponentRef } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type TextInput } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -21,24 +21,23 @@ export const DEFAULT_PASSWORD_REQUIREMENTS: PasswordRequirement[] = [
 
 export interface PasswordInputProps extends Omit<FloatingInputProps, 'secureTextEntry' | 'right'> {
   /** Show the 4-segment strength meter under the field. */
-  strength?: boolean;
+  strength?: boolean | undefined;
   /** Replace the built-in scorer (return 0–4). */
-  score?: (password: string) => number;
+  score?: ((password: string) => number) | undefined;
   /** Checklist under the field; each row ticks itself off when met. `true` uses DEFAULT_PASSWORD_REQUIREMENTS. */
-  requirements?: PasswordRequirement[] | boolean;
+  requirements?: PasswordRequirement[] | boolean | undefined;
   /** Makes this a "confirm password" field: shows a match / mismatch message once the user types. */
-  confirmOf?: string;
+  confirmOf?: string | undefined;
   /** Message when `confirmOf` matches (default 'Passwords match'). */
-  matchMessage?: string;
+  matchMessage?: string | undefined;
   /** Message when `confirmOf` doesn't match (default "Passwords don't match"). */
-  mismatchMessage?: string;
+  mismatchMessage?: string | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
 // content text scales all the way.
 const FONT_CAP = 1.35;
 
-const LEVEL_LABELS = ['Too short', 'Weak', 'Okay', 'Strong', 'Very strong'];
 const ICON = { sm: 18, md: 22, lg: 24 };
 
 export function scorePassword(pw: string) {
@@ -60,8 +59,8 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
     score = scorePassword,
     requirements,
     confirmOf,
-    matchMessage = 'Passwords match',
-    mismatchMessage = "Passwords don't match",
+    matchMessage: matchMessageProp,
+    mismatchMessage: mismatchMessageProp,
     value,
     defaultValue,
     onChangeText,
@@ -73,7 +72,9 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
   },
   ref
 ) {
-  const { colors } = useKit();
+  const { colors, labels } = useKit();
+  const matchMessage = matchMessageProp ?? labels.passwordsMatch;
+  const mismatchMessage = mismatchMessageProp ?? labels.passwordsDontMatch;
   const reduce = useReduceMotion();
   const [hidden, setHidden] = useState(true);
   const [inner, setInner] = useState(defaultValue ?? '');
@@ -87,13 +88,15 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
   const mismatch =
     confirming && text.length > 0 && !matches && (text.length >= confirmOf.length || !confirmOf.startsWith(text));
 
-  const eye = useRef(new Animated.Value(hidden ? 0 : 1)).current; // native: 1 = visible
+  const [eye] = useState(() => new Animated.Value(hidden ? 0 : 1)); // native: 1 = visible
   useEffect(() => {
     if (reduce) Animated.timing(eye, { toValue: hidden ? 0 : 1, duration: 150, useNativeDriver: true }).start();
     else Animated.spring(eye, { toValue: hidden ? 0 : 1, useNativeDriver: true, ...motion.snappy }).start();
   }, [hidden, eye, reduce]);
 
   const iconColor = iconColorProp ?? colors.mutedForeground;
+  const errorText = error ?? (mismatch ? mismatchMessage : undefined);
+  const successValue = success ?? (matches ? matchMessage : undefined);
   const iconSize = ICON[size];
   const fade = (on: 0 | 1) => ({
     opacity: eye.interpolate({ inputRange: [0, 1], outputRange: on ? [0, 1] : [1, 0], extrapolate: 'clamp' }),
@@ -112,14 +115,15 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
         ref={ref}
         {...props}
         size={size}
-        iconColor={iconColorProp}
+        // FloatingInput's optional props don't accept an explicit undefined (exactOptionalPropertyTypes).
+        {...(iconColorProp !== undefined ? { iconColor: iconColorProp } : null)}
         value={text}
         onChangeText={(next) => {
           if (value === undefined) setInner(next);
           onChangeText?.(next);
         }}
-        error={error ?? (mismatch ? mismatchMessage : undefined)}
-        success={success ?? (matches ? matchMessage : undefined)}
+        {...(errorText !== undefined ? { error: errorText } : null)}
+        {...(successValue !== undefined ? { success: successValue } : null)}
         secureTextEntry={hidden}
         autoCapitalize="none"
         autoCorrect={false}
@@ -128,7 +132,7 @@ export const PasswordInput = forwardRef<ComponentRef<typeof TextInput>, Password
             hitSlop={(44 - iconSize) / 2}
             onPress={() => setHidden((h) => !h)}
             accessibilityRole="button"
-            accessibilityLabel={hidden ? 'Show password' : 'Hide password'}
+            accessibilityLabel={hidden ? labels.showPassword : labels.hidePassword}
             accessibilityState={{ checked: !hidden }}
             style={{ width: iconSize, height: iconSize }}
           >
@@ -161,11 +165,11 @@ const EYE_OFF =
 
 /** Four segments that spring-fill left to right; the colour slides with the score. */
 function Meter({ level, reduce }: { level: number; reduce: boolean }) {
-  const { colors, dark, font } = useKit();
+  const { colors, dark, font, labels } = useKit();
   const palette = [colors.mutedForeground, colors.danger, colors.warning, colors.success, colors.success];
-  const fills = useRef([0, 1, 2, 3].map(() => new Animated.Value(0))).current; // native: scaleX
-  const tone = useRef(new Animated.Value(level)).current; // JS: colour
-  const enter = useRef(new Animated.Value(0)).current; // native
+  const [fills] = useState(() => [0, 1, 2, 3].map(() => new Animated.Value(0))); // native: scaleX
+  const [tone] = useState(() => new Animated.Value(level)); // JS: colour
+  const [enter] = useState(() => new Animated.Value(0)); // native
 
   useEffect(() => {
     if (reduce) enter.setValue(1);
@@ -200,7 +204,7 @@ function Meter({ level, reduce }: { level: number; reduce: boolean }) {
         },
       ]}
       accessible
-      accessibilityLabel={`Password strength: ${LEVEL_LABELS[level]}`}
+      accessibilityLabel={labels.passwordStrength(labels.passwordLevels[level] ?? '')}
     >
       <View style={styles.bars}>
         {fills.map((a, i) => (
@@ -216,7 +220,7 @@ function Meter({ level, reduce }: { level: number; reduce: boolean }) {
           </View>
         ))}
       </View>
-      <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.level, font.family ? { fontFamily: font.family } : null, { color: palette[level] }]}>{LEVEL_LABELS[level]}</Text>
+      <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.level, font.family ? { fontFamily: font.family } : null, { color: palette[level] }]}>{labels.passwordLevels[level]}</Text>
     </Animated.View>
   );
 }
@@ -232,8 +236,8 @@ function Checklist({ rules, value, reduce }: { rules: PasswordRequirement[]; val
 }
 
 function Requirement({ label, met, reduce }: { label: string; met: boolean; reduce: boolean }) {
-  const { colors, dark, font } = useKit();
-  const tick = useRef(new Animated.Value(met ? 1 : 0)).current; // native
+  const { colors, dark, font, labels } = useKit();
+  const [tick] = useState(() => new Animated.Value(met ? 1 : 0)); // native
   useEffect(() => {
     if (reduce) Animated.timing(tick, { toValue: met ? 1 : 0, duration: 150, useNativeDriver: true }).start();
     else Animated.spring(tick, { toValue: met ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
@@ -243,7 +247,7 @@ function Requirement({ label, met, reduce }: { label: string; met: boolean; redu
     <View
       style={styles.rule}
       accessible
-      accessibilityLabel={`${label}: ${met ? 'done' : 'not yet'}`}
+      accessibilityLabel={met ? labels.ruleMet(label) : labels.ruleUnmet(label)}
       accessibilityState={{ checked: met }}
     >
       <View style={styles.ruleIcon}>

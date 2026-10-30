@@ -5,7 +5,7 @@
   "category": "Feedback",
   "description": "Sonner-style toasts with living tone icons: the outline draws itself inside a halo, a light-leak glow spills behind it, and a hairline drains along the bottom as time runs out (paused while touched). toast.promise() closes the spinning arc into the success or error circle before the mark draws in, variant=\"minimal\" gives compact inverted pills (with a second line for the description), and variant=\"island\" turns the Toaster into an iPhone-style Dynamic Island.",
   "summary": "Sonner-style toasts whose tone icon draws itself while a hairline drains away.",
-  "usage": "import { toast, Toaster } from '@/components/ui/toast';\n\n// once, at the root of your app\n<Toaster />\n\n// anywhere\ntoast.success('Invoice INV-0042 sent', { description: 'Maya will get it by email.' });",
+  "usage": "import { toast, Toaster } from '@/components/ui/toast';\n\n// once, at the root of your app (safeArea keeps it clear of the notch and home indicator)\n<Toaster safeArea />\n\n// above a tab bar: in app/(tabs)/_layout.tsx, next to <Tabs />\n<Toaster safeArea bottomInset={49} />\n\n// anywhere\ntoast.success('Invoice INV-0042 sent', { description: 'Maya will get it by email.' });",
   "behavior": [
     ["Touch", "Tap the stack to fan it out, swipe a toast sideways or toward the edge to dismiss it; timers and the drain line pause while you touch."],
     ["Motion", "Tone icons draw their outline inside a halo; toast.promise() closes the spinning arc into the success or error mark. variant=\"island\" morphs like a Dynamic Island."],
@@ -15,11 +15,13 @@
   ],
   "dependencies": [
     "react-native-svg",
-    "expo-haptics"
+    "expo-haptics",
+    "react-native-gesture-handler",
+    "react-native-reanimated",
+    "react-native-worklets"
   ],
   "registryDependencies": [
-    "kit",
-    "button"
+    "kit"
   ],
   "props": [
     [
@@ -104,7 +106,19 @@
       "<Toaster> offset / gap",
       "number",
       "16 (island 10) / 10",
-      "Edge distance and fan-out spacing. No safe-area dependency: pass insets.top + 8 to clear a notch."
+      "Edge distance and fan-out spacing. Added on top of safeArea and bottomInset."
+    ],
+    [
+      "<Toaster> safeArea",
+      "boolean",
+      "false",
+      "Clear the notch / Dynamic Island and home indicator using react-native-safe-area-context's insets (when installed; every Expo Router app has it)."
+    ],
+    [
+      "<Toaster> bottomInset",
+      "number",
+      "0",
+      "Extra space under a bottom stack for a tab bar or composer: <Toaster safeArea bottomInset={49} /> in your (tabs) layout."
     ],
     [
       "<Toaster> closeButton",

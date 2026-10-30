@@ -71,7 +71,7 @@
     [
       "confirmLabel / cancelLabel",
       "string / string | null",
-      "\"Continue\" / \"Cancel\"",
+      "labels.continue (destructive: labels.delete) / labels.cancel",
       "Labels for the default buttons; cancelLabel null leaves a single button."
     ],
     [

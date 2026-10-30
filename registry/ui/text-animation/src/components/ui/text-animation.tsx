@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -22,26 +22,26 @@ export type AnimatedTextTrigger = 'mount' | 'change';
 export interface AnimatedTextProps {
   /** The text to animate. */
   children: string;
-  variant?: AnimatedTextVariant;
+  variant?: AnimatedTextVariant | undefined;
   /** Default 'change' for cascade and typewriter (typewriter keeps typing when the new text extends the old), 'mount' otherwise. */
-  trigger?: AnimatedTextTrigger;
+  trigger?: AnimatedTextTrigger | undefined;
   /** Wait before the first animation, in ms. */
-  delay?: number;
+  delay?: number | undefined;
   /** Time between words (reveal) or letters (everything else), in ms. Shimmer: ms of sweep per letter. */
-  stagger?: number;
+  stagger?: number | undefined;
   /** Speed multiplier: 2 plays twice as fast. */
-  speed?: number;
+  speed?: number | undefined;
   /** Text colour (default: theme foreground). */
-  color?: string;
+  color?: string | undefined;
   /** Blinking caret for `typewriter` (default true). */
-  caret?: boolean;
+  caret?: boolean | undefined;
   /** Change it to replay the animation. */
-  replayKey?: string | number;
+  replayKey?: string | number | undefined;
   /** Called when an animation finishes (never for the looping shimmer). */
-  onComplete?: () => void;
-  style?: StyleProp<ViewStyle>;
+  onComplete?: (() => void) | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
   /** fontSize, fontWeight, lineHeight, letterSpacing, textAlign… applied to every letter. */
-  textStyle?: StyleProp<TextStyle>;
+  textStyle?: StyleProp<TextStyle> | undefined;
 }
 
 const STAGGER: Record<AnimatedTextVariant, number> = { reveal: 70, shimmer: 80, cascade: 28, scramble: 45, typewriter: 32 };
@@ -158,6 +158,8 @@ interface Ctx {
   space: number;
   justify: ViewStyle['justifyContent'];
   reduce: boolean;
+  /** Per-letter delay for building the animations while rendering. */
+  stagger: number;
   /** Latest timing props, read when an animation starts (so re-renders never restart one). */
   live: React.RefObject<{ delay: number; speed: number; stagger: number }>;
   done: () => void;
@@ -187,7 +189,9 @@ function Reveal({ layout, ctx }: { layout: Layout; ctx: Ctx }) {
   const { reduce, live, done, lh } = ctx;
   const [clock] = useState(() => new Animated.Value(0));
   const words = useRef(layout.words);
-  words.current = layout.words;
+  useLayoutEffect(() => {
+    words.current = layout.words;
+  });
   const played = useRef(false);
 
   useEffect(() => {
@@ -210,7 +214,7 @@ function Reveal({ layout, ctx }: { layout: Layout; ctx: Ctx }) {
     return () => anim.stop();
   }, [reduce, clock, live, done]);
 
-  const stagger = live.current.stagger;
+  const stagger = ctx.stagger;
   const anims = useMemo(
     () =>
       layout.lines.flat().map((word) => {
@@ -226,7 +230,8 @@ function Reveal({ layout, ctx }: { layout: Layout; ctx: Ctx }) {
   return (
     <Flow layout={layout} ctx={ctx}>
       {(word) => {
-        const a = anims[word.w];
+        // One entry per word of `layout`, indexed by word.w.
+        const a = anims[word.w]!;
         return (
           <Animated.Text key={word.w} style={[ctx.glyph, { opacity: a.opacity, transform: [{ translateY: a.translateY }] }]}>
             {word.text}
@@ -239,10 +244,9 @@ function Reveal({ layout, ctx }: { layout: Layout; ctx: Ctx }) {
 
 /** A band of light sweeps across the letters on a loop — one native-driven clock, a per-letter opacity wave. */
 function Shimmer({ layout, ctx }: { layout: Layout; ctx: Ctx }) {
-  const { reduce, live } = ctx;
+  const { reduce, live, stagger } = ctx;
   const [clock] = useState(() => new Animated.Value(0));
   const n = layout.count;
-  const stagger = live.current.stagger;
   const sweep = Math.min(2400, Math.max(900, n * stagger));
   const period = sweep + 650;
 
@@ -300,13 +304,17 @@ type RollAnim = { opacity: Animated.AnimatedInterpolation<number>; translateY: A
 function RollWord({ word, anims, glyph, lh }: { word: Word; anims: RollAnim[]; glyph: StyleProp<TextStyle>; lh: number }) {
   return (
     <View style={styles.word}>
-      {word.units.map((u) => (
-        <View key={u.i} style={{ height: lh, overflow: 'hidden' }}>
-          <Animated.Text style={[glyph, { opacity: anims[u.i].opacity, transform: [{ translateY: anims[u.i].translateY }] }]}>
-            {u.ch}
-          </Animated.Text>
-        </View>
-      ))}
+      {word.units.map((u) => {
+        // One entry per letter of the layout, indexed by u.i.
+        const a = anims[u.i]!;
+        return (
+          <View key={u.i} style={{ height: lh, overflow: 'hidden' }}>
+            <Animated.Text style={[glyph, { opacity: a.opacity, transform: [{ translateY: a.translateY }] }]}>
+              {u.ch}
+            </Animated.Text>
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -318,28 +326,26 @@ interface Roll {
   prevWidth: number;
   animated: boolean;
   id: number;
+  /** A fresh clock per roll, created at 0 so the first frame of a change is already in place. */
+  clock: Animated.Value;
 }
 
 /** Old letters roll up and out while the new text's letters roll in from below, left to right. */
 function Cascade({ text, ctx, changes }: { text: string; ctx: Ctx; changes: boolean }) {
   const { reduce, live, done, lh, glyph } = ctx;
-  const width = useRef(0);
-  const [roll, setRoll] = useState<Roll>({ text, prev: null, prevWidth: 0, animated: true, id: 0 });
+  const [width, setWidth] = useState(0);
+  const [roll, setRoll] = useState<Roll>(() => ({ text, prev: null, prevWidth: 0, animated: true, id: 0, clock: new Animated.Value(0) }));
   if (roll.text !== text) {
-    setRoll({ text, prev: changes ? roll.text : null, prevWidth: width.current, animated: changes, id: roll.id + 1 });
+    setRoll({ text, prev: changes ? roll.text : null, prevWidth: width, animated: changes, id: roll.id + 1, clock: new Animated.Value(changes ? 0 : END) });
   }
-
-  // A fresh clock per roll, created at 0 so the first frame of a change is already in place.
-  const clockRef = useRef<{ id: number; v: Animated.Value } | null>(null);
-  if (!clockRef.current || clockRef.current.id !== roll.id) {
-    clockRef.current = { id: roll.id, v: new Animated.Value(roll.animated ? 0 : END) };
-  }
-  const clock = clockRef.current.v;
+  const clock = roll.clock;
 
   const layout = useMemo(() => tokenize(roll.text), [roll.text]);
   const prevLayout = useMemo(() => (roll.prev ? tokenize(roll.prev) : null), [roll.prev]);
   const counts = useRef({ next: 0, prev: 0, animated: true, text });
-  counts.current = { next: layout.count, prev: prevLayout?.count ?? 0, animated: roll.animated, text: roll.text };
+  useLayoutEffect(() => {
+    counts.current = { next: layout.count, prev: prevLayout?.count ?? 0, animated: roll.animated, text: roll.text };
+  });
 
   const id = roll.id;
   const played = useRef(-1);
@@ -372,7 +378,7 @@ function Cascade({ text, ctx, changes }: { text: string; ctx: Ctx; changes: bool
     return () => anim.stop();
   }, [id, reduce, clock, live, done]);
 
-  const stagger = live.current.stagger;
+  const stagger = ctx.stagger;
   const enter = useMemo(
     () =>
       Array.from({ length: layout.count }, (_, i) => ({
@@ -401,7 +407,7 @@ function Cascade({ text, ctx, changes }: { text: string; ctx: Ctx; changes: bool
         : { left: 0, width: pw || undefined };
 
   return (
-    <View onLayout={(e: LayoutChangeEvent) => (width.current = e.nativeEvent.layout.width)}>
+    <View onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
       <Flow layout={layout} ctx={ctx}>
         {(word) => <RollWord key={word.w} word={word} anims={enter} glyph={glyph} lh={lh} />}
       </Flow>
@@ -436,10 +442,12 @@ function Scramble({ text, layout, ctx }: { text: string; layout: Layout; ctx: Ct
   // Glyph per letter: null = settled, '' = hidden (whole words of connected scripts fade in instead).
   const [frame, setFrame] = useState<{ text: string; glyphs: (string | null)[] } | null>(() => ({
     text,
-    glyphs: units.map((u, k) => (u.whole ? '' : poolFor(u.ch)[(k * 7 + 3) % poolFor(u.ch).length])),
+    glyphs: units.map((u, k) => (u.whole ? '' : poolFor(u.ch).charAt((k * 7 + 3) % poolFor(u.ch).length))),
   }));
   const latest = useRef({ text, units });
-  latest.current = { text, units };
+  useLayoutEffect(() => {
+    latest.current = { text, units };
+  });
   const played = useRef(false);
 
   useEffect(() => {
@@ -462,7 +470,7 @@ function Scramble({ text, layout, ctx }: { text: string; layout: Layout; ctx: Ct
         pending = true;
         if (u.whole) return '';
         const pool = poolFor(u.ch);
-        return pool[Math.floor(Math.random() * pool.length)];
+        return pool.charAt(Math.floor(Math.random() * pool.length));
       });
       setFrame(pending ? { text: now, glyphs } : null);
       if (!pending) {
@@ -600,9 +608,13 @@ export function AnimatedText({
     flat.textAlign === 'center' ? 'center' : flat.textAlign === 'right' ? 'flex-end' : 'flex-start';
 
   const live = useRef({ delay, speed: Math.max(0.1, speed), stagger: stagger ?? STAGGER[variant] });
-  live.current = { delay, speed: Math.max(0.1, speed), stagger: stagger ?? STAGGER[variant] };
+  useLayoutEffect(() => {
+    live.current = { delay, speed: Math.max(0.1, speed), stagger: stagger ?? STAGGER[variant] };
+  });
   const complete = useRef(onComplete);
-  complete.current = onComplete;
+  useLayoutEffect(() => {
+    complete.current = onComplete;
+  });
   const [done] = useState(() => () => complete.current?.());
 
   const layout = useMemo(() => tokenize(text), [text]);
@@ -612,6 +624,7 @@ export function AnimatedText({
     space: fontSize * 0.28 * fontScale,
     justify,
     reduce,
+    stagger: stagger ?? STAGGER[variant],
     live,
     done,
   };

@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
@@ -39,68 +39,68 @@ export interface DialogAction {
    * Receives the prompt's text (if any). Return a promise to show a spinner on the button until
    * it settles. Return `false` (or resolve to it) to keep the dialog open and shake it as invalid.
    */
-  onPress?: (value: string) => void | boolean | Promise<void | boolean>;
+  onPress?: ((value: string) => void | boolean | Promise<void | boolean>) | undefined;
   /** 'primary' is the main call to action; 'destructive' uses the danger colour; 'cancel' is the quiet one. */
-  role?: 'primary' | 'default' | 'destructive' | 'cancel';
-  disabled?: boolean;
+  role?: 'primary' | 'default' | 'destructive' | 'cancel' | undefined;
+  disabled?: boolean | undefined;
 }
 
 /** A single-line text field inside the dialog (a prompt). */
 export interface DialogPrompt {
-  defaultValue?: string;
+  defaultValue?: string | undefined;
   /** Controlled text. */
-  value?: string;
-  onChangeText?: (value: string) => void;
-  placeholder?: string;
+  value?: string | undefined;
+  onChangeText?: ((value: string) => void) | undefined;
+  placeholder?: string | undefined;
   /** Accessibility label of the field (default: the placeholder or title). */
-  label?: string;
-  secureTextEntry?: boolean;
-  keyboardType?: KeyboardTypeOptions;
-  autoCapitalize?: TextInputProps['autoCapitalize'];
-  maxLength?: number;
+  label?: string | undefined;
+  secureTextEntry?: boolean | undefined;
+  keyboardType?: KeyboardTypeOptions | undefined;
+  autoCapitalize?: TextInputProps['autoCapitalize'] | undefined;
+  maxLength?: number | undefined;
   /** Select the text when the dialog opens (default true). */
-  selectTextOnFocus?: boolean;
+  selectTextOnFocus?: boolean | undefined;
 }
 
 export interface DialogProps {
-  open?: boolean;
-  defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  open?: boolean | undefined;
+  defaultOpen?: boolean | undefined;
+  onOpenChange?: ((open: boolean) => void) | undefined;
   /** `sheet` is deprecated and renders as `default`. */
-  variant?: DialogVariant;
+  variant?: DialogVariant | undefined;
   /** Living icon in a halo above the title, plus a soft glow of its colour. Destructive defaults to a warning icon. */
-  tone?: DialogTone;
+  tone?: DialogTone | undefined;
   /** `modern` pill buttons (default) or `ios` hairline-separated text buttons. */
-  appearance?: DialogAppearance;
-  title?: string;
-  description?: string;
+  appearance?: DialogAppearance | undefined;
+  title?: string | undefined;
+  description?: string | undefined;
   /** Custom content between the description and the actions. */
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
   /** Turns the dialog into a prompt with a text field; the text is passed to `onConfirm` / `onPress`. */
-  prompt?: DialogPrompt;
+  prompt?: DialogPrompt | undefined;
   /** Error text under the description / field, in the danger colour. */
-  error?: string;
+  error?: string | undefined;
   /** Buttons. Defaults to Cancel + Confirm built from the labels below. */
-  actions?: DialogAction[];
-  confirmLabel?: string;
+  actions?: DialogAction[] | undefined;
+  confirmLabel?: string | undefined;
   /** Label of the default cancel button; `null` leaves only the confirm button. */
-  cancelLabel?: string | null;
-  onConfirm?: DialogAction['onPress'];
+  cancelLabel?: string | null | undefined;
+  onConfirm?: DialogAction['onPress'] | undefined;
   /** Called when the default cancel button, the scrim, back or Escape closes the dialog. */
-  onCancel?: () => void;
+  onCancel?: (() => void) | undefined;
   /** Spinner on the confirm button and every other button disabled (controlled busy state). */
-  loading?: boolean;
+  loading?: boolean | undefined;
   /** `auto` puts two short buttons side by side and stacks the rest. */
-  actionsLayout?: 'auto' | 'row' | 'stack';
+  actionsLayout?: 'auto' | 'row' | 'stack' | undefined;
   /** Custom icon inside the halo, or `false` to hide the tone icon. */
-  icon?: React.ReactNode | false;
+  icon?: React.ReactNode | false | undefined;
   /** Close when the scrim is tapped, on back and on Escape (default true). */
-  dismissible?: boolean;
+  dismissible?: boolean | undefined;
   /** Notification haptic on open (warning for destructive, success for success) and error on shake (default true). */
-  haptics?: boolean;
+  haptics?: boolean | undefined;
   /** Colour of the primary action (default: theme primary; accent in `ios`). */
-  accent?: string;
-  style?: StyleProp<ViewStyle>;
+  accent?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const SHAKE = [10, -9, 7, -5, 3, 0];
@@ -129,7 +129,7 @@ export function Dialog({
   error,
   actions,
   confirmLabel,
-  cancelLabel = 'Cancel',
+  cancelLabel: cancelLabelProp,
   onConfirm,
   onCancel,
   loading = false,
@@ -140,7 +140,8 @@ export function Dialog({
   accent,
   style,
 }: DialogProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, labels } = useKit();
+  const cancelLabel = cancelLabelProp === undefined ? labels.cancel : cancelLabelProp; // null hides it
   const ff = font.family ? { fontFamily: font.family } : null;
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduceMotion = useReduceMotion();
@@ -149,9 +150,9 @@ export function Dialog({
   const [inner, setInner] = useState(defaultOpen);
   const isOpen = open ?? inner;
   // Stays mounted while the exit animation runs; cleared in its completion callback.
-  const keep = useRef(isOpen);
-  const [, rerender] = useState(0);
-  const mounted = isOpen || keep.current;
+  const [keep, setKeep] = useState(isOpen);
+  if (isOpen && !keep) setKeep(true);
+  const mounted = isOpen || keep;
   const [busy, setBusy] = useState<number | null>(null);
   // null = untouched since opening, so the field shows `prompt.defaultValue`.
   const [text, setText] = useState<string | null>(null);
@@ -160,12 +161,12 @@ export function Dialog({
   const value = prompt?.value ?? text ?? prompt?.defaultValue ?? '';
 
   // Native: card life (opacity + scale), scrim, shake, icon glyph pop, halo ripple. JS: icon outline draw.
-  const t = useRef(new Animated.Value(0)).current;
-  const scrim = useRef(new Animated.Value(0)).current;
-  const shake = useRef(new Animated.Value(0)).current;
-  const draw = useRef(new Animated.Value(0)).current;
-  const glyph = useRef(new Animated.Value(0)).current;
-  const ripple = useRef(new Animated.Value(0)).current;
+  const [t] = useState(() => new Animated.Value(0));
+  const [scrim] = useState(() => new Animated.Value(0));
+  const [shake] = useState(() => new Animated.Value(0));
+  const [draw] = useState(() => new Animated.Value(0));
+  const [glyph] = useState(() => new Animated.Value(0));
+  const [ripple] = useState(() => new Animated.Value(0));
 
   const tones: Record<DialogTone, string> = {
     info: dark ? '#60a5fa' : '#2563eb',
@@ -181,7 +182,7 @@ export function Dialog({
   const list: DialogAction[] = actions ?? [
     ...(cancelLabel !== null ? [{ label: cancelLabel, role: 'cancel' as const, onPress: () => onCancel?.() }] : []),
     {
-      label: confirmLabel ?? (destructive ? 'Delete' : 'Continue'),
+      label: confirmLabel ?? (destructive ? labels.delete : labels.continue),
       role: destructive ? ('destructive' as const) : ('primary' as const),
       onPress: onConfirm,
     },
@@ -202,7 +203,9 @@ export function Dialog({
     setOpen(false);
   };
   const live = useRef({ requestClose });
-  live.current = { requestClose };
+  useLayoutEffect(() => {
+    live.current = { requestClose };
+  });
 
   const playIcon = () => {
     if (reduceMotion) {
@@ -221,7 +224,6 @@ export function Dialog({
 
   useEffect(() => {
     if (isOpen) {
-      keep.current = true;
       shake.setValue(0);
       if (haptics) {
         const type =
@@ -245,10 +247,9 @@ export function Dialog({
         Animated.timing(scrim, { toValue: 0, duration: 200, easing: Easing.in(Easing.quad), useNativeDriver: true }),
       ]).start(({ finished }) => {
         if (!finished) return;
-        keep.current = false;
+        setKeep(false);
         setText(null);
         setBusy(null);
-        rerender((n) => n + 1);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -330,7 +331,10 @@ export function Dialog({
       autoFocus
       maxFontSizeMultiplier={FONT_CAP}
       returnKeyType="done"
-      onSubmitEditing={() => run(list[confirmIndex], confirmIndex)}
+      onSubmitEditing={() => {
+        const confirm = list[confirmIndex];
+        if (confirm) run(confirm, confirmIndex);
+      }}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       selectionColor={accent ?? colors.accent}
@@ -522,7 +526,7 @@ function PillButton({
 }) {
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const press = useRef(new Animated.Value(0)).current;
+  const [press] = useState(() => new Animated.Value(0));
   const to = (v: number) => Animated.spring(press, { toValue: v, useNativeDriver: true, ...motion.snappy }).start();
   return (
     <Pressable
@@ -575,7 +579,7 @@ function IosButton({
 }) {
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const hl = useRef(new Animated.Value(0)).current;
+  const [hl] = useState(() => new Animated.Value(0));
   return (
     <Pressable
       onPress={onPress}

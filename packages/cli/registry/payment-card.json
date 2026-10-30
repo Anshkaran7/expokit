@@ -4,6 +4,7 @@
   "title": "Payment Card",
   "description": "A realistic bank card on any photo or texture — gold or silver EMV chip, contactless mark, embossed number and the real Visa / Mastercard / Amex / RuPay marks. It tilts toward your finger with a moving reflection and flips on tap to the back: magnetic stripe, signature panel with the CVV and a hologram. Frozen state for card controls.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

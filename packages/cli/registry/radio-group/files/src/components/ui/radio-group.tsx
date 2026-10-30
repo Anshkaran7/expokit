@@ -14,30 +14,30 @@ export type RadioGroupVariant = 'default' | 'card' | 'segmented-list';
 export interface RadioOption {
   value: string;
   label: string;
-  description?: string;
+  description?: string | undefined;
   /** Leading icon or emoji (card and segmented-list variants). */
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | undefined;
   /** Trailing text, e.g. a price ("₹499/mo"). */
-  hint?: string;
-  disabled?: boolean;
+  hint?: string | undefined;
+  disabled?: boolean | undefined;
 }
 
 export interface RadioGroupProps {
   options: RadioOption[];
   /** Controlled selection. */
-  value?: string;
+  value?: string | undefined;
   /** Initial selection when uncontrolled. */
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
-  variant?: RadioGroupVariant;
-  direction?: 'vertical' | 'horizontal';
+  defaultValue?: string | undefined;
+  onValueChange?: ((value: string) => void) | undefined;
+  variant?: RadioGroupVariant | undefined;
+  direction?: 'vertical' | 'horizontal' | undefined;
   /** Selected colour (default: theme accent). */
-  accent?: string;
-  disabled?: boolean;
+  accent?: string | undefined;
+  disabled?: boolean | undefined;
   /** Selection tick on change (default true). */
-  haptics?: boolean;
-  accessibilityLabel?: string;
-  style?: StyleProp<ViewStyle>;
+  haptics?: boolean | undefined;
+  accessibilityLabel?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /**
@@ -111,7 +111,7 @@ interface RadioItemProps {
   horizontal: boolean;
   first: boolean;
   tint: string;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   reduce: boolean;
 }
 
@@ -120,10 +120,10 @@ function RadioItem({ option, active, onPress, variant, horizontal, first, tint, 
   const ff = font.family ? { fontFamily: font.family } : null;
   // p: colours + svg (JS driver). dot: scale/opacity pops (native). press: press feedback (native).
   // ripple: a ring that expands and fades when the item gets selected, 0 → 1 (native, rests at 1).
-  const p = useRef(new Animated.Value(active ? 1 : 0)).current;
-  const dot = useRef(new Animated.Value(active ? 1 : 0)).current;
-  const press = useRef(new Animated.Value(1)).current;
-  const ripple = useRef(new Animated.Value(1)).current;
+  const [p] = useState(() => new Animated.Value(active ? 1 : 0));
+  const [dot] = useState(() => new Animated.Value(active ? 1 : 0));
+  const [press] = useState(() => new Animated.Value(1));
+  const [ripple] = useState(() => new Animated.Value(1));
   const was = useRef(active);
 
   useEffect(() => {

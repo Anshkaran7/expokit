@@ -191,12 +191,12 @@ export const Textarea = forwardRef<ComponentRef<typeof TextInput>, TextareaProps
   const padBottom = toolbar ? 4 : filled ? S.padY - 2 : S.padY;
   const height = padTop + rows * ROW + padBottom + (toolbar ? toolbarH ?? 0 : 0) + BORDER * 2;
 
-  const grow = useRef(new Animated.Value(height)).current; // JS: height
-  const focus = useRef(new Animated.Value(0)).current; // JS: colours
-  const glow = useRef(new Animated.Value(0)).current; // native: halo
-  const float = useRef(new Animated.Value(floating ? 1 : 0)).current; // native: label
-  const shake = useRef(new Animated.Value(0)).current; // native
-  const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
+  const [grow] = useState(() => new Animated.Value(height)); // JS: height
+  const [focus] = useState(() => new Animated.Value(0)); // JS: colours
+  const [glow] = useState(() => new Animated.Value(0)); // native: halo
+  const [float] = useState(() => new Animated.Value(floating ? 1 : 0)); // native: label
+  const [shake] = useState(() => new Animated.Value(0)); // native
+  const [check] = useState(() => new Animated.Value(ok ? 1 : 0)); // native
   const settled = useRef(false);
 
   useEffect(() => {
@@ -451,7 +451,7 @@ function FieldMessage({
   reduce: boolean;
 }) {
   const { font } = useKit();
-  const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
+  const [enter] = useState(() => new Animated.Value(tone === 'helper' ? 1 : 0)); // native
   useEffect(() => {
     if (tone === 'helper') return;
     if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
@@ -512,9 +512,9 @@ function Counter({
   const near = remaining <= Math.max(10, Math.round(max * 0.2));
   const color = ratio >= 1 ? colors.danger : ratio >= 0.9 ? colors.warning : tint;
 
-  const mode = useRef(new Animated.Value(near ? 1 : 0)).current; // native
-  const pulse = useRef(new Animated.Value(1)).current; // native
-  const progress = useRef(new Animated.Value(Math.min(1, ratio))).current; // JS (SVG prop)
+  const [mode] = useState(() => new Animated.Value(near ? 1 : 0)); // native
+  const [pulse] = useState(() => new Animated.Value(1)); // native
+  const [progress] = useState(() => new Animated.Value(Math.min(1, ratio))); // JS (SVG prop)
 
   useEffect(() => {
     // Reduce Motion: cross-fade only (the ring's scale is pinned below).

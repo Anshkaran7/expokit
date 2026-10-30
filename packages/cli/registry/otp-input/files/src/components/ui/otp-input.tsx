@@ -23,34 +23,51 @@ export type OtpInputVariant = 'box' | 'underline' | 'pill';
 
 export interface OtpInputProps {
   /** Number of cells (default 6). */
-  length?: number;
-  value?: string;
-  onChangeText?: (code: string) => void;
+  length?: number | undefined;
+
+  value?: string | undefined;
+
+  onChangeText?: ((code: string) => void) | undefined;
+
   /** Fires once every cell is filled (also after pasting a full code). */
-  onComplete?: (code: string) => void;
+  onComplete?: ((code: string) => void) | undefined;
+
   /** Shakes the row and turns it the danger colour. */
-  error?: boolean;
+  error?: boolean | undefined;
+
   /** Message shown under the cells while `error` is set. */
-  errorText?: string;
+  errorText?: string | undefined;
+
   /** Cells turn the success colour with a staggered pulse. */
-  success?: boolean;
+  success?: boolean | undefined;
+
   /** Message shown under the cells while `success` is set. */
-  successText?: string;
+  successText?: string | undefined;
+
   /** Hint shown under the cells otherwise. */
-  helperText?: string;
+  helperText?: string | undefined;
+
   /** Show dots instead of digits. */
-  secure?: boolean;
-  autoFocus?: boolean;
-  disabled?: boolean;
+  secure?: boolean | undefined;
+
+  autoFocus?: boolean | undefined;
+
+  disabled?: boolean | undefined;
+
   /** Active cell colour (default: theme accent). */
-  accent?: string;
+  accent?: string | undefined;
+
   /** 'box' cells, 'underline' bars, or round 'pill' cells. */
-  variant?: OtpInputVariant;
+  variant?: OtpInputVariant | undefined;
+
   /** Draws a dash after this many cells, e.g. 3 → `123 – 456`. */
-  separatorAfter?: number;
+  separatorAfter?: number | undefined;
+
   /** Largest cell width in points; cells shrink below it to fit the row (default 52). */
-  maxCellSize?: number;
-  style?: StyleProp<ViewStyle>;
+  maxCellSize?: number | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 type CellState = 'idle' | 'error' | 'success';
@@ -87,14 +104,14 @@ export function OtpInput({
   maxCellSize = 52,
   style,
 }: OtpInputProps) {
-  const { colors } = useKit();
+  const { colors, labels } = useKit();
   const reduce = useReduceMotion();
   const input = useRef<ComponentRef<typeof TextInput>>(null);
   const [inner, setInner] = useState('');
   const [focused, setFocused] = useState(false);
   const [width, setWidth] = useState(0);
   const code = (value ?? inner).slice(0, length);
-  const shake = useRef(new Animated.Value(0)).current;
+  const [shake] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     // Reduce Motion: no shake; the cells still turn the danger colour.
@@ -135,7 +152,7 @@ export function OtpInput({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={a11yLabel}
-          accessibilityHint="Activates the code field"
+          accessibilityHint={labels.activateCodeField}
           accessibilityState={{ disabled: !!disabled }}
           disabled={disabled}
           onPress={() => input.current?.focus()}
@@ -201,8 +218,10 @@ function Cell({
   reduce,
 }: {
   index: number;
-  char?: string;
-  secure?: boolean;
+  char?: string | undefined;
+
+  secure?: boolean | undefined;
+
   active: boolean;
   tone: string;
   state: CellState;
@@ -215,12 +234,12 @@ function Cell({
   const ff = kitFont.family ? { fontFamily: kitFont.family } : null;
   const filled = !!char;
   // Native driver: digit pop, caret blink, halo, success pulse.
-  const pop = useRef(new Animated.Value(filled ? 1 : 0)).current;
-  const caret = useRef(new Animated.Value(0)).current;
-  const halo = useRef(new Animated.Value(0)).current;
-  const pulse = useRef(new Animated.Value(0)).current;
+  const [pop] = useState(() => new Animated.Value(filled ? 1 : 0));
+  const [caret] = useState(() => new Animated.Value(0));
+  const [halo] = useState(() => new Animated.Value(0));
+  const [pulse] = useState(() => new Animated.Value(0));
   // JS driver: border / fill colours.
-  const ring = useRef(new Animated.Value(0)).current;
+  const [ring] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     if (char && reduce) {
@@ -335,8 +354,8 @@ function Cell({
 function Message({ text, kind, reduce }: { text: string; kind: CellState; reduce: boolean }) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const enter = useRef(new Animated.Value(0)).current;
-  const draw = useRef(new Animated.Value(0)).current;
+  const [enter] = useState(() => new Animated.Value(0));
+  const [draw] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     enter.setValue(0);

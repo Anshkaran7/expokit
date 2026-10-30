@@ -29,42 +29,42 @@ export type StepperLegacyVariant = 'default' | 'pill' | 'segmented' | 'vertical'
 export type StepperSize = 'sm' | 'md' | 'lg';
 
 export interface StepperProps {
-  value?: number;
-  defaultValue?: number;
-  onValueChange?: (value: number) => void;
-  min?: number;
-  max?: number;
-  step?: number;
-  variant?: StepperVariant | StepperLegacyVariant;
+  value?: number | undefined;
+  defaultValue?: number | undefined;
+  onValueChange?: ((value: number) => void) | undefined;
+  min?: number | undefined;
+  max?: number | undefined;
+  step?: number | undefined;
+  variant?: StepperVariant | StepperLegacyVariant | undefined;
   /** 'sm' 32 · 'md' 36 · 'lg' 44pt buttons (touch area is always ≥ 44pt); the number and icons scale too. */
-  size?: StepperSize;
+  size?: StepperSize | undefined;
   /** Stack the buttons above and below the number (outline, filled, compact). */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: 'horizontal' | 'vertical' | undefined;
   /** Formats the number (e.g. `(n) => '₹' + n`). Every changed character rolls. */
-  format?: (value: number) => string;
+  format?: ((value: number) => string) | undefined;
   /** Static muted text after the number: `'kg'` or `(n) => (n === 1 ? 'night' : 'nights')`. */
-  suffix?: string | ((value: number) => string);
+  suffix?: (string | ((value: number) => string)) | undefined;
   /** Hold a button to keep stepping, accelerating the longer you hold (default true). */
-  repeat?: boolean;
-  disabled?: boolean;
+  repeat?: boolean | undefined;
+  disabled?: boolean | undefined;
   /** Highlight colour: icons (filled, compact), press tint (outline), fill (cart). Default theme accent. */
-  accent?: string;
+  accent?: string | undefined;
   /** Overrides the −/+ icon colour. */
-  iconColor?: string;
+  iconColor?: string | undefined;
   /** cart: text next to the + while collapsed at 0, e.g. "Add". */
-  addLabel?: string;
+  addLabel?: string | undefined;
   /** Title shown to the left of the control (the control moves to the right edge). */
-  label?: string;
+  label?: string | undefined;
   /** Muted line under `label`. */
-  description?: string;
+  description?: string | undefined;
   /** Read by screen readers, e.g. "Guests" (defaults to `label`). */
-  accessibilityLabel?: string;
+  accessibilityLabel?: string | undefined;
   /** The control, or the whole row when `label` / `description` is set. */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
   /** Applied to each −/+ button. */
-  buttonStyle?: StyleProp<ViewStyle>;
+  buttonStyle?: StyleProp<ViewStyle> | undefined;
   /** Applied to the number (fontSize, colour, weight…). */
-  valueStyle?: StyleProp<TextStyle>;
+  valueStyle?: StyleProp<TextStyle> | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
@@ -124,7 +124,7 @@ export function Stepper({
   buttonStyle,
   valueStyle,
 }: StepperProps) {
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const variant: StepperVariant = variantProp in LEGACY ? LEGACY[variantProp as StepperLegacyVariant] : (variantProp as StepperVariant);
@@ -135,7 +135,9 @@ export function Stepper({
   const [inner, setInner] = useState(defaultValue ?? Math.max(min, 0));
   const current = value ?? inner;
   const valueRef = useRef(current);
-  valueRef.current = current;
+  useLayoutEffect(() => {
+    valueRef.current = current;
+  });
 
   // Direction of the last change, so digits roll the right way.
   const [track, setTrack] = useState({ v: current, dir: 1 });
@@ -143,7 +145,7 @@ export function Stepper({
 
   // Press past a limit: the number nudges toward the wall and springs back (not with Reduce Motion;
   // the dimmed button already says it's the limit).
-  const bump = useRef(new Animated.Value(0)).current;
+  const [bump] = useState(() => new Animated.Value(0));
   const nudge = (dir: 1 | -1) => {
     if (reduce) return;
     Animated.sequence([
@@ -246,7 +248,7 @@ export function Stepper({
       look={look[variant].btn}
       limit={dir === 1 ? atMax : atMin}
       disabled={!!disabled}
-      label={a11y ?? `${dir === 1 ? 'Increase' : 'Decrease'}${title ? ` ${title}` : ''}`}
+      label={a11y ?? (title ? (dir === 1 ? labels.increaseItem : labels.decreaseItem)(title) : dir === 1 ? labels.increase : labels.decrease)}
       reduce={reduce}
       style={buttonStyle}
       onPressIn={() => startRepeat(dir)}
@@ -272,8 +274,8 @@ export function Stepper({
     accessibilityValue: { min, max: Number.isFinite(max) ? max : undefined, now: current, text: suffixText ? `${text} ${suffixText}` : text },
     accessibilityState: { disabled: !!disabled },
     accessibilityActions: [
-      { name: 'increment', label: 'Increase' },
-      { name: 'decrement', label: 'Decrease' },
+      { name: 'increment', label: labels.increase },
+      { name: 'decrement', label: labels.decrease },
     ],
     onAccessibilityAction: (e: AccessibilityActionEvent) => {
       if (disabled) return;
@@ -365,9 +367,9 @@ function CartControl({
   numStyle: TextStyle;
   number: React.ReactNode;
   text: string;
-  suffixText?: string;
+  suffixText?: string | undefined;
   collapsed: boolean;
-  addLabel?: string;
+  addLabel?: string | undefined;
   bump: Animated.Value;
   disabled: boolean;
   reduce: boolean;
@@ -387,8 +389,8 @@ function CartControl({
   const closedW = addLabel ? Math.max(s.btn, addW || s.btn * 2.2) : s.btn;
   const target = collapsed ? closedW : openW;
 
-  const width = useRef(new Animated.Value(target)).current; // JS driver (layout)
-  const open = useRef(new Animated.Value(collapsed ? 0 : 1)).current; // native driver
+  const [width] = useState(() => new Animated.Value(target)); // JS driver (layout)
+  const [open] = useState(() => new Animated.Value(collapsed ? 0 : 1)); // native driver
   const settled = useRef(false);
 
   const measured = textW > 0 && (!addLabel || addW > 0);
@@ -507,8 +509,8 @@ function StepButton({
   onPressOut: () => void;
 }) {
   // Scale and dim share one native-driven view; nothing JS-driven touches it.
-  const scale = useRef(new Animated.Value(1)).current;
-  const dim = useRef(new Animated.Value(limit ? 0.32 : 1)).current;
+  const [scale] = useState(() => new Animated.Value(1));
+  const [dim] = useState(() => new Animated.Value(limit ? 0.32 : 1));
   // Reduce Motion: no press squeeze; the pressed background still shows the press.
   const spring = (to: number) => {
     if (reduce) scale.setValue(1);
@@ -562,7 +564,7 @@ function StepButton({
 
 /** Stroked icon; pops in when its shape changes (− ↔ trash). */
 function Glyph({ d, size, color, reduce }: { d: string; size: number; color: string; reduce: boolean }) {
-  const pop = useRef(new Animated.Value(1)).current;
+  const [pop] = useState(() => new Animated.Value(1));
   const prev = useRef(d);
   useEffect(() => {
     if (prev.current === d) return;
@@ -597,7 +599,7 @@ function RollingText({ text, dir, style, reduce }: { text: string; dir: number; 
 function RollingChar({ char, dir, style, reduce }: { char: string; dir: number; style: TextStyle; reduce: boolean }) {
   const [pair, setPair] = useState<{ cur: string; prev: string | null; dir: number }>({ cur: char, prev: null, dir });
   if (pair.cur !== char) setPair({ cur: char, prev: pair.cur, dir });
-  const t = useRef(new Animated.Value(1)).current;
+  const [t] = useState(() => new Animated.Value(1));
   // The digit window follows the text's own (capped) Dynamic Type scale, so a scaled digit isn't cropped.
   const { fontScale } = useWindowDimensions();
   const h = ((style.lineHeight as number) ?? 24) * Math.min(fontScale, FONT_CAP);

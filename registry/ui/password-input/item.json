@@ -59,7 +59,7 @@
     [
       "matchMessage / mismatchMessage",
       "string",
-      "\"Passwords match\" / \"Passwords don't match\"",
+      "labels.passwordsMatch / labels.passwordsDontMatch",
       "Copy for confirm mode."
     ],
     [

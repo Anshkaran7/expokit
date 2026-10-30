@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import { Animated, Image, PixelRatio, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, ClipPath, Defs, G, Line, LinearGradient, Path, Pattern, Rect, Stop } from 'react-native-svg';
 
@@ -28,13 +28,13 @@ export interface TicketRect {
 export interface TicketGeometry {
   width: number;
   height: number;
-  corners?: TicketCorners;
+  corners?: TicketCorners | undefined;
   /** Round bites cut into a side — e.g. both ends of a tear line. */
-  notches?: readonly TicketNotch[];
+  notches?: readonly TicketNotch[] | undefined;
   /** Pattern per side (default straight). */
-  edges?: Partial<Record<TicketSide, TicketEdge>>;
+  edges?: Partial<Record<TicketSide, TicketEdge | undefined>> | undefined;
   /** Bite radius, scallop depth or tooth height of the edge patterns (default 5). */
-  edgeSize?: number;
+  edgeSize?: number | undefined;
 }
 
 const SIDES: readonly TicketSide[] = ['top', 'right', 'bottom', 'left'];
@@ -140,20 +140,25 @@ export function ticketSafeRects(g: TicketGeometry, offset: { x: number; y: numbe
   // Each round hole is covered by a few stepped rects that hug its curve, so almost nothing
   // around it is left without light.
   const holes: [number, number, number, number][] = [];
-  const STEPS = [0, 0.45, 0.75, 1];
+  // Consecutive pairs of [0, 0.45, 0.75, 1].
+  const STEPS: readonly (readonly [number, number])[] = [
+    [0, 0.45],
+    [0.45, 0.75],
+    [0.75, 1],
+  ];
   /** A quarter disc of radius r at corner (cx, cy), opening toward (dx, dy) = ±1. */
   const quarter = (cx: number, cy: number, r: number, dx: number, dy: number) => {
-    for (let i = 0; i < STEPS.length - 1; i++) {
-      const reach = r * Math.sqrt(1 - STEPS[i] * STEPS[i]);
-      const [a, b] = [cy + dy * r * STEPS[i], cy + dy * r * STEPS[i + 1]];
+    for (const [s0, s1] of STEPS) {
+      const reach = r * Math.sqrt(1 - s0 * s0);
+      const [a, b] = [cy + dy * r * s0, cy + dy * r * s1];
       holes.push([Math.min(cx, cx + dx * reach), Math.min(a, b), Math.max(cx, cx + dx * reach), Math.max(a, b)]);
     }
   };
   /** The same with x and y swapped (steps run along x). */
   const quarterX = (cx: number, cy: number, r: number, dx: number, dy: number) => {
-    for (let i = 0; i < STEPS.length - 1; i++) {
-      const reach = r * Math.sqrt(1 - STEPS[i] * STEPS[i]);
-      const [a, b] = [cx + dx * r * STEPS[i], cx + dx * r * STEPS[i + 1]];
+    for (const [s0, s1] of STEPS) {
+      const reach = r * Math.sqrt(1 - s0 * s0);
+      const [a, b] = [cx + dx * r * s0, cx + dx * r * s1];
       holes.push([Math.min(a, b), Math.min(cy, cy + dy * reach), Math.max(a, b), Math.max(cy, cy + dy * reach)]);
     }
   };
@@ -191,25 +196,25 @@ export function ticketSafeRects(g: TicketGeometry, offset: { x: number; y: numbe
   for (const hole of holes) [hole[0], hole[1], hole[2], hole[3]] = [down(hole[0]), down(hole[1]), up(hole[2]), up(hole[3])];
 
   const cuts = (lo: number, hi: number, more: number[]) => [...new Set([lo, hi, ...more])].filter((v) => v >= lo && v <= hi).sort((a, b) => a - b);
+  /** Each neighbouring pair of sorted cuts: [v0, v1], [v1, v2], … */
+  const bands = (v: number[]) => v.slice(1).map((b, i): [number, number] => [v[i] ?? b, b]);
   const xs = cuts(near(x0), near(x1), holes.flatMap(([a, , c]) => [a, c]));
   const ys = cuts(near(y0), near(y1), holes.flatMap(([, b, , d]) => [b, d]));
   const rows: { y: number; h: number; spans: [number, number][] }[] = [];
   // Every cut is on the pixel grid, so anything thinner than half a pixel is a rounding twin; a
   // one-pixel row (where two stepped holes overlap) must stay, or the reflection shows a gap there.
   const thin = 0.5 / px;
-  for (let j = 0; j < ys.length - 1; j++) {
-    const [ya, yb] = [ys[j], ys[j + 1]];
+  for (const [ya, yb] of bands(ys)) {
     if (yb - ya < thin) continue;
     const spans: [number, number][] = [];
-    for (let i = 0; i < xs.length - 1; i++) {
-      const [xa, xb] = [xs[i], xs[i + 1]];
+    for (const [xa, xb] of bands(xs)) {
       if (xb - xa < thin || holes.some(([hx0, hy0, hx1, hy1]) => xa < hx1 && xb > hx0 && ya < hy1 && yb > hy0)) continue;
       const last = spans[spans.length - 1];
       if (last && Math.abs(last[1] - xa) < 0.01) last[1] = xb;
       else spans.push([xa, xb]);
     }
     const prev = rows[rows.length - 1];
-    const same = prev && prev.spans.length === spans.length && prev.spans.every((s, i) => s[0] === spans[i][0] && s[1] === spans[i][1]);
+    const same = prev && prev.spans.length === spans.length && prev.spans.every((s, i) => s[0] === spans[i]?.[0] && s[1] === spans[i]?.[1]);
     if (prev && same && Math.abs(prev.y + prev.h - ya) < 0.01) prev.h += yb - ya;
     else rows.push({ y: ya, h: yb - ya, spans });
   }
@@ -231,8 +236,8 @@ function random(seed: string) {
 const CONFETTI = ['#ffd23f', '#ff5fa2', '#3ddcff', '#7dff7a', '#ffffff'];
 
 /** A rubber stamp ("USED", "CHECKED IN") that thumps down whenever its text changes. */
-export function TicketStamp({ text, color, size = 17, style }: { text: string; color: string; size?: number; style?: StyleProp<ViewStyle> }) {
-  const thump = useRef(new Animated.Value(0)).current;
+export function TicketStamp({ text, color, size = 17, style }: { text: string; color: string; size?: number | undefined; style?: StyleProp<ViewStyle> | undefined }) {
+  const [thump] = useState(() => new Animated.Value(0));
   useEffect(() => {
     thump.setValue(0);
     Animated.spring(thump, { toValue: 1, ...motion.bouncy, useNativeDriver: true }).start();
@@ -258,12 +263,17 @@ export function TicketStamp({ text, color, size = 17, style }: { text: string; c
 }
 
 /** A QR-style matrix (finder squares, timing lines, data) drawn as one path — a look-alike, not a real code. */
-export function QrLike({ code, size, color = '#111111' }: { code: string; size: number; color?: string }) {
+export function QrLike({ code, size, color = '#111111' }: { code: string; size: number; color?: string | undefined }) {
   const d = useMemo(() => {
     const N = 25;
     const next = random(code + '|qr');
     const finder = (x: number, y: number) => {
-      for (const [fx, fy] of [[0, 0], [N - 7, 0], [0, N - 7]]) {
+      const corners: [number, number][] = [
+        [0, 0],
+        [N - 7, 0],
+        [0, N - 7],
+      ];
+      for (const [fx, fy] of corners) {
         const [u, v] = [x - fx, y - fy];
         if (u >= -1 && u <= 7 && v >= -1 && v <= 7) {
           if (u < 0 || v < 0 || u > 6 || v > 6) return 0; // the white ring around a finder
@@ -289,7 +299,7 @@ export function QrLike({ code, size, color = '#111111' }: { code: string; size: 
 }
 
 /** A Code 128-style barcode drawn as one path — a look-alike. `vertical` turns it on its side. */
-export function BarcodeLike({ code, width, height, color = '#111111', vertical = false }: { code: string; width: number; height: number; color?: string; vertical?: boolean }) {
+export function BarcodeLike({ code, width, height, color = '#111111', vertical = false }: { code: string; width: number; height: number; color?: string | undefined; vertical?: boolean | undefined }) {
   const { d, units } = useMemo(() => {
     const next = random(code + '|bars');
     const bars: [number, number][] = [];
@@ -314,39 +324,39 @@ export function BarcodeLike({ code, width, height, color = '#111111', vertical =
 }
 
 export interface TicketShapeProps extends Omit<TicketGeometry, 'width' | 'height'> {
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
   /** A colour, or 2+ colours for a gradient (default white). */
-  fill?: string | readonly string[];
+  fill?: string | readonly string[] | undefined;
   /** Gradient direction in degrees: 0 runs left → right, 90 top → bottom (default 125). */
-  angle?: number;
+  angle?: number | undefined;
   /** Photo painted inside the outline (cover), over the fill (`require()` or `{ uri }`). */
-  image?: ImageSourcePropType;
-  imageOpacity?: number;
+  image?: ImageSourcePropType | undefined;
+  imageOpacity?: number | undefined;
   /** Darkens the paint toward the bottom (0 – 1) so white text reads on a photo — inside the outline only. */
-  shade?: number;
+  shade?: number | undefined;
   /** Texture over the fill. */
-  pattern?: TicketPattern;
+  pattern?: TicketPattern | undefined;
   /** Pattern ink (default: white or black at low opacity, whichever suits the fill; confetti is multicolour). */
-  patternColor?: string;
+  patternColor?: string | undefined;
   /** Keeps the confetti scatter the same on every render (e.g. the coupon code). */
-  seed?: string;
+  seed?: string | undefined;
   /** Outline colour. */
-  stroke?: string;
-  strokeWidth?: number;
+  stroke?: string | undefined;
+  strokeWidth?: number | undefined;
   /** Dash the outline — a "cut here" coupon. */
-  dashed?: boolean;
+  dashed?: boolean | undefined;
   /** Dashed tear line along this side. */
-  tear?: TicketSide;
-  tearColor?: string;
+  tear?: TicketSide | undefined;
+  tearColor?: string | undefined;
   /**
    * Paint as one piece of a bigger ticket: that ticket's rect in this shape's points. Gradients,
    * patterns and photos then line up across the pieces.
    */
-  frame?: TicketRect;
+  frame?: TicketRect | undefined;
   /** Reports the measured size after layout. */
-  onSize?: (size: { width: number; height: number }) => void;
+  onSize?: ((size: { width: number; height: number }) => void) | undefined;
   /** Padding, width, margins… — the shape takes its size from this box. */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /**
@@ -381,7 +391,7 @@ export function TicketShape({
   const id = 'ts' + useId().replace(/[^A-Za-z0-9_-]/g, '');
   const { w, h } = size;
   const colors = typeof fill === 'string' ? [fill] : fill.length ? fill : ['#ffffff'];
-  const ink = readableOn(colors[Math.floor((colors.length - 1) / 2)]);
+  const ink = readableOn(colors[Math.floor((colors.length - 1) / 2)] ?? '#ffffff');
   const d = ticketPath({ width: w, height: h, corners, notches, edges, edgeSize });
   const f = frameProp ?? { x: 0, y: 0, width: w, height: h };
 
@@ -395,7 +405,7 @@ export function TicketShape({
     const clip = `url(#${id}-clip)`;
     const corner = cornerList(corners);
     const [s0, s1] = tear === 'top' || tear === 'bottom' ? (tear === 'top' ? [corner[0], corner[1]] : [corner[3], corner[2]]) : tear === 'left' ? [corner[0], corner[3]] : [corner[1], corner[2]];
-    const inset = [Math.abs(s0) + 7, Math.abs(s1) + 7];
+    const inset: [number, number] = [Math.abs(s0) + 7, Math.abs(s1) + 7];
     const tearLine =
       tear === 'top' || tear === 'bottom'
         ? { x1: inset[0], x2: w - inset[1], y1: tear === 'top' ? 0.75 : h - 0.75, y2: tear === 'top' ? 0.75 : h - 0.75 }
@@ -419,7 +429,7 @@ export function TicketShape({
         const x = f.x + rnd() * f.width;
         const y = f.y + rnd() * f.height;
         const turn = Math.round(rnd() * 180);
-        const color = patternColor ?? CONFETTI[Math.floor(rnd() * CONFETTI.length)];
+        const color = patternColor ?? CONFETTI[Math.floor(rnd() * CONFETTI.length)] ?? '#ffffff';
         const o = 0.35 + rnd() * 0.4;
         return rnd() < 0.55 ? (
           <Rect key={i} x={x - 1.6} y={y - 4.5} width={3.2} height={9} rx={1} fill={color} opacity={o} transform={`rotate(${turn} ${r2(x)} ${r2(y)})`} />
@@ -446,7 +456,7 @@ export function TicketShape({
           ))}
         </LinearGradient>
       ) : null;
-    const fillPath = <Path d={d} fill={colors.length > 1 ? `url(#${id}-fill)` : colors[0]} />;
+    const fillPath = <Path d={d} fill={colors.length > 1 ? `url(#${id}-fill)` : (colors[0] ?? '#ffffff')} />;
     const overlayDefs = (
       <>
         <ClipPath id={`${id}-clip`}>
@@ -482,7 +492,7 @@ export function TicketShape({
       <>
         {shade > 0 ? <Rect width={w} height={h} fill={`url(#${id}-shade)`} clipPath={clip} /> : null}
         {texture ? <G clipPath={clip}>{texture}</G> : null}
-        {stroke ? <Path d={d} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dashed ? [7, 5] : undefined} strokeLinecap="round" /> : null}
+        {stroke ? <Path d={d} fill="none" stroke={stroke} strokeWidth={strokeWidth} {...(dashed ? { strokeDasharray: [7, 5] } : null)} strokeLinecap="round" /> : null}
         {tear ? <Line {...tearLine} stroke={tearColor ?? alpha(ink, 0.28)} strokeWidth={1.6} strokeDasharray={[6, 5]} strokeLinecap="round" /> : null}
       </>
     );

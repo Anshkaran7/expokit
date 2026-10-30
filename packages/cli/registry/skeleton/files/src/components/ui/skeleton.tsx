@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useId, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -18,23 +18,30 @@ import { alpha, motion, useKit } from '@/lib/kit';
 export type SkeletonVariant = 'shimmer' | 'wave' | 'pulse' | 'static';
 
 export interface SkeletonProps {
-  width?: DimensionValue;
-  height?: DimensionValue;
+  width?: DimensionValue | undefined;
+
+  height?: DimensionValue | undefined;
+
   /**
    * Corner radius: a theme step, 'capsule' for bars that follow the kit radius (a pill at the
    * default radius), 'full' for true pills / circles, or points.
    */
-  radius?: 'sm' | 'md' | 'lg' | 'xl' | 'capsule' | 'full' | number;
+  radius?: 'sm' | 'md' | 'lg' | 'xl' | 'capsule' | 'full' | number | undefined;
+
   /**
    * 'shimmer' sweeps one angled light band across every block on screen, 'wave' brightens blocks
    * one after another from top to bottom, 'pulse' breathes, 'static' does nothing.
    */
-  variant?: SkeletonVariant;
+  variant?: SkeletonVariant | undefined;
+
   /** Base colour of the block (default: a faint tint of the foreground). */
-  color?: string;
+  color?: string | undefined;
+
   /** Centred overlay, e.g. a faint glyph (see `Skeleton.Media`). */
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -142,8 +149,10 @@ function measure(node: ComponentRef<typeof View> | null, e: LayoutChangeEvent, d
 }
 
 export interface SkeletonGroupProps {
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 /**
@@ -216,7 +225,7 @@ export function Skeleton({ width = '100%', height = 14, radius = 'sm', variant =
     const local = (x: number) => start + (end - start) * easeSweep(x / SWEEP) - dy * TAN - dx - bw / 2;
     const s = sample(local, 0, SWEEP, 24);
     s.inputRange.push(1);
-    s.outputRange.push(s.outputRange[s.outputRange.length - 1]);
+    s.outputRange.push(s.outputRange[s.outputRange.length - 1] ?? 0);
     return t.interpolate(s);
   }, [mode, B, W, H, dx, dy, bw, t]);
 
@@ -301,14 +310,20 @@ export function Skeleton({ width = '100%', height = 14, radius = 'sm', variant =
 
 export interface SkeletonTextProps {
   /** Number of lines (default 3). */
-  lines?: number;
+  lines?: number | undefined;
+
   /** Line height in points (default 12). */
-  lineHeight?: number;
-  gap?: number;
+  lineHeight?: number | undefined;
+
+  gap?: number | undefined;
+
   /** Width of the last line, so it reads like a paragraph (default '60%'). */
-  lastLineWidth?: DimensionValue;
-  variant?: SkeletonVariant;
-  style?: StyleProp<ViewStyle>;
+  lastLineWidth?: DimensionValue | undefined;
+
+  variant?: SkeletonVariant | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 const RAGGED: DimensionValue[] = ['100%', '94%', '97%', '90%'];
@@ -331,10 +346,14 @@ export function SkeletonText({ lines = 3, lineHeight = 12, gap = 10, lastLineWid
 }
 
 export interface SkeletonAvatarProps {
-  size?: number;
-  shape?: 'circle' | 'rounded';
-  variant?: SkeletonVariant;
-  style?: StyleProp<ViewStyle>;
+  size?: number | undefined;
+
+  shape?: 'circle' | 'rounded' | undefined;
+
+  variant?: SkeletonVariant | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 /** Round (or rounded-square) avatar placeholder. */
@@ -353,17 +372,25 @@ export function SkeletonAvatar({ size = 40, shape = 'circle', variant, style }: 
 
 export interface SkeletonMediaProps {
   /** Width / height ratio (default 16 / 9). Ignored when `height` is set. */
-  aspectRatio?: number;
+  aspectRatio?: number | undefined;
+
   /** Fixed height in points. */
-  height?: number;
-  width?: DimensionValue;
+  height?: number | undefined;
+
+  width?: DimensionValue | undefined;
+
   /** Draw a faint image glyph in the centre (default false). */
-  glyph?: boolean;
+  glyph?: boolean | undefined;
+
   /** Glyph size in points (default 28). */
-  glyphSize?: number;
-  radius?: SkeletonProps['radius'];
-  variant?: SkeletonVariant;
-  style?: StyleProp<ViewStyle>;
+  glyphSize?: number | undefined;
+
+  radius?: SkeletonProps['radius'] | undefined;
+
+  variant?: SkeletonVariant | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 /** Image / video placeholder (optionally with a faint picture glyph in the middle). */
@@ -404,16 +431,23 @@ export function SkeletonMedia({
 
 export interface SkeletonListProps {
   /** Number of rows (default 4). */
-  rows?: number;
+  rows?: number | undefined;
+
   /** Avatar size (default 44). 0 hides it. */
-  avatarSize?: number;
-  avatarShape?: 'circle' | 'rounded';
+  avatarSize?: number | undefined;
+
+  avatarShape?: 'circle' | 'rounded' | undefined;
+
   /** Trailing short bar, like a time stamp or price (default true). */
-  trailing?: boolean;
+  trailing?: boolean | undefined;
+
   /** Hairline between rows (default false). */
-  dividers?: boolean;
-  variant?: SkeletonVariant;
-  style?: StyleProp<ViewStyle>;
+  dividers?: boolean | undefined;
+
+  variant?: SkeletonVariant | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 const TITLE_W: DimensionValue[] = ['58%', '44%', '66%', '50%', '62%'];
@@ -458,16 +492,23 @@ export function SkeletonList({
 
 export interface SkeletonCardProps {
   /** Show the media block (default true). */
-  media?: boolean;
-  mediaHeight?: number;
+  media?: boolean | undefined;
+
+  mediaHeight?: number | undefined;
+
   /** Show the author row: avatar, name, handle · time, overflow menu (default true). */
-  header?: boolean;
+  header?: boolean | undefined;
+
   /** Body text lines (default 2). */
-  lines?: number;
+  lines?: number | undefined;
+
   /** Like / comment / share row along the bottom (default true). */
-  actions?: boolean;
-  variant?: SkeletonVariant;
-  style?: StyleProp<ViewStyle>;
+  actions?: boolean | undefined;
+
+  variant?: SkeletonVariant | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 /** A feed post placeholder: author row, caption, media and an action bar — borderless, like the content it stands in for. */
@@ -511,21 +552,30 @@ export function SkeletonCard({
 
 export interface SkeletonNavProps {
   /** App bar: back + title + trailing actions (default true). */
-  header?: boolean;
+  header?: boolean | undefined;
+
   /** Show a back chevron placeholder (default true when header is on). */
-  back?: boolean;
+  back?: boolean | undefined;
+
   /** Trailing action pills in the header (default 2). */
-  actions?: number;
+  actions?: number | undefined;
+
   /** Bottom tab bar (default true). */
-  tabs?: boolean;
+  tabs?: boolean | undefined;
+
   /** Number of bottom tabs (default 4). */
-  tabCount?: number;
+  tabCount?: number | undefined;
+
   /** Body: how many list rows to show while content loads (default 4). 0 = empty body. */
-  rows?: number;
+  rows?: number | undefined;
+
   /** Custom body instead of the default list rows. */
-  children?: React.ReactNode;
-  variant?: SkeletonVariant;
-  style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode | undefined;
+
+  variant?: SkeletonVariant | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 /**
@@ -586,16 +636,22 @@ export interface SkeletonRevealProps {
   /** While true the skeleton shows; flip to false when the data arrives. */
   loading: boolean;
   /** Placeholder shown while loading (default: three text lines). */
-  skeleton?: React.ReactNode;
+  skeleton?: React.ReactNode | undefined;
+
   /** The real content. Top-level children rise in one after another. */
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
+
   /** Delay between each top-level child rising in, in ms (default 70). 0 reveals it as one block. */
-  stagger?: number;
+  stagger?: number | undefined;
+
   /** Glide the container height from the skeleton's height to the content's (default true). */
-  animateHeight?: boolean;
-  /** Screen reader label while loading (default 'Loading'). */
-  loadingLabel?: string;
-  style?: StyleProp<ViewStyle>;
+  animateHeight?: boolean | undefined;
+
+  /** Screen reader label while loading (default: the kit's `labels.loading`). */
+  loadingLabel?: string | undefined;
+
+  style?: StyleProp<ViewStyle> | undefined;
+
 }
 
 type Layer = 'skeleton' | 'content';
@@ -615,9 +671,10 @@ export function SkeletonReveal({
   children,
   stagger = 70,
   animateHeight = true,
-  loadingLabel = 'Loading',
+  loadingLabel,
   style,
 }: SkeletonRevealProps) {
+  const { labels } = useKit();
   const reduce = useReduceMotion();
   const [mode, setMode] = useState<Layer>(loading ? 'skeleton' : 'content');
   const [leaving, setLeaving] = useState<Layer | null>(null);
@@ -625,9 +682,9 @@ export function SkeletonReveal({
   const heights = useRef<Record<Layer, number>>({ skeleton: 0, content: 0 });
   const pending = useRef(false);
   const token = useRef(0);
-  const h = useRef(new Animated.Value(0)).current; // JS driver: container height
-  const skA = useRef(new Animated.Value(loading ? 1 : 0)).current; // native: skeleton layer
-  const ctA = useRef(new Animated.Value(loading ? 0 : 1)).current; // native: content layer
+  const [h] = useState(() => new Animated.Value(0)); // JS driver: container height
+  const [skA] = useState(() => new Animated.Value(loading ? 1 : 0)); // native: skeleton layer
+  const [ctA] = useState(() => new Animated.Value(loading ? 0 : 1)); // native: content layer
 
   const items = React.Children.toArray(children);
   const staggered = stagger > 0 && items.length > 1;
@@ -658,37 +715,49 @@ export function SkeletonReveal({
     });
   };
 
-  useEffect(() => {
+  // `loading` flipped: swap layers while rendering, then start the animation in a layout effect so the
+  // held height and the new layer's starting opacity are set before that frame paints.
+  const [loadingSeen, setLoadingSeen] = useState(loading);
+  const [turn, setTurn] = useState<{ next: Layer; prev: Layer; holdHeight: boolean; ready: boolean } | null>(null);
+  if (loading !== loadingSeen) {
+    setLoadingSeen(loading);
     const next: Layer = loading ? 'skeleton' : 'content';
-    if (next === mode) return;
-    const prev = mode;
+    if (next !== mode) {
+      if (reduce) {
+        setFixed(false);
+        setLeaving(null);
+      } else {
+        if (animateHeight) setFixed(true);
+        setLeaving(mode);
+      }
+      setTurn({ next, prev: mode, holdHeight: animateHeight && !fixed, ready: leaving === next });
+      setMode(next);
+    }
+  }
+
+  useLayoutEffect(() => {
+    if (!turn) return;
+    const { next, prev } = turn;
     if (reduce) {
       token.current += 1;
       value(prev).setValue(0);
       value(next).setValue(1);
-      setFixed(false);
-      setLeaving(null);
-      setMode(next);
       return;
     }
     if (animateHeight) {
       h.stopAnimation();
-      if (!fixed) h.setValue(heights.current[prev]);
-      setFixed(true);
+      if (turn.holdHeight) h.setValue(heights.current[prev]);
     }
-    const wasMounted = leaving === next;
-    setLeaving(prev);
-    setMode(next);
-    if (wasMounted && heights.current[next] > 0) {
+    if (turn.ready && heights.current[next] > 0) {
       run(next, prev);
     } else {
       value(next).setValue(0);
       pending.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading]);
+  }, [turn]);
 
-  const onLayout = (l: Layer) => (e: LayoutChangeEvent) => {
+  const measure = (l: Layer, e: LayoutChangeEvent) => {
     heights.current[l] = e.nativeEvent.layout.height;
     if (l === mode && pending.current) {
       pending.current = false;
@@ -726,9 +795,9 @@ export function SkeletonReveal({
         <Animated.View
           accessible={mode === 'skeleton'}
           accessibilityRole="progressbar"
-          accessibilityLabel={loadingLabel}
+          accessibilityLabel={loadingLabel ?? labels.loading}
           pointerEvents="none"
-          onLayout={onLayout('skeleton')}
+          onLayout={(e) => measure('skeleton', e)}
           style={[layerStyle('skeleton'), { opacity: skA }]}
         >
           <SkeletonGroup>{skeleton ?? <SkeletonText lines={3} />}</SkeletonGroup>
@@ -738,7 +807,7 @@ export function SkeletonReveal({
         <Animated.View
           accessibilityLiveRegion="polite"
           pointerEvents={mode === 'content' ? 'auto' : 'none'}
-          onLayout={onLayout('content')}
+          onLayout={(e) => measure('content', e)}
           style={[layerStyle('content'), staggered ? null : rise(0)]}
         >
           {staggered

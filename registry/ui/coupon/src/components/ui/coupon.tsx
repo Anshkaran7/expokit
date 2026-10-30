@@ -30,13 +30,13 @@ export interface CouponTheme {
   /** Text on the value panel. */
   ink: string;
   /** Buttons, the code chip and the applied ring (default: the fill's last colour). */
-  accent?: string;
+  accent?: string | undefined;
   /** Details panel paint (default: the app's card colour). */
-  body?: string | readonly string[];
+  body?: string | readonly string[] | undefined;
   /** Text on the details panel (default: the app's foreground). */
-  bodyInk?: string;
+  bodyInk?: string | undefined;
   /** Texture on the value panel. */
-  pattern?: TicketPattern;
+  pattern?: TicketPattern | undefined;
 }
 
 export const couponThemes: Record<CouponThemeName, CouponTheme> = {
@@ -74,52 +74,52 @@ export interface CouponProps {
   /** The headline: "50%", "₹200", "FREE", "BOGO". */
   value: string;
   /** Under the value: "OFF", "CASHBACK". */
-  unit?: string;
+  unit?: string | undefined;
   /** Above the value: "FLAT", "UP TO". */
-  prefix?: string;
-  title?: string;
-  description?: string;
+  prefix?: string | undefined;
+  title?: string | undefined;
+  description?: string | undefined;
   /** Promo code, shown in a dashed chip (tap to copy when `onCopy` is set). */
-  code?: string;
-  brand?: string;
+  code?: string | undefined;
+  brand?: string | undefined;
   /** Logo before the brand (e.g. an <Image>). */
-  logo?: React.ReactNode;
+  logo?: React.ReactNode | undefined;
   /** Expiry line, e.g. "Valid till 31 Dec". */
-  expires?: string;
+  expires?: string | undefined;
   /** Live countdown to this moment; the coupon turns expired when it passes. */
-  expiresAt?: Date | number;
+  expiresAt?: Date | number | undefined;
   /** Shown on the back — the "T&C" link turns the coupon over. */
-  terms?: string[];
-  status?: CouponStatus;
+  terms?: string[] | undefined;
+  status?: CouponStatus | undefined;
   /** Why it's locked, e.g. "Add ₹120 more to unlock". */
-  lockedHint?: string;
+  lockedHint?: string | undefined;
   /** A preset or your own colours (default "sunset"). */
-  theme?: CouponThemeName | CouponTheme;
+  theme?: CouponThemeName | CouponTheme | undefined;
   /** Override the theme's texture. */
-  pattern?: TicketPattern;
+  pattern?: TicketPattern | undefined;
   /** `horizontal` (value panel on the left) or `vertical` (value panel on top). */
-  layout?: 'horizontal' | 'vertical';
-  variant?: CouponVariant;
-  size?: CouponSize;
+  layout?: 'horizontal' | 'vertical' | undefined;
+  variant?: CouponVariant | undefined;
+  size?: CouponSize | undefined;
   /** A light sweep across the value panel every few seconds. */
-  shine?: boolean;
+  shine?: boolean | undefined;
   /** 3D: tilts toward the finger with a moving reflection. */
-  tilt?: boolean;
+  tilt?: boolean | undefined;
   /** With `tilt`: a rainbow foil sheen. */
-  holo?: boolean;
+  holo?: boolean | undefined;
   /** With `tilt`: sway slowly on its own. */
-  idle?: boolean;
+  idle?: boolean | undefined;
   /** Called with the code from the chip — wire it to expo-clipboard. */
-  onCopy?: (code: string) => void;
+  onCopy?: ((code: string) => void) | undefined;
   /** Shows the Apply button. */
-  onApply?: () => void;
+  onApply?: (() => void) | undefined;
   /** Tap on the coupon itself (e.g. open details or select it). */
-  onPress?: () => void;
-  flipped?: boolean;
-  defaultFlipped?: boolean;
-  onFlip?: (flipped: boolean) => void;
-  labels?: CouponLabels;
-  style?: StyleProp<ViewStyle>;
+  onPress?: (() => void) | undefined;
+  flipped?: boolean | undefined;
+  defaultFlipped?: boolean | undefined;
+  onFlip?: ((flipped: boolean) => void) | undefined;
+  labels?: CouponLabels | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const VARIANTS: Record<CouponVariant, { r: number; notch: number; edge?: TicketEdge; edgeSize: number; ends?: boolean }> = {
@@ -159,11 +159,11 @@ function contrast(a: string, b: string) {
     const full = hex.length === 4 ? '#' + [...hex.slice(1)].map((c) => c + c).join('') : hex;
     const n = parseInt(full.slice(1, 7), 16);
     if (!/^#[0-9a-f]{6}/i.test(full) || Number.isNaN(n)) return -1;
-    const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+    const [red = 0, green = 0, blue = 0] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
       const c = v / 255;
       return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
     });
-    return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
   };
   const [x, y] = [lum(a), lum(b)];
   if (x < 0 || y < 0) return 21;
@@ -201,13 +201,13 @@ function useRemaining(at?: Date | number) {
 }
 
 /** The promo code in a dashed chip; a tap copies it and flips the icon to a check for a moment. */
-function CodeChip({ code, color, ink, fontSize, onCopy, labels, reduce }: { code: string; color: string; ink: string; fontSize: number; onCopy?: (code: string) => void; labels: Required<CouponLabels>; reduce: boolean }) {
+function CodeChip({ code, color, ink, fontSize, onCopy, labels, reduce }: { code: string; color: string; ink: string; fontSize: number; onCopy?: ((code: string) => void) | undefined; labels: Required<CouponLabels>; reduce: boolean }) {
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const [copied, setCopied] = useState(false);
   const [box, setBox] = useState({ w: 0, h: 0 });
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const pop = useRef(new Animated.Value(1)).current;
+  const [pop] = useState(() => new Animated.Value(1));
   useEffect(() => () => clearTimeout(timer.current), []);
   const copy = () => {
     onCopy?.(code);
@@ -248,7 +248,7 @@ function CodeChip({ code, color, ink, fontSize, onCopy, labels, reduce }: { code
 
 /** A light band that sweeps across, every few seconds, through the given windows. */
 function Shine({ windows, width, height }: { windows: TicketRect[]; width: number; height: number }) {
-  const t = useRef(new Animated.Value(0)).current;
+  const [t] = useState(() => new Animated.Value(0));
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([Animated.timing(t, { toValue: 1, duration: 1100, easing: Easing.inOut(Easing.quad), useNativeDriver: true }), Animated.delay(2400)])
@@ -338,12 +338,12 @@ export function Coupon({
   const reduce = useReduceMotion();
   const theme = typeof themeProp === 'object' ? themeProp : couponThemes[themeProp];
   const fills = typeof theme.fill === 'string' ? [theme.fill] : theme.fill;
-  const accent = theme.accent ?? fills[fills.length - 1];
+  const accent = theme.accent ?? fills[fills.length - 1] ?? colors.primary;
   const body = theme.body ?? (dark ? colors.popover : colors.card);
   const bodyInk = theme.bodyInk ?? colors.foreground;
   const bodySoft = alpha(bodyInk, 0.6);
   // The accent as text on the details panel — or the panel's ink when they'd blend (yellow on white).
-  const textAccent = contrast(accent, typeof body === 'string' ? body : body[0]) >= 2.6 ? accent : bodyInk;
+  const textAccent = contrast(accent, typeof body === 'string' ? body : (body[0] ?? colors.card)) >= 2.6 ? accent : bodyInk;
   const s = SIZES[size];
   const v = VARIANTS[variant];
   const horizontal = layout === 'horizontal';
@@ -387,8 +387,8 @@ export function Coupon({
   const n = v.notch;
   const endEdge = v.edge;
   const sideEdge = v.ends ? undefined : v.edge;
-  const valueEdges: Partial<Record<TicketSide, TicketEdge>> = horizontal ? { left: endEdge, top: sideEdge, bottom: sideEdge } : { top: endEdge, left: sideEdge, right: sideEdge };
-  const detailEdges: Partial<Record<TicketSide, TicketEdge>> = horizontal ? { right: endEdge, top: sideEdge, bottom: sideEdge } : { bottom: endEdge, left: sideEdge, right: sideEdge };
+  const valueEdges: Partial<Record<TicketSide, TicketEdge | undefined>> = horizontal ? { left: endEdge, top: sideEdge, bottom: sideEdge } : { top: endEdge, left: sideEdge, right: sideEdge };
+  const detailEdges: Partial<Record<TicketSide, TicketEdge | undefined>> = horizontal ? { right: endEdge, top: sideEdge, bottom: sideEdge } : { bottom: endEdge, left: sideEdge, right: sideEdge };
   const corners = (tl: number, tr: number, br: number, bl: number): TicketCorners => [tl, tr, br, bl];
   const valueCorners = horizontal ? corners(v.r, -n, -n, v.r) : corners(v.r, v.r, -n, -n);
   const detailCorners = horizontal ? corners(-n, v.r, v.r, -n) : corners(-n, -n, v.r, v.r);

@@ -101,7 +101,7 @@
     [
       "label",
       "string",
-      "'Time'",
+      "labels.time",
       "Sheet: field label."
     ],
     [
@@ -119,7 +119,7 @@
     [
       "placeholder",
       "string",
-      "'Select a time'",
+      "labels.selectTime",
       "Sheet: shown while nothing is picked."
     ],
     [

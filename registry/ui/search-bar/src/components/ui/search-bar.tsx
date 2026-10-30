@@ -86,7 +86,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
     size = 'md',
     loading = false,
     showCancel,
-    cancelLabel = 'Cancel',
+    cancelLabel: cancelLabelProp,
     onCancel,
     onClear,
     accent,
@@ -102,14 +102,16 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
     onChangeText,
     onFocus,
     onBlur,
-    placeholder = 'Search',
+    placeholder: placeholderProp,
     editable = true,
     autoFocus,
     ...props
   },
   ref
 ) {
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, labels } = useKit();
+  const cancelLabel = cancelLabelProp ?? labels.cancel;
+  const placeholder = placeholderProp ?? labels.search;
   const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const s = SIZES[size];
@@ -131,17 +133,17 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
   const cancelShown = cancelEnabled && (focused || text.length > 0);
 
   // JS driver: layout (widths) and colours.
-  const focusJS = useRef(new Animated.Value(0)).current;
-  const cancelJS = useRef(new Animated.Value(0)).current;
-  const openJS = useRef(new Animated.Value(open ? 1 : 0)).current;
+  const [focusJS] = useState(() => new Animated.Value(0));
+  const [cancelJS] = useState(() => new Animated.Value(0));
+  const [openJS] = useState(() => new Animated.Value(open ? 1 : 0));
   // Native driver: opacity and transforms, on different views.
-  const halo = useRef(new Animated.Value(0)).current;
-  const cancelN = useRef(new Animated.Value(0)).current;
-  const openN = useRef(new Animated.Value(open ? 1 : 0)).current;
-  const icon = useRef(new Animated.Value(1)).current;
-  const clear = useRef(new Animated.Value(text ? 1 : 0)).current;
-  const busy = useRef(new Animated.Value(loading ? 1 : 0)).current;
-  const spin = useRef(new Animated.Value(0)).current;
+  const [halo] = useState(() => new Animated.Value(0));
+  const [cancelN] = useState(() => new Animated.Value(0));
+  const [openN] = useState(() => new Animated.Value(open ? 1 : 0));
+  const [icon] = useState(() => new Animated.Value(1));
+  const [clear] = useState(() => new Animated.Value(text ? 1 : 0));
+  const [busy] = useState(() => new Animated.Value(loading ? 1 : 0));
+  const [spin] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     const to = focused ? 1 : 0;
@@ -199,11 +201,11 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
 
   // The panel closes a beat after blur so a tap on a suggestion still lands (web blurs on mousedown).
   const [panelOpen, setPanelOpen] = useState(false);
+  if (focused && !panelOpen) setPanelOpen(true);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
-    if (focused) setPanelOpen(true);
-    else closeTimer.current = setTimeout(() => setPanelOpen(false), 160);
+    if (!focused) closeTimer.current = setTimeout(() => setPanelOpen(false), 160);
     return () => {
       if (closeTimer.current) clearTimeout(closeTimer.current);
     };
@@ -330,7 +332,7 @@ export const SearchBar = forwardRef<ComponentRef<typeof TextInput>, SearchBarPro
               <Pressable
                 hitSlop={12}
                 accessibilityRole="button"
-                accessibilityLabel="Clear search"
+                accessibilityLabel={labels.clearSearch}
                 onPress={() => {
                   setText('');
                   onClear?.();
@@ -437,13 +439,15 @@ function SuggestionPanel({
   const { colors, radius, font, shadow } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const [mounted, setMounted] = useState(open);
-  const enter = useRef(new Animated.Value(0)).current;
-  const last = useRef(items);
-  if (items.length) last.current = items;
+  if (open && !mounted) setMounted(true);
+  const [enter] = useState(() => new Animated.Value(0));
+  // Keeps showing the last suggestions while the panel fades out after they empty.
+  const [lastItems, setLastItems] = useState(items);
+  if (items.length && items !== lastItems) setLastItems(items);
+  const shownItems = items.length ? items : lastItems;
 
   useEffect(() => {
     if (open) {
-      setMounted(true);
       if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
       else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();
     } else {
@@ -472,7 +476,7 @@ function SuggestionPanel({
         },
       ]}
     >
-      {last.current.map((item) => (
+      {shownItems.map((item) => (
         <Pressable
           key={item.key}
           accessibilityRole="button"

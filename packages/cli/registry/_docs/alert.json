@@ -87,6 +87,12 @@
       "Override the tone colour."
     ],
     [
+      "dismissLabel",
+      "string",
+      "labels.dismiss",
+      "Screen-reader name of the dismiss button. Set it app-wide with KitProvider's labels."
+    ],
+    [
       "style",
       "StyleProp<ViewStyle>",
       "—",

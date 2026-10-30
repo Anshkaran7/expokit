@@ -1,12 +1,11 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
   Easing,
-  PanResponder,
   Platform,
   StyleSheet,
   Text,
@@ -18,7 +17,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { motion, useKit } from '@/lib/kit';
+import { motion, useKit, usePanResponder } from '@/lib/kit';
 
 /** A wall-clock time, 24-hour: `{ hours: 0–23, minutes: 0–59 }`. */
 export interface TimeValue {
@@ -116,12 +115,19 @@ export function stepTime(base: number, ticks: number, step: number) {
   return mod(base + ticks * step, DAY);
 }
 
-/** `'02:15 am'` / `'14:15'` split into the glyphs the picker rolls. */
-export function timeGlyphs(minutes: number, hour12: boolean) {
+/**
+ * `'02:15 am'` / `'14:15'` split into the glyphs the picker rolls. `period` is the key ('am' / 'pm');
+ * the spoken label names it with `periods` (default English, pass `useKit().labels` to localise).
+ */
+export function timeGlyphs(minutes: number, hour12: boolean, periods: { am: string; pm: string } = { am: 'AM', pm: 'PM' }) {
   const { hours, minutes: m } = fromMinutes(minutes);
   const h = hour12 ? hours % 12 || 12 : hours;
   const digits = pad2(h) + pad2(m);
-  return { digits: digits.split(''), period: hour12 ? (hours < 12 ? 'am' : 'pm') : null, label: `${pad2(h)}:${pad2(m)}${hour12 ? (hours < 12 ? ' AM' : ' PM') : ''}` };
+  return {
+    digits: digits.split(''),
+    period: hour12 ? (hours < 12 ? ('am' as const) : ('pm' as const)) : null,
+    label: `${pad2(h)}:${pad2(m)}${hour12 ? ` ${hours < 12 ? periods.am : periods.pm}` : ''}`,
+  };
 }
 
 export const dayOf = (date: Date): Day => ({ y: date.getFullYear(), m: date.getMonth(), d: date.getDate() });
@@ -188,9 +194,9 @@ export function dateParts(t: Day, showYear: 'auto' | 'always' | 'never' = 'auto'
   const wd = new Date(utc(t)).getUTCDay();
   const year = showYear === 'always' || (showYear === 'auto' && t.y !== thisYear) ? String(t.y) : null;
   return {
-    weekday: n.days[wd],
+    weekday: n.days[wd] ?? '',
     day: String(t.d).split(''),
-    month: n.months[t.m],
+    month: n.months[t.m] ?? '',
     year,
     label: `${n.daysLong[wd]}, ${t.d} ${n.monthsLong[t.m]} ${t.y}`,
   };
@@ -207,13 +213,16 @@ export function RulerTimePicker(props: RulerTimePickerProps) {
 }
 
 function TimeRuler({ value, defaultValue, onChange, label, step: rawStep = 5, hour12 = true, size = 'md', accent, haptics = true, sound = true, accessibilityLabel, style, textStyle }: RulerTimeProps) {
+  const { labels } = useKit();
   const step = Math.max(1, Math.min(60, Math.round(rawStep) || 5));
   const initial = toMinutes(value ?? defaultValue ?? { hours: 9, minutes: 0 });
   // Minutes shown, and which way the last change went (rolls go up for later, down for earlier).
   const [shown, setShown] = useState({ minutes: initial, dir: 1 as 1 | -1 });
   const base = useRef(initial);
   const live = useRef({ onChange, step, shown: initial });
-  live.current = { onChange, step, shown: shown.minutes };
+  useLayoutEffect(() => {
+    live.current = { onChange, step, shown: shown.minutes };
+  });
 
   const ruler = useRuler({
     gap: TIME_GAP,
@@ -242,20 +251,22 @@ function TimeRuler({ value, defaultValue, onChange, label, step: rawStep = 5, ho
 
   const fontSize = TIME_SIZES[size];
   const { box, glyph } = useGlyph(fontSize, textStyle);
-  const t = timeGlyphs(shown.minutes, hour12);
+  const t = timeGlyphs(shown.minutes, hour12, labels);
+  const [h1 = '', h2 = '', m1 = '', m2 = ''] = t.digits;
   const roll = { dir: shown.dir, height: box, style: glyph, reduce: ruler.reduce };
 
   return (
-    <Frame ruler={ruler} label={label} name={accessibilityLabel ?? label?.replace(/:\s*$/, '') ?? 'Time'} spoken={t.label} accent={accent} rulerWidth={fontSize * 5.6} style={style}>
+    <Frame ruler={ruler} label={label} name={accessibilityLabel ?? label?.replace(/:\s*$/, '') ?? labels.time} spoken={t.label} accent={accent} rulerWidth={fontSize * 5.6} style={style}>
       <View style={[styles.row, { height: box }]}>
-        <Roll text={t.digits[0]} {...roll} />
-        <Roll text={t.digits[1]} {...roll} />
+        <Roll text={h1} {...roll} />
+        <Roll text={h2} {...roll} />
         <Text maxFontSizeMultiplier={FONT_CAP} style={glyph}>:</Text>
-        <Roll text={t.digits[2]} {...roll} />
-        <Roll text={t.digits[3]} {...roll} />
+        <Roll text={m1} {...roll} />
+        <Roll text={m2} {...roll} />
         {t.period ? (
           <View style={{ marginLeft: fontSize * 0.24 }}>
-            <Roll text={t.period} {...roll} />
+            {/* Shown lowercase, as the design has it ('am' / 'pm'); the text comes from the kit labels. */}
+            <Roll text={labels[t.period].toLowerCase()} {...roll} />
           </View>
         ) : null}
       </View>
@@ -264,17 +275,20 @@ function TimeRuler({ value, defaultValue, onChange, label, step: rawStep = 5, ho
 }
 
 function DateRuler({ value, defaultValue, onChange, label, minDate, maxDate, showYear = 'auto', locale, size = 'md', accent, haptics = true, sound = true, accessibilityLabel, style, textStyle }: RulerDateProps) {
-  const start = useRef(value ?? defaultValue ?? new Date()).current;
+  const [start] = useState(() => value ?? defaultValue ?? new Date());
   // Time of day handed back with every change, so picking a date never moves a set time.
   const clock = useRef({ h: start.getHours(), min: start.getMinutes() });
   const [shown, setShown] = useState({ day: dayOf(start), index: 0, dir: 1 as 1 | -1 });
-  const base = useRef(dayOf(start));
+  // The day at tick 0; a controlled value from outside re-bases the ruler on it.
+  const [base, setBase] = useState(() => dayOf(start));
   const live = useRef({ onChange, key: utc(shown.day) });
-  live.current = { onChange, key: utc(shown.day) };
+  useLayoutEffect(() => {
+    live.current = { onChange, key: utc(shown.day) };
+  });
 
   // Limits as offsets from the base day.
-  const lo = minDate ? daysBetween(base.current, dayOf(minDate)) : -Infinity;
-  const hi = maxDate ? Math.max(lo, daysBetween(base.current, dayOf(maxDate))) : Infinity;
+  const lo = minDate ? daysBetween(base, dayOf(minDate)) : -Infinity;
+  const hi = maxDate ? Math.max(lo, daysBetween(base, dayOf(maxDate))) : Infinity;
 
   const ruler = useRuler({
     gap: DATE_GAP,
@@ -282,9 +296,9 @@ function DateRuler({ value, defaultValue, onChange, label, minDate, maxDate, sho
     lo,
     hi,
     sound,
-    firm: (i) => addDays(base.current, i).d === 1,
+    firm: (i) => addDays(base, i).d === 1,
     onStep: (i, dir) => {
-      const day = addDays(base.current, i);
+      const day = addDays(base, i);
       live.current.key = utc(day);
       setShown({ day, index: i, dir });
       live.current.onChange?.(new Date(day.y, day.m, day.d, clock.current.h, clock.current.min));
@@ -298,14 +312,14 @@ function DateRuler({ value, defaultValue, onChange, label, minDate, maxDate, sho
     const day = dayOf(value);
     clock.current = { h: value.getHours(), min: value.getMinutes() };
     const dir = external > live.current.key ? 1 : -1;
-    base.current = day;
+    setBase(day);
     live.current.key = external;
     ruler.reset();
     setShown({ day, index: 0, dir });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [external]);
 
-  const { colors, font } = useKit();
+  const { colors, font, labels } = useKit();
   const fontSize = DATE_SIZES[size];
   const { box, glyph } = useGlyph(fontSize, textStyle);
   const gap = fontSize * 0.24;
@@ -317,18 +331,17 @@ function DateRuler({ value, defaultValue, onChange, label, minDate, maxDate, sho
   const reach = ruler.width ? Math.ceil(ruler.width / 2 / DATE_GAP) + 45 : 0;
   const months = useMemo(() => {
     if (!reach) return [];
-    return monthStarts(base.current, shown.index - reach, shown.index + reach).map((i) => {
-      const t = addDays(base.current, i);
-      return { i, name: t.m === 0 ? `${names.months[0]} ${String(t.y).slice(2)}` : names.months[t.m] };
+    return monthStarts(base, shown.index - reach, shown.index + reach).map((i) => {
+      const t = addDays(base, i);
+      return { i, name: t.m === 0 ? `${names.months[0] ?? ''} ${String(t.y).slice(2)}` : (names.months[t.m] ?? '') };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shown.index, reach, names, external]);
+  }, [shown.index, reach, names, base]);
 
   return (
     <Frame
       ruler={ruler}
       label={label}
-      name={accessibilityLabel ?? label?.replace(/:\s*$/, '') ?? 'Date'}
+      name={accessibilityLabel ?? label?.replace(/:\s*$/, '') ?? labels.date}
       spoken={p.label}
       accent={accent}
       rulerWidth={fontSize * 7}
@@ -381,14 +394,16 @@ interface RulerOptions {
 function useRuler({ gap, haptics, sound, lo = -Infinity, hi = Infinity, firm, onStep }: RulerOptions) {
   const reduce = useReduceMotion();
   const tick = useTickSound(sound);
-  const pos = useRef(new Animated.Value(0)).current;
-  const lag = useRef(new Animated.Value(0)).current;
+  const [pos] = useState(() => new Animated.Value(0));
+  const [lag] = useState(() => new Animated.Value(0));
   const index = useRef(0);
   const posNow = useRef(0);
   const moving = useRef(false);
   const flinging = useRef(false);
   const live = useRef({ gap, haptics, lo, hi, firm, onStep, tick });
-  live.current = { gap, haptics, lo, hi, firm, onStep, tick };
+  useLayoutEffect(() => {
+    live.current = { gap, haptics, lo, hi, firm, onStep, tick };
+  });
   const lagMax = gap * 2.5;
 
   const snap = (to: number) => {
@@ -398,7 +413,9 @@ function useRuler({ gap, haptics, sound, lo = -Infinity, hi = Infinity, firm, on
     });
   };
   const snapRef = useRef(snap);
-  snapRef.current = snap;
+  useLayoutEffect(() => {
+    snapRef.current = snap;
+  });
   const settle = (v: number) => clamp(Math.round(v), live.current.lo, live.current.hi);
 
   useEffect(() => {
@@ -428,46 +445,43 @@ function useRuler({ gap, haptics, sound, lo = -Infinity, hi = Infinity, firm, on
   // Where the ruler was when the finger came down (g.dx counts from the touch, so the ruler stays
   // under the finger even though a sideways drag is claimed a few points in).
   const drag = useRef(0);
-  const pan = useMemo(() => {
-    const unlag = () => Animated.spring(lag, { toValue: 0, useNativeDriver: true, ...motion.gentle }).start();
-    return PanResponder.create({
-      // A touch only claims the ruler straight away to catch a fling; otherwise a sideways drag does.
-      onStartShouldSetPanResponder: () => moving.current,
-      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy),
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: (_, g) => {
+  const unlag = () => Animated.spring(lag, { toValue: 0, useNativeDriver: true, ...motion.gentle }).start();
+  const pan = usePanResponder({
+    // A touch only claims the ruler straight away to catch a fling; otherwise a sideways drag does.
+    onStartShouldSetPanResponder: () => moving.current,
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 4 && Math.abs(g.dx) > Math.abs(g.dy),
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderGrant: (_, g) => {
+      flinging.current = false;
+      pos.stopAnimation((v) => (posNow.current = v));
+      lag.stopAnimation();
+      moving.current = true;
+      drag.current = posNow.current + g.dx / live.current.gap;
+    },
+    onPanResponderMove: (_, g) => {
+      const { lo: min, hi: max, gap: px } = live.current;
+      const raw = drag.current - g.dx / px;
+      pos.setValue(raw < min ? min - (min - raw) * RUBBER : raw > max ? max + (raw - max) * RUBBER : raw);
+      lag.setValue(clamp(-g.vx * 14, -lagMax, lagMax));
+    },
+    onPanResponderRelease: (_, g) => {
+      unlag();
+      const { lo: min, hi: max, gap: px } = live.current;
+      const velocity = -g.vx / px; // ticks per ms
+      const outside = posNow.current < min || posNow.current > max;
+      if (outside || Math.abs(velocity) < 0.03) return snapRef.current(settle(posNow.current));
+      flinging.current = true;
+      Animated.decay(pos, { velocity, deceleration: 0.993, useNativeDriver: true }).start(({ finished }) => {
+        if (!finished || !flinging.current) return;
         flinging.current = false;
-        pos.stopAnimation((v) => (posNow.current = v));
-        lag.stopAnimation();
-        moving.current = true;
-        drag.current = posNow.current + g.dx / live.current.gap;
-      },
-      onPanResponderMove: (_, g) => {
-        const { lo: min, hi: max, gap: px } = live.current;
-        const raw = drag.current - g.dx / px;
-        pos.setValue(raw < min ? min - (min - raw) * RUBBER : raw > max ? max + (raw - max) * RUBBER : raw);
-        lag.setValue(clamp(-g.vx * 14, -lagMax, lagMax));
-      },
-      onPanResponderRelease: (_, g) => {
-        unlag();
-        const { lo: min, hi: max, gap: px } = live.current;
-        const velocity = -g.vx / px; // ticks per ms
-        const outside = posNow.current < min || posNow.current > max;
-        if (outside || Math.abs(velocity) < 0.03) return snapRef.current(settle(posNow.current));
-        flinging.current = true;
-        Animated.decay(pos, { velocity, deceleration: 0.993, useNativeDriver: true }).start(({ finished }) => {
-          if (!finished || !flinging.current) return;
-          flinging.current = false;
-          pos.stopAnimation((v) => snapRef.current(settle(v)));
-        });
-      },
-      onPanResponderTerminate: () => {
-        unlag();
-        snapRef.current(settle(posNow.current));
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pos, lag]);
+        pos.stopAnimation((v) => snapRef.current(settle(v)));
+      });
+    },
+    onPanResponderTerminate: () => {
+      unlag();
+      snapRef.current(settle(posNow.current));
+    },
+  });
 
   const [width, setWidth] = useState(0);
   return {
@@ -515,15 +529,15 @@ function useGlyph(fontSize: number, textStyle?: StyleProp<TextStyle>) {
 
 interface FrameProps {
   ruler: Ruler;
-  label?: string;
+  label?: string | undefined;
   name: string;
   spoken: string;
-  accent?: string;
+  accent?: string | undefined;
   rulerWidth: number;
   /** Extra height under the ticks (month labels). */
-  extra?: number;
+  extra?: number | undefined;
   marks?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
   children: React.ReactNode;
 }
 
@@ -540,7 +554,7 @@ function Frame({ ruler, label, name, spoken, accent, rulerWidth, extra = 0, mark
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => ruler.nudge(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
       style={[styles.root, styles.grab, style]}
-      {...ruler.pan.panHandlers}
+      {...ruler.pan}
     >
       {label ? <Text style={[styles.label, { color: colors.foreground, fontFamily: font.family }]}>{label}</Text> : null}
       {children}
@@ -561,7 +575,8 @@ function Frame({ ruler, label, name, spoken, accent, rulerWidth, extra = 0, mark
 }
 
 /** Ticks fade out toward both ends of the ruler. */
-function fade(x: Animated.AnimatedInterpolation<number> | Animated.AnimatedMultiplication<number>, half: number, gap: number) {
+// ReturnType keeps this compiling on React Native 0.86 (generic AnimatedMultiplication) and 0.88+ (not generic).
+function fade(x: Animated.AnimatedInterpolation<number> | ReturnType<typeof Animated.multiply>, half: number, gap: number) {
   return x.interpolate({
     inputRange: [-half, -half * 0.55, -gap * 2, 0, gap * 2, half * 0.55, half],
     outputRange: [0, 0.35, 0.85, 1, 0.85, 0.35, 0],
@@ -622,7 +637,7 @@ interface MonthMarksProps {
   months: { i: number; name: string }[];
   tick: string;
   text: string;
-  family?: string;
+  family?: string | undefined;
 }
 
 /** A taller tick and the month's name under the 1st of each month, riding the ruler natively. */
@@ -669,7 +684,7 @@ const GHOSTS: [number, number][] = Array.from({ length: 7 }, (_, i) => {
  * the other side, both smeared by ghost copies that fade as the roll settles.
  */
 const Roll = React.memo(function Roll({ text, dir, height, style, reduce }: RollProps) {
-  const t = useRef(new Animated.Value(1)).current;
+  const [t] = useState(() => new Animated.Value(1));
   const last = useRef(text);
   const [pair, setPair] = useState({ prev: text, cur: text, dir });
 
@@ -776,6 +791,7 @@ function useTickSound(enabled: boolean) {
     if (!pool.current.length || now - state.current.last < 25) return;
     state.current.last = now;
     const player = pool.current[state.current.next++ % pool.current.length];
+    if (!player) return;
     player.volume = firm ? 0.9 : 0.5;
     player.seekTo(0).catch(() => {});
     player.play();

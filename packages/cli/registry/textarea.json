@@ -4,6 +4,7 @@
   "title": "Textarea",
   "description": "Multiline field that glides taller line by line between minRows and maxRows, with a floating label, a focus halo, animated error / success states, a counter that morphs into a progress ring (amber at 90%, red at the limit) and a toolbar slot for chat composers.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

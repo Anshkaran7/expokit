@@ -1,9 +1,9 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, PanResponder, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, usePanResponder } from '@/lib/kit';
 
 export type SwitchVariant = 'ios' | 'material' | 'icon';
 export type SwitchSize = 'sm' | 'md' | 'lg';
@@ -85,12 +85,12 @@ export function Switch({
   const growH = material ? 4 : 0;
 
   // pos + stretch drive layout and colours (JS driver). glyph drives the icons, halo the glow (native driver).
-  const pos = useRef(new Animated.Value(on ? 1 : 0)).current;
-  const stretch = useRef(new Animated.Value(0)).current;
-  const glyph = useRef(new Animated.Value(on ? 1 : 0)).current;
-  const halo = useRef(new Animated.Value(0)).current;
+  const [pos] = useState(() => new Animated.Value(on ? 1 : 0));
+  const [stretch] = useState(() => new Animated.Value(0));
+  const [glyph] = useState(() => new Animated.Value(on ? 1 : 0));
+  const [halo] = useState(() => new Animated.Value(0));
   // Reduce Motion: the thumb jumps, so the colours follow this instead and still fade (JS driver).
-  const tone = useRef(new Animated.Value(on ? 1 : 0)).current;
+  const [tone] = useState(() => new Animated.Value(on ? 1 : 0));
 
   useEffect(() => {
     const to = on ? 1 : 0;
@@ -119,7 +119,9 @@ export function Switch({
   // A touch that never moves is a tap and just toggles. On web the wrapping Pressable also
   // gets a click after the gesture, so it ignores presses right after one (`endedAt`).
   const live = useRef({ on, toggle, travel: c1 - c0, reduce });
-  live.current = { on, toggle, travel: c1 - c0, reduce };
+  useLayoutEffect(() => {
+    live.current = { on, toggle, travel: c1 - c0, reduce };
+  });
 
   // Halo: 0 hidden · 1 held (glow around the thumb) · 2 released (expands and fades out).
   // Reduce Motion: no squash & stretch, and the halo only fades (its scale is pinned below).
@@ -137,38 +139,33 @@ export function Switch({
     else Animated.spring(pos, { toValue: to, useNativeDriver: false, ...motion.snappy }).start();
   };
   const drag = useRef({ from: 0, moved: false, endedAt: 0 });
-  const responder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onMoveShouldSetPanResponder: () => true,
-        onPanResponderTerminationRequest: () => !drag.current.moved,
-        onPanResponderGrant: () => {
-          pos.stopAnimation();
-          drag.current = { from: live.current.on ? 1 : 0, moved: false, endedAt: 0 };
-          press(1);
-        },
-        onPanResponderMove: (_, g) => {
-          if (Math.abs(g.dx) > 3) drag.current.moved = true;
-          if (drag.current.moved) pos.setValue(clamp01(drag.current.from + g.dx / live.current.travel));
-        },
-        onPanResponderRelease: (_, g) => {
-          const { on: now, toggle: flip } = live.current;
-          drag.current.endedAt = Date.now();
-          press(0);
-          if (!drag.current.moved) return flip();
-          const next = clamp01(drag.current.from + g.dx / live.current.travel) > 0.5;
-          settle(next ? 1 : 0);
-          if (next !== now) flip();
-        },
-        onPanResponderTerminate: () => {
-          press(0);
-          settle(live.current.on ? 1 : 0);
-        },
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  const responder = usePanResponder({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderTerminationRequest: () => !drag.current.moved,
+    onPanResponderGrant: () => {
+      pos.stopAnimation();
+      drag.current = { from: live.current.on ? 1 : 0, moved: false, endedAt: 0 };
+      press(1);
+    },
+    onPanResponderMove: (_, g) => {
+      if (Math.abs(g.dx) > 3) drag.current.moved = true;
+      if (drag.current.moved) pos.setValue(clamp01(drag.current.from + g.dx / live.current.travel));
+    },
+    onPanResponderRelease: (_, g) => {
+      const { on: now, toggle: flip } = live.current;
+      drag.current.endedAt = Date.now();
+      press(0);
+      if (!drag.current.moved) return flip();
+      const next = clamp01(drag.current.from + g.dx / live.current.travel) > 0.5;
+      settle(next ? 1 : 0);
+      if (next !== now) flip();
+    },
+    onPanResponderTerminate: () => {
+      press(0);
+      settle(live.current.on ? 1 : 0);
+    },
+  });
   const base = pos.interpolate({ inputRange: [0, 1], outputRange: [dOff, dOn], extrapolate: 'clamp' });
   const thumbW = Animated.add(base, Animated.multiply(stretch, stretchW));
   const thumbH = Animated.add(base, Animated.multiply(stretch, growH));
@@ -201,7 +198,7 @@ export function Switch({
 
   const control = (
     <Animated.View
-      {...(disabled ? null : responder.panHandlers)}
+      {...(disabled ? null : responder)}
       style={[
         styles.track,
         { width: W, height: H, borderRadius: H / 2, backgroundColor: trackBg },

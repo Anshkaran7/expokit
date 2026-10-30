@@ -4,6 +4,7 @@
   "title": "Switch",
   "description": "A toggle whose thumb stretches toward the other side while you hold it (squash & stretch), drags across under your finger and throws a soft halo as it springs over, while the track cross-fades. iOS, Material 3 and sun/moon icon looks.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

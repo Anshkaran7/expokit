@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { motion } from '@/lib/kit';
+import { motion, useKit } from '@/lib/kit';
 
 export type FlipDirection = 'horizontal' | 'vertical';
 export type FlipTrigger = 'press' | 'none';
@@ -32,7 +32,7 @@ export interface FlipCardProps {
   progress?: Animated.Value;
   /** Accessibility label; the hint says which side is showing. */
   accessibilityLabel?: string;
-  /** Screen-reader hints (defaults in English). */
+  /** Screen-reader hints (default: the kit's `labels.flipToBack` / `labels.flipToFront`). */
   labels?: { toBack?: string; toFront?: string };
   style?: StyleProp<ViewStyle>;
 }
@@ -52,7 +52,7 @@ const SQUEEZE = {
  */
 export function useFlipProgress(flipped: boolean) {
   const reduce = useReduceMotion();
-  const progress = useRef(new Animated.Value(flipped ? 1 : 0)).current;
+  const [progress] = useState(() => new Animated.Value(flipped ? 1 : 0));
   useEffect(() => {
     if (reduce) progress.setValue(flipped ? 1 : 0);
     else Animated.spring(progress, { toValue: flipped ? 1 : 0, ...motion.gentle, useNativeDriver: true }).start();
@@ -81,6 +81,7 @@ export function FlipCard({
   labels,
   style,
 }: FlipCardProps) {
+  const kitLabels = useKit().labels;
   const controlled = flippedProp !== undefined;
   const [own, setOwn] = useState(defaultFlipped);
   const flipped = controlled ? flippedProp : own;
@@ -177,7 +178,7 @@ export function FlipCard({
       onPress={toggle}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityHint={flipped ? (labels?.toFront ?? 'Showing the back. Tap to flip to the front.') : (labels?.toBack ?? 'Tap to flip to the back.')}
+      accessibilityHint={flipped ? (labels?.toFront ?? kitLabels.flipToFront) : (labels?.toBack ?? kitLabels.flipToBack)}
       accessibilityState={{ expanded: flipped }}
       style={style}
     >

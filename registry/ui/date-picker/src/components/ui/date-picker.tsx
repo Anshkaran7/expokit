@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
   Easing,
   Modal,
-  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,7 +25,7 @@ import {
   type CalendarProps,
   type DateRange,
 } from '@/components/ui/calendar';
-import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
+import { alpha, defaultLabels, motion, readableOn, useKit, useLayout, usePanResponder, type Labels } from '@/lib/kit';
 
 export type { DateRange } from '@/components/ui/calendar';
 export type DatePickerSize = 'sm' | 'md' | 'lg';
@@ -148,40 +147,40 @@ const EMPTY_RANGE: DateRange = { start: null, end: null };
 
 const isRange = (v: Picked): v is DateRange => !!v && !(v instanceof Date);
 
-/** Built-in single-date shortcuts, computed relative to now. */
-export function singleDatePresets(): DatePickerPreset<Date>[] {
+/** Built-in single-date shortcuts, computed relative to now. Pass `useKit().labels` for translated names. */
+export function singleDatePresets(labels: Labels = defaultLabels): DatePickerPreset<Date>[] {
   const today = () => startOfDay(new Date());
   return [
-    { label: 'Today', value: today },
-    { label: 'Tomorrow', value: () => addDays(today(), 1) },
-    { label: 'Next Monday', value: () => addDays(today(), ((8 - today().getDay()) % 7) || 7) },
-    { label: 'In a week', value: () => addDays(today(), 7) },
-    { label: 'In a month', value: () => new Date(today().getFullYear(), today().getMonth() + 1, today().getDate()) },
+    { label: labels.today, value: today },
+    { label: labels.tomorrow, value: () => addDays(today(), 1) },
+    { label: labels.nextMonday, value: () => addDays(today(), ((8 - today().getDay()) % 7) || 7) },
+    { label: labels.inAWeek, value: () => addDays(today(), 7) },
+    { label: labels.inAMonth, value: () => new Date(today().getFullYear(), today().getMonth() + 1, today().getDate()) },
   ];
 }
 
-/** Built-in range shortcuts, computed relative to now. */
-export function rangeDatePresets(): DatePickerPreset<DateRange>[] {
+/** Built-in range shortcuts, computed relative to now. Pass `useKit().labels` for translated names. */
+export function rangeDatePresets(labels: Labels = defaultLabels): DatePickerPreset<DateRange>[] {
   const today = () => startOfDay(new Date());
   return [
-    { label: 'Today', value: () => ({ start: today(), end: today() }) },
-    { label: 'Next 7 days', value: () => ({ start: today(), end: addDays(today(), 6) }) },
+    { label: labels.today, value: () => ({ start: today(), end: today() }) },
+    { label: labels.next7Days, value: () => ({ start: today(), end: addDays(today(), 6) }) },
     {
-      label: 'Next weekend',
+      label: labels.nextWeekend,
       value: () => {
         const sat = addDays(today(), ((6 - today().getDay() + 7) % 7) || 7);
         return { start: sat, end: addDays(sat, 1) };
       },
     },
     {
-      label: 'This month',
+      label: labels.thisMonth,
       value: () => {
         const t = today();
         return { start: new Date(t.getFullYear(), t.getMonth(), 1), end: new Date(t.getFullYear(), t.getMonth() + 1, 0) };
       },
     },
-    { label: 'Last 7 days', value: () => ({ start: addDays(today(), -6), end: today() }) },
-    { label: 'Last 30 days', value: () => ({ start: addDays(today(), -29), end: today() }) },
+    { label: labels.last7Days, value: () => ({ start: addDays(today(), -6), end: today() }) },
+    { label: labels.last30Days, value: () => ({ start: addDays(today(), -29), end: today() }) },
   ];
 }
 
@@ -231,7 +230,7 @@ export function DatePicker(props: DatePickerProps) {
     iconColor,
     menuStyle,
   } = props as unknown as FlatProps;
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const bg = surface ?? colors.background;
@@ -249,7 +248,9 @@ export function DatePicker(props: DatePickerProps) {
   const reduce = useReduceMotion();
   // The pan responder is built once; it reads Reduce Motion through this ref.
   const live = useRef({ reduce });
-  live.current = { reduce };
+  useLayoutEffect(() => {
+    live.current = { reduce };
+  });
 
   const [inner, setInner] = useState<Picked>(defaultValue);
   const current = value !== undefined ? value : inner;
@@ -265,13 +266,13 @@ export function DatePicker(props: DatePickerProps) {
 
   const ok = !error && !!success;
   const floating = open || hasValue;
-  const float = useRef(new Animated.Value(floating ? 1 : 0)).current; // native
-  const focus = useRef(new Animated.Value(0)).current; // JS: border + label colour
-  const halo = useRef(new Animated.Value(0)).current; // native
-  const show = useRef(new Animated.Value(0)).current; // native: backdrop + sheet
-  const drag = useRef(new Animated.Value(0)).current; // native
-  const shake = useRef(new Animated.Value(0)).current; // native
-  const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
+  const [float] = useState(() => new Animated.Value(floating ? 1 : 0)); // native
+  const [focus] = useState(() => new Animated.Value(0)); // JS: border + label colour
+  const [halo] = useState(() => new Animated.Value(0)); // native
+  const [show] = useState(() => new Animated.Value(0)); // native: backdrop + sheet
+  const [drag] = useState(() => new Animated.Value(0)); // native
+  const [shake] = useState(() => new Animated.Value(0)); // native
+  const [check] = useState(() => new Animated.Value(ok ? 1 : 0)); // native
 
   const asSheet = presentation !== 'popover';
   // Centred dialog instead of a bottom sheet: on foldables, tablets and landscape phones.
@@ -401,9 +402,9 @@ export function DatePicker(props: DatePickerProps) {
 
   const presetList = useMemo<DatePickerPreset<Picked>[]>(() => {
     if (!presets) return [];
-    if (presets === true) return (ranged ? rangeDatePresets() : singleDatePresets()) as DatePickerPreset<Picked>[];
+    if (presets === true) return (ranged ? rangeDatePresets(labels) : singleDatePresets(labels)) as DatePickerPreset<Picked>[];
     return presets;
-  }, [presets, ranged]);
+  }, [presets, ranged, labels]);
   const resolve = (p: DatePickerPreset<Picked>) => (typeof p.value === 'function' ? p.value() : p.value);
   const presetOk = (v: Picked) => {
     const ds = isRange(v) ? [v.start, v.end] : [v];
@@ -414,23 +415,21 @@ export function DatePicker(props: DatePickerProps) {
   const same = (a: Picked, b: Picked) =>
     isRange(a) && isRange(b) ? isSameDay(a.start, b.start) && isSameDay(a.end, b.end) : !isRange(a) && !isRange(b) && isSameDay(a, b);
 
-  const pan = useMemo(() => {
-    const settle = () =>
-      live.current.reduce
-        ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
-        : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
-    return PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-      onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
-      onPanResponderRelease: (_, g) => {
-        if (g.dy > 110 || g.vy > 1.1) {
-          setOpen(false);
-          onOpenChange?.(false);
-        } else settle();
-      },
-      onPanResponderTerminate: settle,
-    });
-  }, [drag, onOpenChange]);
+  const settle = () =>
+    reduce
+      ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
+      : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
+  const pan = usePanResponder({
+    onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+    onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
+    onPanResponderRelease: (_, g) => {
+      if (g.dy > 110 || g.vy > 1.1) {
+        setOpen(false);
+        onOpenChange?.(false);
+      } else settle();
+    },
+    onPanResponderTerminate: settle,
+  });
 
   const active = error ? colors.danger : tint;
   const rest = error ? colors.danger : ok ? colors.success : ((userBorder as string | undefined) ?? colors.input);
@@ -451,8 +450,8 @@ export function DatePicker(props: DatePickerProps) {
 
   const subtitle = isRange(draft)
     ? draft.start
-      ? `${fmt.header(draft.start)}  →  ${draft.end ? fmt.header(draft.end) : 'pick an end date'}`
-      : 'Pick a start date'
+      ? `${fmt.header(draft.start)}  →  ${draft.end ? fmt.header(draft.end) : labels.pickEndDate}`
+      : labels.pickStartDate
     : draft
       ? fmt.header(draft)
       : placeholder ?? null;
@@ -520,7 +519,7 @@ export function DatePicker(props: DatePickerProps) {
             style={({ pressed }) => [styles.footBtn, { borderRadius: radius.md, opacity: draft ? (pressed ? 0.6 : 1) : 0.4 }]}
           >
             <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>
-              Clear
+              {labels.clear}
             </Text>
           </Pressable>
           <Pressable
@@ -529,7 +528,7 @@ export function DatePicker(props: DatePickerProps) {
             style={({ pressed }) => [styles.footBtn, styles.footMain, { backgroundColor: tint, borderRadius: radius.md, opacity: pressed ? 0.85 : 1 }]}
           >
             <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: readableOn(tint) }]}>
-              {draftDays > 1 ? `Done · ${draftDays} days` : 'Done'}
+              {draftDays > 1 ? labels.doneDays(draftDays) : labels.done}
             </Text>
           </Pressable>
         </View>
@@ -569,7 +568,7 @@ export function DatePicker(props: DatePickerProps) {
         disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityValue={{ text: text || 'Not set' }}
+        accessibilityValue={{ text: text || labels.notSet }}
         accessibilityState={{ expanded: open, disabled: !!disabled }}
         style={{ opacity: disabled ? 0.5 : 1 }}
       >
@@ -597,7 +596,7 @@ export function DatePicker(props: DatePickerProps) {
               !text && { color: placeholderTextColor ?? colors.mutedForeground },
             ]}
           >
-            {text || (open || !floatingLabel ? placeholder ?? (ranged ? 'Select dates' : 'Select a date') : '')}
+            {text || (open || !floatingLabel ? placeholder ?? (ranged ? labels.selectDates : labels.selectDate) : '')}
           </Text>
           {floatingLabel ? (
             <Animated.View
@@ -637,7 +636,7 @@ export function DatePicker(props: DatePickerProps) {
                 onPress={() => commit(null)}
                 hitSlop={12}
                 accessibilityRole="button"
-                accessibilityLabel={`Clear ${label}`}
+                accessibilityLabel={labels.clearField(label)}
                 style={[styles.clear, { backgroundColor: alpha(restIcon, 0.22) }]}
               >
                 <Icon name="x" size={11} color={iconColor ?? colors.foreground} strokeWidth={2.4} />
@@ -651,7 +650,7 @@ export function DatePicker(props: DatePickerProps) {
 
       <Modal visible={mounted} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: asSheet ? colors.overlay : 'transparent', opacity: show }]}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Close" accessibilityRole="button" />
+          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel={labels.close} accessibilityRole="button" />
         </Animated.View>
         {asSheet ? (
           <View style={[styles.sheetHost, wide && styles.centered]} pointerEvents="box-none">
@@ -679,7 +678,7 @@ export function DatePicker(props: DatePickerProps) {
                     },
               ]}
             >
-              <View {...pan.panHandlers} style={styles.sheetHeader}>
+              <View {...pan} style={styles.sheetHeader}>
                 {!wide ? <View style={[styles.grabber, { backgroundColor: colors.border }]} /> : null}
                 <Text style={[styles.title, ff, { color: colors.foreground }]}>{title ?? label}</Text>
                 {subtitle ? (
@@ -737,7 +736,7 @@ function FieldMessage({
   style?: StyleProp<TextStyle>;
 }) {
   const { colors, font } = useKit();
-  const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
+  const [enter] = useState(() => new Animated.Value(tone === 'helper' ? 1 : 0)); // native
   useEffect(() => {
     if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
     else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();

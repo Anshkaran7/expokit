@@ -4,6 +4,7 @@
   "title": "Coupon",
   "description": "Coupons people actually want to tap — a vivid value panel (sunburst, confetti, waves…) joined to a details panel by a perforated tear line with real cut-outs. Ten themes, five outlines (ticket, stamp, receipt, scallop, cut-out), copyable code, Apply button, live countdown, applied / used / expired / locked states, a light sweep, and an optional 3D tilt with a holo sheen that flips over to the T&C.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

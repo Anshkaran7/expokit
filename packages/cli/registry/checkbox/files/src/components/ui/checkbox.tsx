@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
@@ -46,9 +46,9 @@ export function Checkbox({
   const [inner, setInner] = useState(defaultChecked);
   const on = checked ?? inner;
 
-  const progress = useRef(new Animated.Value(on ? 1 : 0)).current; // fill + tick (JS: drives svg + colour)
-  const press = useRef(new Animated.Value(1)).current;
-  const burst = useRef(new Animated.Value(0)).current;
+  const [progress] = useState(() => new Animated.Value(on ? 1 : 0)); // fill + tick (JS: drives svg + colour)
+  const [press] = useState(() => new Animated.Value(1));
+  const [burst] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     // Reduce Motion: a short fill fade, no burst ring and no press squish.

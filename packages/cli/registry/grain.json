@@ -4,14 +4,16 @@
   "title": "Grain Gradient",
   "description": "A soft mesh-style gradient — a base colour with blurred colour blobs — finished with real film grain. Twelve palettes or your own colours. Use it as a screen or card background, or behind glass so there is something to refract. GrainOverlay adds the same grain to anything, photos included.",
   "tier": "free",
+  "aliases": [
+    "grain-gradient",
+    "gradient",
+    "mesh-gradient",
+    "noise"
+  ],
   "dependencies": [
     "react-native-svg"
   ],
-  "registryDependencies": [
-    "kit"
-  ],
-  "sharedFiles": [
-    "lib/kit.tsx"
-  ],
+  "registryDependencies": [],
+  "sharedFiles": [],
   "filesDir": "grain/files"
 }

@@ -4,17 +4,16 @@
   "title": "Alert",
   "description": "Inline banner with a living icon that draws itself inside a halo, a soft light-leak glow of its tone, and primary + secondary actions. Optional auto-dismiss shows the time left as a hairline draining along the bottom (pauses while touched), and on dismiss it collapses smoothly so content below glides up.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"
   ],
   "registryDependencies": [
-    "kit",
-    "button"
+    "kit"
   ],
   "sharedFiles": [
-    "lib/kit.tsx",
-    "components/ui/button.tsx"
+    "lib/kit.tsx"
   ],
   "filesDir": "alert/files"
 }

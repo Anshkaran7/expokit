@@ -72,16 +72,16 @@ export function BadgeIcon({ name, color, size = 22 }: { name: BadgeIconName; col
 
 export interface BadgeIconTileProps {
   /** Built-in icon name. */
-  name?: BadgeIconName;
+  name?: BadgeIconName | undefined;
   /** Your own icon node — overrides `name`. */
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | undefined;
   /** Tile size in points (default 48). */
-  size?: number;
+  size?: number | undefined;
   /** Glyph colour (default: foreground). */
-  color?: string;
+  color?: string | undefined;
   /** Tile background (default: muted). */
-  backgroundColor?: string;
-  style?: StyleProp<ViewStyle>;
+  backgroundColor?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /** Rounded square anchor for `NotificationBadge` — pass a built-in `name` or your own `icon`. */
@@ -114,23 +114,23 @@ export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: BadgeVariant;
-  tone?: BadgeTone;
-  size?: BadgeSize;
+  variant?: BadgeVariant | undefined;
+  tone?: BadgeTone | undefined;
+  size?: BadgeSize | undefined;
   /** Custom colour — overrides `tone`. */
-  color?: string;
+  color?: string | undefined;
   /** Icon or emoji before the label. */
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | undefined;
   /** 'pill' (default) or 'rounded' corners. */
-  shape?: 'pill' | 'rounded';
+  shape?: 'pill' | 'rounded' | undefined;
   /** Pulse the leading dot (dot variant) — "live" states. */
-  pulse?: boolean;
+  pulse?: boolean | undefined;
   /**
    * When the label, icon or colour changes: roll the old label up and the new one in, pop the icon,
    * cross-fade the colours and spring the width (default true). Never animates on mount.
    */
-  animateChanges?: boolean;
-  style?: StyleProp<ViewStyle>;
+  animateChanges?: boolean | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const SIZES: Record<BadgeSize, { h: number; px: number; font: number; dot: number; gap: number }> = {
@@ -296,7 +296,7 @@ export function Badge({
   const s = SIZES[size];
   const c = color ?? toneColor(colors, tone);
   const neutral = !color && tone === 'neutral';
-  const pulseV = useRef(new Animated.Value(0)).current;
+  const [pulseV] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     if (!pulse || variant !== 'dot') return;
@@ -328,9 +328,9 @@ export function Badge({
   const [change, setChange] = useState<Change | null>(null);
   // While set, the pill keeps this width (number), then springs (Animated.Value) to the new content.
   const [pin, setPin] = useState<number | Animated.Value | null>(null);
-  const natural = useRef<number | null>(null);
+  const [natural, setNatural] = useState<number | null>(null);
   const rowWidth = useRef<number | null>(null);
-  const widthV = useRef(new Animated.Value(0)).current;
+  const [widthV] = useState(() => new Animated.Value(0));
   const flat = flattenView(style);
   const canSize = flat.width == null && flat.minWidth == null && flat.flex == null && flat.flexGrow == null && flat.alignSelf !== 'stretch';
 
@@ -351,7 +351,7 @@ export function Badge({
     }
     const animated = !!(next.text || next.icon || next.look);
     setChange(animated ? next : null);
-    setPin(animated && (textChanged || iconChanged) && canSize && natural.current != null ? natural.current : null);
+    setPin(animated && (textChanged || iconChanged) && canSize && natural != null ? natural : null);
   }
 
   // Fresh values per change, so the first frame of a transition already sits at its start.
@@ -381,7 +381,7 @@ export function Badge({
   }, [change, anim]);
 
   const onRoot = (e: LayoutChangeEvent) => {
-    if (pin == null) natural.current = e.nativeEvent.layout.width;
+    if (pin == null) setNatural(e.nativeEvent.layout.width);
   };
   // The icon + label row remounts on every change, so this always reports the new content's width.
   const onRow = (e: LayoutChangeEvent) => {
@@ -395,7 +395,7 @@ export function Badge({
     }
     const to = Math.max(0, pin + (w - prev));
     widthV.setValue(pin);
-    natural.current = to;
+    setNatural(to);
     setPin(widthV);
     Animated.spring(widthV, { toValue: to, useNativeDriver: false, ...motion.snappy }).start(({ finished }) => {
       if (finished) setPin((p) => (p === widthV ? null : p));
@@ -514,20 +514,20 @@ export function Badge({
 
 export interface NotificationBadgeProps {
   /** The number to show. 0 hides the badge (unless `showZero`). */
-  count?: number;
+  count?: number | undefined;
   /** Above this, show "99+". */
-  max?: number;
+  max?: number | undefined;
   /** Just a dot, no number. */
-  dot?: boolean;
-  showZero?: boolean;
-  tone?: BadgeTone;
-  color?: string;
-  size?: 'sm' | 'md';
+  dot?: boolean | undefined;
+  showZero?: boolean | undefined;
+  tone?: BadgeTone | undefined;
+  color?: string | undefined;
+  size?: 'sm' | 'md' | undefined;
   /** What the badge sits on (icon, avatar, button). Omit to render the badge inline. */
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
   /** Nudge the badge from the top-right corner: [x, y] in points. */
-  offset?: [number, number];
-  style?: StyleProp<ViewStyle>;
+  offset?: [number, number] | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /** Count bubble that springs in, pops every time the number changes, and shrinks away at zero. */
@@ -551,12 +551,12 @@ export function NotificationBadge({
 
   // Keep the last number on screen while it shrinks away.
   const [shown, setShown] = useState(count);
-  const show = useRef(new Animated.Value(visible ? 1 : 0)).current;
-  const pop = useRef(new Animated.Value(1)).current;
+  const [show] = useState(() => new Animated.Value(visible ? 1 : 0));
+  const [pop] = useState(() => new Animated.Value(1));
   const prev = useRef(count);
+  if (visible && shown !== count) setShown(count);
 
   useEffect(() => {
-    if (visible) setShown(count);
     Animated.spring(show, { toValue: visible ? 1 : 0, useNativeDriver: true, ...motion.bouncy }).start();
     if (visible && prev.current !== count && prev.current > 0) {
       pop.setValue(1.35);

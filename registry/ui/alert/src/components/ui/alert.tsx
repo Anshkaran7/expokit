@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -61,6 +61,8 @@ export interface AlertProps {
   haptics?: boolean;
   /** Override the tone colour. */
   color?: string;
+  /** Screen-reader name of the dismiss button (default: the kit's `labels.dismiss`). */
+  dismissLabel?: string;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -90,9 +92,10 @@ export function Alert({
   duration,
   haptics = false,
   color,
+  dismissLabel,
   style,
 }: AlertProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduceMotion = useReduceMotion();
@@ -111,24 +114,29 @@ export function Alert({
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [animating, setAnimating] = useState(false);
   const [gone, setGone] = useState(!open);
+  if (open && gone) setGone(false);
 
   // Native: card life, icon glyph pop, halo ripple, timer drain. JS: wrapper height, icon outline draw.
-  const life = useRef(new Animated.Value(0)).current;
-  const size = useRef(new Animated.Value(open ? 1 : 0)).current;
-  const draw = useRef(new Animated.Value(0)).current;
-  const glyph = useRef(new Animated.Value(0)).current;
-  const ripple = useRef(new Animated.Value(0)).current;
-  const drain = useRef(new Animated.Value(1)).current;
+  const [life] = useState(() => new Animated.Value(0));
+  const [size] = useState(() => new Animated.Value(open ? 1 : 0));
+  const [draw] = useState(() => new Animated.Value(0));
+  const [glyph] = useState(() => new Animated.Value(0));
+  const [ripple] = useState(() => new Animated.Value(0));
+  const [drain] = useState(() => new Animated.Value(1));
   const first = useRef(true);
   const reduceRef = useRef(reduceMotion);
-  reduceRef.current = reduceMotion;
+  useLayoutEffect(() => {
+    reduceRef.current = reduceMotion;
+  });
 
   const dismiss = () => {
     if (visible === undefined) setInner(false);
     onDismiss?.();
   };
   const dismissRef = useRef(dismiss);
-  dismissRef.current = dismiss;
+  useLayoutEffect(() => {
+    dismissRef.current = dismiss;
+  });
 
   const playIcon = () => {
     if (reduceRef.current) {
@@ -173,7 +181,6 @@ export function Alert({
     }
     setAnimating(true);
     if (open) {
-      setGone(false);
       playIcon();
       buzz();
       Animated.parallel([
@@ -302,7 +309,7 @@ export function Alert({
   const closeNode = dismissible ? (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Dismiss"
+      accessibilityLabel={dismissLabel ?? labels.dismiss}
       hitSlop={8}
       onPress={dismiss}
       style={({ pressed }) => [

@@ -20,30 +20,30 @@ export type ProgressVariant = 'linear' | 'circular' | 'steps';
 export type ProgressSize = 'sm' | 'md' | 'lg';
 
 export interface ProgressProps {
-  variant?: ProgressVariant;
+  variant?: ProgressVariant | undefined;
   /** Current value, 0 → `max`. For `steps`, the number of completed steps. Omit for indeterminate. */
-  value?: number;
+  value?: number | undefined;
   /** Upper bound (default 100, or `steps` for the steps variant). */
-  max?: number;
+  max?: number | undefined;
   /** Sweeping / spinning animation when progress is unknown. Also implied by an undefined `value`. */
-  indeterminate?: boolean;
+  indeterminate?: boolean | undefined;
   /** Number of segments for the `steps` variant (default 4). */
-  steps?: number;
-  size?: ProgressSize;
+  steps?: number | undefined;
+  size?: ProgressSize | undefined;
   /** Fill colour (default: theme accent). Fills are solid; tracks and glows are tints of it. */
-  color?: string;
-  trackColor?: string;
+  color?: string | undefined;
+  trackColor?: string | undefined;
   /** Caption above a linear / steps bar, or under the ring. */
-  label?: string;
+  label?: string | undefined;
   /** Show the percentage (linear: right of the label, circular: in the middle). */
-  showValue?: boolean;
+  showValue?: boolean | undefined;
   /** Custom text in place of the percentage. */
-  formatValue?: (value: number, max: number) => string;
+  formatValue?: ((value: number, max: number) => string) | undefined;
   /** Reaching `max` flashes the fill and turns the value into a drawn check (default true). */
-  celebrate?: boolean;
+  celebrate?: boolean | undefined;
   /** Animated diagonal stripes on the linear fill, for "processing" states. */
-  striped?: boolean;
-  style?: StyleProp<ViewStyle>;
+  striped?: boolean | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const BAR = { sm: 4, md: 8, lg: 12 };
@@ -209,8 +209,8 @@ function Glow({ size, color, id }: { size: number; color: string; id: string }) 
 
 /** Circle + tick that draw themselves (stroke offset, JS driver) inside a springy wrapper (native). */
 function DrawnCheck({ color, size, ring = true }: { color: string; size: number; ring?: boolean }) {
-  const draw = useRef(new Animated.Value(0)).current;
-  const pop = useRef(new Animated.Value(0.6)).current;
+  const [draw] = useState(() => new Animated.Value(0));
+  const [pop] = useState(() => new Animated.Value(0.6));
   useEffect(() => {
     Animated.timing(draw, {
       toValue: 1,
@@ -292,10 +292,10 @@ function Bar({
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
   const [width, setWidth] = useState(0);
   // All native-driven: they only feed transform / opacity.
-  const fill = useRef(new Animated.Value(ratio)).current;
-  const sweep = useRef(new Animated.Value(0)).current;
-  const flash = useRef(new Animated.Value(0)).current;
-  const stripe = useRef(new Animated.Value(0)).current;
+  const [fill] = useState(() => new Animated.Value(ratio));
+  const [sweep] = useState(() => new Animated.Value(0));
+  const [flash] = useState(() => new Animated.Value(0));
+  const [stripe] = useState(() => new Animated.Value(0));
   const celebrated = useBecameTrue(done);
 
   useEffect(() => {
@@ -554,9 +554,9 @@ function Segment({
   reduce: boolean;
 }) {
   const { radius } = useKit();
-  const v = useRef(new Animated.Value(fill)).current;
-  const pop = useRef(new Animated.Value(1)).current;
-  const glow = useRef(new Animated.Value(0)).current;
+  const [v] = useState(() => new Animated.Value(fill));
+  const [pop] = useState(() => new Animated.Value(1));
+  const [glow] = useState(() => new Animated.Value(0));
   const prevFill = useRef(fill);
 
   useEffect(() => {
@@ -683,7 +683,7 @@ function Ring({
   tint: string;
   track: string;
   showValue: boolean;
-  format?: () => string;
+  format?: (() => string) | undefined;
   fg: string;
   done: boolean;
   reduce: boolean;
@@ -698,11 +698,11 @@ function Ring({
   const target = unknown ? 0.25 : ratio;
   // `fill` drives the SVG stroke (JS driver). `turn` mirrors it on the native driver to carry the
   // glowing dot, and `spin` / `morph` / `flash` are native too — each on its own view.
-  const fill = useRef(new Animated.Value(target)).current;
-  const turn = useRef(new Animated.Value(target)).current;
-  const spin = useRef(new Animated.Value(0)).current;
-  const morph = useRef(new Animated.Value(done ? 1 : 0)).current;
-  const flash = useRef(new Animated.Value(0)).current;
+  const [fill] = useState(() => new Animated.Value(target));
+  const [turn] = useState(() => new Animated.Value(target));
+  const [spin] = useState(() => new Animated.Value(0));
+  const [morph] = useState(() => new Animated.Value(done ? 1 : 0));
+  const [flash] = useState(() => new Animated.Value(0));
   const celebrated = useBecameTrue(done);
 
   useEffect(() => {

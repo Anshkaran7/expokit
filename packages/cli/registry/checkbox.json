@@ -4,6 +4,7 @@
   "title": "Checkbox",
   "description": "The tick draws itself in, the box squishes on press and a ring bursts out. Labels, descriptions and to-do strike-through.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

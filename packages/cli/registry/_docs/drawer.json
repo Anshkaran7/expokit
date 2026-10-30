@@ -95,7 +95,7 @@
     [
       "accessibilityLabel",
       "string",
-      "\"Navigation drawer\"",
+      "labels.navigationDrawer",
       "Panel label."
     ],
     [
@@ -112,9 +112,9 @@
     ],
     [
       "DrawerHeader",
-      "{ title?, subtitle?, leading?, showClose?, onClose? }",
+      "{ title?, subtitle?, leading?, showClose?, onClose?, closeLabel? }",
       "—",
-      "Title chrome for the header slot."
+      "Title chrome for the header slot. closeLabel names the close button (default labels.closeMenu)."
     ],
     [
       "DrawerItem",

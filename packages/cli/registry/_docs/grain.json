@@ -1,7 +1,12 @@
 {
   "name": "grain",
   "category": "Display",
-  "aliases": [],
+  "aliases": [
+    "grain-gradient",
+    "gradient",
+    "mesh-gradient",
+    "noise"
+  ],
   "exportName": "GrainGradient",
   "files": [
     "src/components/ui/grain.tsx"

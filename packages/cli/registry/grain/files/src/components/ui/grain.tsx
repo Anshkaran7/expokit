@@ -18,24 +18,24 @@ export type GrainPalette =
 
 export interface GrainGradientProps {
   /** A built-in colour set. */
-  palette?: GrainPalette;
+  palette?: GrainPalette | undefined;
   /** Your own colours: the first is the base, the rest become soft blobs (up to 4). Overrides `palette`. */
-  colors?: string[];
+  colors?: string[] | undefined;
   /** Strength of the film grain, 0–1. */
-  grain?: number;
+  grain?: number | undefined;
   /** Shuffle where the blobs sit. */
-  seed?: number;
-  style?: StyleProp<ViewStyle>;
-  children?: React.ReactNode;
+  seed?: number | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
+  children?: React.ReactNode | undefined;
 }
 
 export interface GrainOverlayProps {
   /** Strength of the grain, 0–1. */
-  grain?: number;
-  style?: StyleProp<ViewStyle>;
+  grain?: number | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
-const PALETTES: Record<GrainPalette, string[]> = {
+const PALETTES: Record<GrainPalette, [string, ...string[]]> = {
   sunset: ['#2a1238', '#ff6a3d', '#ff3d8b', '#ffc15e', '#7b2ff7'],
   ocean: ['#04203a', '#0fb5c9', '#2f6bff', '#7ce7d6', '#123f8f'],
   aurora: ['#0b1324', '#2ee6a6', '#7b5cff', '#1fa2ff', '#b8ff6b'],
@@ -54,7 +54,8 @@ const PALETTES: Record<GrainPalette, string[]> = {
 export const GRAIN_PALETTES = Object.keys(PALETTES) as GrainPalette[];
 
 // Where the blobs sit, in percent of the box: [cx, cy, r].
-const SPOTS: [number, number, number][][] = [
+type Spot = [cx: number, cy: number, r: number];
+const SPOTS: [Spot[], ...Spot[][]] = [
   [[18, 22, 62], [86, 30, 58], [30, 88, 64], [82, 86, 52]],
   [[80, 16, 60], [14, 52, 58], [62, 70, 66], [24, 96, 48]],
   [[50, 8, 64], [8, 78, 60], [92, 62, 58], [46, 50, 40]],
@@ -79,8 +80,9 @@ export function GrainOverlay({ grain = 0.55, style }: GrainOverlayProps) {
  */
 export function GrainGradient({ palette = 'sunset', colors, grain = 0.55, seed = 0, style, children }: GrainGradientProps) {
   const id = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const [base, ...blobs] = colors && colors.length ? colors : PALETTES[palette];
-  const spots = SPOTS[Math.abs(seed) % SPOTS.length];
+  // Both sources are non-empty, so the fallback only satisfies the type checker.
+  const [base = PALETTES[palette][0], ...blobs] = colors && colors.length ? colors : PALETTES[palette];
+  const spots = SPOTS[Math.abs(seed) % SPOTS.length] ?? SPOTS[0];
   return (
     <View style={[styles.root, { backgroundColor: base }, style]}>
       <Svg style={StyleSheet.absoluteFill} viewBox="0 0 100 100" preserveAspectRatio="none" pointerEvents="none">
@@ -98,8 +100,8 @@ export function GrainGradient({ palette = 'sunset', colors, grain = 0.55, seed =
           ))}
         </Defs>
         <Rect x={0} y={0} width={100} height={100} fill={`url(#base${id})`} />
-        {blobs.slice(0, 4).map((_, i) => (
-          <Circle key={i} cx={spots[i][0]} cy={spots[i][1]} r={spots[i][2]} fill={`url(#b${i}${id})`} />
+        {spots.slice(0, Math.min(blobs.length, 4)).map(([cx, cy, r], i) => (
+          <Circle key={i} cx={cx} cy={cy} r={r} fill={`url(#b${i}${id})`} />
         ))}
       </Svg>
       <GrainOverlay grain={grain} />

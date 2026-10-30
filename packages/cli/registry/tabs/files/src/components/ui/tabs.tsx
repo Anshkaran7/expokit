@@ -1,9 +1,8 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
-  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,7 +12,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, usePanResponder } from '@/lib/kit';
 
 /**
  * Tabs are underline tabs with content panes. `pill` and `soft` are @deprecated and render as
@@ -112,12 +111,12 @@ export function Tabs({
 
   // ---- animated values ----
   // Underline edges + pane height: JS driver (left / width / height).
-  const lx = useRef(new Animated.Value(0)).current;
-  const rx = useRef(new Animated.Value(0)).current;
-  const hv = useRef(new Animated.Value(0)).current;
+  const [lx] = useState(() => new Animated.Value(0));
+  const [rx] = useState(() => new Animated.Value(0));
+  const [hv] = useState(() => new Animated.Value(0));
   // Pager offset + fade: native driver, on the pager row.
-  const pan = useRef(new Animated.Value(0)).current;
-  const fade = useRef(new Animated.Value(1)).current;
+  const [pan] = useState(() => new Animated.Value(0));
+  const [fade] = useState(() => new Animated.Value(1));
   const [lineShown, setLineShown] = useState(false);
   const [heightShown, setHeightShown] = useState(false);
   const linePlaced = useRef(false);
@@ -204,61 +203,58 @@ export function Tabs({
 
   // ---- swipe between panes ----
   const live = useRef({ index, items, paneW, swipe: false, select, edgesOf });
-  live.current = { index, items, paneW, swipe: swipeable && hasContent && paneW > 0, select, edgesOf };
+  useLayoutEffect(() => {
+    live.current = { index, items, paneW, swipe: swipeable && hasContent && paneW > 0, select, edgesOf };
+  });
   const drag = useRef({ base: 0, off: 0 });
   const neighbour = (i: number, dir: 1 | -1) => {
     const t = live.current.items[i + dir];
     return t && !t.disabled ? i + dir : -1;
   };
 
-  const responder = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => live.current.swipe && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.4,
-        onPanResponderTerminationRequest: () => false,
-        onPanResponderGrant: () => {
-          const { index: i, paneW: W } = live.current;
-          lx.stopAnimation();
-          rx.stopAnimation();
-          hv.stopAnimation();
-          // Grabbed mid-flight: continue from where the pane is; at rest it sits exactly on its slot.
-          drag.current.base = 0;
-          if (paging.current) pan.stopAnimation((v) => (drag.current.base = Math.max(-W, Math.min(W, v + i * W))));
-          paging.current = false;
-          drag.current.off = drag.current.base;
-        },
-        onPanResponderMove: (_, g) => {
-          const { index: i, paneW: W, edgesOf: edges } = live.current;
-          let off = drag.current.base + g.dx;
-          const prev = neighbour(i, -1);
-          const next = neighbour(i, 1);
-          if (off > 0 && prev < 0) off = rubber(off, W);
-          if (off < 0 && next < 0) off = -rubber(-off, W);
-          off = Math.max(-W, Math.min(W, off));
-          drag.current.off = off;
-          pan.setValue(-i * W + off);
+  const responder = usePanResponder({
+    onMoveShouldSetPanResponder: (_, g) => live.current.swipe && Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.4,
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderGrant: () => {
+      const { index: i, paneW: W } = live.current;
+      lx.stopAnimation();
+      rx.stopAnimation();
+      hv.stopAnimation();
+      // Grabbed mid-flight: continue from where the pane is; at rest it sits exactly on its slot.
+      drag.current.base = 0;
+      if (paging.current) pan.stopAnimation((v) => (drag.current.base = Math.max(-W, Math.min(W, v + i * W))));
+      paging.current = false;
+      drag.current.off = drag.current.base;
+    },
+    onPanResponderMove: (_, g) => {
+      const { index: i, paneW: W, edgesOf: edges } = live.current;
+      let off = drag.current.base + g.dx;
+      const prev = neighbour(i, -1);
+      const next = neighbour(i, 1);
+      if (off > 0 && prev < 0) off = rubber(off, W);
+      if (off < 0 && next < 0) off = -rubber(-off, W);
+      off = Math.max(-W, Math.min(W, off));
+      drag.current.off = off;
+      pan.setValue(-i * W + off);
 
-          // Underline + height follow the finger toward the neighbour.
-          const j = off < 0 ? next : prev;
-          const a = edges(i);
-          const b = j >= 0 ? edges(j) : null;
-          if (!a || !b) return;
-          const p = Math.min(1, Math.abs(off) / W);
-          const lead = 1 - (1 - p) * (1 - p); // ease-out: the leading edge runs ahead
-          const trail = p * p; // ease-in: the trailing edge hangs back
-          const toRight = j > i;
-          lx.setValue(a[0] + (b[0] - a[0]) * (toRight ? trail : lead));
-          rx.setValue(a[1] + (b[1] - a[1]) * (toRight ? lead : trail));
-          const ha = heights.current[i];
-          const hb = heights.current[j];
-          if (ha && hb) hv.setValue(ha + (hb - ha) * p);
-        },
-        onPanResponderRelease: (_, g) => finish(g.vx),
-        onPanResponderTerminate: () => finish(0),
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+      // Underline + height follow the finger toward the neighbour.
+      const j = off < 0 ? next : prev;
+      const a = edges(i);
+      const b = j >= 0 ? edges(j) : null;
+      if (!a || !b) return;
+      const p = Math.min(1, Math.abs(off) / W);
+      const lead = 1 - (1 - p) * (1 - p); // ease-out: the leading edge runs ahead
+      const trail = p * p; // ease-in: the trailing edge hangs back
+      const toRight = j > i;
+      lx.setValue(a[0] + (b[0] - a[0]) * (toRight ? trail : lead));
+      rx.setValue(a[1] + (b[1] - a[1]) * (toRight ? lead : trail));
+      const ha = heights.current[i];
+      const hb = heights.current[j];
+      if (ha && hb) hv.setValue(ha + (hb - ha) * p);
+    },
+    onPanResponderRelease: (_, g) => finish(g.vx),
+    onPanResponderTerminate: () => finish(0),
+  });
 
   const finish = (vx: number) => {
     const { index: i, paneW: W, items: list, select: pick } = live.current;
@@ -268,7 +264,8 @@ export function Tabs({
     else if (off > 0 && (off > W * 0.22 || vx > 0.35)) target = neighbour(i, -1);
     if (target < 0) target = i;
     release.current = { v: vx, dragged: true };
-    if (target !== i) pick(list[target]);
+    const next = list[target];
+    if (target !== i && next) pick(next);
     setSettle((n) => n + 1);
   };
 
@@ -358,7 +355,7 @@ export function Tabs({
     const current = items[index];
     panes = (
       <Animated.View
-        {...responder.panHandlers}
+        {...responder}
         onLayout={(e) => {
           const w = e.nativeEvent.layout.width;
           if (Math.abs(w - paneW) > 0.5) setPaneW(w);
@@ -430,8 +427,8 @@ interface TabProps {
 function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLayout, onLabelLayout }: TabProps) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const a = useRef(new Animated.Value(active ? 1 : 0)).current; // label colour (JS)
-  const press = useRef(new Animated.Value(1)).current; // squish (native)
+  const [a] = useState(() => new Animated.Value(active ? 1 : 0)); // label colour (JS)
+  const [press] = useState(() => new Animated.Value(1)); // squish (native)
 
   useEffect(() => {
     Animated.timing(a, { toValue: active ? 1 : 0, duration: reduce ? 0 : 180, useNativeDriver: false }).start();
@@ -479,7 +476,7 @@ function Tab({ item, active, mode, height, fontSize, tint, reduce, onPress, onLa
 function TabBadge({ value, active, tint, reduce }: { value: number | string; active: boolean; tint: string; reduce: boolean }) {
   const { colors, radius, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const s = useRef(new Animated.Value(1)).current;
+  const [s] = useState(() => new Animated.Value(1));
   const first = useRef(true);
   useEffect(() => {
     if (first.current || reduce) {

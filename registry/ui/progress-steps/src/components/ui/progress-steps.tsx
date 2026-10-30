@@ -23,7 +23,7 @@ export type ProgressStepsVariant = 'horizontal' | 'vertical' | 'bar';
 export interface ProgressStep {
   label: string;
   /** Muted line under the label (two lines max in the horizontal variant). */
-  description?: string;
+  description?: string | undefined;
 }
 
 export interface ProgressStepsProps {
@@ -32,18 +32,18 @@ export interface ProgressStepsProps {
   /** Index of the active step. Steps before it are complete; `steps.length` marks everything done. */
   current: number;
   /** Index of a step that failed (drawn red with "!"). */
-  errorStep?: number;
+  errorStep?: number | undefined;
   /** 'horizontal' nodes with labels · 'vertical' list with descriptions · 'bar' compact "Step 2 of 4" with a segmented bar. */
-  variant?: ProgressStepsVariant;
+  variant?: ProgressStepsVariant | undefined;
   /** Lets people tap a step, e.g. to go back to a completed one. */
-  onStepPress?: (index: number) => void;
+  onStepPress?: ((index: number) => void) | undefined;
   /** Which steps `onStepPress` makes tappable: 'all' (default) or only 'completed' ones. */
-  pressableSteps?: 'all' | 'completed';
+  pressableSteps?: 'all' | 'completed' | undefined;
   /** Selection tick whenever `current` changes (default true). */
-  haptics?: boolean;
+  haptics?: boolean | undefined;
   /** Colour of completed steps, connectors and the current ring (default: theme accent). */
-  accent?: string;
-  style?: StyleProp<ViewStyle>;
+  accent?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
@@ -73,7 +73,7 @@ export function ProgressSteps({
   accent,
   style,
 }: ProgressStepsProps) {
-  const { colors, dark, font } = useKit();
+  const { colors, dark, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
@@ -83,9 +83,9 @@ export function ProgressSteps({
   const track = alpha(colors.foreground, dark ? 0.12 : 0.08);
 
   // Same motion on two drivers: native for transforms / opacity, JS for the SVG check stroke.
-  const pNative = useRef(new Animated.Value(target)).current;
-  const pJs = useRef(new Animated.Value(target)).current;
-  const labelIn = useRef(new Animated.Value(1)).current;
+  const [pNative] = useState(() => new Animated.Value(target));
+  const [pJs] = useState(() => new Animated.Value(target));
+  const [labelIn] = useState(() => new Animated.Value(1));
   const prev = useRef(target);
   useEffect(() => {
     if (prev.current === target) return;
@@ -110,7 +110,7 @@ export function ProgressSteps({
   }, [target, haptics, reduce, pNative, pJs, labelIn]);
 
   // One shared heartbeat for the current step's ring.
-  const pulse = useRef(new Animated.Value(0)).current;
+  const [pulse] = useState(() => new Animated.Value(0));
   const pulsing = !reduce && target < n && target !== errorStep && variant !== 'bar';
   useEffect(() => {
     if (!pulsing) {
@@ -141,7 +141,7 @@ export function ProgressSteps({
       <View
         accessible
         accessibilityRole="progressbar"
-        accessibilityLabel={done ? 'All steps complete' : `Step ${shown + 1} of ${n}, ${items[shown]!.label}`}
+        accessibilityLabel={done ? labels.allStepsComplete : labels.stepOf(shown + 1, n, items[shown]!.label)}
         accessibilityValue={{ min: 0, max: n, now: target }}
         style={[styles.bar, style]}
       >
@@ -258,11 +258,11 @@ function Step({
   lineColor: string;
   track: string;
   reduce: boolean;
-  onPress?: () => void;
+  onPress?: (() => void) | undefined;
 }) {
-  const { colors, font } = useKit();
+  const { colors, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const press = useRef(new Animated.Value(0)).current;
+  const [press] = useState(() => new Animated.Value(0));
   const pressTo = (v: number) =>
     Animated.spring(press, { toValue: v, useNativeDriver: true, ...(v ? motion.snappy : motion.bouncy) }).start();
 
@@ -270,7 +270,7 @@ function Step({
   const labelColor =
     state === 'error' ? colors.danger : state === 'upcoming' ? colors.mutedForeground : colors.foreground;
   const status =
-    state === 'active' ? 'current' : state === 'done' ? 'completed' : state === 'error' ? 'needs attention' : 'not started';
+    state === 'active' ? labels.stepCurrent : state === 'done' ? labels.stepCompleted : state === 'error' ? labels.stepNeedsAttention : labels.stepNotStarted;
 
   const node = (
     <Animated.View style={{ transform: [{ scale: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.86] }) }] }}>
@@ -292,8 +292,8 @@ function Step({
 
   const a11y = {
     accessibilityRole: onPress ? ('button' as const) : ('text' as const),
-    accessibilityLabel: `Step ${i + 1} of ${n}, ${step.label}, ${status}`,
-    accessibilityHint: onPress ? 'Goes back to this step' : undefined,
+    accessibilityLabel: `${labels.stepOf(i + 1, n, step.label)}, ${status}`,
+    accessibilityHint: onPress ? labels.goBackToStep : undefined,
     accessibilityState: { selected: state === 'active' },
   };
   const Wrapper = onPress ? Pressable : View;

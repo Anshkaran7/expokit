@@ -1,5 +1,14 @@
-import React, { createContext, useContext, useMemo } from 'react';
-import { Platform, useColorScheme, useWindowDimensions, type TextStyle, type ViewStyle } from 'react-native';
+import React, { createContext, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  PanResponder,
+  Platform,
+  useColorScheme,
+  useWindowDimensions,
+  type GestureResponderHandlers,
+  type PanResponderCallbacks,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native';
 
 /**
  * ExpoKit design tokens. Every component reads them through useKit(), so one
@@ -9,9 +18,9 @@ import { Platform, useColorScheme, useWindowDimensions, type TextStyle, type Vie
 
 /**
  * Bumped whenever components start using a new kit API (2: radius.scale / radius.capsule,
- * 3: useLayout / shadow). The CLI won't keep an edited kit.tsx older than the component being added needs.
+ * 3: useLayout / shadow, 4: labels, 5: visible labels such as Cancel / Done / Today, AM / PM, usePanResponder / useLatest). The CLI won't keep an edited kit.tsx older than the component being added needs.
  */
-export const KIT_VERSION = 3;
+export const KIT_VERSION = 5;
 
 export type ColorScheme = 'light' | 'dark';
 
@@ -60,9 +69,297 @@ export interface Theme {
   space: (n: number) => number;
   /** The same soft shadow on iOS, Android and web: `style={[styles.card, shadow('md')]}`. */
   shadow: (level: ShadowLevel, color?: string) => ViewStyle;
-  font: { family?: string; mono: string };
+  font: { family?: string | undefined; mono: string };
   text: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl', TextStyle>;
+  /** Text the kit shows or speaks on its own (buttons, placeholders, screen-reader names). Translate with <KitProvider labels={...}>. */
+  labels: Labels;
 }
+
+/**
+ * Every string the kit shows or speaks on its own: button text and placeholders (Cancel, Done, Today,
+ * Search…) and what screen readers say (close buttons, grabbers, hints). A prop on a component, like
+ * `cancelLabel` or `placeholder`, still wins over these.
+ * Pass a partial map to <KitProvider labels={...}>; keys you leave out stay English.
+ * Functions get the dynamic part, so word order can change per language.
+ */
+export interface Labels {
+  close: string;
+  dismiss: string;
+  closeSheet: string;
+  sheetGrabber: string;
+  sheetResizeHint: string;
+  sheetResizeOrCloseHint: string;
+  navigationDrawer: string;
+  closeDrawer: string;
+  closeMenu: string;
+  switchAccount: string;
+  openActions: string;
+  closeActions: string;
+  action: string;
+  loading: string;
+  clearSearch: string;
+  cancelSearch: string;
+  clearField: (field: string) => string;
+  back: string;
+  previous: string;
+  next: string;
+  goToToday: string;
+  goToSlide: (n: number) => string;
+  showAllCards: string;
+  expandNotification: string;
+  collapseNotification: string;
+  moreCount: (n: number) => string;
+  peopleCount: (n: number) => string;
+  namesAndMore: (names: string, n: number) => string;
+  newCount: (badge: string) => string;
+  remove: (item: string) => string;
+  selectedCount: (n: number) => string;
+  noneSelected: string;
+  notSet: string;
+  date: string;
+  time: string;
+  hour: string;
+  minute: string;
+  hours: (n: string) => string;
+  minutes: (n: number) => string;
+  booked: string;
+  unavailable: string;
+  timeDialHint: string;
+  flipCalendarHint: string;
+  increase: string;
+  decrease: string;
+  increaseItem: (item: string) => string;
+  decreaseItem: (item: string) => string;
+  range: string;
+  rangeMinimum: (name: string) => string;
+  rangeMaximum: (name: string) => string;
+  ratingStars: string;
+  ratingHearts: string;
+  showPassword: string;
+  hidePassword: string;
+  passwordStrength: (level: string) => string;
+  ruleMet: (rule: string) => string;
+  ruleUnmet: (rule: string) => string;
+  stepOf: (step: number, total: number, label: string) => string;
+  allStepsComplete: string;
+  stepCurrent: string;
+  stepCompleted: string;
+  stepNeedsAttention: string;
+  stepNotStarted: string;
+  goBackToStep: string;
+  activateCodeField: string;
+  qrCodeFor: (value: string) => string;
+  undoStroke: string;
+  signaturePad: string;
+  signaturePadSigned: string;
+  flipToBack: string;
+  flipToFront: string;
+  revealHint: string;
+  confirmHint: string;
+  prizeWheel: string;
+  spinHint: string;
+  prizes: (n: number, list: string) => string;
+  orbReveal: string;
+  orbBack: string;
+  // Visible text
+  cancel: string;
+  done: string;
+  doneCount: (n: number) => string;
+  doneDays: (n: number) => string;
+  clear: string;
+  continue: string;
+  delete: string;
+  failed: string;
+  search: string;
+  noResults: string;
+  noOptions: string;
+  nothingMatches: (query: string) => string;
+  selectPlaceholder: string;
+  selectDate: string;
+  selectDates: string;
+  pickStartDate: string;
+  pickEndDate: string;
+  selectTime: string;
+  setTime: (time: string) => string;
+  /** Clock periods, shown on 12-hour pickers and times. */
+  am: string;
+  pm: string;
+  /** Read for the AM / PM column. */
+  amPm: string;
+  morning: string;
+  afternoon: string;
+  evening: string;
+  slotsOpen: (n: number) => string;
+  full: string;
+  today: string;
+  tomorrow: string;
+  nextMonday: string;
+  inAWeek: string;
+  inAMonth: string;
+  next7Days: string;
+  nextWeekend: string;
+  thisMonth: string;
+  last7Days: string;
+  last30Days: string;
+  chooseOneOrMore: string;
+  /** After a rolling count, as in "2 selected". */
+  selectedSuffix: string;
+  chooseMonth: string;
+  chooseYear: string;
+  backToDays: string;
+  dayAndWeek: (day: number, week: number) => string;
+  daysLeft: (n: number) => string;
+  /** Too short, Weak, Okay, Strong, Very strong. */
+  passwordLevels: [string, string, string, string, string];
+  passwordsMatch: string;
+  passwordsDontMatch: string;
+  showQrCode: string;
+  copy: string;
+  copied: string;
+  slideToConfirm: string;
+  confirmed: string;
+  like: string;
+  nope: string;
+  swipeRight: string;
+  swipeLeft: string;
+}
+
+export const defaultLabels: Labels = {
+  close: 'Close',
+  dismiss: 'Dismiss',
+  closeSheet: 'Close sheet',
+  sheetGrabber: 'Sheet grabber',
+  sheetResizeHint: 'Swipe up or down to resize',
+  sheetResizeOrCloseHint: 'Swipe up or down to resize or close',
+  navigationDrawer: 'Navigation drawer',
+  closeDrawer: 'Close drawer',
+  closeMenu: 'Close menu',
+  switchAccount: 'Switch account',
+  openActions: 'Open actions',
+  closeActions: 'Close actions',
+  action: 'Action',
+  loading: 'Loading',
+  clearSearch: 'Clear search',
+  cancelSearch: 'Cancel search',
+  clearField: (field) => `Clear ${field}`,
+  back: 'Back',
+  previous: 'Previous',
+  next: 'Next',
+  goToToday: 'Go to today',
+  goToSlide: (n) => `Go to slide ${n}`,
+  showAllCards: 'Shows all cards',
+  expandNotification: 'Expands the notification',
+  collapseNotification: 'Collapses the notification',
+  moreCount: (n) => `${n} more`,
+  peopleCount: (n) => `${n} people`,
+  namesAndMore: (names, n) => `${names} and ${n} more`,
+  newCount: (badge) => `${badge} new`,
+  remove: (item) => `Remove ${item}`,
+  selectedCount: (n) => `${n} selected`,
+  noneSelected: 'None selected',
+  notSet: 'Not set',
+  date: 'Date',
+  time: 'Time',
+  hour: 'Hour',
+  minute: 'Minute',
+  hours: (n) => `${n} hours`,
+  minutes: (n) => `${n} minutes`,
+  booked: 'booked',
+  unavailable: 'unavailable',
+  timeDialHint: 'Drag around the dial, or swipe up or down to adjust.',
+  flipCalendarHint: 'Swipe up to turn to the next day, down for the previous one.',
+  increase: 'Increase',
+  decrease: 'Decrease',
+  increaseItem: (item) => `Increase ${item}`,
+  decreaseItem: (item) => `Decrease ${item}`,
+  range: 'Range',
+  rangeMinimum: (name) => `${name} minimum`,
+  rangeMaximum: (name) => `${name} maximum`,
+  ratingStars: 'Rating, stars',
+  ratingHearts: 'Rating, hearts',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
+  passwordStrength: (level) => `Password strength: ${level}`,
+  ruleMet: (rule) => `${rule}: done`,
+  ruleUnmet: (rule) => `${rule}: not yet`,
+  stepOf: (step, total, label) => `Step ${step} of ${total}, ${label}`,
+  allStepsComplete: 'All steps complete',
+  stepCurrent: 'current',
+  stepCompleted: 'completed',
+  stepNeedsAttention: 'needs attention',
+  stepNotStarted: 'not started',
+  goBackToStep: 'Goes back to this step',
+  activateCodeField: 'Activates the code field',
+  qrCodeFor: (value) => `QR code for ${value}`,
+  undoStroke: 'Undo last stroke',
+  signaturePad: 'Signature pad, draw your signature',
+  signaturePadSigned: 'Signature pad, signed',
+  flipToBack: 'Tap to flip to the back.',
+  flipToFront: 'Showing the back. Tap to flip to the front.',
+  revealHint: 'Double-tap to reveal',
+  confirmHint: 'Double tap to confirm',
+  prizeWheel: 'Prize wheel',
+  spinHint: 'Spins the wheel for a prize',
+  prizes: (n, list) => `${n} prizes: ${list}`,
+  orbReveal: 'Reveal',
+  orbBack: 'Glass orb, drag down to go back',
+  cancel: 'Cancel',
+  done: 'Done',
+  doneCount: (n) => `Done · ${n}`,
+  doneDays: (n) => `Done · ${n} days`,
+  clear: 'Clear',
+  continue: 'Continue',
+  delete: 'Delete',
+  failed: 'Failed',
+  search: 'Search',
+  noResults: 'No results',
+  noOptions: 'No options',
+  nothingMatches: (query) => `Nothing matches “${query}”.`,
+  selectPlaceholder: 'Select…',
+  selectDate: 'Select a date',
+  selectDates: 'Select dates',
+  pickStartDate: 'Pick a start date',
+  pickEndDate: 'pick an end date',
+  selectTime: 'Select a time',
+  setTime: (time) => `Set ${time}`,
+  am: 'AM',
+  pm: 'PM',
+  amPm: 'AM or PM',
+  morning: 'Morning',
+  afternoon: 'Afternoon',
+  evening: 'Evening',
+  slotsOpen: (n) => `${n} open`,
+  full: 'Full',
+  today: 'Today',
+  tomorrow: 'Tomorrow',
+  nextMonday: 'Next Monday',
+  inAWeek: 'In a week',
+  inAMonth: 'In a month',
+  next7Days: 'Next 7 days',
+  nextWeekend: 'Next weekend',
+  thisMonth: 'This month',
+  last7Days: 'Last 7 days',
+  last30Days: 'Last 30 days',
+  chooseOneOrMore: 'Choose one or more',
+  selectedSuffix: 'selected',
+  chooseMonth: 'choose month',
+  chooseYear: 'choose year',
+  backToDays: 'back to days',
+  dayAndWeek: (day, week) => `Day ${day} · Week ${week}`,
+  daysLeft: (n) => `${n} left`,
+  passwordLevels: ['Too short', 'Weak', 'Okay', 'Strong', 'Very strong'],
+  passwordsMatch: 'Passwords match',
+  passwordsDontMatch: "Passwords don't match",
+  showQrCode: 'Show QR Code',
+  copy: 'Copy',
+  copied: 'Copied',
+  slideToConfirm: 'Slide to confirm',
+  confirmed: 'Confirmed',
+  like: 'LIKE',
+  nope: 'NOPE',
+  swipeRight: 'Right',
+  swipeLeft: 'Left',
+};
 
 const light: Colors = {
   background: '#ffffff',
@@ -149,20 +446,27 @@ function build(scheme: ColorScheme, overrides?: ThemeOverrides): Theme {
       xl: { fontSize: 22, lineHeight: 28, fontWeight: '400', letterSpacing: -0.3 },
       xxl: { fontSize: 30, lineHeight: 36, fontWeight: '400', letterSpacing: -0.8 },
     },
+    labels: overrides?.labels ? { ...defaultLabels, ...overrides.labels } : defaultLabels,
   };
 }
 
 export interface ThemeOverrides {
   /** Brand colour used for focus rings, selected states and accent buttons. */
-  accent?: string;
+  accent?: string | undefined;
+
   /** Base corner radius in points (default 12). */
-  radius?: number;
-  fontFamily?: string;
+  radius?: number | undefined;
+
+  fontFamily?: string | undefined;
+
   /** Override any token per scheme. */
-  colors?: Partial<Record<ColorScheme, Partial<Colors>>>;
+  colors?: Partial<Record<ColorScheme, Partial<Colors>>> | undefined;
+
+  /** Screen-reader strings in your language, e.g. { close: "बंद करें" }. Keys you leave out stay English. */
+  labels?: Partial<Labels> | undefined;
 }
 
-const KitContext = createContext<{ scheme?: ColorScheme; overrides?: ThemeOverrides } | null>(null);
+const KitContext = createContext<{ scheme?: ColorScheme | undefined; overrides?: ThemeOverrides | undefined } | null>(null);
 
 export function KitProvider({
   scheme,
@@ -172,7 +476,7 @@ export function KitProvider({
   const value = useMemo(
     () => ({ scheme: scheme === 'system' ? undefined : scheme, overrides }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scheme, overrides.accent, overrides.radius, overrides.fontFamily, overrides.colors]
+    [scheme, overrides.accent, overrides.radius, overrides.fontFamily, overrides.colors, overrides.labels]
   );
   return <KitContext.Provider value={value}>{children}</KitContext.Provider>;
 }
@@ -317,4 +621,52 @@ export function readableOn(hex: string) {
 export function isTextNode(node: React.ReactNode): node is string | number | (string | number)[] {
   if (typeof node === 'string' || typeof node === 'number') return true;
   return Array.isArray(node) && node.length > 0 && node.every((n) => typeof n === 'string' || typeof n === 'number');
+}
+
+/**
+ * A ref that always holds the latest `value`, for gesture and timer callbacks that must not go stale.
+ * Read `.current` only inside callbacks and effects, never while rendering.
+ */
+export function useLatest<T>(value: T): React.MutableRefObject<T> {
+  const ref = useRef(value);
+  useLayoutEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
+
+const panKeys = [
+  'onStartShouldSetPanResponder',
+  'onStartShouldSetPanResponderCapture',
+  'onMoveShouldSetPanResponder',
+  'onMoveShouldSetPanResponderCapture',
+  'onPanResponderGrant',
+  'onPanResponderStart',
+  'onPanResponderMove',
+  'onPanResponderEnd',
+  'onPanResponderRelease',
+  'onPanResponderReject',
+  'onPanResponderTerminate',
+] as const;
+
+/**
+ * PanResponder handlers that always call the latest `config`, created once. Write the callbacks inline:
+ * they may read refs and props freely, and nothing is recreated between renders, so a drag in progress
+ * is never cut off. Spread the result: `<View {...pan} />`.
+ */
+export function usePanResponder(config: PanResponderCallbacks): GestureResponderHandlers {
+  const latest = useLatest(config);
+  const [handlers] = useState(() => {
+    const forward: Record<string, (...args: never[]) => unknown> = {};
+    for (const key of panKeys) {
+      forward[key] = (...args) => (latest.current[key] as ((...a: never[]) => unknown) | undefined)?.(...args);
+    }
+    // React Native's defaults when these are left out are `true`, so keep them when the config has none.
+    forward.onPanResponderTerminationRequest = (...args) =>
+      (latest.current.onPanResponderTerminationRequest as ((...a: never[]) => boolean) | undefined)?.(...args) ?? true;
+    forward.onShouldBlockNativeResponder = (...args) =>
+      (latest.current.onShouldBlockNativeResponder as ((...a: never[]) => boolean) | undefined)?.(...args) ?? true;
+    return PanResponder.create(forward as PanResponderCallbacks).panHandlers;
+  });
+  return handlers;
 }

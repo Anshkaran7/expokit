@@ -3,7 +3,6 @@ import {
   AccessibilityInfo,
   Animated,
   Easing,
-  PanResponder,
   Pressable,
   StyleSheet,
   Text,
@@ -14,7 +13,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, usePanResponder } from '@/lib/kit';
 
 export type CalendarMode = 'single' | 'range' | 'multiple';
 
@@ -30,65 +29,65 @@ export type CalendarMarks = Record<string, string | string[]>;
 
 export interface CalendarBaseProps {
   /** Controlled visible month (any date inside it). */
-  month?: Date;
+  month?: Date | undefined;
   /** Month shown first (default: the selected date, else today). */
-  defaultMonth?: Date;
-  onMonthChange?: (month: Date) => void;
+  defaultMonth?: Date | undefined;
+  onMonthChange?: ((month: Date) => void) | undefined;
   /** 0 = Sunday, 1 = Monday. */
-  weekStartsOn?: 0 | 1;
+  weekStartsOn?: 0 | 1 | undefined;
   /** BCP 47 locale for month and weekday names (default: device locale). */
-  locale?: string;
+  locale?: string | undefined;
   /** Earliest selectable day. */
-  minDate?: Date;
+  minDate?: Date | undefined;
   /** Latest selectable day. */
-  maxDate?: Date;
+  maxDate?: Date | undefined;
   /** Return true to disable a day (booked, holidays…). */
-  isDateDisabled?: (date: Date) => boolean;
+  isDateDisabled?: ((date: Date) => boolean) | undefined;
   /** Coloured dots under dates: `{ [toDateKey(date)]: '#22c55e' | ['#22c55e', '#f59e0b'] }`. */
-  markedDates?: CalendarMarks;
+  markedDates?: CalendarMarks | undefined;
   /** Fill whole days with a colour (birthdays, shifts, people…): `{ [toDateKey(date)]: '#f472b6' }`. */
-  highlightedDates?: Record<string, string>;
+  highlightedDates?: Record<string, string> | undefined;
   /** `tiles` puts every day on a soft tile; `minimal` shows bare numbers. */
-  variant?: 'tiles' | 'minimal';
+  variant?: 'tiles' | 'minimal' | undefined;
   /** Weekday header: `narrow` (M T W) or `short` (Mon Tue Wed). */
-  weekdayFormat?: 'narrow' | 'short';
+  weekdayFormat?: 'narrow' | 'short' | undefined;
   /** Show a "Today" pill in the header while another month is on screen. */
-  showTodayButton?: boolean;
+  showTodayButton?: boolean | undefined;
   /** Show the faded trailing / leading days of the neighbouring months. */
-  showOutsideDays?: boolean;
+  showOutsideDays?: boolean | undefined;
   /** Ring and tint today's date. */
-  showToday?: boolean;
+  showToday?: boolean | undefined;
   /** Always render six week rows so the height never changes between months. */
-  fixedWeeks?: boolean;
+  fixedWeeks?: boolean | undefined;
   /** Tap the month title to jump through a month / year grid. */
-  monthPicker?: boolean;
+  monthPicker?: boolean | undefined;
   /** Most dates selectable in `multiple` mode. */
-  max?: number;
+  max?: number | undefined;
   /** Selection and today colour (default: theme accent). */
-  accent?: string;
-  style?: StyleProp<ViewStyle>;
+  accent?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 export interface CalendarSingleProps {
-  mode?: 'single';
-  value?: Date | null;
-  defaultValue?: Date | null;
-  onChange?: (date: Date) => void;
+  mode?: 'single' | undefined;
+  value?: Date | null | undefined;
+  defaultValue?: Date | null | undefined;
+  onChange?: ((date: Date) => void) | undefined;
 }
 
 export interface CalendarRangeProps {
   mode: 'range';
-  value?: DateRange | null;
-  defaultValue?: DateRange | null;
+  value?: DateRange | null | undefined;
+  defaultValue?: DateRange | null | undefined;
   /** Fires on every tap: first with `{ start, end: null }`, then with both ends. */
-  onChange?: (range: DateRange) => void;
+  onChange?: ((range: DateRange) => void) | undefined;
 }
 
 export interface CalendarMultipleProps {
   mode: 'multiple';
-  value?: Date[];
-  defaultValue?: Date[];
-  onChange?: (dates: Date[]) => void;
+  value?: Date[] | undefined;
+  defaultValue?: Date[] | undefined;
+  onChange?: ((dates: Date[]) => void) | undefined;
 }
 
 export type CalendarProps = CalendarBaseProps & (CalendarSingleProps | CalendarRangeProps | CalendarMultipleProps);
@@ -161,11 +160,11 @@ function useFormatters(locale?: string) {
       }
     };
     return {
-      title: make({ month: 'long', year: 'numeric' }, (d) => `${EN_MONTHS[d.getMonth()]} ${d.getFullYear()}`),
-      month: make({ month: 'short' }, (d) => EN_MONTHS[d.getMonth()].slice(0, 3)),
-      weekday: make({ weekday: 'short' }, (d) => EN_DAYS[d.getDay()]),
-      weekdayNarrow: make({ weekday: 'narrow' }, (d) => EN_DAYS[d.getDay()][0]),
-      weekdayLong: make({ weekday: 'long' }, (d) => EN_DAYS[d.getDay()]),
+      title: make({ month: 'long', year: 'numeric' }, (d) => `${EN_MONTHS[d.getMonth()] ?? ''} ${d.getFullYear()}`),
+      month: make({ month: 'short' }, (d) => (EN_MONTHS[d.getMonth()] ?? '').slice(0, 3)),
+      weekday: make({ weekday: 'short' }, (d) => EN_DAYS[d.getDay()] ?? ''),
+      weekdayNarrow: make({ weekday: 'narrow' }, (d) => (EN_DAYS[d.getDay()] ?? '').slice(0, 1)),
+      weekdayLong: make({ weekday: 'long' }, (d) => EN_DAYS[d.getDay()] ?? ''),
       full: make({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }, (d) => d.toDateString()),
     };
   }, [locale]);
@@ -206,7 +205,7 @@ export function Calendar(props: CalendarProps) {
     accent,
     style,
   } = props as unknown as FlatProps;
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const fmt = useFormatters(locale);
@@ -244,9 +243,10 @@ export function Calendar(props: CalendarProps) {
 
   /* month slide transition */
   const [width, setWidth] = useState(0);
-  const slide = useRef(new Animated.Value(1)).current; // native
+  const [slide] = useState(() => new Animated.Value(1)); // native
   const [leaving, setLeaving] = useState<{ month: Date; dir: number } | null>(null);
-  const dirRef = useRef(1);
+  // Which way the last month change went: the incoming grid slides in from that side.
+  const [slideDir, setSlideDir] = useState(1);
   const shownRef = useRef(visible);
   const visibleKey = monthIndex(visible);
   useLayoutEffect(() => {
@@ -254,7 +254,7 @@ export function Calendar(props: CalendarProps) {
     if (monthIndex(prev) === visibleKey) return;
     shownRef.current = visible;
     const dir = visibleKey > monthIndex(prev) ? 1 : -1;
-    dirRef.current = dir;
+    setSlideDir(dir);
     setLeaving({ month: prev, dir });
     slide.stopAnimation();
     slide.setValue(0);
@@ -271,7 +271,7 @@ export function Calendar(props: CalendarProps) {
   /* days / months / years view */
   const [view, setView] = useState<'days' | 'months' | 'years'>('days');
   const [pickYear, setPickYear] = useState(visible.getFullYear());
-  const viewAnim = useRef(new Animated.Value(1)).current; // native
+  const [viewAnim] = useState(() => new Animated.Value(1)); // native
   const [gridH, setGridH] = useState(0);
   const switchView = (next: 'days' | 'months' | 'years') => {
     if (next !== 'days' && view === 'days') setPickYear(visible.getFullYear());
@@ -283,7 +283,9 @@ export function Calendar(props: CalendarProps) {
 
   /* selection */
   const stateRef = useRef({ mode, current, value, onChange, max, visible, goTo });
-  stateRef.current = { mode, current, value, onChange, max, visible, goTo };
+  useLayoutEffect(() => {
+    stateRef.current = { mode, current, value, onChange, max, visible, goTo };
+  });
   const onDayPress = useCallback((d: Date) => {
     const s = stateRef.current;
     let next: CalendarValue;
@@ -305,18 +307,14 @@ export function Calendar(props: CalendarProps) {
     if (monthIndex(d) !== monthIndex(s.visible)) s.goTo(d);
   }, []);
 
-  const pan = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 14 && Math.abs(g.dx) > Math.abs(g.dy) * 1.4,
-        onPanResponderRelease: (_, g) => {
-          const s = stateRef.current;
-          if (g.dx < -40 || g.vx < -0.5) s.goTo(addMonths(s.visible, 1));
-          else if (g.dx > 40 || g.vx > 0.5) s.goTo(addMonths(s.visible, -1));
-        },
-      }),
-    []
-  );
+  const pan = usePanResponder({
+    onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 14 && Math.abs(g.dx) > Math.abs(g.dy) * 1.4,
+    onPanResponderRelease: (_, g) => {
+      const s = stateRef.current;
+      if (g.dx < -40 || g.vx < -0.5) s.goTo(addMonths(s.visible, 1));
+      else if (g.dx > 40 || g.vx > 0.5) s.goTo(addMonths(s.visible, -1));
+    },
+  });
 
   const weekdays = useMemo(() => {
     const base = new Date(2023, 0, 1); // a Sunday
@@ -349,7 +347,7 @@ export function Calendar(props: CalendarProps) {
 
   const W = width || 320;
   // Reduce Motion: months swap with a fade only, no sideways slide.
-  const dir = reduce ? 0 : dirRef.current;
+  const dir = reduce ? 0 : slideDir;
   const prevDisabled = view === 'days' ? monthIndex(visible) - 1 < minM : view === 'months' ? pickYear * 12 - 1 < minM : false;
   const nextDisabled = view === 'days' ? monthIndex(visible) + 1 > maxM : view === 'months' ? (pickYear + 1) * 12 > maxM : false;
   const decadeStart = Math.floor(pickYear / 12) * 12;
@@ -374,7 +372,7 @@ export function Calendar(props: CalendarProps) {
           onPress={monthPicker ? () => switchView(view === 'days' ? 'months' : view === 'months' ? 'years' : 'days') : undefined}
           disabled={!monthPicker}
           accessibilityRole={monthPicker ? 'button' : 'header'}
-          accessibilityLabel={monthPicker ? `${title}, ${view === 'days' ? 'choose month' : view === 'months' ? 'choose year' : 'back to days'}` : title}
+          accessibilityLabel={monthPicker ? `${title}, ${view === 'days' ? labels.chooseMonth : view === 'months' ? labels.chooseYear : labels.backToDays}` : title}
           hitSlop={6}
           style={({ pressed }) => [styles.titleBtn, { borderRadius: radius.sm, backgroundColor: pressed ? colors.muted : 'transparent' }]}
         >
@@ -401,12 +399,12 @@ export function Calendar(props: CalendarProps) {
             <Pressable
               onPress={() => goTo(today)}
               accessibilityRole="button"
-              accessibilityLabel="Go to today"
+              accessibilityLabel={labels.goToToday}
               hitSlop={4}
               style={({ pressed }) => [styles.todayBtn, { borderRadius: radius.capsule(32), backgroundColor: pressed ? colors.secondary : colors.muted }]}
             >
               <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.todayText, ff, { color: tint }]}>
-                Today
+                {labels.today}
               </Text>
             </Pressable>
           ) : null}
@@ -429,7 +427,7 @@ export function Calendar(props: CalendarProps) {
               </Text>
             ))}
           </View>
-          <View {...pan.panHandlers} style={styles.gridClip} onLayout={(e) => setGridH(e.nativeEvent.layout.height)}>
+          <View {...pan} style={styles.gridClip} onLayout={(e) => setGridH(e.nativeEvent.layout.height)}>
             {leaving ? (
               <Animated.View
                 pointerEvents="none"
@@ -525,16 +523,16 @@ interface MonthGridProps {
   fixedWeeks: boolean;
   showOutsideDays: boolean;
   showToday: boolean;
-  minDate?: Date;
-  maxDate?: Date;
-  isDateDisabled?: (date: Date) => boolean;
-  markedDates?: CalendarMarks;
-  highlightedDates?: Record<string, string>;
+  minDate?: Date | undefined;
+  maxDate?: Date | undefined;
+  isDateDisabled?: ((date: Date) => boolean) | undefined;
+  markedDates?: CalendarMarks | undefined;
+  highlightedDates?: Record<string, string> | undefined;
   tiles: boolean;
-  singleKey?: string;
-  rangeStart?: number;
-  rangeEnd?: number;
-  manyKeys?: string;
+  singleKey?: string | undefined;
+  rangeStart?: number | undefined;
+  rangeEnd?: number | undefined;
+  manyKeys?: string | undefined;
   tint: string;
   fullLabel: (d: Date) => string;
   reduce: boolean;
@@ -636,8 +634,8 @@ interface DayCellProps {
   band: 'none' | 'start' | 'mid' | 'end';
   roundLeft: boolean;
   roundRight: boolean;
-  marks?: string | string[];
-  highlight?: string;
+  marks?: string | string[] | undefined;
+  highlight?: string | undefined;
   tile: boolean;
   tint: string;
   reduce: boolean;
@@ -665,8 +663,8 @@ const DayCell = memo(function DayCell({
   const { colors, radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const r = tileRadius(radius.md);
-  const pop = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: circle scale + opacity
-  const bandIn = useRef(new Animated.Value(band === 'none' ? 0 : 1)).current; // native: band opacity
+  const [pop] = useState(() => new Animated.Value(selected ? 1 : 0)); // native: circle scale + opacity
+  const [bandIn] = useState(() => new Animated.Value(band === 'none' ? 0 : 1)); // native: band opacity
   useEffect(() => {
     // Reduce Motion: the selection fills in with a quick fade, no scale pop.
     if (reduce) Animated.timing(pop, { toValue: selected ? 1 : 0, duration: 150, useNativeDriver: true }).start();
@@ -773,14 +771,14 @@ const DayCell = memo(function DayCell({
 /* ───────────────────────────────────── bits ───────────────────────────────────── */
 
 function NavButton({ dir, disabled, onPress }: { dir: 1 | -1; disabled: boolean; onPress: () => void }) {
-  const { colors } = useKit();
+  const { colors, labels } = useKit();
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       hitSlop={4}
       accessibilityRole="button"
-      accessibilityLabel={dir < 0 ? 'Previous' : 'Next'}
+      accessibilityLabel={dir < 0 ? labels.previous : labels.next}
       accessibilityState={{ disabled }}
       style={({ pressed }) => [styles.nav, { backgroundColor: pressed ? colors.secondary : colors.muted, opacity: disabled ? 0.3 : 1 }]}
     >
@@ -798,7 +796,7 @@ function NavButton({ dir, disabled, onPress }: { dir: 1 | -1; disabled: boolean;
 }
 
 function Chevron({ turned, color, reduce }: { turned: boolean; color: string; reduce: boolean }) {
-  const turn = useRef(new Animated.Value(turned ? 1 : 0)).current; // native
+  const [turn] = useState(() => new Animated.Value(turned ? 1 : 0)); // native
   useEffect(() => {
     if (reduce) {
       turn.setValue(turned ? 1 : 0);

@@ -15,8 +15,9 @@
     ["Grain", "A tiny tiling noise image drawn at 2×, so the speckle stays fine on every screen; grain sets its strength."],
     ["Touch", "The gradient and grain never take touches; children render on top."]
   ],
+  "aliases": ["grain-gradient", "gradient", "mesh-gradient", "noise"],
   "dependencies": ["react-native-svg"],
-  "registryDependencies": ["kit"],
+  "registryDependencies": [],
   "props": [
     ["palette", "sunset | ocean | aurora | dusk | peach | graphite | ember | mint | lavender | candy | forest | noir", "\"sunset\"", "Built-in colour set."],
     ["colors", "string[]", "—", "Base colour first, then up to four blob colours. Overrides palette."],

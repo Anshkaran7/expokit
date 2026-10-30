@@ -4,6 +4,7 @@
   "title": "Radio Group",
   "description": "Pick one of many. The dot springs in with a ripple, selectable cards light their border and pop a check badge that draws itself, and the grouped iOS-style list draws a tick beside the chosen row.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

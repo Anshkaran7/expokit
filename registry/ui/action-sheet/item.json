@@ -69,7 +69,7 @@
     [
       "cancelLabel",
       "string | null",
-      "\"Cancel\"",
+      "labels.cancel",
       "Separate cancel button; null hides it."
     ],
     [

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -22,39 +22,39 @@ export type ChipGroupSize = 'sm' | 'md' | 'lg';
 
 export interface ChipOption {
   value: string;
-  label?: string;
+  label?: string | undefined;
   /** Leading icon or emoji. */
-  icon?: React.ReactNode;
+  icon?: React.ReactNode | undefined;
   /** Small number after the label, e.g. result count. */
-  count?: number;
-  disabled?: boolean;
+  count?: number | undefined;
+  disabled?: boolean | undefined;
 }
 
 export interface ChipGroupProps {
   /** Chips — plain strings or `{ value, label, icon, count }` objects. */
   options: (string | ChipOption)[];
   /** Allow several chips at once. Single mode still reports an array (`[]` or `[value]`). */
-  multiple?: boolean;
+  multiple?: boolean | undefined;
   /** Controlled selection. */
-  value?: string[];
+  value?: string[] | undefined;
   /** Initial selection when uncontrolled. */
-  defaultValue?: string[];
-  onValueChange?: (value: string[]) => void;
+  defaultValue?: string[] | undefined;
+  onValueChange?: ((value: string[]) => void) | undefined;
   /** Single mode: tapping the selected chip clears it (default true). */
-  deselectable?: boolean;
-  variant?: ChipGroupVariant;
-  size?: ChipGroupSize;
+  deselectable?: boolean | undefined;
+  variant?: ChipGroupVariant | undefined;
+  size?: ChipGroupSize | undefined;
   /** One horizontally scrolling row instead of wrapping lines. */
-  scrollable?: boolean;
+  scrollable?: boolean | undefined;
   /** Morph a check in front of the label when selected (default true). */
-  showCheck?: boolean;
+  showCheck?: boolean | undefined;
   /** Selected colour (default: theme accent). */
-  accent?: string;
-  disabled?: boolean;
-  accessibilityLabel?: string;
+  accent?: string | undefined;
+  disabled?: boolean | undefined;
+  accessibilityLabel?: string | undefined;
   /** Padding at the ends of the scroll row, so chips line up with your screen gutter. */
-  contentInset?: number;
-  style?: StyleProp<ViewStyle>;
+  contentInset?: number | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
@@ -154,7 +154,7 @@ interface ChipProps {
   tint: string;
   showCheck: boolean;
   multiple: boolean;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   reduce: boolean;
 }
 
@@ -162,8 +162,8 @@ function Chip({ option, active, onPress, variant, size, tint, showCheck, multipl
   const { colors, radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   // p: colours, check width + stroke (JS driver). press: squish (native, on the outer view).
-  const p = useRef(new Animated.Value(active ? 1 : 0)).current;
-  const press = useRef(new Animated.Value(1)).current;
+  const [p] = useState(() => new Animated.Value(active ? 1 : 0));
+  const [press] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     // Reduce Motion: the chip swaps state at once (no widening, no check draw).

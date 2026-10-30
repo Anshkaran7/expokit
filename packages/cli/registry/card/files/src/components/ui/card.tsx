@@ -70,9 +70,9 @@ export function Card({
   const gid = 'card' + useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduce = useReduceMotion();
 
-  const scale = useRef(new Animated.Value(1)).current;
-  const glow = useRef(new Animated.Value(0)).current;
-  const spot = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const [scale] = useState(() => new Animated.Value(1));
+  const [glow] = useState(() => new Animated.Value(0));
+  const [spot] = useState(() => new Animated.ValueXY({ x: 0, y: 0 }));
   const [size, setSize] = useState({ w: 0, h: 0 });
   const spotD = Math.max(size.w, size.h) * 1.1;
 

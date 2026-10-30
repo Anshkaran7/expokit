@@ -4,6 +4,7 @@
   "title": "Floating Input",
   "description": "The label starts as the placeholder and glides onto the border when you focus — a soft accent halo blooms around the field, errors shake in with an icon, valid values pop a spring check. Prefix/suffix, clear button, counter and three variants whose indicator grows from the centre.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

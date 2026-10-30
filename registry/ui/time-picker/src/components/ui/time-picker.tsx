@@ -1,10 +1,9 @@
-import React, { memo, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
   Easing,
   Modal,
-  PanResponder,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -18,7 +17,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Line, Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout, usePanResponder } from '@/lib/kit';
 
 /** A wall-clock time, 24-hour: `{ hours: 0–23, minutes: 0–59 }`. */
 export interface TimeValue {
@@ -143,11 +142,11 @@ export function uses12Hour(locale?: string) {
   }
 }
 
-/** '9:30 AM' or '09:30'. */
-export function formatTime(t: TimeValue, hour12 = true) {
+/** '9:30 AM' or '09:30'. `periods` names AM / PM (default English; pass `useKit().labels` to localise). */
+export function formatTime(t: TimeValue, hour12 = true, periods: { am: string; pm: string } = { am: 'AM', pm: 'PM' }) {
   if (!hour12) return `${pad2(t.hours)}:${pad2(t.minutes)}`;
   const h = t.hours % 12 || 12;
-  return `${h}:${pad2(t.minutes)} ${t.hours < 12 ? 'AM' : 'PM'}`;
+  return `${h}:${pad2(t.minutes)} ${t.hours < 12 ? periods.am : periods.pm}`;
 }
 
 /* ───────────────────────────── TimePicker ───────────────────────────── */
@@ -194,18 +193,18 @@ interface WheelProps {
   step: number;
   value: TimeValue | null;
   onChange: (t: TimeValue) => void;
-  accent?: string;
-  style?: StyleProp<ViewStyle>;
+  accent?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
   reduce: boolean;
 }
 
 function Wheel({ hour12, step, value, onChange, accent, style, reduce }: WheelProps) {
-  const { colors, radius, font, dark } = useKit();
+  const { colors, radius, font, dark, labels } = useKit();
   const tint = accent ?? colors.accent;
   const t = value ?? { hours: 9, minutes: 0 };
   const hours = useMemo(() => (hour12 ? ['12', ...Array.from({ length: 11 }, (_, i) => String(i + 1))] : Array.from({ length: 24 }, (_, i) => pad2(i))), [hour12]);
   const minutes = useMemo(() => Array.from({ length: Math.ceil(60 / step) }, (_, i) => pad2(i * step)), [step]);
-  const periods = useMemo(() => ['AM', 'PM'], []);
+  const periods = useMemo(() => [labels.am, labels.pm], [labels.am, labels.pm]);
 
   const hIdx = hour12 ? t.hours % 12 : t.hours;
   const mIdx = Math.min(minutes.length - 1, Math.round(t.minutes / step));
@@ -213,7 +212,9 @@ function Wheel({ hour12, step, value, onChange, accent, style, reduce }: WheelPr
 
   // Keep the latest value for column callbacks that fire after a scroll settles.
   const latest = useRef(t);
-  latest.current = t;
+  useLayoutEffect(() => {
+    latest.current = t;
+  });
   const set = (patch: Partial<{ h: number; m: number; p: number }>) => {
     const cur = latest.current;
     const curP = cur.hours >= 12 ? 1 : 0;
@@ -233,17 +234,17 @@ function Wheel({ hour12, step, value, onChange, accent, style, reduce }: WheelPr
         style={[styles.band, { top: PAD, height: ITEM, borderRadius: radius.scale(12), backgroundColor: alpha(tint, dark ? 0.16 : 0.11) }]}
       />
       <View style={styles.wheelGroup}>
-        <WheelColumn items={hours} index={hIdx} onIndexChange={(h) => set({ h })} label="Hour" width={64} align="right" reduce={reduce} />
+        <WheelColumn items={hours} index={hIdx} onIndexChange={(h) => set({ h })} label={labels.hour} width={64} align="right" reduce={reduce} />
         <View pointerEvents="none" style={styles.colon}>
           <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.colonText, font.family ? { fontFamily: font.family } : null, { color: colors.mutedForeground }]}>:</Text>
         </View>
-        <WheelColumn items={minutes} index={mIdx} onIndexChange={(m) => set({ m })} label="Minute" width={64} align="left" reduce={reduce} />
+        <WheelColumn items={minutes} index={mIdx} onIndexChange={(m) => set({ m })} label={labels.minute} width={64} align="left" reduce={reduce} />
         {hour12 ? (
           <WheelColumn
             items={periods}
             index={pIdx}
             onIndexChange={(p) => set({ p })}
-            label="AM or PM"
+            label={labels.amPm}
             width={60}
             align="center"
             small
@@ -272,17 +273,21 @@ interface WheelColumnProps {
 const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, label, width, align, small, style, reduce }: WheelColumnProps) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const scrollY = useRef(new Animated.Value(index * ITEM)).current; // native, driven by the scroll view
+  const [scrollY] = useState(() => new Animated.Value(index * ITEM)); // native, driven by the scroll view
   const ref = useRef<ComponentRef<typeof ScrollView>>(null);
   const settled = useRef(index);
   const dragging = useRef(false);
   const lastY = useRef(index * ITEM);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cb = useRef(onIndexChange);
-  cb.current = onIndexChange;
+  useLayoutEffect(() => {
+    cb.current = onIndexChange;
+  });
   // Read by settle(), which also runs from the scroll listener created once.
   const animated = useRef(!reduce);
-  animated.current = !reduce;
+  useLayoutEffect(() => {
+    animated.current = !reduce;
+  });
 
   useEffect(() => {
     if (index !== settled.current && !dragging.current) {
@@ -316,6 +321,7 @@ const WheelColumn = memo(function WheelColumn({ items, index, onIndexChange, lab
 
   const onScroll = useMemo(
     () =>
+      // eslint-disable-next-line react-hooks/refs -- the listener reads refs on scroll events, never during render
       Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
         useNativeDriver: true,
         listener: (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -402,8 +408,8 @@ interface ClockProps {
   step: number;
   value: TimeValue | null;
   onChange: (t: TimeValue) => void;
-  accent?: string;
-  style?: StyleProp<ViewStyle>;
+  accent?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
   reduce: boolean;
 }
 
@@ -423,7 +429,7 @@ const handAngle = (t: TimeValue, mode: ClockMode) => (mode === 'hour' ? (t.hours
  * native driver and snaps to hours, then auto-advances to minutes when you let go.
  */
 function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockProps) {
-  const { colors, radius, font, dark } = useKit();
+  const { colors, radius, font, dark, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const ink = readableOn(tint);
@@ -441,9 +447,9 @@ function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockPr
   const handR = mode === 'hour' && innerHour ? inner : outer;
 
   // Hand rotation in degrees (native). Kept continuous so 55 → 00 turns forward, not all the way back.
-  const rot = useRef(new Animated.Value(handAngle(t, 'hour'))).current;
+  const [rot] = useState(() => new Animated.Value(handAngle(t, 'hour')));
   const angle = useRef(handAngle(t, 'hour'));
-  const modeAnim = useRef(new Animated.Value(0)).current; // native: number crossfade
+  const [modeAnim] = useState(() => new Animated.Value(0)); // native: number crossfade
   useEffect(() => {
     const target = handAngle(t, mode);
     const d = ((((target - angle.current) % 360) + 540) % 360) - 180;
@@ -459,48 +465,48 @@ function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockPr
 
   // Latest values for the pan responder, which is created once.
   const live = useRef({ t, mode, hour12, step, onChange, c, outer, inner, touched: value !== null });
-  live.current = { t, mode, hour12, step, onChange, c, outer, inner, touched: value !== null };
+  useLayoutEffect(() => {
+    live.current = { t, mode, hour12, step, onChange, c, outer, inner, touched: value !== null };
+  });
   const origin = useRef({ x: 0, y: 0 });
 
-  const pan = useMemo(() => {
-    const pick = (x: number, y: number) => {
-      const L = live.current;
-      const dx = x - L.c;
-      const dy = y - L.c;
-      let deg = (Math.atan2(dx, -dy) * 180) / Math.PI;
-      if (deg < 0) deg += 360;
-      const cur = L.t;
-      let next: TimeValue;
-      if (L.mode === 'hour') {
-        const i = Math.round(deg / 30) % 12;
-        if (L.hour12) next = { hours: i + (cur.hours >= 12 ? 12 : 0), minutes: cur.minutes };
-        else {
-          const innerRing = Math.hypot(dx, dy) < (L.outer + L.inner) / 2;
-          next = { hours: innerRing ? (i === 0 ? 0 : i + 12) : i === 0 ? 12 : i, minutes: cur.minutes };
-        }
-      } else {
-        next = { hours: cur.hours, minutes: (Math.round(deg / 6 / L.step) * L.step) % 60 };
+  const pick = (x: number, y: number) => {
+    const L = live.current;
+    const dx = x - L.c;
+    const dy = y - L.c;
+    let deg = (Math.atan2(dx, -dy) * 180) / Math.PI;
+    if (deg < 0) deg += 360;
+    const cur = L.t;
+    let next: TimeValue;
+    if (L.mode === 'hour') {
+      const i = Math.round(deg / 30) % 12;
+      if (L.hour12) next = { hours: i + (cur.hours >= 12 ? 12 : 0), minutes: cur.minutes };
+      else {
+        const innerRing = Math.hypot(dx, dy) < (L.outer + L.inner) / 2;
+        next = { hours: innerRing ? (i === 0 ? 0 : i + 12) : i === 0 ? 12 : i, minutes: cur.minutes };
       }
-      if (next.hours !== cur.hours || next.minutes !== cur.minutes || !L.touched) {
-        L.t = next;
-        L.touched = true;
-        L.onChange(next);
-      }
-    };
-    return PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: (e) => {
-        origin.current = { x: e.nativeEvent.locationX, y: e.nativeEvent.locationY };
-        pick(origin.current.x, origin.current.y);
-      },
-      onPanResponderMove: (_, g) => pick(origin.current.x + g.dx, origin.current.y + g.dy),
-      onPanResponderRelease: () => {
-        if (live.current.mode === 'hour') setMode('minute');
-      },
-    });
-  }, []);
+    } else {
+      next = { hours: cur.hours, minutes: (Math.round(deg / 6 / L.step) * L.step) % 60 };
+    }
+    if (next.hours !== cur.hours || next.minutes !== cur.minutes || !L.touched) {
+      L.t = next;
+      L.touched = true;
+      L.onChange(next);
+    }
+  };
+  const pan = usePanResponder({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderGrant: (e) => {
+      origin.current = { x: e.nativeEvent.locationX, y: e.nativeEvent.locationY };
+      pick(origin.current.x, origin.current.y);
+    },
+    onPanResponderMove: (_, g) => pick(origin.current.x + g.dx, origin.current.y + g.dy),
+    onPanResponderRelease: () => {
+      if (live.current.mode === 'hour') setMode('minute');
+    },
+  });
 
   const adjust = (dir: 1 | -1) => {
     if (mode === 'hour') {
@@ -554,22 +560,22 @@ function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockPr
   return (
     <View style={[styles.clock, style]} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
       <View style={styles.clockHead}>
-        {segment('hour', hourText, 'Hour')}
+        {segment('hour', hourText, labels.hour)}
         <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.clockColon, ff, { fontSize: segFont, color: colors.mutedForeground }]}>:</Text>
-        {segment('minute', pad2(t.minutes), 'Minute')}
+        {segment('minute', pad2(t.minutes), labels.minute)}
         {hour12 ? (
           <View
             accessibilityRole="radiogroup"
             style={[styles.period, { height: segH, borderRadius: radius.scale(10), borderColor: colors.border }]}
           >
-            {(['AM', 'PM'] as const).map((p, i) => {
-              const on = (p === 'PM') === pm;
+            {(['am', 'pm'] as const).map((p, i) => {
+              const on = (p === 'pm') === pm;
               return (
                 <Pressable
                   key={p}
-                  onPress={() => setPeriod(p === 'PM')}
+                  onPress={() => setPeriod(p === 'pm')}
                   accessibilityRole="radio"
-                  accessibilityLabel={p}
+                  accessibilityLabel={labels[p]}
                   accessibilityState={{ checked: on }}
                   style={[
                     styles.periodBtn,
@@ -577,7 +583,7 @@ function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockPr
                     i === 1 && { borderTopWidth: StyleSheet.hairlineWidth * 2, borderTopColor: colors.border },
                   ]}
                 >
-                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.periodText, ff, { color: on ? tint : colors.mutedForeground }]}>{p}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.periodText, ff, { color: on ? tint : colors.mutedForeground }]}>{labels[p]}</Text>
                 </Pressable>
               );
             })}
@@ -586,12 +592,12 @@ function Clock({ hour12, step, value, onChange, accent, style, reduce }: ClockPr
       </View>
 
       <View
-        {...pan.panHandlers}
+        {...pan}
         accessible
         accessibilityRole="adjustable"
-        accessibilityLabel={mode === 'hour' ? 'Hour' : 'Minute'}
-        accessibilityHint="Drag around the dial, or swipe up or down to adjust."
-        accessibilityValue={{ text: mode === 'hour' ? `${knobLabel || hourText} ${hour12 ? (pm ? 'PM' : 'AM') : 'hours'}` : `${t.minutes} minutes` }}
+        accessibilityLabel={mode === 'hour' ? labels.hour : labels.minute}
+        accessibilityHint={labels.timeDialHint}
+        accessibilityValue={{ text: mode === 'hour' ? (hour12 ? `${knobLabel || hourText} ${pm ? labels.pm : labels.am}` : labels.hours(knobLabel || hourText)) : labels.minutes(t.minutes) }}
         accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
         onAccessibilityAction={(e) => adjust(e.nativeEvent.actionName === 'increment' ? 1 : -1)}
         style={[styles.face, { width: size, height: size }]}
@@ -666,7 +672,7 @@ function SlotGrid({
   onPick,
   reduce,
 }: SlotGridProps) {
-  const { colors, font } = useKit();
+  const { colors, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const list = useMemo(() => {
@@ -682,12 +688,12 @@ function SlotGrid({
   const groups = useMemo(() => {
     if (!groupByPeriod) return [{ title: '', items: list }];
     const g = [
-      { title: 'Morning', items: list.filter((n) => n < 720) },
-      { title: 'Afternoon', items: list.filter((n) => n >= 720 && n < 1020) },
-      { title: 'Evening', items: list.filter((n) => n >= 1020) },
+      { title: labels.morning, items: list.filter((n) => n < 720) },
+      { title: labels.afternoon, items: list.filter((n) => n >= 720 && n < 1020) },
+      { title: labels.evening, items: list.filter((n) => n >= 1020) },
     ];
     return g.filter((x) => x.items.length);
-  }, [list, groupByPeriod]);
+  }, [list, groupByPeriod, labels]);
 
   return (
     <View style={[styles.slots, style]} accessibilityRole="radiogroup">
@@ -698,7 +704,7 @@ function SlotGrid({
             {g.title ? (
               <View style={styles.groupHead}>
                 <Text style={[styles.groupTitle, ff, { color: colors.foreground }]}>{g.title}</Text>
-                <Text style={[styles.groupCount, ff, { color: colors.mutedForeground }]}>{free ? `${free} open` : 'Full'}</Text>
+                <Text style={[styles.groupCount, ff, { color: colors.mutedForeground }]}>{free ? labels.slotsOpen(free) : labels.full}</Text>
               </View>
             ) : null}
             <View style={styles.grid}>
@@ -706,7 +712,7 @@ function SlotGrid({
                 <View key={n} style={[styles.chipCell, { width: `${100 / columns}%` }]}>
                   <Chip
                     minutes={n}
-                    label={formatTime(fromMin(n), hour12)}
+                    label={formatTime(fromMin(n), hour12, labels)}
                     selected={n === selected}
                     booked={booked.has(n)}
                     disabled={off.has(n)}
@@ -737,9 +743,9 @@ interface ChipProps {
 }
 
 const Chip = memo(function Chip({ minutes, label, selected, booked, disabled, tint, reduce, onPick }: ChipProps) {
-  const { colors, radius, font } = useKit();
-  const pop = useRef(new Animated.Value(1)).current; // native: press + select spring
-  const on = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: fill opacity
+  const { colors, radius, font, labels } = useKit();
+  const [pop] = useState(() => new Animated.Value(1)); // native: press + select spring
+  const [on] = useState(() => new Animated.Value(selected ? 1 : 0)); // native: fill opacity
   useEffect(() => {
     Animated.timing(on, { toValue: selected ? 1 : 0, duration: motion.fast, useNativeDriver: true }).start();
     if (selected && !reduce) {
@@ -756,7 +762,7 @@ const Chip = memo(function Chip({ minutes, label, selected, booked, disabled, ti
       onPressOut={reduce ? undefined : () => Animated.spring(pop, { toValue: 1, useNativeDriver: true, ...motion.bouncy }).start()}
       disabled={blocked}
       accessibilityRole="radio"
-      accessibilityLabel={`${label}${booked ? ', booked' : disabled ? ', unavailable' : ''}`}
+      accessibilityLabel={`${label}${booked ? `, ${labels.booked}` : disabled ? `, ${labels.unavailable}` : ''}`}
       accessibilityState={{ checked: selected, disabled: blocked }}
     >
       <Animated.View
@@ -806,10 +812,10 @@ function TimeField({
   current,
   commit,
   reduce,
-  label = 'Time',
+  label: labelProp,
   floatingLabel = true,
   title,
-  placeholder = 'Select a time',
+  placeholder: placeholderProp,
   size = 'md',
   confirm,
   error,
@@ -828,7 +834,9 @@ function TimeField({
   menuStyle,
   ...chipProps
 }: TimeFieldProps) {
-  const { colors, radius, font, dark, shadow } = useKit();
+  const { colors, radius, font, dark, shadow, labels } = useKit();
+  const label = labelProp ?? labels.time;
+  const placeholder = placeholderProp ?? labels.selectTime;
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const bg = surface ?? colors.background;
@@ -849,19 +857,16 @@ function TimeField({
   const [mounted, setMounted] = useState(false);
   const [draft, setDraft] = useState<TimeValue | null>(current);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Read by the sheet's pan responder, which is created once.
-  const reduceRef = useRef(reduce);
-  reduceRef.current = reduce;
 
   const ok = !error && !!success;
   const floating = open || !!current;
-  const float = useRef(new Animated.Value(floating ? 1 : 0)).current; // native
-  const focus = useRef(new Animated.Value(0)).current; // JS: colours
-  const halo = useRef(new Animated.Value(0)).current; // native
-  const show = useRef(new Animated.Value(0)).current; // native
-  const drag = useRef(new Animated.Value(0)).current; // native
-  const shake = useRef(new Animated.Value(0)).current; // native
-  const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
+  const [float] = useState(() => new Animated.Value(floating ? 1 : 0)); // native
+  const [focus] = useState(() => new Animated.Value(0)); // JS: colours
+  const [halo] = useState(() => new Animated.Value(0)); // native
+  const [show] = useState(() => new Animated.Value(0)); // native
+  const [drag] = useState(() => new Animated.Value(0)); // native
+  const [shake] = useState(() => new Animated.Value(0)); // native
+  const [check] = useState(() => new Animated.Value(ok ? 1 : 0)); // native
 
   useEffect(() => {
     if (reduce) float.setValue(floating ? 1 : 0);
@@ -918,21 +923,19 @@ function TimeField({
     }
   };
 
-  const pan = useMemo(() => {
-    const back = () =>
-      reduceRef.current
-        ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
-        : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
-    return PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-      onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
-      onPanResponderRelease: (_, g) => {
-        if (g.dy > 110 || g.vy > 1.1) setOpen(false);
-        else back();
-      },
-      onPanResponderTerminate: back,
-    });
-  }, [drag]);
+  const back = () =>
+    reduce
+      ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
+      : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
+  const pan = usePanResponder({
+    onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+    onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
+    onPanResponderRelease: (_, g) => {
+      if (g.dy > 110 || g.vy > 1.1) setOpen(false);
+      else back();
+    },
+    onPanResponderTerminate: back,
+  });
 
   const active = error ? colors.danger : tint;
   const rest = error ? colors.danger : ok ? colors.success : ((userBorder as string | undefined) ?? colors.input);
@@ -942,7 +945,7 @@ function TimeField({
     outputRange: [error ? colors.danger : ok ? colors.success : (userLabelColor ?? colors.mutedForeground), active],
   });
   const topLabelColor = focus.interpolate({ inputRange: [0, 1], outputRange: [error ? colors.danger : (userLabelColor ?? colors.foreground), active] });
-  const text = current ? formatTime(current, hour12) : '';
+  const text = current ? formatTime(current, hour12, labels) : '';
   const successText = typeof success === 'string' && ok ? success : undefined;
   const message = error ?? successText ?? helper;
   const tone = error ? 'error' : successText ? 'success' : 'helper';
@@ -966,7 +969,7 @@ function TimeField({
         disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={label}
-        accessibilityValue={{ text: text || 'Not set' }}
+        accessibilityValue={{ text: text || labels.notSet }}
         accessibilityState={{ expanded: open, disabled: !!disabled }}
         style={{ opacity: disabled ? 0.5 : 1 }}
       >
@@ -1032,7 +1035,7 @@ function TimeField({
 
       <Modal visible={mounted} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay, opacity: show }]}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Close" accessibilityRole="button" />
+          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel={labels.close} accessibilityRole="button" />
         </Animated.View>
         <View style={[styles.sheetHost, wide && styles.centered]} pointerEvents="box-none">
           <Animated.View
@@ -1065,11 +1068,11 @@ function TimeField({
                   },
             ]}
           >
-            <View {...pan.panHandlers} style={styles.sheetHeader}>
+            <View {...pan} style={styles.sheetHeader}>
               {!wide ? <View style={[styles.grabber, { backgroundColor: colors.border }]} /> : null}
               <Text style={[styles.title, ff, { color: colors.foreground }]}>{title ?? label}</Text>
               {variant === 'clock' ? null : (
-                <Text style={[styles.preview, ff, { color: draft ? tint : colors.mutedForeground }]}>{draft ? formatTime(draft, hour12) : placeholder}</Text>
+                <Text style={[styles.preview, ff, { color: draft ? tint : colors.mutedForeground }]}>{draft ? formatTime(draft, hour12, labels) : placeholder}</Text>
               )}
             </View>
             <ScrollView style={styles.sheetBody} contentContainerStyle={styles.sheetContent} bounces={false} scrollEnabled={variant === 'chips'}>
@@ -1084,7 +1087,7 @@ function TimeField({
             {staged ? (
               <View style={[styles.footer, { borderTopColor: colors.border }]}>
                 <Pressable onPress={close} accessibilityRole="button" style={({ pressed }) => [styles.footBtn, { borderRadius: radius.md, opacity: pressed ? 0.6 : 1 }]}>
-                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>Cancel</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>{labels.cancel}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => {
@@ -1099,7 +1102,7 @@ function TimeField({
                     { backgroundColor: tint, borderRadius: radius.md, opacity: !draft ? 0.4 : pressed ? 0.85 : 1 },
                   ]}
                 >
-                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: readableOn(tint) }]}>{draft ? `Set ${formatTime(draft, hour12)}` : 'Done'}</Text>
+                  <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: readableOn(tint) }]}>{draft ? labels.setTime(formatTime(draft, hour12, labels)) : labels.done}</Text>
                 </Pressable>
               </View>
             ) : null}
@@ -1123,7 +1126,7 @@ function FieldMessage({
   style?: StyleProp<TextStyle>;
 }) {
   const { colors, font } = useKit();
-  const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
+  const [enter] = useState(() => new Animated.Value(tone === 'helper' ? 1 : 0)); // native
   useEffect(() => {
     if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
     else Animated.spring(enter, { toValue: 1, useNativeDriver: true, ...motion.snappy }).start();

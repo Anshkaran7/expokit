@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -59,7 +59,9 @@ export function Accordion({
   const [inner, setInner] = useState(defaultValue);
   const open = value ?? inner;
   const openRef = useRef(open);
-  openRef.current = open;
+  useLayoutEffect(() => {
+    openRef.current = open;
+  });
 
   const toggle = useCallback(
     (v: string) => {
@@ -131,8 +133,8 @@ export function AccordionItem({ value, title, subtitle, icon, children, disabled
 
   const [height, setHeight] = useState(0);
   // `progress` drives height (layout → JS driver); `turn` rotates the chevron on the native driver.
-  const progress = useRef(new Animated.Value(open ? 1 : 0)).current;
-  const turn = useRef(new Animated.Value(open ? 1 : 0)).current;
+  const [progress] = useState(() => new Animated.Value(open ? 1 : 0));
+  const [turn] = useState(() => new Animated.Value(open ? 1 : 0));
 
   useEffect(() => {
     // Reduce Motion: open and close at once, chevron flips without turning.

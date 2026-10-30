@@ -4,6 +4,7 @@
   "title": "List Item",
   "description": "Settings, contacts and inbox rows: icon tiles, avatars with presence dots, subtitles, values, badges, checks and chevrons, with a UIKit-style press highlight that fades in fast and out slow. ListGroup gives you the iOS inset-grouped card with headers, footers and separators that line up with the text.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

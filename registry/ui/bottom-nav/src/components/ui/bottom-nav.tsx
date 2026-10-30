@@ -67,36 +67,36 @@ export interface BottomNavItem {
    */
   icon: BottomNavIconName | ((props: BottomNavIconProps) => React.ReactNode);
   /** `true` shows a dot; a number shows a count (99+ above 99). */
-  badge?: boolean | number;
+  badge?: boolean | number | undefined;
   /**
    * A primary action (e.g. Create) instead of a destination: drawn as a solid accent button and never
    * becomes the active tab. Pressing it calls `onAction`.
    */
-  action?: boolean;
-  accessibilityLabel?: string;
+  action?: boolean | undefined;
+  accessibilityLabel?: string | undefined;
 }
 
 export interface BottomNavProps {
   items: BottomNavItem[];
-  value?: string;
-  defaultValue?: string;
-  onValueChange?: (key: string) => void;
+  value?: string | undefined;
+  defaultValue?: string | undefined;
+  onValueChange?: ((key: string) => void) | undefined;
   /** Called with the item's key when an `action` item is pressed. */
-  onAction?: (key: string) => void;
-  variant?: BottomNavVariant;
+  onAction?: ((key: string) => void) | undefined;
+  variant?: BottomNavVariant | undefined;
   /** Active colour and the action button fill. */
-  accent?: string;
+  accent?: string | undefined;
   /** Opt-in two-colour gradient for the action button (default: none — a solid accent fill). */
-  gradient?: [string, string];
+  gradient?: [string, string] | undefined;
   /** Show labels. `floating` and `pill` show only the active label; the others show all. */
-  showLabels?: boolean;
+  showLabels?: boolean | undefined;
   /** Extra bottom padding, e.g. `useSafeAreaInsets().bottom` when the bar sits at the screen edge. */
-  bottomInset?: number;
+  bottomInset?: number | undefined;
   /** Show the iOS home-indicator line (default: on for `minimal`). */
-  homeIndicator?: boolean;
+  homeIndicator?: boolean | undefined;
   /** Selection tick on tab change, light impact on the action button (default true). */
-  haptics?: boolean;
-  style?: StyleProp<ViewStyle>;
+  haptics?: boolean | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
@@ -159,9 +159,9 @@ export function BottomNav({
   const slot = rowW / n;
 
   // Indicator edges (JS driver: they set left / width) and the slot offset (native: spotlight).
-  const lead = useRef(new Animated.Value(0)).current;
-  const trail = useRef(new Animated.Value(0)).current;
-  const x = useRef(new Animated.Value(0)).current;
+  const [lead] = useState(() => new Animated.Value(0));
+  const [trail] = useState(() => new Animated.Value(0));
+  const [x] = useState(() => new Animated.Value(0));
   const placed = useRef(false);
   const last = useRef(index);
 
@@ -327,8 +327,9 @@ export function BottomNav({
 
   // ---- centre FAB in its notch (absolute, so its whole face stays inside the bar's bounds) -----
   let centre: React.ReactNode = null;
-  if (notched && rowW) {
-    const item = items[actionIndex];
+  const actionItem = notched ? items[actionIndex] : undefined;
+  if (actionItem && rowW) {
+    const item = actionItem;
     centre = (
       <CentreAction
         item={item}
@@ -449,11 +450,11 @@ interface NavButtonProps {
 }
 
 function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, reduce, onPress }: NavButtonProps) {
-  const { font } = useKit();
+  const { font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const press = useRef(new Animated.Value(1)).current; // press squish (native)
-  const pop = useRef(new Animated.Value(active ? 1 : 0)).current; // active state (native)
-  const grow = useRef(new Animated.Value(active ? 1 : 0)).current; // pill width (JS — layout)
+  const [press] = useState(() => new Animated.Value(1)); // press squish (native)
+  const [pop] = useState(() => new Animated.Value(active ? 1 : 0)); // active state (native)
+  const [grow] = useState(() => new Animated.Value(active ? 1 : 0)); // pill width (JS — layout)
   const [labelW, setLabelW] = useState(0);
 
   useEffect(() => {
@@ -468,7 +469,7 @@ function NavButton({ item, active, look, tint, idle, surface, fab, showLabels, r
 
   const pressTo = (v: number) =>
     Animated.spring(press, { toValue: v, useNativeDriver: true, ...(v < 1 ? motion.snappy : motion.bouncy) }).start();
-  const a11y = item.accessibilityLabel ?? (typeof item.badge === 'number' ? `${item.label}, ${item.badge} new` : item.label);
+  const a11y = item.accessibilityLabel ?? (typeof item.badge === 'number' ? `${item.label}, ${labels.newCount(String(item.badge))}` : item.label);
   const pressable = {
     onPress,
     onPressIn: () => pressTo(0.88),
@@ -666,7 +667,7 @@ function CentreAction({
 }) {
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const press = useRef(new Animated.Value(1)).current;
+  const [press] = useState(() => new Animated.Value(1));
   const pressTo = (v: number) =>
     Animated.spring(press, { toValue: v, useNativeDriver: true, ...(v < 1 ? motion.snappy : motion.bouncy) }).start();
   return (
@@ -773,7 +774,7 @@ function FabFace({
 function Badge({ value, ring, reduce }: { value: true | number; ring: string; reduce: boolean }) {
   const { colors, radius, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const s = useRef(new Animated.Value(reduce ? 1 : 0.3)).current;
+  const [s] = useState(() => new Animated.Value(reduce ? 1 : 0.3));
   useEffect(() => {
     if (reduce) {
       s.setValue(1);

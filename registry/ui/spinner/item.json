@@ -64,7 +64,7 @@
     [
       "label",
       "string",
-      "\"Loading\"",
+      "labels.loading",
       "Accessibility label; shown on screen when labelPosition is set."
     ],
     [

@@ -4,8 +4,12 @@
   "title": "Bottom Sheet",
   "description": "Draggable bottom sheet with snap points, a grabber pill that stretches as you drag, rubber-banding past its limits and release-velocity snapping with a haptic tick on each detent. The scrim dims in step with its height, content scrolls once fully expanded, a footer stays pinned at every detent, and the keyboard lifts it. Large radius, hairline edge and a soft layered top shadow.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
-    "expo-haptics"
+    "expo-haptics",
+    "react-native-gesture-handler",
+    "react-native-reanimated",
+    "react-native-worklets"
   ],
   "registryDependencies": [
     "kit"

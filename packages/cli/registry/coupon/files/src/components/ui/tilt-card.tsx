@@ -4,7 +4,6 @@ import {
   Animated,
   Easing,
   Image,
-  PanResponder,
   StyleSheet,
   View,
   type ImageSourcePropType,
@@ -14,7 +13,7 @@ import {
 } from 'react-native';
 import Svg, { Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 
-import { motion } from '@/lib/kit';
+import { motion, usePanResponder } from '@/lib/kit';
 
 /** `holo` adds a rainbow foil sheen that shifts as the card tilts (always faintly visible). */
 export type TiltCardGlare = 'soft' | 'sharp' | 'holo' | 'none';
@@ -28,58 +27,58 @@ export interface TiltRect {
 }
 
 export interface TiltCardProps {
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
   /** Photo that fills the card behind the content (`require()` or `{ uri }`). */
-  image?: ImageSourcePropType;
+  image?: ImageSourcePropType | undefined;
   /** Darkens the bottom of `image` so white text on it stays readable: 0 off … 1 strong (default 0.6). */
-  shade?: number;
+  shade?: number | undefined;
   /** Maximum tilt in degrees at the card's edge (default 12). */
-  maxTilt?: number;
+  maxTilt?: number | undefined;
   /** Scale while touched (default 1.03). */
-  pressScale?: number;
+  pressScale?: number | undefined;
   /** Light reflection that slides across the card as it tilts. */
-  glare?: TiltCardGlare;
+  glare?: TiltCardGlare | undefined;
   /**
    * Where the reflection may fall, in card points — for cards with cut-outs (ticket notches,
    * perforated edges), so light never shows over a hole. Default: the whole card.
    */
-  glareClip?: TiltRect[];
+  glareClip?: TiltRect[] | undefined;
   /** Depth of the 3D effect — smaller is more dramatic (default 800). */
-  perspective?: number;
+  perspective?: number | undefined;
   /** Slowly sway on its own while untouched, so the card reads as 3D at rest. */
-  idle?: boolean;
+  idle?: boolean | undefined;
   /** Corner radius (default 20). */
-  radius?: number;
+  radius?: number | undefined;
   /** Soft shadow under the card that shifts as it tilts (default true). */
-  shadow?: boolean;
+  shadow?: boolean | undefined;
   /**
    * The part of the card that casts the shadow, in card points — e.g. leave out a ticket stub that's
    * being torn off, so the plate never shows where it was. Default: the whole card.
    */
-  shadowRect?: TiltRect;
+  shadowRect?: TiltRect | undefined;
   /**
    * Narrows the shadow sideways (1 = full width, 0 = none) — for content that turns edge-on inside
    * the card, like a FlipCard mid-flip, so the shadow plate never shows past it.
    */
-  shadowScaleX?: Animated.Value | Animated.AnimatedInterpolation<number>;
+  shadowScaleX?: Animated.Value | Animated.AnimatedInterpolation<number> | undefined;
   /** Turn touch tilting off (the card still renders, e.g. while a parent list scrolls). */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /** Called with a light tap (not after a drag). */
-  onPress?: () => void;
-  accessibilityLabel?: string;
+  onPress?: (() => void) | undefined;
+  accessibilityLabel?: string | undefined;
   /** Width, height, margins — applied to the card's outer box. */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 export interface TiltLayerProps {
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
   /**
    * How far above the card this layer floats: 0 sits on the card, 1 floats well above it
    * and slides furthest as the card tilts (default 0.5). Negative sinks below the surface.
    */
-  depth?: number;
+  depth?: number | undefined;
   /** Layers fill the card by default; position content inside, or override here. */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 export interface TiltState {
@@ -109,7 +108,8 @@ const PAINT = 96;
 // pinks, violets and cyans stay clean when blended over dark cards (yellow and green turn olive).
 const SMOOTH = Easing.bezier(0.32, 0.72, 0, 1);
 
-const HOLO = Array.from({ length: 37 }, (_, i) => ['#ff6bd6', '#b38cff', '#6fb6ff', '#5ff0ff', '#a7ffe0', '#ffc2ef'][i % 6]);
+const HOLO_CYCLE = ['#ff6bd6', '#b38cff', '#6fb6ff', '#5ff0ff', '#a7ffe0', '#ffc2ef'];
+const HOLO = Array.from({ length: 37 }, (_, i) => HOLO_CYCLE[i % HOLO_CYCLE.length] ?? '#ff6bd6');
 
 function GlarePaint({ variant }: { variant: 'soft' | 'sharp' }) {
   const sharp = variant === 'sharp';
@@ -262,21 +262,15 @@ export function TiltCard({
 }: TiltCardProps) {
   const reduce = useReduceMotion();
   const [size, setSize] = useState({ w: 0, h: 0 });
-  const sizeRef = useRef(size);
-  sizeRef.current = size;
 
   // -1 … 1 across the card; the card leans toward the finger.
-  const tx = useRef(new Animated.Value(0)).current;
-  const ty = useRef(new Animated.Value(0)).current;
-  const press = useRef(new Animated.Value(0)).current;
+  const [tx] = useState(() => new Animated.Value(0));
+  const [ty] = useState(() => new Animated.Value(0));
+  const [press] = useState(() => new Animated.Value(0));
   const touching = useRef(false);
   const origin = useRef({ x: 0, y: 0 });
   const moved = useRef(false);
   const viewRef = useRef<ComponentRef<typeof View>>(null);
-  const disabledRef = useRef(disabled);
-  disabledRef.current = disabled;
-  const reduceRef = useRef(reduce);
-  reduceRef.current = reduce;
 
   // Idle sway: a slow figure-eight while nobody is touching.
   const idleLoop = useRef<Animated.CompositeAnimation | null>(null);
@@ -310,7 +304,7 @@ export function TiltCard({
   }, [idle, reduce]);
 
   const aim = (pageX: number, pageY: number) => {
-    const { w, h } = sizeRef.current;
+    const { w, h } = size;
     if (!w || !h) return;
     tx.setValue(Math.max(-1, Math.min(1, ((pageX - origin.current.x) / w) * 2 - 1)));
     ty.setValue(Math.max(-1, Math.min(1, ((pageY - origin.current.y) / h) * 2 - 1)));
@@ -318,7 +312,7 @@ export function TiltCard({
 
   const release = (tapped: boolean) => {
     touching.current = false;
-    if (tapped && !moved.current) onPressRef.current?.();
+    if (tapped && !moved.current) onPress?.();
     if (reduce) {
       // The card never leaves flat, so only the light has to settle: a short ease, no spring.
       const settle = (v: Animated.Value) => Animated.timing(v, { toValue: 0, duration: 150, easing: SMOOTH, useNativeDriver: true });
@@ -345,57 +339,48 @@ export function TiltCard({
       if (finished && !touching.current) startIdle();
     });
   };
-  // Read the latest onPress at release time, so the responder never has to be rebuilt mid-gesture.
-  const onPressRef = useRef(onPress);
-  onPressRef.current = onPress;
-  const releaseRef = useRef(release);
-  releaseRef.current = release;
-
-  const responder = useMemo(
-    () =>
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => !disabledRef.current,
-        // Only a real drag takes the touch from a button inside the card — a tap's tiny jitter must not.
-        onMoveShouldSetPanResponder: (_e, g) => !disabledRef.current && Math.abs(g.dx) + Math.abs(g.dy) > 6,
-        // Let a parent ScrollView take over scrolls that start on the card (on Android the native
-        // scroll view can only do that when the card doesn't block it).
-        onPanResponderTerminationRequest: () => true,
-        onShouldBlockNativeResponder: () => false,
-        onPanResponderGrant: (e) => {
-          touching.current = true;
-          moved.current = false;
-          idleLoop.current?.stop();
-          const { pageX, pageY, locationX, locationY } = e.nativeEvent;
-          // locationX is relative to the touched child, so measure the card itself and correct
-          // once the measurement arrives.
-          origin.current = { x: pageX - locationX, y: pageY - locationY };
-          viewRef.current?.measure((_x, _y, _w, _h, px, py) => {
-            if (typeof px === 'number' && typeof py === 'number') origin.current = { x: px, y: py };
-          });
-          aim(pageX, pageY);
-          if (reduceRef.current) {
-            Animated.timing(press, { toValue: 1, duration: 150, easing: SMOOTH, useNativeDriver: true }).start();
-          } else {
-            Animated.spring(press, {
-              toValue: 1,
-              ...motion.snappy,
-              useNativeDriver: true,
-            }).start();
-          }
-        },
-        onPanResponderMove: (e, g) => {
-          if (Math.abs(g.dx) + Math.abs(g.dy) > 6) moved.current = true;
-          aim(e.nativeEvent.pageX, e.nativeEvent.pageY);
-        },
-        onPanResponderRelease: () => releaseRef.current(true),
-        onPanResponderTerminate: () => releaseRef.current(false),
-        // React Native grants before asking the current responder to let go; when a child keeps its
-        // gesture (e.g. a ticket stub being torn), the grant is rejected and no release follows.
-        onPanResponderReject: () => releaseRef.current(false),
-      }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  // usePanResponder always calls the latest callbacks, so they read props and state directly and
+  // the responder is never rebuilt mid-gesture.
+  const pan = usePanResponder({
+    onStartShouldSetPanResponder: () => !disabled,
+    // Only a real drag takes the touch from a button inside the card — a tap's tiny jitter must not.
+    onMoveShouldSetPanResponder: (_e, g) => !disabled && Math.abs(g.dx) + Math.abs(g.dy) > 6,
+    // Let a parent ScrollView take over scrolls that start on the card (on Android the native
+    // scroll view can only do that when the card doesn't block it).
+    onPanResponderTerminationRequest: () => true,
+    onShouldBlockNativeResponder: () => false,
+    onPanResponderGrant: (e) => {
+      touching.current = true;
+      moved.current = false;
+      idleLoop.current?.stop();
+      const { pageX, pageY, locationX, locationY } = e.nativeEvent;
+      // locationX is relative to the touched child, so measure the card itself and correct
+      // once the measurement arrives.
+      origin.current = { x: pageX - locationX, y: pageY - locationY };
+      viewRef.current?.measure((_x, _y, _w, _h, px, py) => {
+        if (typeof px === 'number' && typeof py === 'number') origin.current = { x: px, y: py };
+      });
+      aim(pageX, pageY);
+      if (reduce) {
+        Animated.timing(press, { toValue: 1, duration: 150, easing: SMOOTH, useNativeDriver: true }).start();
+      } else {
+        Animated.spring(press, {
+          toValue: 1,
+          ...motion.snappy,
+          useNativeDriver: true,
+        }).start();
+      }
+    },
+    onPanResponderMove: (e, g) => {
+      if (Math.abs(g.dx) + Math.abs(g.dy) > 6) moved.current = true;
+      aim(e.nativeEvent.pageX, e.nativeEvent.pageY);
+    },
+    onPanResponderRelease: () => release(true),
+    onPanResponderTerminate: () => release(false),
+    // React Native grants before asking the current responder to let go; when a child keeps its
+    // gesture (e.g. a ticket stub being torn), the grant is rejected and no release follows.
+    onPanResponderReject: () => release(false),
+  });
 
   const onLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
@@ -473,14 +458,14 @@ export function TiltCard({
       <View collapsable={false}>
         <Animated.View
           ref={viewRef}
-          {...responder.panHandlers}
+          {...pan}
           accessible={!!onPress || !!accessibilityLabel}
           accessibilityRole={onPress ? 'button' : undefined}
           accessibilityLabel={accessibilityLabel}
           // Screen readers activate the card through an action, not synthesized touches.
           accessibilityActions={onPress ? [{ name: 'activate' }] : undefined}
           onAccessibilityAction={(e) => {
-            if (e.nativeEvent.actionName === 'activate') onPressRef.current?.();
+            if (e.nativeEvent.actionName === 'activate') onPress?.();
           }}
           style={{
             borderRadius: radius,
@@ -575,12 +560,12 @@ export function TiltLayer({ children, depth = 0.5, style }: TiltLayerProps) {
 }
 
 export interface TiltFoilProps {
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
   /** Corner radius (default 8). */
-  radius?: number;
+  radius?: number | undefined;
   /** Base metal under the rainbow (default silver). */
-  base?: string;
-  style?: StyleProp<ViewStyle>;
+  base?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /**

@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -25,41 +25,41 @@ export type AvatarFallback = 'soft' | 'solid' | 'gradient';
 
 export interface AvatarProps {
   /** Image URL. Initials show while it loads, and stay if it fails. */
-  src?: string;
+  src?: string | undefined;
   /** Used for the initials, the fallback colour (same name → same colour) and the accessibility label. */
-  name?: string;
+  name?: string | undefined;
   /** 'xs' 24 · 'sm' 32 · 'md' 40 · 'lg' 56 · 'xl' 72, or any number of points. */
-  size?: AvatarSize | number;
-  shape?: AvatarShape;
+  size?: AvatarSize | number | undefined;
+  shape?: AvatarShape | undefined;
   /** Presence dot cut into the bottom-right edge. */
-  status?: AvatarStatus;
+  status?: AvatarStatus | undefined;
   /** Soft pulse behind the status dot (default: on for 'online'). */
-  pulse?: boolean;
+  pulse?: boolean | undefined;
   /** Ring around the face, separated by a clear gap. */
-  ring?: AvatarRing;
+  ring?: AvatarRing | undefined;
   /** The story has been watched: the ring cross-fades to a quiet hairline. */
-  seen?: boolean;
+  seen?: boolean | undefined;
   /** Ring colour override — the first entry is used as a solid colour (default: `accent`). */
-  ringColors?: string[];
+  ringColors?: string[] | undefined;
   /** Spin a broken story ring — a "story is loading" state. */
-  ringSpin?: boolean;
+  ringSpin?: boolean | undefined;
   /** Initials look when there is no photo. Default 'soft'. */
-  fallback?: AvatarFallback;
+  fallback?: AvatarFallback | undefined;
   /** Soft layered shadow under the face (default true for 72pt and up). */
-  elevated?: boolean;
+  elevated?: boolean | undefined;
   /** Notification count (`true` = dot), top-right. */
-  badge?: number | boolean;
+  badge?: number | boolean | undefined;
   /** Verified seal with a check, bottom-right (bottom-left when a status dot is shown). */
-  verified?: boolean;
+  verified?: boolean | undefined;
   /** Colour behind the avatar — the dot, badge and seal cut-outs are punched in it. Default: theme background. */
-  surface?: string;
+  surface?: string | undefined;
   /** Ring and verified seal colour (default: theme accent). */
-  accent?: string;
+  accent?: string | undefined;
   /** Makes it a button with a spring press and a light haptic tick. */
-  onPress?: () => void;
+  onPress?: (() => void) | undefined;
   /** Haptic tick on press (default true). */
-  haptics?: boolean;
-  style?: StyleProp<ViewStyle>;
+  haptics?: boolean | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const SIZES: Record<AvatarSize, number> = { xs: 24, sm: 32, md: 40, lg: 56, xl: 72 };
@@ -99,7 +99,9 @@ export function colorFromName(name = '') {
 export function initialsFrom(name = '', max = 2) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return '';
-  const letters = parts.length === 1 ? [parts[0][0]] : [parts[0][0], parts[parts.length - 1][0]];
+  const first = parts[0] ?? '';
+  const last = parts[parts.length - 1] ?? '';
+  const letters = parts.length === 1 ? [first[0]] : [first[0], last[0]];
   return letters.slice(0, max).join('').toUpperCase();
 }
 
@@ -144,13 +146,13 @@ export function Avatar({
   // Remember which URL failed so a new `src` gets a fresh try without resetting state in an effect.
   const [failedSrc, setFailedSrc] = useState<string>();
   const failed = !!src && failedSrc === src;
-  const loaded = useRef(new Animated.Value(0)).current;
-  const press = useRef(new Animated.Value(1)).current;
-  const spin = useRef(new Animated.Value(0)).current;
-  const pulseV = useRef(new Animated.Value(0)).current;
+  const [loaded] = useState(() => new Animated.Value(0));
+  const [press] = useState(() => new Animated.Value(1));
+  const [spin] = useState(() => new Animated.Value(0));
+  const [pulseV] = useState(() => new Animated.Value(0));
 
   const isSeen = seen ?? ring === 'seen';
-  const seenV = useRef(new Animated.Value(isSeen ? 1 : 0)).current;
+  const [seenV] = useState(() => new Animated.Value(isSeen ? 1 : 0));
 
   useEffect(() => {
     loaded.setValue(0);
@@ -335,7 +337,7 @@ export function Avatar({
         strokeWidth={width}
         fill="none"
         strokeLinecap="round"
-        strokeDasharray={dashed ? [circ * 0.7, circ * 0.3] : undefined}
+        {...(dashed ? { strokeDasharray: [circ * 0.7, circ * 0.3] } : null)}
       />
     ) : (
       <Rect
@@ -568,12 +570,15 @@ const SEAL = (() => {
     const rr = k % 2 === 0 ? 12 : 10.1;
     return [12 + rr * Math.cos(a), 12 + rr * Math.sin(a)] as const;
   });
-  const mid = (a: readonly number[], b: readonly number[]) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  type Pt = readonly [number, number];
+  const mid = (a: Pt, b: Pt): Pt => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
   const f = (v: number) => v.toFixed(2);
-  const start = mid(pts[pts.length - 1], pts[0]);
+  // `pts` has 2n points and every index below is taken modulo its length.
+  const at = (k: number) => pts[k % pts.length]!;
+  const start = mid(at(pts.length - 1), at(0));
   let d = `M${f(start[0])} ${f(start[1])}`;
   pts.forEach((pt, i) => {
-    const m = mid(pt, pts[(i + 1) % pts.length]);
+    const m = mid(pt, at(i + 1));
     d += `Q${f(pt[0])} ${f(pt[1])} ${f(m[0])} ${f(m[1])}`;
   });
   return d + 'Z';
@@ -593,20 +598,20 @@ export interface AvatarGroupProps {
   /** `<Avatar>` elements. The group sets their size, shape and surface. */
   children: React.ReactNode;
   /** Show at most this many, then a "+N" chip. */
-  max?: number;
-  size?: AvatarSize | number;
-  shape?: AvatarShape;
+  max?: number | undefined;
+  size?: AvatarSize | number | undefined;
+  shape?: AvatarShape | undefined;
   /** How far each avatar tucks under the previous one, as a fraction of its size (default 0.28). */
-  overlap?: number;
+  overlap?: number | undefined;
   /** Real total when it is larger than the children you pass (e.g. 1,284 members). */
-  total?: number;
+  total?: number | undefined;
   /** Staggered spring-in on mount (skipped with reduce motion). */
-  animated?: boolean;
+  animated?: boolean | undefined;
   /** Colour of the separating borders — match what the group sits on (default: theme background). */
-  surface?: string;
+  surface?: string | undefined;
   /** Makes the "+N" chip a button. */
-  onPressMore?: () => void;
-  style?: StyleProp<ViewStyle>;
+  onPressMore?: (() => void) | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /** Overlapping avatars separated by cut-out borders, with a "+N" chip and a staggered spring-in. */
@@ -622,7 +627,7 @@ export function AvatarGroup({
   onPressMore,
   style,
 }: AvatarGroupProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const reduceMotion = useReduceMotion();
   const px = resolveSize(size);
@@ -635,8 +640,13 @@ export function AvatarGroup({
   const inner = shape === 'circle' ? radius.full : Math.min(px / 2, radius.scale(Math.round(px * 0.3)));
   const wrapCorner = shape === 'circle' ? radius.full : inner + border;
 
-  const anims = useRef<Animated.Value[]>([]).current;
-  while (anims.length < count) anims.push(new Animated.Value(animated ? 0 : 1));
+  // One value per avatar, grown (never shrunk) as children are added; this render already uses the grown list.
+  const [pool, setPool] = useState<Animated.Value[]>([]);
+  let anims = pool;
+  if (pool.length < count) {
+    anims = [...pool, ...Array.from({ length: count - pool.length }, () => new Animated.Value(animated ? 0 : 1))];
+    setPool(anims);
+  }
 
   useEffect(() => {
     if (!animated) return;
@@ -654,35 +664,41 @@ export function AvatarGroup({
   const names = shown.map((c) => c.props.name).filter(Boolean) as string[];
   const label =
     names.length === 0
-      ? `${total ?? items.length} people`
-      : `${names.slice(0, 3).join(', ')}${(total ?? items.length) - Math.min(3, names.length) > 0 ? ` and ${(total ?? items.length) - Math.min(3, names.length)} more` : ''}`;
+      ? labels.peopleCount(total ?? items.length)
+      : (total ?? items.length) - Math.min(3, names.length) > 0
+        ? labels.namesAndMore(names.slice(0, 3).join(', '), (total ?? items.length) - Math.min(3, names.length))
+        : names.slice(0, 3).join(', ');
 
-  const wrap = (child: React.ReactNode, i: number, key: React.Key) => (
-    <Animated.View
-      key={key}
-      style={{
-        marginLeft: i === 0 ? 0 : -px * overlap,
-        borderRadius: wrapCorner,
-        padding: border,
-        backgroundColor: bg,
-        zIndex: count - i,
-        opacity: anims[i],
-        transform: [
-          { translateX: anims[i].interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) },
-          { scale: anims[i].interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
-        ],
-      }}
-    >
-      {child}
-    </Animated.View>
-  );
+  // `anims` was grown to `count` above, and i < count.
+  const wrap = (child: React.ReactNode, i: number, key: React.Key) => {
+    const v = anims[i]!;
+    return (
+      <Animated.View
+        key={key}
+        style={{
+          marginLeft: i === 0 ? 0 : -px * overlap,
+          borderRadius: wrapCorner,
+          padding: border,
+          backgroundColor: bg,
+          zIndex: count - i,
+          opacity: v,
+          transform: [
+            { translateX: v.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) },
+            { scale: v.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
+          ],
+        }}
+      >
+        {child}
+      </Animated.View>
+    );
+  };
 
   const extraText = extra > 999 ? `${(extra / 1000).toFixed(extra >= 10000 ? 0 : 1).replace(/\.0$/, '')}k` : String(extra);
   const more =
     extra > 0 ? (
       <Pressable
         accessibilityRole={onPressMore ? 'button' : 'text'}
-        accessibilityLabel={`${extra} more`}
+        accessibilityLabel={labels.moreCount(extra)}
         disabled={!onPressMore}
         onPress={onPressMore}
         hitSlop={px < 44 ? Math.ceil((44 - px) / 2) : undefined}
@@ -771,7 +787,9 @@ function luminance(hex: string) {
 }
 
 function contrast(a: string, b: string) {
-  const [x, y] = [luminance(a), luminance(b)].sort((p, q) => q - p);
+  const la = luminance(a);
+  const lb = luminance(b);
+  const [x, y] = la >= lb ? [la, lb] : [lb, la];
   return (x + 0.05) / (y + 0.05);
 }
 

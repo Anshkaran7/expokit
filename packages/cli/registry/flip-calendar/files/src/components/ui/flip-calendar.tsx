@@ -4,7 +4,6 @@ import {
   AccessibilityInfo,
   Animated,
   Easing,
-  PanResponder,
   Platform,
   StyleSheet,
   Text,
@@ -14,7 +13,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { motion, readableOn, shadowFor, useKit } from '@/lib/kit';
+import { motion, readableOn, shadowFor, useKit, usePanResponder, type Labels } from '@/lib/kit';
 
 export interface FlipCalendarProps {
   /** Controlled date (its time of day is kept on every change). */
@@ -171,28 +170,30 @@ export function FlipCalendar({
   accessibilityLabel,
   style,
 }: FlipCalendarProps) {
-  const { colors, radius, dark } = useKit();
+  const { colors, radius, dark, labels } = useKit();
   const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
 
-  const start = useRef(value ?? defaultValue ?? new Date()).current;
+  const [start] = useState(() => value ?? defaultValue ?? new Date());
   const clock = useRef({ h: start.getHours(), min: start.getMinutes() });
   const [day, setDay] = useState(() => dayOf(start));
 
   // Animated values per page, keyed by its date. A page keeps its angle when its role changes, so a
   // page turned over (180) is already yesterday's page, and the one under it is already lying flat.
-  const pages = useRef(new Map<number, PageValues>());
+  const [pages] = useState(() => new Map<number, PageValues>());
   const valuesFor = (t: Day, flipped: boolean) => {
     const k = utc(t);
-    let v = pages.current.get(k);
-    if (!v) pages.current.set(k, (v = { flip: new Animated.Value(flipped ? 180 : 0), nudge: new Animated.Value(0) }));
+    let v = pages.get(k);
+    if (!v) pages.set(k, (v = { flip: new Animated.Value(flipped ? 180 : 0), nudge: new Animated.Value(0) }));
     return v;
   };
 
   const minKey = minDate ? utc(dayOf(minDate)) : -Infinity;
   const maxKey = maxDate ? utc(dayOf(maxDate)) : Infinity;
   const live = useRef({ day, onChange, haptics, reduce, minKey, maxKey });
-  live.current = { day, onChange, haptics, reduce, minKey, maxKey };
+  useLayoutEffect(() => {
+    live.current = { day, onChange, haptics, reduce, minKey, maxKey };
+  });
   const canNext = () => utc(addDays(live.current.day, 1)) <= live.current.maxKey;
   const canPrev = () => utc(addDays(live.current.day, -1)) >= live.current.minKey;
 
@@ -239,14 +240,16 @@ export function FlipCalendar({
     });
   }
   const actions = useRef({ flipOver, flipBack });
-  actions.current = { flipOver, flipBack };
+  useLayoutEffect(() => {
+    actions.current = { flipOver, flipBack };
+  });
 
   // After a page change: forget pages that left the pad, then keep turning if a fling asked.
   useLayoutEffect(() => {
     if (!pending.current) return;
     pending.current = false;
     const keep = new Set([-1, 0, 1].map((n) => utc(addDays(day, n))));
-    for (const k of pages.current.keys()) if (!keep.has(k)) pages.current.delete(k);
+    for (const k of pages.keys()) if (!keep.has(k)) pages.delete(k);
     busy.current = false;
     if (chain.current !== 0) {
       const forward = chain.current > 0;
@@ -266,7 +269,7 @@ export function FlipCalendar({
     clock.current = { h: value.getHours(), min: value.getMinutes() };
     chain.current = 0;
     busy.current = false;
-    pages.current.clear();
+    pages.clear();
     setDay(dayOf(value));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [external]);
@@ -287,76 +290,77 @@ export function FlipCalendar({
     r: 1,
     over: false,
   });
-  const pan = useMemo(() => {
-    const g0 = grip.current;
-    const spring = (v: Animated.Value, to: number) => Animated.spring(v, { toValue: to, useNativeDriver: true, ...motion.snappy }).start();
-    return PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => !busy.current && Math.abs(g.dy) > 6 && Math.abs(g.dy) > Math.abs(g.dx),
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: (e, g) => {
-        chain.current = 0;
-        g0.started = false;
-        g0.page = null;
-        // Where the touch came down, in the pad.
-        g0.y0 = e.nativeEvent.locationY - g.dy;
-      },
-      onPanResponderMove: (_, g) => {
-        if (!g0.started) {
-          if (Math.abs(g.dy) < 3) return;
-          g0.started = true;
-          // Lifting turns today's page; pulling down brings yesterday's back (which starts over the top).
-          g0.back = g.dy > 0;
-          g0.over = g0.back;
-          g0.page = g0.back ? (canPrev() ? valuesFor(addDays(live.current.day, -1), true) : null) : valuesFor(live.current.day, false);
-          // The point of the paper under the finger: where you grabbed today's page (at least halfway
-          // down, so a grab near the rings still turns it), or near the free end of yesterday's.
-          g0.r = g0.back ? H * 0.9 : clamp(g0.y0 - PAGE_TOP, H * 0.55, H);
-          g0.y = curlPoint(g0.r, g0.back ? 1 : 0, H, curlRadius(H)).y;
-        }
-        const top = valuesFor(live.current.day, false);
-        if (!g0.page) {
-          // Nothing earlier to bring back: today's page only gives a little.
-          top.nudge.setValue(Math.max(0, g.dy) * 0.18);
-          return;
-        }
-        const angle = progressUnderFinger(g0.r, g0.y + g.dy, H, curlRadius(H)) * 180;
-        // At the last day the page only lifts a little.
-        g0.page.flip.setValue(!g0.back && !canNext() ? Math.min(angle * 0.25, 24) : angle);
-        const over = angle > 90;
-        if (over !== g0.over) {
-          g0.over = over;
-          if (live.current.haptics) Haptics.selectionAsync().catch(() => {});
-        }
-      },
-      onPanResponderRelease: (_, g) => {
-        const top = valuesFor(live.current.day, false);
-        spring(top.nudge, 0);
-        const page = g0.page;
-        if (!page) return;
-        if (g0.back) {
-          // Past upright, or flicked down: it lands; a hard flick brings back a few more.
-          if (!g0.over || g.vy > 0.5) {
-            chain.current = -clamp(Math.floor((g.vy - 1.2) * 3), 0, MAX_CHAIN);
-            actions.current.flipBack();
-          } else spring(page.flip, 180);
-        } else if (canNext() && (g0.over || g.vy < -0.5)) {
-          chain.current = clamp(Math.floor((-g.vy - 1.2) * 3), 0, MAX_CHAIN);
-          actions.current.flipOver();
-        } else spring(page.flip, 0);
-      },
-      onPanResponderTerminate: () => {
-        spring(valuesFor(live.current.day, false).nudge, 0);
-        if (g0.page) spring(g0.page.flip, g0.back ? 180 : 0);
-      },
-    });
-  }, [H]);
+  const spring = (v: Animated.Value, to: number) => Animated.spring(v, { toValue: to, useNativeDriver: true, ...motion.snappy }).start();
+  const pan = usePanResponder({
+    onMoveShouldSetPanResponder: (_, g) => !busy.current && Math.abs(g.dy) > 6 && Math.abs(g.dy) > Math.abs(g.dx),
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderGrant: (e, g) => {
+      const g0 = grip.current;
+      chain.current = 0;
+      g0.started = false;
+      g0.page = null;
+      // Where the touch came down, in the pad.
+      g0.y0 = e.nativeEvent.locationY - g.dy;
+    },
+    onPanResponderMove: (_, g) => {
+      const g0 = grip.current;
+      if (!g0.started) {
+        if (Math.abs(g.dy) < 3) return;
+        g0.started = true;
+        // Lifting turns today's page; pulling down brings yesterday's back (which starts over the top).
+        g0.back = g.dy > 0;
+        g0.over = g0.back;
+        g0.page = g0.back ? (canPrev() ? valuesFor(addDays(live.current.day, -1), true) : null) : valuesFor(live.current.day, false);
+        // The point of the paper under the finger: where you grabbed today's page (at least halfway
+        // down, so a grab near the rings still turns it), or near the free end of yesterday's.
+        g0.r = g0.back ? H * 0.9 : clamp(g0.y0 - PAGE_TOP, H * 0.55, H);
+        g0.y = curlPoint(g0.r, g0.back ? 1 : 0, H, curlRadius(H)).y;
+      }
+      const top = valuesFor(live.current.day, false);
+      if (!g0.page) {
+        // Nothing earlier to bring back: today's page only gives a little.
+        top.nudge.setValue(Math.max(0, g.dy) * 0.18);
+        return;
+      }
+      const angle = progressUnderFinger(g0.r, g0.y + g.dy, H, curlRadius(H)) * 180;
+      // At the last day the page only lifts a little.
+      g0.page.flip.setValue(!g0.back && !canNext() ? Math.min(angle * 0.25, 24) : angle);
+      const over = angle > 90;
+      if (over !== g0.over) {
+        g0.over = over;
+        if (live.current.haptics) Haptics.selectionAsync().catch(() => {});
+      }
+    },
+    onPanResponderRelease: (_, g) => {
+      const top = valuesFor(live.current.day, false);
+      spring(top.nudge, 0);
+      const g0 = grip.current;
+      const page = g0.page;
+      if (!page) return;
+      if (g0.back) {
+        // Past upright, or flicked down: it lands; a hard flick brings back a few more.
+        if (!g0.over || g.vy > 0.5) {
+          chain.current = -clamp(Math.floor((g.vy - 1.2) * 3), 0, MAX_CHAIN);
+          actions.current.flipBack();
+        } else spring(page.flip, 180);
+      } else if (canNext() && (g0.over || g.vy < -0.5)) {
+        chain.current = clamp(Math.floor((-g.vy - 1.2) * 3), 0, MAX_CHAIN);
+        actions.current.flipOver();
+      } else spring(page.flip, 0);
+    },
+    onPanResponderTerminate: () => {
+      spring(valuesFor(live.current.day, false).nudge, 0);
+      const g0 = grip.current;
+      if (g0.page) spring(g0.page.flip, g0.back ? 180 : 0);
+    },
+  });
 
   const names = namesFor(locale);
   const spoken = (t: Day) => `${names.days[new Date(utc(t)).getUTCDay()]}, ${t.d} ${names.months[t.m]} ${t.y}`;
   const prevDay = addDays(day, -1);
   const nextDay = addDays(day, 1);
   const corner = radius.scale(14);
-  const pageProps = { W, H, tint, names, colors, corner };
+  const pageProps = { W, H, tint, names, labels, colors, corner };
   const top = valuesFor(day, false);
 
   return (
@@ -364,15 +368,15 @@ export function FlipCalendar({
       onLayout={(e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width))}
       accessible
       accessibilityRole="adjustable"
-      accessibilityLabel={accessibilityLabel ?? 'Date'}
+      accessibilityLabel={accessibilityLabel ?? labels.date}
       accessibilityValue={{ text: spoken(day) }}
-      accessibilityHint="Swipe up to turn to the next day, down for the previous one."
+      accessibilityHint={labels.flipCalendarHint}
       accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
       onAccessibilityAction={(e) => (e.nativeEvent.actionName === 'increment' ? flipOver() : flipBack())}
       style={[styles.root, style]}
     >
       {W > 0 ? (
-        <View style={[styles.pad, styles.grab, { width: W, height: H + PAGE_TOP + 14 }]} {...pan.panHandlers}>
+        <View style={[styles.pad, styles.grab, { width: W, height: H + PAGE_TOP + 14 }]} {...pan}>
           {/* The board the pages hang from, and page edges stacked under them for thickness. */}
           <View style={[styles.board, { backgroundColor: colors.foreground, borderRadius: radius.scale(8) }]} />
           {[2, 1].map((n) => (
@@ -391,7 +395,7 @@ export function FlipCalendar({
             <Animated.View style={{ transform: [{ translateY: top.nudge }] }}>
               <Page key={utc(day)} day={day} values={top} {...pageProps} />
             </Animated.View>
-            {canPrev() ? <Page key={utc(prevDay)} day={prevDay} values={valuesFor(prevDay, true)} {...pageProps} /> : null}
+            {utc(prevDay) >= minKey ? <Page key={utc(prevDay)} day={prevDay} values={valuesFor(prevDay, true)} {...pageProps} /> : null}
           </View>
           <Rings width={W} color={colors.mutedForeground} hole={colors.foreground} />
         </View>
@@ -411,6 +415,7 @@ interface PageProps {
   H: number;
   tint: string;
   names: Names;
+  labels: Labels;
   colors: ReturnType<typeof useKit>['colors'];
   corner: number;
 }
@@ -458,7 +463,7 @@ function stripTracks(H: number): StripTrack[] {
  * near the fold roll toward you and darken or catch the light as they turn, and past the fold the
  * plain back comes up over the top.
  */
-const Page = React.memo(function Page({ day, values, under, shadowFrom, W, H, tint, names, colors, corner }: PageProps) {
+const Page = React.memo(function Page({ day, values, under, shadowFrom, W, H, tint, names, labels, colors, corner }: PageProps) {
   const { flip } = values;
   const h = H / STRIPS;
   const strips = useMemo(() => {
@@ -487,7 +492,7 @@ const Page = React.memo(function Page({ day, values, under, shadowFrom, W, H, ti
   );
 
   const sheet = { width: W, height: H, backgroundColor: colors.card, borderColor: colors.border, borderRadius: corner };
-  const face = <Face day={day} W={W} tint={tint} names={names} colors={colors} sheet={sheet} />;
+  const face = <Face day={day} W={W} tint={tint} names={names} labels={labels} colors={colors} sheet={sheet} />;
 
   if (under || !strips) {
     return (
@@ -537,12 +542,13 @@ interface FaceProps {
   W: number;
   tint: string;
   names: Names;
+  labels: Labels;
   colors: ReturnType<typeof useKit>['colors'];
   sheet: ViewStyle;
 }
 
 /** The printed side of a page: perforation, month band, the day, weekday and a footer. */
-const Face = React.memo(function Face({ day, W, tint, names, colors, sheet }: FaceProps) {
+const Face = React.memo(function Face({ day, W, tint, names, labels, colors, sheet }: FaceProps) {
   const wd = new Date(utc(day)).getUTCDay();
   const ink = wd === 0 ? tint : colors.foreground;
   const band = readableOn(tint);
@@ -551,18 +557,18 @@ const Face = React.memo(function Face({ day, W, tint, names, colors, sheet }: Fa
     <View style={[styles.face, sheet]}>
       <View style={[styles.perforation, { borderBottomColor: colors.border }]} />
       <View style={[styles.band, { backgroundColor: tint }]}>
-        <Text numberOfLines={1} style={[styles.month, { color: band }]}>{names.months[day.m].toUpperCase()}</Text>
+        <Text numberOfLines={1} style={[styles.month, { color: band }]}>{(names.months[day.m] ?? '').toUpperCase()}</Text>
         <Text style={[styles.year, { color: band }]}>{day.y}</Text>
       </View>
       <View style={styles.body}>
         <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.day, { color: ink, fontSize: W * 0.5, lineHeight: W * 0.56 }]}>
           {day.d}
         </Text>
-        <Text numberOfLines={1} style={[styles.weekday, { color: ink }]}>{names.days[wd].toUpperCase()}</Text>
+        <Text numberOfLines={1} style={[styles.weekday, { color: ink }]}>{(names.days[wd] ?? '').toUpperCase()}</Text>
       </View>
       <View style={[styles.footer, { borderTopColor: colors.border }]}>
-        <Text style={[styles.meta, { color: colors.mutedForeground }]}>Day {dayOfYear(day)} · Week {isoWeek(day)}</Text>
-        <Text style={[styles.meta, { color: colors.mutedForeground }]}>{left} left</Text>
+        <Text style={[styles.meta, { color: colors.mutedForeground }]}>{labels.dayAndWeek(dayOfYear(day), isoWeek(day))}</Text>
+        <Text style={[styles.meta, { color: colors.mutedForeground }]}>{labels.daysLeft(left)}</Text>
       </View>
     </View>
   );

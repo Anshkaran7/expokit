@@ -41,7 +41,7 @@
     [
       "cancelLabel",
       "string",
-      "\"Cancel\"",
+      "labels.cancel",
       "Cancel button text."
     ],
     [

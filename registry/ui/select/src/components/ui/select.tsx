@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -7,7 +7,6 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Modal,
-  PanResponder,
   Platform,
   Pressable,
   ScrollView,
@@ -21,7 +20,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout, usePanResponder } from '@/lib/kit';
 
 export type SelectPresentation = 'dropdown' | 'sheet';
 /** @deprecated Use `SelectPresentation`. */
@@ -165,12 +164,12 @@ export function Select<T extends string | number = string>({
   maxChips = 2,
   label,
   floatingLabel = true,
-  placeholder = 'Select…',
+  placeholder: placeholderProp,
   presentation,
   variant,
   size = 'md',
   searchable,
-  searchPlaceholder = 'Search',
+  searchPlaceholder: searchPlaceholderProp,
   emptyText,
   title,
   error,
@@ -192,7 +191,9 @@ export function Select<T extends string | number = string>({
   optionStyle,
   optionTextStyle,
 }: SelectProps<T>) {
-  const { colors, radius, dark, font, shadow } = useKit();
+  const { colors, radius, dark, font, shadow, labels } = useKit();
+  const placeholder = placeholderProp ?? labels.selectPlaceholder;
+  const searchPlaceholder = searchPlaceholderProp ?? labels.search;
   const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
@@ -232,17 +233,14 @@ export function Select<T extends string | number = string>({
   const viewH = useRef(0);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const alive = useRef(true);
-  // Read by the sheet's pan responder, which is created once.
-  const reduceRef = useRef(reduce);
-  reduceRef.current = reduce;
 
   const floating = open || picked.length > 0;
-  const float = useRef(new Animated.Value(floating ? 1 : 0)).current; // native
-  const focus = useRef(new Animated.Value(0)).current; // JS: colours
-  const halo = useRef(new Animated.Value(0)).current; // native: focus halo
-  const show = useRef(new Animated.Value(0)).current; // native: backdrop + sheet/dropdown
-  const drag = useRef(new Animated.Value(0)).current; // native: sheet drag offset
-  const shake = useRef(new Animated.Value(0)).current; // native
+  const [float] = useState(() => new Animated.Value(floating ? 1 : 0)); // native
+  const [focus] = useState(() => new Animated.Value(0)); // JS: colours
+  const [halo] = useState(() => new Animated.Value(0)); // native: focus halo
+  const [show] = useState(() => new Animated.Value(0)); // native: backdrop + sheet/dropdown
+  const [drag] = useState(() => new Animated.Value(0)); // native: sheet drag offset
+  const [shake] = useState(() => new Animated.Value(0)); // native
 
   useEffect(() => {
     alive.current = true;
@@ -419,7 +417,8 @@ export function Select<T extends string | number = string>({
     let i = from < 0 ? (dir > 0 ? -1 : n) : from;
     for (let k = 0; k < n; k++) {
       i = (i + dir + n) % n;
-      if (!flat[i].disabled) {
+      const o = flat[i];
+      if (o && !o.disabled) {
         setHi(i);
         reveal(i);
         return;
@@ -429,35 +428,37 @@ export function Select<T extends string | number = string>({
 
   // Web keyboard: ↑/↓ move, Home/End jump, Enter picks, Escape/Tab close.
   const onKey = useRef<(e: KeyboardEvent) => void>(() => {});
-  onKey.current = (e) => {
-    switch (e.key) {
-      case 'ArrowDown':
-      case 'ArrowUp':
-        e.preventDefault();
-        step(e.key === 'ArrowDown' ? 1 : -1);
-        break;
-      case 'Home':
-      case 'End':
-        if (searchable && query) return; // let the caret move in the search field
-        e.preventDefault();
-        step(e.key === 'Home' ? 1 : -1, e.key === 'Home' ? -1 : flat.length);
-        break;
-      case 'Enter':
-        if (hi >= 0 && flat[hi]) {
+  useLayoutEffect(() => {
+    onKey.current = (e) => {
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'ArrowUp':
           e.preventDefault();
-          choose(flat[hi]);
-        }
-        break;
-      case 'Escape':
-        e.preventDefault();
-        e.stopPropagation();
-        close();
-        break;
-      case 'Tab':
-        close();
-        break;
-    }
-  };
+          step(e.key === 'ArrowDown' ? 1 : -1);
+          break;
+        case 'Home':
+        case 'End':
+          if (searchable && query) return; // let the caret move in the search field
+          e.preventDefault();
+          step(e.key === 'Home' ? 1 : -1, e.key === 'Home' ? -1 : flat.length);
+          break;
+        case 'Enter':
+          if (hi >= 0 && flat[hi]) {
+            e.preventDefault();
+            choose(flat[hi]);
+          }
+          break;
+        case 'Escape':
+          e.preventDefault();
+          e.stopPropagation();
+          close();
+          break;
+        case 'Tab':
+          close();
+          break;
+      }
+    };
+  });
   useEffect(() => {
     if (!open || !isWeb || typeof document === 'undefined') return;
     const handler = (e: KeyboardEvent) => onKey.current(e);
@@ -466,21 +467,19 @@ export function Select<T extends string | number = string>({
   }, [open]);
 
   // Drag the sheet's grabber down to dismiss.
-  const pan = useMemo(() => {
-    const back = () =>
-      reduceRef.current
-        ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
-        : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
-    return PanResponder.create({
-      onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-      onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
-      onPanResponderRelease: (_, g) => {
-        if (g.dy > 110 || g.vy > 1.1) setOpen(false);
-        else back();
-      },
-      onPanResponderTerminate: back,
-    });
-  }, [drag]);
+  const back = () =>
+    reduce
+      ? Animated.timing(drag, { toValue: 0, duration: 150, easing: Easing.bezier(0.32, 0.72, 0, 1), useNativeDriver: true }).start()
+      : Animated.spring(drag, { toValue: 0, useNativeDriver: true, ...motion.snappy }).start();
+  const pan = usePanResponder({
+    onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+    onPanResponderMove: (_, g) => drag.setValue(Math.max(0, g.dy)),
+    onPanResponderRelease: (_, g) => {
+      if (g.dy > 110 || g.vy > 1.1) setOpen(false);
+      else back();
+    },
+    onPanResponderTerminate: back,
+  });
 
   const active = error ? colors.danger : tint;
   const borderColor = focus.interpolate({
@@ -524,7 +523,7 @@ export function Select<T extends string | number = string>({
           onPress={() => onSearch('')}
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel="Clear search"
+          accessibilityLabel={labels.clearSearch}
           style={[styles.clear, { backgroundColor: alpha(colors.mutedForeground, 0.22) }]}
         >
           <Icon name="x" size={11} color={colors.foreground} strokeWidth={2.4} />
@@ -588,11 +587,11 @@ export function Select<T extends string | number = string>({
               <Icon name="search" size={dense ? 16 : 20} color={colors.mutedForeground} />
             </View>
             <Text style={[styles.emptyTitle, ff, { color: colors.foreground, fontSize: dense ? 14 : 15 }]}>
-              {q ? 'No results' : 'No options'}
+              {q ? labels.noResults : labels.noOptions}
             </Text>
             {q ? (
               <Text style={[styles.emptyText, ff, { color: colors.mutedForeground }]}>
-                {emptyText ?? `Nothing matches “${query.trim()}”.`}
+                {emptyText ?? labels.nothingMatches(query.trim())}
               </Text>
             ) : null}
           </View>
@@ -611,7 +610,7 @@ export function Select<T extends string | number = string>({
               ]}
             >
               <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footDenseText, ff, { color: colors.mutedForeground }]}>
-                Clear
+                {labels.clear}
               </Text>
             </Pressable>
             <View style={styles.footMid}>
@@ -623,7 +622,7 @@ export function Select<T extends string | number = string>({
               style={({ pressed }) => [styles.footSolid, { backgroundColor: tint, borderRadius: radius.capsule(32), opacity: pressed ? 0.85 : 1 }]}
             >
               <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footDenseText, styles.footStrong, ff, { color: readableOn(tint) }]}>
-                Done
+                {labels.done}
               </Text>
             </Pressable>
           </View>
@@ -636,7 +635,7 @@ export function Select<T extends string | number = string>({
               style={({ pressed }) => [styles.footBtn, { borderRadius: radius.md, opacity: many.length ? (pressed ? 0.6 : 1) : 0.4 }]}
             >
               <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, ff, { color: colors.foreground }]}>
-                Clear
+                {labels.clear}
               </Text>
             </Pressable>
             <Pressable
@@ -645,7 +644,7 @@ export function Select<T extends string | number = string>({
               style={({ pressed }) => [styles.footBtn, styles.footMain, { backgroundColor: tint, borderRadius: radius.md, opacity: pressed ? 0.85 : 1 }]}
             >
               <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.footText, styles.footStrong, styles.tabular, ff, { color: readableOn(tint) }]}>
-                {many.length ? `Done · ${many.length}` : 'Done'}
+                {many.length ? labels.doneCount(many.length) : labels.done}
               </Text>
             </Pressable>
           </View>
@@ -702,7 +701,7 @@ export function Select<T extends string | number = string>({
         disabled={disabled}
         accessibilityRole="combobox"
         accessibilityLabel={label}
-        accessibilityValue={{ text: picked.length ? picked.map((o) => o.label).join(', ') : 'None selected' }}
+        accessibilityValue={{ text: picked.length ? picked.map((o) => o.label).join(', ') : labels.noneSelected }}
         accessibilityState={{ expanded: open, disabled: !!disabled }}
         style={{ opacity: disabled ? 0.5 : 1 }}
       >
@@ -759,7 +758,7 @@ export function Select<T extends string | number = string>({
                               onPress={() => item.option && remove(item.option.value)}
                               hitSlop={12}
                               accessibilityRole="button"
-                              accessibilityLabel={`Remove ${item.option.label}`}
+                              accessibilityLabel={labels.remove(item.option.label)}
                               style={({ pressed }) => [
                                 styles.chipX,
                                 {
@@ -777,7 +776,7 @@ export function Select<T extends string | number = string>({
                       ) : (
                         <View
                           accessible
-                          accessibilityLabel={maxChips > 0 ? `${item.more} more` : `${item.more} selected`}
+                          accessibilityLabel={maxChips > 0 ? labels.moreCount(item.more) : labels.selectedCount(item.more)}
                           style={[styles.chip, styles.more, { minHeight: sz.chip, backgroundColor: chipBg, borderRadius: radius.capsule(sz.chip) }]}
                         >
                           {maxChips > 0 ? (
@@ -788,7 +787,7 @@ export function Select<T extends string | number = string>({
                           <RollingNumber value={item.more} distance={sz.chipFont} reduce={reduce} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont }]} />
                           {maxChips > 0 ? null : (
                             <Text maxFontSizeMultiplier={FONT_CAP} style={[styles.chipText, ff, { color: tint, fontSize: sz.chipFont, marginLeft: 3 }]}>
-                              selected
+                              {labels.selectedSuffix}
                             </Text>
                           )}
                         </View>
@@ -852,7 +851,7 @@ export function Select<T extends string | number = string>({
 
       <Modal visible={mounted} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
         <Animated.View style={[StyleSheet.absoluteFill, { backgroundColor: asSheet ? colors.overlay : 'transparent', opacity: show }]}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Close" accessibilityRole="button" />
+          <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel={labels.close} accessibilityRole="button" />
         </Animated.View>
 
         {asSheet ? (
@@ -891,7 +890,7 @@ export function Select<T extends string | number = string>({
                     },
               ]}
             >
-              <View {...pan.panHandlers} style={styles.sheetHeader}>
+              <View {...pan} style={styles.sheetHeader}>
                 {!wide ? <View style={[styles.grabber, { backgroundColor: colors.border }]} /> : null}
                 <Text style={[styles.title, ff, { color: colors.foreground }]}>{title ?? label}</Text>
                 {multiple ? (
@@ -899,7 +898,7 @@ export function Select<T extends string | number = string>({
                     {many.length ? (
                       <CountBadge count={many.length} tint={tint} reduce={reduce} />
                     ) : (
-                      <Text style={[styles.subtitle, ff, { color: colors.mutedForeground }]}>Choose one or more</Text>
+                      <Text style={[styles.subtitle, ff, { color: colors.mutedForeground }]}>{labels.chooseOneOrMore}</Text>
                     )}
                   </View>
                 ) : null}
@@ -942,7 +941,7 @@ export function Select<T extends string | number = string>({
 }
 
 /** Groups options by `group` (first-appearance order); a single untitled section when none are grouped. */
-function sectionsOf<T extends string | number>(list: SelectOption<T>[]): { title?: string; rows: SelectOption<T>[] }[] {
+function sectionsOf<T extends string | number>(list: SelectOption<T>[]): { title?: string | undefined; rows: SelectOption<T>[] }[] {
   if (!list.some((o) => o.group)) return [{ rows: list }];
   const map = new Map<string, SelectOption<T>[]>();
   list.forEach((o) => map.set(o.group ?? '', [...(map.get(o.group ?? '') ?? []), o]));
@@ -982,7 +981,7 @@ function OptionRow<T extends string | number>({
 }) {
   const { colors, radius, font, dark } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const check = useRef(new Animated.Value(selected ? 1 : 0)).current; // native: scale + opacity
+  const [check] = useState(() => new Animated.Value(selected ? 1 : 0)); // native: scale + opacity
   useEffect(() => {
     // Reduce Motion: the check only fades (no pop / twist).
     if (reduce) Animated.timing(check, { toValue: selected ? 1 : 0, duration: 150, useNativeDriver: true }).start();
@@ -1082,7 +1081,10 @@ function usePresence<V>(items: { key: string; item: V }[]) {
   const out: Present<V>[] = [];
   let next = 0;
   const emitUpTo = (end: number) => {
-    for (; next <= end; next++) out.push({ ...items[next], leaving: false, appear: ready.current });
+    for (; next <= end; next++) {
+      const e = items[next];
+      if (e) out.push({ ...e, leaving: false, appear: ready.current });
+    }
   };
   for (const e of prev.current) {
     if (live.has(e.key)) emitUpTo(items.findIndex((x) => x.key === e.key));
@@ -1121,11 +1123,13 @@ function AnimatedChip({
   onGone: () => void;
   children: React.ReactNode;
 }) {
-  const pop = useRef(new Animated.Value(appear ? 0 : 1)).current; // native: scale + opacity
-  const size = useRef(new Animated.Value(1)).current; // JS: width + margin of the outer slot
+  const [pop] = useState(() => new Animated.Value(appear ? 0 : 1)); // native: scale + opacity
+  const [size] = useState(() => new Animated.Value(1)); // JS: width + margin of the outer slot
   const [w, setW] = useState(0);
   const gone = useRef(onGone);
-  gone.current = onGone;
+  useLayoutEffect(() => {
+    gone.current = onGone;
+  });
 
   useEffect(() => {
     let alive = true;
@@ -1238,12 +1242,13 @@ function RollingNumber({ value, style, distance = 10, reduce }: { value: number;
 
 /** "N selected" pill whose number rolls; it pops out when the count drops to 0. */
 function CountBadge({ count, tint, reduce }: { count: number; tint: string; reduce: boolean }) {
-  const { radius, font } = useKit();
+  const { radius, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const on = count > 0;
-  const vis = useRef(new Animated.Value(on ? 1 : 0)).current; // native
-  const last = useRef(count);
-  if (on) last.current = count;
+  const [vis] = useState(() => new Animated.Value(on ? 1 : 0)); // native
+  // The last non-zero count, kept on screen while the badge pops out at 0.
+  const [last, setLast] = useState(count);
+  if (on && count !== last) setLast(count);
   useEffect(() => {
     const a = reduce
       ? Animated.timing(vis, { toValue: on ? 1 : 0, duration: 150, useNativeDriver: true })
@@ -1255,7 +1260,7 @@ function CountBadge({ count, tint, reduce }: { count: number; tint: string; redu
   return (
     <Animated.View
       accessible
-      accessibilityLabel={`${last.current} selected`}
+      accessibilityLabel={labels.selectedCount(last)}
       accessibilityLiveRegion="polite"
       style={[
         styles.badge,
@@ -1267,9 +1272,9 @@ function CountBadge({ count, tint, reduce }: { count: number; tint: string; redu
         },
       ]}
     >
-      <RollingNumber value={last.current} distance={9} reduce={reduce} style={text} />
+      <RollingNumber value={last} distance={9} reduce={reduce} style={text} />
       <Text maxFontSizeMultiplier={FONT_CAP} style={[text, styles.badgeSuffix]}>
-        selected
+        {labels.selectedSuffix}
       </Text>
     </Animated.View>
   );
@@ -1297,7 +1302,7 @@ function Highlight({ text, query, tint, style }: { text: string; query: string; 
 /** Helper / error line that fades and slides in; errors get an icon and are announced. */
 function FieldMessage({ text, error, reduce, style }: { text: string; error: boolean; reduce: boolean; style?: StyleProp<TextStyle> }) {
   const { colors, font } = useKit();
-  const enter = useRef(new Animated.Value(0)).current; // native
+  const [enter] = useState(() => new Animated.Value(0)); // native
   useEffect(() => {
     enter.setValue(0);
     if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();
@@ -1319,7 +1324,7 @@ function FieldMessage({ text, error, reduce, style }: { text: string; error: boo
 }
 
 function Chevron({ open, reduce, color, size, right }: { open: boolean; reduce: boolean; color: string; size: number; right: number }) {
-  const turn = useRef(new Animated.Value(open ? 1 : 0)).current;
+  const [turn] = useState(() => new Animated.Value(open ? 1 : 0));
   useEffect(() => {
     if (reduce) turn.setValue(open ? 1 : 0);
     else Animated.spring(turn, { toValue: open ? 1 : 0, useNativeDriver: true, ...motion.snappy }).start();

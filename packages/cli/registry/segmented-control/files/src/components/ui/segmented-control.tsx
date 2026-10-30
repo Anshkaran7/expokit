@@ -96,8 +96,8 @@ export function SegmentedControl({
   const layouts = useRef<{ x: number; width: number }[]>([]);
   const [measured, setMeasured] = useState(0);
   // Left and right edges of the indicator, animated separately (JS driver, they set left/width).
-  const lx = useRef(new Animated.Value(0)).current;
-  const rx = useRef(new Animated.Value(0)).current;
+  const [lx] = useState(() => new Animated.Value(0));
+  const [rx] = useState(() => new Animated.Value(0));
   const placed = useRef(false);
   const shown = useRef(-1);
 
@@ -162,7 +162,8 @@ export function SegmentedControl({
             const d = at < l.x ? l.x - at : at > l.x + l.width ? at - l.x - l.width : 0;
             if (d < dist) [best, dist] = [i, d];
           });
-          if (best >= 0) pick(opts[best].value);
+          const hit = opts[best];
+          if (hit) pick(hit.value);
         },
       }),
     []
@@ -278,7 +279,7 @@ interface SegmentProps {
   height: number;
   activeFg: string;
   idleFg: string;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   reduce: boolean;
 }
 
@@ -286,9 +287,9 @@ function Segment({ option, active, onPress, onPressIn, onLayout, fullWidth, size
   const { font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   // a: text colour (JS). press: content squish, pop: little bounce on selection (native, same view).
-  const a = useRef(new Animated.Value(active ? 1 : 0)).current;
-  const press = useRef(new Animated.Value(1)).current;
-  const pop = useRef(new Animated.Value(1)).current;
+  const [a] = useState(() => new Animated.Value(active ? 1 : 0));
+  const [press] = useState(() => new Animated.Value(1));
+  const [pop] = useState(() => new Animated.Value(1));
   const mounted = useRef(false);
 
   useEffect(() => {

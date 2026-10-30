@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -152,23 +152,23 @@ interface Roll {
   color: string;
   prev: { text: string; color: string; width: number } | null;
   id: number;
+  /** Fresh per roll, so the first frame of a change already sits at its start. */
+  clock: Animated.Value;
 }
 
 /** Label whose letters roll up and out while the next label rolls in from below (crossfade with reduced motion). */
 function RollLabel({ text, color, style, lh, space, reduce }: { text: string; color: string; style: StyleProp<TextStyle>; lh: number; space: number; reduce: boolean }) {
-  const width = useRef(0);
-  const [roll, setRoll] = useState<Roll>({ text, color, prev: null, id: 0 });
-  if (roll.text !== text) setRoll({ text, color, prev: { text: roll.text, color: roll.color, width: width.current }, id: roll.id + 1 });
-  else if (roll.color !== color) setRoll({ ...roll, color });
-
-  const clockRef = useRef<{ id: number; v: Animated.Value } | null>(null);
-  if (!clockRef.current || clockRef.current.id !== roll.id) {
-    clockRef.current = { id: roll.id, v: new Animated.Value(roll.id === 0 ? END : 0) };
-  }
-  const clock = clockRef.current.v;
+  const [width, setWidth] = useState(0);
+  const [roll, setRoll] = useState<Roll>(() => ({ text, color, prev: null, id: 0, clock: new Animated.Value(END) }));
+  if (roll.text !== text) {
+    setRoll({ text, color, prev: { text: roll.text, color: roll.color, width }, id: roll.id + 1, clock: new Animated.Value(0) });
+  } else if (roll.color !== color) setRoll({ ...roll, color });
+  const clock = roll.clock;
 
   const live = useRef({ next: 0, prev: 0, reduce });
-  live.current = { next: split(roll.text).length, prev: roll.prev ? split(roll.prev.text).length : 0, reduce };
+  useLayoutEffect(() => {
+    live.current = { next: split(roll.text).length, prev: roll.prev ? split(roll.prev.text).length : 0, reduce };
+  });
   const id = roll.id;
   useEffect(() => {
     if (id === 0) return;
@@ -183,8 +183,8 @@ function RollLabel({ text, color, style, lh, space, reduce }: { text: string; co
     return () => anim.stop();
   }, [id, clock]);
 
-  const n = live.current.next;
-  const m = live.current.prev;
+  const n = split(roll.text).length;
+  const m = roll.prev ? split(roll.prev.text).length : 0;
   const enter = useMemo<Anim[]>(
     () =>
       Array.from({ length: n }, (_, i) =>
@@ -216,7 +216,7 @@ function RollLabel({ text, color, style, lh, space, reduce }: { text: string; co
         lh={lh}
         space={space}
         anims={enter}
-        onLayout={(e) => (width.current = e.nativeEvent.layout.width)}
+        onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       />
       {roll.prev ? (
         <View pointerEvents="none" style={[styles.prev, pw > 0 ? { left: '50%', marginLeft: -pw / 2, width: pw } : { left: 0 }]}>
@@ -237,8 +237,8 @@ export function StatefulButton({
   state,
   onPress,
   loadingText,
-  successText = 'Done',
-  errorText = 'Failed',
+  successText: successTextProp,
+  errorText: errorTextProp,
   variant = 'primary',
   size = 'md',
   color,
@@ -253,7 +253,9 @@ export function StatefulButton({
   style,
   textStyle,
 }: StatefulButtonProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, labels: kitLabels } = useKit();
+  const successText = successTextProp ?? kitLabels.done;
+  const errorText = errorTextProp ?? kitLabels.failed;
   const reduce = useReduceMotion();
   const s = SIZES[size];
   const fontSize = StyleSheet.flatten(textStyle)?.fontSize ?? s.font;
@@ -314,31 +316,36 @@ export function StatefulButton({
   const bw = variant === 'outline' ? StyleSheet.hairlineWidth * 2 : 0;
 
   // JS driver (layout + colour + SVG) — on the surface, the icon slot and the stroke.
-  const tone = useRef(new Animated.Value(toneIndex)).current;
-  const slot = useRef(new Animated.Value(current === 'idle' ? 0 : s.icon + s.gap)).current;
-  const draw = useRef(new Animated.Value(1)).current;
+  const [tone] = useState(() => new Animated.Value(toneIndex));
+  const [slot] = useState(() => new Animated.Value(current === 'idle' ? 0 : s.icon + s.gap));
+  const [draw] = useState(() => new Animated.Value(1));
   // Native driver — transforms and opacity on their own wrappers.
-  const press = useRef(new Animated.Value(1)).current;
-  const shake = useRef(new Animated.Value(0)).current;
-  const pop = useRef(new Animated.Value(current === 'idle' ? 0 : 1)).current;
-  const spin = useRef(new Animated.Value(0)).current;
+  const [press] = useState(() => new Animated.Value(1));
+  const [shake] = useState(() => new Animated.Value(0));
+  const [pop] = useState(() => new Animated.Value(current === 'idle' ? 0 : 1));
+  const [spin] = useState(() => new Animated.Value(0));
   const spinLoop = useRef<Animated.CompositeAnimation | null>(null);
 
   // The icon keeps showing the last busy/result state while it shrinks away on the way back to idle.
-  const lastIcon = useRef<StatefulButtonState>(current === 'idle' ? 'loading' : current);
-  if (current !== 'idle') lastIcon.current = current;
-  const icon = lastIcon.current;
+  const [icon, setIcon] = useState<StatefulButtonState>(current === 'idle' ? 'loading' : current);
+  if (current !== 'idle' && icon !== current) setIcon(current);
 
   // Width: measured from hidden copies of every label, sprung on the JS driver.
   const [widths, setWidths] = useState<Record<string, number>>({});
   const measured = widths[label];
   const target = measured === undefined ? undefined : Math.max(s.h, Math.ceil(measured) + s.px * 2 + bw * 2 + (current === 'idle' ? 0 : s.icon + s.gap));
-  const widthRef = useRef<Animated.Value | null>(null);
-  if (!widthRef.current && target !== undefined) widthRef.current = new Animated.Value(target);
-  const width = widthRef.current;
+  // Created at the first measured width, then sprung from there.
+  const [widthV, setWidthV] = useState<Animated.Value | null>(null);
+  let width = widthV;
+  if (!width && target !== undefined) {
+    width = new Animated.Value(target);
+    setWidthV(width);
+  }
 
   const live = useRef({ reduce, haptics, onStateChange, label, slotTo: 0 });
-  live.current = { reduce, haptics, onStateChange, label, slotTo: current === 'idle' ? 0 : s.icon + s.gap };
+  useLayoutEffect(() => {
+    live.current = { reduce, haptics, onStateChange, label, slotTo: current === 'idle' ? 0 : s.icon + s.gap };
+  });
 
   useEffect(() => {
     if (!width || target === undefined) return;

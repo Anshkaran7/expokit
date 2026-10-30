@@ -44,27 +44,27 @@ export interface TimelineLink {
 }
 
 export interface TimelineItem {
-  key?: string;
+  key?: string | undefined;
   title: string;
-  description?: string;
+  description?: string | undefined;
   /** Timestamp or meta, e.g. "Oct 12 · 2:14 PM" or "2h". */
-  time?: string;
+  time?: string | undefined;
   /** Default 'done'. */
-  status?: TimelineStatus;
+  status?: TimelineStatus | undefined;
   /** Icon inside a larger dot. */
-  icon?: TimelineIconName | ((props: TimelineIconProps) => React.ReactNode);
+  icon?: (TimelineIconName | ((props: TimelineIconProps) => React.ReactNode)) | undefined;
   /** Photo (initials fallback) instead of a dot. */
-  avatar?: { src?: string; name: string };
+  avatar?: { src?: string; name: string } | undefined;
   /** A photo under the text — a URL, or `{ uri, aspectRatio }` (default 16:9). */
-  image?: TimelineImageSource;
+  image?: TimelineImageSource | undefined;
   /** Several photos in a 1-, 2- or 3-up grid (more than three show a "+N" tile). Combined with `image`. */
-  images?: TimelineImageSource[];
+  images?: TimelineImageSource[] | undefined;
   /** Small accent chips under the text. */
-  tags?: string[];
+  tags?: string[] | undefined;
   /** Tappable accent links under the text. */
-  links?: TimelineLink[];
+  links?: TimelineLink[] | undefined;
   /** Anything under the description: a card, a quote, tags, buttons. */
-  content?: React.ReactNode;
+  content?: React.ReactNode | undefined;
 }
 
 export interface TimelineProps {
@@ -73,23 +73,23 @@ export interface TimelineProps {
    * 'default' roomy rows · 'compact' small dots, one-line rows · 'card' each event on a card ·
    * 'scroll' renders its own scroll view and fills the connector as you scroll (give it a height).
    */
-  variant?: TimelineVariant;
+  variant?: TimelineVariant | undefined;
   /** Colour of done / current dots and the filled line (default: theme accent). */
-  accent?: string;
+  accent?: string | undefined;
   /** Draw a check in done dots (default true). */
-  checks?: boolean;
+  checks?: boolean | undefined;
   /** Entrance + connector fill, or the scroll-driven fill for 'scroll' (default true; off with reduce motion). */
-  animated?: boolean;
+  animated?: boolean | undefined;
   /** Colour behind the rail — fills hollow dots and the mini status badges (default: theme background). */
-  surface?: string;
+  surface?: string | undefined;
   /** 'scroll' only: rendered above the timeline inside the scroll view. */
-  header?: React.ReactNode;
+  header?: React.ReactNode | undefined;
   /** 'scroll' only: rendered below the timeline inside the scroll view. */
-  footer?: React.ReactNode;
+  footer?: React.ReactNode | undefined;
   /** 'scroll' only: style for the scroll view's content container (default `{ paddingVertical: 12 }`). */
-  contentContainerStyle?: StyleProp<ViewStyle>;
+  contentContainerStyle?: StyleProp<ViewStyle> | undefined;
   /** Root style. For 'scroll' this is the scroll view, so set a `height` (or `flex: 1` on a screen). */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
@@ -185,7 +185,7 @@ function ScrollTimeline({
   const n = items.length;
   const rail = 34;
 
-  const scrollY = useRef(new Animated.Value(0)).current;
+  const [scrollY] = useState(() => new Animated.Value(0));
   const lastY = useRef(0);
   const [viewH, setViewH] = useState(0);
   const [contentH, setContentH] = useState(0);
@@ -215,7 +215,7 @@ function ScrollTimeline({
     if (!scrolls) return [] as number[];
     const anchor = viewH * SCROLL_ANCHOR;
     const k = 1 + (viewH - anchor) / maxScroll;
-    return items.map((_, i) => (listY + nodes[i] - anchor) / k);
+    return items.map((_, i) => (listY + (nodes[i] ?? 0) - anchor) / k);
   }, [scrolls, viewH, maxScroll, listY, nodes, items]);
 
   // progress = lit * 2 + (near ? 1 : 0), one number so React can skip identical updates.
@@ -225,8 +225,8 @@ function ScrollTimeline({
     const update = (y: number) => {
       lastY.current = y;
       let lit = 0;
-      while (lit <= reach && triggers[lit] <= y) lit++;
-      const near = lit <= reach && y >= triggers[lit] - viewH * NEAR;
+      while (lit <= reach && (triggers[lit] ?? Infinity) <= y) lit++;
+      const near = lit <= reach && y >= (triggers[lit] ?? Infinity) - viewH * NEAR;
       setProgress(lit * 2 + (near ? 1 : 0));
     };
     update(lastY.current);
@@ -243,17 +243,17 @@ function ScrollTimeline({
   );
 
   const top = nodes[0] ?? 0;
-  const fillH = reach > 0 && measured ? nodes[reach] - top : 0;
+  const fillH = reach > 0 && measured ? (nodes[reach] ?? top) - top : 0;
   const dottedFrom = Math.max(0, reach);
-  const dottedH = measured && reach < n - 1 ? nodes[n - 1] - nodes[dottedFrom] : 0;
+  const dottedH = measured && reach < n - 1 ? (nodes[n - 1] ?? 0) - (nodes[dottedFrom] ?? 0) : 0;
 
   let fillStyle: Animated.WithAnimatedValue<ViewStyle> | null = null;
   if (fillH > 0) {
     if (frozen) {
       fillStyle = {};
     } else if (triggers.length) {
-      const t0 = triggers[0];
-      const t1 = Math.max(triggers[reach], t0 + 1);
+      const t0 = triggers[0] ?? 0;
+      const t1 = Math.max(triggers[reach] ?? t0, t0 + 1);
       const p = scrollY.interpolate({ inputRange: [t0, t1], outputRange: [0.0001, 1], extrapolate: 'clamp' });
       fillStyle = {
         transform: [
@@ -358,11 +358,11 @@ interface RowProps {
   arriveDelay: number;
   fillMs: number;
   /** 'scroll': what the dot shows right now (it lights up when the fill reaches it). */
-  dotStatus?: TimelineStatus;
+  dotStatus?: TimelineStatus | undefined;
   /** 'scroll': the fill has reached this dot — pops it. */
-  lit?: boolean;
+  lit?: boolean | undefined;
   /** 'scroll': reports the dot centre's y inside the list. */
-  onNode?: (y: number) => void;
+  onNode?: ((y: number) => void) | undefined;
 }
 
 function Row({
@@ -398,9 +398,9 @@ function Row({
   const gapBelow = compact ? 14 : card ? 12 : scroll ? 32 : 26;
   const entrance = !still && !scroll;
 
-  const enter = useRef(new Animated.Value(entrance ? 0 : 1)).current;
-  const fill = useRef(new Animated.Value(still ? 1 : 0)).current;
-  const pop = useRef(new Animated.Value(1)).current;
+  const [enter] = useState(() => new Animated.Value(entrance ? 0 : 1));
+  const [fill] = useState(() => new Animated.Value(still ? 1 : 0));
+  const [pop] = useState(() => new Animated.Value(1));
   const wasLit = useRef(!!lit);
   const [lineH, setLineH] = useState(0);
 
@@ -685,8 +685,8 @@ function Dot({
 }) {
   const { colors, radius, dark } = useKit();
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
-  const draw = useRef(new Animated.Value(still ? 1 : 0)).current; // JS: dash offsets
-  const pulse = useRef(new Animated.Value(0)).current; // native: halo
+  const [draw] = useState(() => new Animated.Value(still ? 1 : 0)); // JS: dash offsets
+  const [pulse] = useState(() => new Animated.Value(0)); // native: halo
   const current = status === 'current';
   const marked = status === 'error' || (status === 'done' && checks);
 
@@ -894,12 +894,15 @@ function TimelineGallery({ images, dim }: { images: TimelineImageSource[]; dim: 
     styles.gallery,
     { borderRadius: radius.md, borderColor: alpha(colors.foreground, dark ? 0.1 : 0.06), opacity: dim ? 0.6 : 1 },
   ];
-  const tile = (i: number, flex: ViewStyle) => (
-    <Photo key={i} uri={shown[i].uri} delay={i * 90} style={[flex, { borderRadius: radius.scale(4) }]} more={i === 2 && extra > 0 ? extra : 0} />
-  );
+  const tile = (i: number, flex: ViewStyle) => {
+    const image = shown[i];
+    return image ? (
+      <Photo key={i} uri={image.uri} delay={i * 90} style={[flex, { borderRadius: radius.scale(4) }]} more={i === 2 && extra > 0 ? extra : 0} />
+    ) : null;
+  };
 
   if (shown.length === 1) {
-    return <View style={[frame, { aspectRatio: shown[0].ratio }]}>{tile(0, styles.fill)}</View>;
+    return <View style={[frame, { aspectRatio: shown[0]?.ratio }]}>{tile(0, styles.fill)}</View>;
   }
   if (shown.length === 2) {
     return (
@@ -923,7 +926,7 @@ function TimelineGallery({ images, dim }: { images: TimelineImageSource[]; dim: 
 function Photo({ uri, delay, style, more }: { uri: string; delay: number; style: StyleProp<ViewStyle>; more: number }) {
   const { colors, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const shown = useRef(new Animated.Value(0)).current;
+  const [shown] = useState(() => new Animated.Value(0));
   return (
     <View style={[styles.photo, { backgroundColor: colors.muted }, style]}>
       <Animated.Image

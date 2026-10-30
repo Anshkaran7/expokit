@@ -1,11 +1,10 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
   Easing,
   Modal,
-  PanResponder,
   Platform,
   Pressable,
   StyleSheet,
@@ -17,7 +16,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit, useLayout } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, useLayout, usePanResponder } from '@/lib/kit';
 
 /**
  * `inset` — iOS: grouped rounded cards floating above the home indicator, with a separate Cancel card (default).
@@ -128,7 +127,7 @@ export function ActionSheet({
   title,
   message,
   actions,
-  cancelLabel = 'Cancel',
+  cancelLabel: cancelLabelProp,
   onCancel,
   variant = 'inset',
   bottomInset = DEFAULT_BOTTOM_INSET,
@@ -137,7 +136,8 @@ export function ActionSheet({
   haptics = true,
   style,
 }: ActionSheetProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, labels } = useKit();
+  const cancelLabel = cancelLabelProp === undefined ? labels.cancel : cancelLabelProp; // null hides it
   const ff = font.family ? { fontFamily: font.family } : null;
   const { height: winH } = useWindowDimensions();
   // Full width on portrait phones; a centred, width-capped card on foldables, tablets and landscape.
@@ -147,14 +147,14 @@ export function ActionSheet({
   const [inner, setInner] = useState(defaultOpen);
   const isOpen = open ?? inner;
   // Stays mounted while the exit animation runs; cleared in its completion callback.
-  const keep = useRef(isOpen);
-  const [, rerender] = useState(0);
-  const mounted = isOpen || keep.current;
+  const [keep, setKeep] = useState(isOpen);
+  if (isOpen && !keep) setKeep(true);
+  const mounted = isOpen || keep;
 
   // Both native-driven, on the sheet node: open progress (0 → 1) and finger offset.
-  const t = useRef(new Animated.Value(0)).current;
-  const drag = useRef(new Animated.Value(0)).current;
-  const sheetH = useRef(320);
+  const [t] = useState(() => new Animated.Value(0));
+  const [drag] = useState(() => new Animated.Value(0));
+  const [sheetH, setSheetH] = useState(320);
   const flung = useRef(false);
 
   const setOpen = (next: boolean) => {
@@ -167,11 +167,12 @@ export function ActionSheet({
     setOpen(false);
   };
   const live = useRef({ dismiss, dismissible });
-  live.current = { dismiss, dismissible };
+  useLayoutEffect(() => {
+    live.current = { dismiss, dismissible };
+  });
 
   useEffect(() => {
     if (isOpen) {
-      keep.current = true;
       drag.setValue(0);
       flung.current = false;
       if (haptics) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -187,9 +188,7 @@ export function ActionSheet({
         easing: flung.current ? Easing.out(Easing.cubic) : Easing.in(Easing.quad),
         useNativeDriver: true,
       }).start(({ finished }) => {
-        if (!finished) return;
-        keep.current = false;
-        rerender((n) => n + 1);
+        if (finished) setKeep(false);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -204,32 +203,30 @@ export function ActionSheet({
   }, [isOpen]);
 
   // Drag anywhere on the sheet: a vertical move steals the touch from the row under the finger.
-  const pan = useMemo(() => {
-    const settle = (velocity = 0) =>
-      Animated.spring(drag, { toValue: 0, velocity, useNativeDriver: true, ...motion.snappy }).start();
-    return PanResponder.create({
-      onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dy) > 8 && Math.abs(g.dy) > Math.abs(g.dx) * 1.4,
-      onPanResponderGrant: () => drag.stopAnimation(),
-      onPanResponderMove: (_, g) => {
-        const down = live.current.dismissible ? g.dy : rubber(g.dy, 90);
-        drag.setValue(g.dy > 0 ? down : -rubber(-g.dy, 70));
-      },
-      onPanResponderRelease: (_, g) => {
-        const far = g.dy > sheetH.current * 0.3;
-        const flick = g.vy > 0.9 && g.dy > 12;
-        if (live.current.dismissible && (far || flick)) {
-          flung.current = true;
-          live.current.dismiss();
-        } else settle(g.vy);
-      },
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderTerminate: () => settle(),
-    });
-  }, [drag]);
+  const settle = (velocity = 0) =>
+    Animated.spring(drag, { toValue: 0, velocity, useNativeDriver: true, ...motion.snappy }).start();
+  const pan = usePanResponder({
+    onMoveShouldSetPanResponderCapture: (_, g) => Math.abs(g.dy) > 8 && Math.abs(g.dy) > Math.abs(g.dx) * 1.4,
+    onPanResponderGrant: () => drag.stopAnimation(),
+    onPanResponderMove: (_, g) => {
+      const down = dismissible ? g.dy : rubber(g.dy, 90);
+      drag.setValue(g.dy > 0 ? down : -rubber(-g.dy, 70));
+    },
+    onPanResponderRelease: (_, g) => {
+      const far = g.dy > sheetH * 0.3;
+      const flick = g.vy > 0.9 && g.dy > 12;
+      if (dismissible && (far || flick)) {
+        flung.current = true;
+        dismiss();
+      } else settle(g.vy);
+    },
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderTerminate: () => settle(),
+  });
 
   const scrim = Animated.multiply(
     t,
-    drag.interpolate({ inputRange: [0, Math.max(200, sheetH.current)], outputRange: [1, 0], extrapolate: 'clamp' }),
+    drag.interpolate({ inputRange: [0, Math.max(200, sheetH)], outputRange: [1, 0], extrapolate: 'clamp' }),
   );
 
   const pick = (a: ActionSheetAction) => {
@@ -410,18 +407,16 @@ export function ActionSheet({
           style={StyleSheet.absoluteFill}
           onPress={dismiss}
           accessibilityRole="button"
-          accessibilityLabel="Dismiss"
+          accessibilityLabel={labels.dismiss}
           importantForAccessibility={cancelLabel !== null ? 'no' : 'auto'}
           accessible={cancelLabel === null}
         />
       </Animated.View>
       <View style={styles.host} pointerEvents="box-none">
         <Animated.View
-          {...pan.panHandlers}
+          {...pan}
           accessibilityViewIsModal
-          onLayout={(e) => {
-            sheetH.current = Math.max(1, Math.round(e.nativeEvent.layout.height));
-          }}
+          onLayout={(e) => setSheetH(Math.max(1, Math.round(e.nativeEvent.layout.height)))}
           style={[
             styles.sheet,
             { maxWidth: sheetWidth },
@@ -483,14 +478,14 @@ function Row({
   children,
 }: {
   onPress: () => void;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   label: string;
   highlight: string;
-  corner?: number;
-  style?: StyleProp<ViewStyle>;
+  corner?: number | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
   children: React.ReactNode;
 }) {
-  const hl = useRef(new Animated.Value(0)).current;
+  const [hl] = useState(() => new Animated.Value(0));
   return (
     <Pressable
       onPress={onPress}

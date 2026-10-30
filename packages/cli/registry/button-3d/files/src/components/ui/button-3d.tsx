@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, ActivityIndicator, Animated, Platform, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
@@ -120,7 +120,7 @@ export function Button3D({
   const round = shape === 'circle';
   const gid = `b3d-${color ? color.replace('#', '') : kind}`;
 
-  const press = useRef(new Animated.Value(0)).current;
+  const [press] = useState(() => new Animated.Value(0));
   const to = (v: number) =>
     reduce
       ? Animated.timing(press, { toValue: v, duration: 120, useNativeDriver: true }).start()

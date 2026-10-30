@@ -4,6 +4,7 @@
   "title": "Button",
   "description": "Spring press feedback, eleven variants — including a two-tone gradient, a coloured glow and an elevated surface — four sizes, icons and a loading state. Pass any colour and every tinted variant follows it.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

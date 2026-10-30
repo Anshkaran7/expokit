@@ -5,13 +5,13 @@ export type ConfettiOrigin = 'top' | 'center' | 'bottom';
 
 export interface ConfettiBurst {
   /** Where it comes from (default: the `origin` prop). */
-  origin?: ConfettiOrigin;
+  origin?: ConfettiOrigin | undefined;
   /** For `center`: the burst point in the overlay, in points (default: the middle). */
-  x?: number;
-  y?: number;
+  x?: number | undefined;
+  y?: number | undefined;
   /** Pieces in this burst (default: the `count` prop). */
-  count?: number;
-  colors?: readonly string[];
+  count?: number | undefined;
+  colors?: readonly string[] | undefined;
 }
 
 export interface ConfettiHandle {
@@ -21,20 +21,20 @@ export interface ConfettiHandle {
 
 export interface ConfettiProps {
   /** Pieces per burst (default 80, max 160). */
-  count?: number;
-  colors?: readonly string[];
+  count?: number | undefined;
+  colors?: readonly string[] | undefined;
   /** `top` rains down, `center` pops outward, `bottom` fires two cannons from the corners (default "bottom"). */
-  origin?: ConfettiOrigin;
+  origin?: ConfettiOrigin | undefined;
   /** How long a burst lasts in ms (default 2600). */
-  duration?: number;
+  duration?: number | undefined;
   /** Fire a burst whenever this value changes (not on mount) — no ref needed. */
-  trigger?: unknown;
+  trigger?: unknown | undefined;
   /** Fire once on mount. */
-  autoplay?: boolean;
+  autoplay?: boolean | undefined;
   /** Called when a burst has finished. */
-  onDone?: () => void;
+  onDone?: (() => void) | undefined;
   /** The overlay fills its parent by default; it never takes touches. */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const PALETTE = ['#ff3d77', '#ffb000', '#3ddcff', '#7cff6b', '#a855ff', '#ffffff', '#ff7a1a'];
@@ -145,7 +145,8 @@ export const Confetti = forwardRef<ConfettiHandle, ConfettiProps>(function Confe
       const turns = (Math.random() < 0.5 ? -1 : 1) * (1 + Math.random() * 2.5);
       pieces.push({
         key: i,
-        color: palette[Math.floor(Math.random() * palette.length)],
+        // An empty `colors` list falls back to white rather than an invisible piece.
+        color: palette[Math.floor(Math.random() * palette.length)] ?? '#ffffff',
         w: round ? 7 : strip ? 4 : 7,
         h: round ? 7 : strip ? 16 : 11,
         round,

@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
@@ -32,28 +32,28 @@ export type ButtonVariant =
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
 export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> {
-  children?: React.ReactNode;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  children?: React.ReactNode | undefined;
+  variant?: ButtonVariant | undefined;
+  size?: ButtonSize | undefined;
   /** Swaps the label for a spinner and blocks presses. */
-  loading?: boolean;
-  left?: React.ReactNode;
-  right?: React.ReactNode;
+  loading?: boolean | undefined;
+  left?: React.ReactNode | undefined;
+  right?: React.ReactNode | undefined;
   /** Stretch to the parent's width. */
-  block?: boolean;
+  block?: boolean | undefined;
   /** Fully rounded ends. */
-  pill?: boolean;
+  pill?: boolean | undefined;
   /**
    * Any colour. Recolours every tinted variant (accent, soft, outline, ghost, link, gradient,
    * glow, elevated); text on filled buttons picks black or white automatically.
    */
-  color?: string;
+  color?: string | undefined;
   /** Second gradient stop for `variant="gradient"` (default: `color` shifted along the hue wheel). */
-  gradientTo?: string;
+  gradientTo?: string | undefined;
   /** Light tap on press (default false — most buttons shouldn't buzz). */
-  haptics?: boolean;
-  style?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
+  haptics?: boolean | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
+  textStyle?: StyleProp<TextStyle> | undefined;
 }
 
 // Controls stop growing at iOS's largest standard text size (xxxL ≈ 1.35×) so they keep their shape;
@@ -72,7 +72,9 @@ function shift(hex: string, deg: number, dl = 0) {
   const full = hex.length === 4 ? '#' + [...hex.slice(1)].map((c) => c + c).join('') : hex;
   const n = parseInt(full.slice(1, 7), 16);
   if (!hex.startsWith('#') || Number.isNaN(n)) return hex;
-  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => v / 255);
+  const r = ((n >> 16) & 255) / 255;
+  const g = ((n >> 8) & 255) / 255;
+  const b = (n & 255) / 255;
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const l = (max + min) / 2;
@@ -125,7 +127,7 @@ export function Button({
   const ff = font.family ? { fontFamily: font.family } : null;
   const gid = 'btn' + useId().replace(/[^a-zA-Z0-9]/g, '');
   const reduce = useReduceMotion();
-  const scale = useRef(new Animated.Value(1)).current;
+  const [scale] = useState(() => new Animated.Value(1));
   const isDisabled = disabled || loading;
   const tint = color ?? colors.accent;
   const onTint = color ? readableOn(tint) : colors.accentForeground;

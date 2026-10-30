@@ -4,6 +4,7 @@
   "title": "Segmented Control",
   "description": "A liquid indicator: the leading edge springs ahead and the trailing edge catches up, so it stretches between segments — measured with onLayout to fit any label. Drag the selected segment to scrub. iOS pill, tab underline and outline looks, with icons and three sizes.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

@@ -101,7 +101,7 @@
     [
       "placeholder",
       "string",
-      "\"Select…\"",
+      "labels.selectPlaceholder",
       "Shown in the field while open with nothing selected."
     ],
     [
@@ -131,7 +131,7 @@
     [
       "searchPlaceholder",
       "string",
-      "\"Search\"",
+      "labels.search",
       "Placeholder of the filter field."
     ],
     [

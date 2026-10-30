@@ -2,7 +2,7 @@
   "name": "toast",
   "category": "Feedback",
   "aliases": [],
-  "exportName": "ToastProvider",
+  "exportName": "Toaster",
   "files": [
     "src/components/ui/toast.tsx"
   ],
@@ -90,7 +90,19 @@
       "<Toaster> offset / gap",
       "number",
       "16 (island 10) / 10",
-      "Edge distance and fan-out spacing. No safe-area dependency: pass insets.top + 8 to clear a notch."
+      "Edge distance and fan-out spacing. Added on top of safeArea and bottomInset."
+    ],
+    [
+      "<Toaster> safeArea",
+      "boolean",
+      "false",
+      "Clear the notch / Dynamic Island and home indicator using react-native-safe-area-context's insets (when installed; every Expo Router app has it)."
+    ],
+    [
+      "<Toaster> bottomInset",
+      "number",
+      "0",
+      "Extra space under a bottom stack for a tab bar or composer: <Toaster safeArea bottomInset={49} /> in your (tabs) layout."
     ],
     [
       "<Toaster> closeButton",
@@ -139,7 +151,7 @@
       "Each toast is an alert in a polite live region, labelled by its title and description, with action and Dismiss buttons."
     ]
   ],
-  "usage": "import { toast, Toaster } from '@/components/ui/toast';\n\n// once, at the root of your app\n<Toaster />\n\n// anywhere\ntoast.success('Invoice INV-0042 sent', { description: 'Maya will get it by email.' });",
+  "usage": "import { toast, Toaster } from '@/components/ui/toast';\n\n// once, at the root of your app (safeArea keeps it clear of the notch and home indicator)\n<Toaster safeArea />\n\n// above a tab bar: in app/(tabs)/_layout.tsx, next to <Tabs />\n<Toaster safeArea bottomInset={49} />\n\n// anywhere\ntoast.success('Invoice INV-0042 sent', { description: 'Maya will get it by email.' });",
   "examples": [
     {
       "name": "Default",

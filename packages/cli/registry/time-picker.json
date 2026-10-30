@@ -4,6 +4,7 @@
   "title": "Time Picker",
   "description": "Time input in three styles: iOS-style wheel drums whose rows tilt, shrink and fade past an inset selection band (scroll-driven on the native driver, momentum snapping, tap a row to jump); a Material 3-style clock face with a big hh : mm header, AM / PM toggle and a hand you drag anywhere on the dial — it snaps to hours, then crossfades to minutes; or a grid of bookable time chips with struck-through booked slots and Morning / Afternoon / Evening groups. Render any of them inline or as a floating-label field that opens it in a drag-to-dismiss sheet.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -7,7 +7,6 @@ import {
   Easing,
   Image,
   Modal,
-  PanResponder,
   Platform,
   Pressable,
   ScrollView,
@@ -23,7 +22,7 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { alpha, motion, useKit } from '@/lib/kit';
+import { alpha, motion, useKit, usePanResponder } from '@/lib/kit';
 
 export type DrawerSide = 'left' | 'right';
 /**
@@ -135,11 +134,12 @@ export function Drawer({
   haptics = true,
   topInset,
   bottomInset,
-  accessibilityLabel = 'Navigation drawer',
+  accessibilityLabel: accessibilityLabelProp,
   style,
   panelStyle,
 }: DrawerProps) {
-  const { colors, dark, radius } = useKit();
+  const { colors, dark, radius, labels } = useKit();
+  const accessibilityLabel = accessibilityLabelProp ?? labels.navigationDrawer;
   const reduceMotion = useReduceMotion();
   const win = useWindowDimensions();
   const inline = children !== undefined;
@@ -159,13 +159,17 @@ export function Drawer({
   const [inner, setInner] = useState(defaultOpen);
   const isOpen = open ?? inner;
   const [mounted, setMounted] = useState(isOpen); // Modal mode only
+  // Mount as soon as it opens (state adjusted during render); unmounted after the exit animation.
+  if (isOpen && !inline && !mounted) setMounted(true);
   // Progress 0 (closed) → 1 (open), native-driven; every transform and opacity reads from it.
-  const p = useRef(new Animated.Value(isOpen ? 1 : 0)).current;
+  const [p] = useState(() => new Animated.Value(isOpen ? 1 : 0));
   // Same progress on the JS driver, for the screen's corner radius and edge colour (separate view).
-  const r = useRef(new Animated.Value(isOpen ? 1 : 0)).current;
+  const [r] = useState(() => new Animated.Value(isOpen ? 1 : 0));
 
   const live = useRef({ open: isOpen, w: W, box, reduce: reduceMotion, haptics, movesScreen, edgeSwipe, edgeWidth, dismissible });
-  live.current = { open: isOpen, w: W, box, reduce: reduceMotion, haptics, movesScreen, edgeSwipe, edgeWidth, dismissible };
+  useLayoutEffect(() => {
+    live.current = { open: isOpen, w: W, box, reduce: reduceMotion, haptics, movesScreen, edgeSwipe, edgeWidth, dismissible };
+  });
 
   const setOpen = useCallback(
     (next: boolean) => {
@@ -175,7 +179,9 @@ export function Drawer({
     [open, onOpenChange],
   );
   const setOpenRef = useRef(setOpen);
-  setOpenRef.current = setOpen;
+  useLayoutEffect(() => {
+    setOpenRef.current = setOpen;
+  });
 
   const target = useRef<0 | 1>(isOpen ? 1 : 0);
   const settle = useCallback(
@@ -203,7 +209,6 @@ export function Drawer({
   );
 
   useEffect(() => {
-    if (isOpen && !inline) setMounted(true);
     // Skip when a drag release already started a velocity spring towards this state.
     if (target.current !== (isOpen ? 1 : 0)) settle(isOpen ? 1 : 0);
   }, [isOpen, settle, inline]);
@@ -242,50 +247,47 @@ export function Drawer({
   // zone (so taps there still reach the screen), `drag` captures horizontal drags on the open
   // panel / scrim (so vertical scrolling and taps inside the panel keep working).
   const start = useRef(0);
-  const pans = useMemo(() => {
-    const toward = (dx: number) => (side === 'left' ? dx : -dx); // + means "more open"
-    const horizontal = (g: PanResponderGestureState) => Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5;
-    const base = {
-      onPanResponderTerminationRequest: () => false,
-      onPanResponderGrant: () => {
-        p.stopAnimation((v) => (start.current = v));
-        r.stopAnimation();
-        if (!live.current.open && !inline) setMounted(true);
-      },
-      onPanResponderMove: (_: unknown, g: PanResponderGestureState) => {
-        const w = live.current.w || 1;
-        let next = start.current + toward(g.dx) / w;
-        if (next > 1) next = 1 + rubber((next - 1) * w, EXTRA) / w;
-        if (next < 0) next = 0;
-        p.setValue(next);
-        if (live.current.movesScreen) r.setValue(Math.min(1, next));
-      },
-      onPanResponderRelease: (_: unknown, g: PanResponderGestureState) => {
-        const w = live.current.w || 1;
-        const v = toward(g.vx); // px/ms, + means opening
-        const projected = start.current + toward(g.dx) / w + (v * 200) / w;
-        let to: 0 | 1 = projected > 0.5 ? 1 : 0;
-        if (Math.abs(v) > 0.35) to = v > 0 ? 1 : 0; // a flick decides on its own
-        settle(to, (v * 1000) / w);
-        if ((to === 1) !== live.current.open) setOpenRef.current(to === 1);
-      },
-      onPanResponderTerminate: () => settle(live.current.open ? 1 : 0),
-    };
-    const edge = PanResponder.create({
-      ...base,
-      onMoveShouldSetPanResponderCapture: (_, g) => {
-        const l = live.current;
-        if (!l.edgeSwipe || l.open || !horizontal(g) || toward(g.dx) <= 0) return false;
-        const x = g.x0 - rootX.current;
-        return side === 'left' ? x <= l.edgeWidth : x >= l.box - l.edgeWidth;
-      },
-    });
-    const drag = PanResponder.create({
-      ...base,
-      onMoveShouldSetPanResponderCapture: (_, g) => live.current.dismissible && live.current.open && horizontal(g),
-    });
-    return { edge, drag };
-  }, [p, r, side, settle, inline]);
+  const toward = (dx: number) => (side === 'left' ? dx : -dx); // + means "more open"
+  const horizontal = (g: PanResponderGestureState) => Math.abs(g.dx) > 10 && Math.abs(g.dx) > Math.abs(g.dy) * 1.5;
+  const base = {
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderGrant: () => {
+      p.stopAnimation((v) => (start.current = v));
+      r.stopAnimation();
+      if (!live.current.open && !inline) setMounted(true);
+    },
+    onPanResponderMove: (_: unknown, g: PanResponderGestureState) => {
+      const w = live.current.w || 1;
+      let next = start.current + toward(g.dx) / w;
+      if (next > 1) next = 1 + rubber((next - 1) * w, EXTRA) / w;
+      if (next < 0) next = 0;
+      p.setValue(next);
+      if (live.current.movesScreen) r.setValue(Math.min(1, next));
+    },
+    onPanResponderRelease: (_: unknown, g: PanResponderGestureState) => {
+      const w = live.current.w || 1;
+      const v = toward(g.vx); // px/ms, + means opening
+      const projected = start.current + toward(g.dx) / w + (v * 200) / w;
+      let to: 0 | 1 = projected > 0.5 ? 1 : 0;
+      if (Math.abs(v) > 0.35) to = v > 0 ? 1 : 0; // a flick decides on its own
+      settle(to, (v * 1000) / w);
+      if ((to === 1) !== live.current.open) setOpenRef.current(to === 1);
+    },
+    onPanResponderTerminate: () => settle(live.current.open ? 1 : 0),
+  };
+  const edgePan = usePanResponder({
+    ...base,
+    onMoveShouldSetPanResponderCapture: (_, g) => {
+      const l = live.current;
+      if (!l.edgeSwipe || l.open || !horizontal(g) || toward(g.dx) <= 0) return false;
+      const x = g.x0 - rootX.current;
+      return side === 'left' ? x <= l.edgeWidth : x >= l.box - l.edgeWidth;
+    },
+  });
+  const dragPan = usePanResponder({
+    ...base,
+    onMoveShouldSetPanResponderCapture: (_, g) => live.current.dismissible && live.current.open && horizontal(g),
+  });
 
   const ctx = useMemo(
     () => ({ open: isOpen, setOpen, toggle: () => setOpen(!isOpen), close: () => setOpen(false) }),
@@ -328,7 +330,7 @@ export function Drawer({
 
   const panel = (
     <Animated.View
-      {...(dismissible ? pans.drag.panHandlers : null)}
+      {...(dismissible ? dragPan : null)}
       accessibilityViewIsModal={isOpen}
       accessibilityLabel={accessibilityLabel}
       importantForAccessibility={isOpen ? 'yes' : 'no-hide-descendants'}
@@ -393,7 +395,7 @@ export function Drawer({
 
   const scrim = (
     <Animated.View
-      {...(dismissible ? pans.drag.panHandlers : null)}
+      {...(dismissible ? dragPan : null)}
       pointerEvents={isOpen ? 'auto' : 'none'}
       style={[StyleSheet.absoluteFill, { backgroundColor: colors.overlay, opacity: scrimOpacity }]}
     >
@@ -401,7 +403,7 @@ export function Drawer({
         style={StyleSheet.absoluteFill}
         onPress={() => dismissible && setOpen(false)}
         accessibilityRole="button"
-        accessibilityLabel="Close drawer"
+        accessibilityLabel={labels.closeDrawer}
       />
     </Animated.View>
   );
@@ -421,7 +423,7 @@ export function Drawer({
     <DrawerContext.Provider value={ctx}>
       <View
         ref={rootRef}
-        {...pans.edge.panHandlers}
+        {...edgePan}
         onTouchStart={measure}
         onLayout={(e: LayoutChangeEvent) => {
           setBox(e.nativeEvent.layout.width);
@@ -474,13 +476,15 @@ export interface DrawerHeaderProps {
   /** Shows a close control on the trailing edge (default false). */
   showClose?: boolean;
   onClose?: () => void;
+  /** Screen-reader name of the close button (default: the kit's `labels.closeMenu`). */
+  closeLabel?: string;
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
 /** Title block with optional leading node and close button — drop into `header`. */
-export function DrawerHeader({ title, subtitle, leading, showClose = false, onClose, children, style }: DrawerHeaderProps) {
-  const { colors, radius, dark, font } = useKit();
+export function DrawerHeader({ title, subtitle, leading, showClose = false, onClose, closeLabel, children, style }: DrawerHeaderProps) {
+  const { colors, radius, dark, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const drawerCtx = useContext(DrawerContext);
   const close = onClose ?? (() => drawerCtx?.close());
@@ -505,7 +509,7 @@ export function DrawerHeader({ title, subtitle, leading, showClose = false, onCl
         <Pressable
           onPress={close}
           accessibilityRole="button"
-          accessibilityLabel="Close menu"
+          accessibilityLabel={closeLabel ?? labels.closeMenu}
           hitSlop={8}
           style={({ pressed }) => [
             styles.closeBtn,
@@ -558,9 +562,9 @@ export function DrawerProfile({
   accessibilityHint,
   style,
 }: DrawerProfileProps) {
-  const { colors, radius, dark, font } = useKit();
+  const { colors, radius, dark, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
-  const press = useRef(new Animated.Value(0)).current;
+  const [press] = useState(() => new Animated.Value(0));
   const stacked = layout === 'stacked';
   const trailing =
     accessory !== undefined ? (
@@ -597,7 +601,7 @@ export function DrawerProfile({
         onPressOut={() => spring(0)}
         accessibilityRole={onPress ? 'button' : undefined}
         accessibilityLabel={email ? `${name}, ${email}` : name}
-        accessibilityHint={accessibilityHint ?? (onPress ? 'Switch account' : undefined)}
+        accessibilityHint={accessibilityHint ?? (onPress ? labels.switchAccount : undefined)}
         style={({ pressed }) => [
           stacked ? styles.profileStacked : styles.profileRow,
           {
@@ -626,7 +630,7 @@ export function DrawerProfile({
   );
 }
 
-function ProfileAvatar({ name, src, size, status }: { name: string; src?: string; size: number; status?: DrawerPresence }) {
+function ProfileAvatar({ name, src, size, status }: { name: string; src?: string | undefined; size: number; status?: DrawerPresence | undefined }) {
   const { colors, radius, dark, font } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const ring = useContext(SurfaceContext) ?? colors.card;
@@ -811,10 +815,10 @@ export function DrawerItem({
   const ink = dark ? tint : mix(tint, colors.foreground, 0.22);
 
   // Native-driven: pill presence, icon pop, badge pop, press scale — each on its own value.
-  const on = useRef(new Animated.Value(active ? 1 : 0)).current;
-  const pop = useRef(new Animated.Value(1)).current;
-  const badgePop = useRef(new Animated.Value(1)).current;
-  const press = useRef(new Animated.Value(0)).current;
+  const [on] = useState(() => new Animated.Value(active ? 1 : 0));
+  const [pop] = useState(() => new Animated.Value(1));
+  const [badgePop] = useState(() => new Animated.Value(1));
+  const [press] = useState(() => new Animated.Value(0));
   const first = useRef(true);
   const firstBadge = useRef(true);
 

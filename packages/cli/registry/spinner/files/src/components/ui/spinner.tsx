@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -32,20 +32,20 @@ export type SpinnerSize = 'sm' | 'md' | 'lg' | 'xl';
 export type SpinnerLabelPosition = 'none' | 'right' | 'bottom';
 
 export interface SpinnerProps {
-  variant?: SpinnerVariant;
+  variant?: SpinnerVariant | undefined;
   /** 'sm' 16 · 'md' 24 · 'lg' 36 · 'xl' 52 — or any number of points. */
-  size?: SpinnerSize | number;
+  size?: SpinnerSize | number | undefined;
   /** Indicator colour (default: theme accent). */
-  color?: string;
+  color?: string | undefined;
   /** Speed multiplier: 2 is twice as fast. */
-  speed?: number;
-  /** Read by screen readers, and shown when `labelPosition` is set. */
-  label?: string;
+  speed?: number | undefined;
+  /** Read by screen readers, and shown when `labelPosition` is set (default: the kit's `labels.loading`). */
+  label?: string | undefined;
   /** Show `label` beside or under the spinner with an animated ellipsis (default 'none': screen readers only). */
-  labelPosition?: SpinnerLabelPosition;
+  labelPosition?: SpinnerLabelPosition | undefined;
   /** Faint guide behind the motion: the full circle (ring, orbit, arc), the rail (line) or ghost bars (bars). */
-  track?: boolean;
-  style?: StyleProp<ViewStyle>;
+  track?: boolean | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const SIZES: Record<SpinnerSize, number> = { sm: 16, md: 24, lg: 36, xl: 52 };
@@ -79,7 +79,7 @@ function useReduceMotion() {
 
 /** Looping value 0 → 1. Each spinner part interpolates it. */
 function useLoop(duration: number, easing: (t: number) => number, native: boolean, running = true) {
-  const v = useRef(new Animated.Value(0)).current;
+  const [v] = useState(() => new Animated.Value(0));
   useEffect(() => {
     v.setValue(0);
     if (!running) return;
@@ -107,15 +107,17 @@ const sine = Easing.inOut(Easing.sin);
 function eased(points: number[], values: number[], ease: (t: number) => number, steps = 12) {
   const inputRange: number[] = [];
   const outputRange: number[] = [];
+  const p = (i: number) => points[i] ?? 0;
+  const v = (i: number) => values[i] ?? 0;
   for (let i = 0; i < points.length - 1; i++) {
     for (let k = 0; k < steps; k++) {
       const t = k / steps;
-      inputRange.push(points[i] + (points[i + 1] - points[i]) * t);
-      outputRange.push(values[i] + (values[i + 1] - values[i]) * ease(t));
+      inputRange.push(p(i) + (p(i + 1) - p(i)) * t);
+      outputRange.push(v(i) + (v(i + 1) - v(i)) * ease(t));
     }
   }
-  inputRange.push(points[points.length - 1]);
-  outputRange.push(values[values.length - 1]);
+  inputRange.push(p(points.length - 1));
+  outputRange.push(v(values.length - 1));
   return { inputRange, outputRange };
 }
 
@@ -156,12 +158,13 @@ export function Spinner({
   size = 'md',
   color,
   speed = 1,
-  label = 'Loading',
+  label: labelProp,
   labelPosition = 'none',
   track = false,
   style,
 }: SpinnerProps) {
-  const { colors } = useKit();
+  const { colors, labels } = useKit();
+  const label = labelProp ?? labels.loading;
   const reduce = useReduceMotion();
   const px = typeof size === 'number' ? size : SIZES[size];
   const tint = color ?? colors.accent;
@@ -326,10 +329,10 @@ function Bars({ size, color, speed, track, reduce }: BodyProps) {
   const corner = radius.capsule(w);
   return (
     <View style={[styles.row, { gap: w * 0.6, height: h }]}>
-      {BAR_RATE.map((rate, i) => {
+      {BARS.map(({ rate, phase, rest }, i) => {
         const scaleY = reduce
-          ? BAR_REST[i]
-          : t.interpolate(curve((u) => 0.28 + 0.72 * Math.abs(Math.sin(Math.PI * (rate * u + BAR_PHASE[i]))), 32));
+          ? rest
+          : t.interpolate(curve((u) => 0.28 + 0.72 * Math.abs(Math.sin(Math.PI * (rate * u + phase))), 32));
         return (
           <View key={i} style={{ width: w, height: h }}>
             {track ? <View style={[StyleSheet.absoluteFill, { borderRadius: corner, backgroundColor: alpha(color, 0.14) }]} /> : null}
@@ -340,9 +343,12 @@ function Bars({ size, color, speed, track, reduce }: BodyProps) {
     </View>
   );
 }
-const BAR_RATE = [1, 2, 1, 2];
-const BAR_PHASE = [0, 0.2, 0.55, 0.35];
-const BAR_REST = [0.5, 0.9, 0.35, 0.7];
+const BARS = [
+  { rate: 1, phase: 0, rest: 0.5 },
+  { rate: 2, phase: 0.2, rest: 0.9 },
+  { rate: 1, phase: 0.55, rest: 0.35 },
+  { rate: 2, phase: 0.35, rest: 0.7 },
+];
 
 /** Two rings ripple out of a breathing core and fade (native scale/opacity). */
 function Pulse({ size, color, speed, track, reduce }: BodyProps) {
@@ -402,13 +408,17 @@ function Orbit({ size, color, speed, track, reduce }: BodyProps) {
           borderColor: alpha(color, track ? 0.28 : 0.16),
         }}
       />
-      {[0.08, 0.04, 0].map((lag, i) => (
+      {[
+        { lag: 0.08, opacity: 0.2, scale: 0.6 },
+        { lag: 0.04, opacity: 0.4, scale: 0.8 },
+        { lag: 0, opacity: 1, scale: 1 },
+      ].map(({ lag, opacity, scale }) => (
         <Animated.View
           key={lag}
           style={[
             StyleSheet.absoluteFill,
             {
-              opacity: [0.2, 0.4, 1][i],
+              opacity,
               transform: [
                 { rotate: reduce ? `${45 - lag * 300}deg` : t.interpolate(curveDeg((u) => angle(u - lag), 36)) },
               ],
@@ -424,7 +434,7 @@ function Orbit({ size, color, speed, track, reduce }: BodyProps) {
               height: dot,
               borderRadius: dot / 2,
               backgroundColor: color,
-              transform: [{ scale: [0.6, 0.8, 1][i] }],
+              transform: [{ scale }],
             }}
           />
         </Animated.View>
@@ -443,7 +453,7 @@ function Bounce({ size, color, speed, reduce }: BodyProps) {
   const squash = (u: number) => Math.max(0, 1 - Math.min(u, 1 - u) / 0.1);
   return (
     <View style={[styles.row, { width: size, height: size, gap: dot / 2, alignItems: 'flex-end', paddingBottom: size * 0.16 }]}>
-      {[0, 1, 2].map((i) => {
+      {[1, 0.55, 0.15].map((rest, i) => {
         const at = (u: number) => wrap(u - i * 0.14);
         const sy = (u: number) => 1 - 0.32 * squash(at(u));
         return (
@@ -455,7 +465,7 @@ function Bounce({ size, color, speed, reduce }: BodyProps) {
               borderRadius: dot / 2,
               backgroundColor: color,
               transform: reduce
-                ? [{ translateY: -lift * [1, 0.55, 0.15][i] }]
+                ? [{ translateY: -lift * rest }]
                 : [
                     // Shift down by the squash so the dot stays on the floor.
                     { translateY: t.interpolate(curve((u) => -lift * height(at(u)) + (dot * (1 - sy(u))) / 2, 40)) },
@@ -579,7 +589,7 @@ function Arc({ size, color, speed, track, reduce }: BodyProps) {
   const c1 = 2 * Math.PI * r1;
   const c2 = 2 * Math.PI * r2;
   const ring = (r: number, dash: string | undefined, opacity = 1) => (
-    <Circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeOpacity={opacity} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={dash} fill="none" />
+    <Circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeOpacity={opacity} strokeWidth={stroke} strokeLinecap="round" {...(dash ? { strokeDasharray: dash } : null)} fill="none" />
   );
   const spin = (v: Animated.Value, dir: 1 | -1) => v.interpolate({ inputRange: [0, 1], outputRange: ['0deg', `${360 * dir}deg`] });
   return (

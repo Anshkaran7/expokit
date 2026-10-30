@@ -14,7 +14,7 @@
     ["Screen readers", "The overlay is hidden from assistive tech."]
   ],
   "dependencies": [],
-  "registryDependencies": ["kit"],
+  "registryDependencies": [],
   "props": [
     ["count", "number", "80", "Pieces per burst (max 160)."],
     ["colors", "string[]", "vivid mix", "Piece colours."],

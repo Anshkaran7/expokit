@@ -24,60 +24,60 @@ export interface FloatingInputProps extends Omit<TextInputProps, 'style' | 'plac
   /** Sits inside the field like a placeholder, then floats onto the border when focused or filled. */
   label: string;
   /** `false` puts the label above the field as static text (no notch) and shows `placeholder` inside. */
-  floatingLabel?: boolean;
+  floatingLabel?: boolean | undefined;
   /** Hint inside the empty field — only used when `floatingLabel` is false. */
-  placeholder?: string;
-  variant?: FloatingInputVariant;
+  placeholder?: string | undefined;
+  variant?: FloatingInputVariant | undefined;
   /** Error message. Turns the field red, shows it with an icon and shakes the field once when it appears. */
-  error?: string;
+  error?: string | undefined;
   /** Valid state: success border and an animated check. A string is shown as the message under the field. */
-  success?: boolean | string;
+  success?: boolean | string | undefined;
   /** Hint under the field (replaced by the error / success message while one is shown). */
-  helper?: string;
+  helper?: string | undefined;
   /** Colour of the focused border, halo and floating label (default: theme accent). */
-  accent?: string;
+  accent?: string | undefined;
   /** Background behind the field — the floating label cuts its notch with this colour. */
-  surface?: string;
-  left?: React.ReactNode;
-  right?: React.ReactNode;
+  surface?: string | undefined;
+  left?: React.ReactNode | undefined;
+  right?: React.ReactNode | undefined;
   /** Text before the value, shown once the label floats — '₹', '+91', 'https://'. */
-  prefix?: string;
+  prefix?: string | undefined;
   /** Text after the value, shown once the label floats — 'INR', 'kg', '.com'. */
-  suffix?: string;
+  suffix?: string | undefined;
   /** Show an animated clear button while there is text. */
-  clearable?: boolean;
+  clearable?: boolean | undefined;
   /** Show `length/maxLength` under the field (needs `maxLength`). */
-  counter?: boolean;
+  counter?: boolean | undefined;
   /** 'sm' 44pt / 14px · 'md' 54pt / 16px · 'lg' 64pt / 18px — type, padding and icons scale too. */
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | undefined;
   /** Root wrapper (the one that shakes) — margins, width, flex. */
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
   /**
    * The bordered box: background, border width / colour, radius, height, padding. Applied after
    * the computed style, so it wins. A `borderColor` replaces the resting border only — focus
    * (accent), error and success colours still take over in those states. A numeric `height` /
    * `borderRadius` also re-centres the label and resizes the focus halo.
    */
-  fieldStyle?: StyleProp<ViewStyle>;
+  fieldStyle?: StyleProp<ViewStyle> | undefined;
   /** The typed text — fontSize, fontWeight, color, letterSpacing, fontFamily… */
-  inputStyle?: StyleProp<TextStyle>;
+  inputStyle?: StyleProp<TextStyle> | undefined;
   /**
    * The label, floating or above the field. Its `color` is the resting colour; focus (accent),
    * error (danger) and success colours still take over in those states. With `fontSize` the
    * floating label rests at that size and floats at the same ratio as the default, and the notch
    * follows the rendered label width.
    */
-  labelStyle?: StyleProp<TextStyle>;
+  labelStyle?: StyleProp<TextStyle> | undefined;
   /** Helper / error / success text under the field. `color` applies to the helper; error and success keep their tone colour. */
-  messageStyle?: StyleProp<TextStyle>;
+  messageStyle?: StyleProp<TextStyle> | undefined;
   /** `prefix` text. */
-  prefixStyle?: StyleProp<TextStyle>;
+  prefixStyle?: StyleProp<TextStyle> | undefined;
   /** `suffix` text. */
-  suffixStyle?: StyleProp<TextStyle>;
+  suffixStyle?: StyleProp<TextStyle> | undefined;
   /** The `length/maxLength` counter. Turns danger at the limit regardless. */
-  counterStyle?: StyleProp<TextStyle>;
+  counterStyle?: StyleProp<TextStyle> | undefined;
   /** Built-in icons at rest — the clear button (default: theme mutedForeground). */
-  iconColor?: string;
+  iconColor?: string | undefined;
 }
 
 /** Everything that scales with `size`: height, type, padding, icons and the floated label. */
@@ -169,7 +169,7 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
   },
   ref
 ) {
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, labels } = useKit();
   const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const S = FLOATING_INPUT_SIZES[size];
@@ -197,12 +197,12 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
   const ok = !error && !!success;
   const successText = typeof success === 'string' && ok ? success : undefined;
 
-  const float = useRef(new Animated.Value(floating ? 1 : 0)).current; // native: label + affixes
-  const glow = useRef(new Animated.Value(0)).current; // native: halo + indicator bar
-  const focus = useRef(new Animated.Value(0)).current; // JS: border / label colour
-  const shake = useRef(new Animated.Value(0)).current; // native
-  const clear = useRef(new Animated.Value(clearable && text ? 1 : 0)).current; // native
-  const check = useRef(new Animated.Value(ok ? 1 : 0)).current; // native
+  const [float] = useState(() => new Animated.Value(floating ? 1 : 0)); // native: label + affixes
+  const [glow] = useState(() => new Animated.Value(0)); // native: halo + indicator bar
+  const [focus] = useState(() => new Animated.Value(0)); // JS: border / label colour
+  const [shake] = useState(() => new Animated.Value(0)); // native
+  const [clear] = useState(() => new Animated.Value(clearable && text ? 1 : 0)); // native
+  const [check] = useState(() => new Animated.Value(ok ? 1 : 0)); // native
 
   useEffect(() => {
     if (reduce) float.setValue(floating ? 1 : 0);
@@ -400,7 +400,7 @@ export const FloatingInput = forwardRef<ComponentRef<typeof TextInput>, Floating
                 <Pressable
                   hitSlop={(44 - S.icon) / 2}
                   accessibilityRole="button"
-                  accessibilityLabel={`Clear ${label}`}
+                  accessibilityLabel={labels.clearField(label)}
                   onPress={() => {
                     setText('');
                     inputRef.current?.focus();
@@ -493,7 +493,7 @@ function FieldMessage({
   reduce: boolean;
 }) {
   const { font } = useKit();
-  const enter = useRef(new Animated.Value(tone === 'helper' ? 1 : 0)).current; // native
+  const [enter] = useState(() => new Animated.Value(tone === 'helper' ? 1 : 0)); // native
   useEffect(() => {
     if (tone === 'helper') return;
     if (reduce) Animated.timing(enter, { toValue: 1, duration: 150, useNativeDriver: true }).start();

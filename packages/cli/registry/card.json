@@ -4,6 +4,7 @@
   "title": "Card",
   "description": "Composable surface — Header, Title, Description, Content, Media, Footer — in default, outline and elevated styles. Pressable cards spring down and can light up with a spotlight that follows your finger or a glowing accent border.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

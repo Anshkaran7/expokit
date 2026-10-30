@@ -4,6 +4,7 @@
   "title": "Calendar",
   "description": "A month calendar for single dates, continuous ranges or multiple picks. Months slide in from the direction you travel (chevrons or a swipe), the title flips to a month / year grid, selected days pop with a spring and ranges draw one band with rounded ends that wraps across weeks. Locale-aware weekday and month names via Intl, Sunday or Monday weeks, min / max / custom disabled days, a today ring, coloured event dots and whole-day colour highlights. Day tiles follow the kit radius — square at 0, circles from 16 up.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

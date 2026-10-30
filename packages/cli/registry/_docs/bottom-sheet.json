@@ -69,6 +69,12 @@
       "Round ✕ in the header (shown when dismissible, there's a title and no headerRight)."
     ],
     [
+      "closeLabel",
+      "string",
+      "labels.close",
+      "Screen-reader name of the close button (default: the kit's labels.close)."
+    ],
+    [
       "handle",
       "boolean",
       "true",

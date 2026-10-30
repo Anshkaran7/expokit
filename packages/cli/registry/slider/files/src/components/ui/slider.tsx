@@ -1,9 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
   Easing,
-  PanResponder,
   Pressable,
   StyleSheet,
   Text,
@@ -17,7 +16,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { alpha, motion, readableOn, useKit } from '@/lib/kit';
+import { alpha, motion, readableOn, useKit, usePanResponder } from '@/lib/kit';
 
 /**
  * - `default` — thin track with a round thumb (iOS / Material).
@@ -130,6 +129,10 @@ const glide = (v: Animated.Value, toValue: number, reduce: boolean) =>
     ? Animated.timing(v, { toValue, duration: 150, easing: SMOOTH, useNativeDriver: true })
     : Animated.spring(v, { toValue, useNativeDriver: true, ...motion.snappy });
 const decimals = (n: number) => (String(n).split('.')[1] ?? '').length;
+/** Value `i` of a slider's values: index 1 of a single slider (or a short array) falls back to the first. */
+const nth = (arr: readonly number[], i: number) => arr[i] ?? arr[0] ?? 0;
+/** The animated value of thumb `i` (always 0 or 1). */
+const pick = <T,>(pair: readonly [T, T], i: number): T => (i === 1 ? pair[1] : pair[0]);
 
 /**
  * A slider that feels native: the thumb and fill move on the native driver (no re-render per
@@ -173,7 +176,7 @@ export function Slider(props: SliderProps) {
   const onSlidingStart = props.onSlidingStart as Callback;
   const onSlidingComplete = props.onSlidingComplete as Callback;
 
-  const { colors, radius, dark, font, shadow } = useKit();
+  const { colors, radius, dark, font, shadow, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const reduce = useReduceMotion();
   const tint = accent ?? colors.accent;
@@ -203,7 +206,7 @@ export function Slider(props: SliderProps) {
   const controlled = props.value !== undefined;
   const [inner, setInner] = useState<number[]>(() => toArr(props.defaultValue));
   const vals = (controlled ? toArr(props.value) : inner).map((v) => clamp(v, min, max));
-  if (range && vals[0] > vals[1]) vals.reverse();
+  if (range && nth(vals, 0) > nth(vals, 1)) vals.reverse();
 
   const span = max - min || 1;
   const ratioOf = (v: number) => clamp((v - min) / span, 0, 1);
@@ -213,28 +216,33 @@ export function Slider(props: SliderProps) {
     return clamp(Number(n.toFixed(decimals(step))), min, max);
   };
   const fmt = (v: number) => (formatValue ? formatValue(v) : step ? v.toFixed(decimals(step)) : String(Math.round(v)));
-  const out = (arr: number[]): SliderValue => (range ? [arr[0], arr[1]] : arr[0]);
+  const out = (arr: number[]): SliderValue => (range ? [nth(arr, 0), nth(arr, 1)] : nth(arr, 0));
 
   const [w, setW] = useState(0);
   const [active, setActive] = useState<number | null>(null);
 
   // ---- animated values ------------------------------------------------------------------------
   // All native-driven: they only ever feed transform / opacity.
-  const ratios = useRef([new Animated.Value(ratioOf(vals[0])), new Animated.Value(ratioOf(vals[1] ?? vals[0]))]).current;
-  const press = useRef([new Animated.Value(0), new Animated.Value(0)]).current;
-  const bubble = useRef([new Animated.Value(bubbleShown ? 1 : 0), new Animated.Value(bubbleShown ? 1 : 0)]).current;
-  const held = useRef(new Animated.Value(0)).current;
+  const [ratios] = useState((): readonly [Animated.Value, Animated.Value] => [
+    new Animated.Value(ratioOf(nth(vals, 0))),
+    new Animated.Value(ratioOf(nth(vals, 1))),
+  ]);
+  const [press] = useState(() => [new Animated.Value(0), new Animated.Value(0)]);
+  const [bubble] = useState(() => [new Animated.Value(bubbleShown ? 1 : 0), new Animated.Value(bubbleShown ? 1 : 0)]);
+  const [held] = useState(() => new Animated.Value(0));
 
   // Everything the (once-created) PanResponder reads, kept fresh every render.
   const live = useRef({ vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, reduce, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete });
-  live.current = { vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, reduce, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete };
+  useLayoutEffect(() => {
+    live.current = { vals, w, inset, step, span, min, range, isBar, T, disabled, controlled, reduce, snap, ratioOf, fmt, out, onValueChange, onSlidingStart, onSlidingComplete };
+  });
   const drag = useRef({ dragging: false, thumb: 0, startX: 0, origin: 0, relative: false, moved: false, cur: [] as number[], target: [-1, -1] });
 
   // Follow value changes from outside (controlled updates, a11y, icon taps) when nobody is dragging.
   const key = vals.join(',');
   useEffect(() => {
     if (drag.current.dragging) return;
-    vals.forEach((v, i) => glide(ratios[i], ratioOf(v), reduce).start());
+    vals.forEach((v, i) => glide(pick(ratios, i), ratioOf(v), reduce).start());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, min, max]);
 
@@ -245,91 +253,90 @@ export function Slider(props: SliderProps) {
     glide(held, active !== null ? 1 : 0, reduce).start();
   }, [active, bubbleShown, showValue, press, bubble, held, reduce]);
 
-  const pan = useMemo(() => {
-    const usableOf = () => Math.max(1, live.current.w - 2 * live.current.inset);
-    const ratioAt = (x: number) => clamp((x - live.current.inset) / usableOf(), 0, 1);
+  const usableOf = () => Math.max(1, live.current.w - 2 * live.current.inset);
+  const ratioAt = (x: number) => clamp((x - live.current.inset) / usableOf(), 0, 1);
 
-    const moveTo = (x: number, animate: boolean) => {
+  const moveTo = (x: number, animate: boolean) => {
+    const L = live.current;
+    const d = drag.current;
+    const i = d.thumb;
+    let v = L.min + ratioAt(x) * L.span;
+    if (L.range) v = i === 0 ? Math.min(v, nth(d.cur, 1)) : Math.max(v, nth(d.cur, 0));
+    const snapped = L.snap(v);
+    const coarse = !!L.step && (L.step / L.span) * usableOf() >= SNAP_PX;
+    const target = coarse ? L.ratioOf(snapped) : L.ratioOf(v);
+    if (animate || coarse) {
+      if (target !== d.target[i]) glide(pick(ratios, i), target, L.reduce).start();
+    } else {
+      pick(ratios, i).setValue(target);
+    }
+    d.target[i] = target;
+    if (snapped === d.cur[i]) return;
+    const prev = nth(d.cur, i);
+    const next = [...d.cur];
+    next[i] = snapped;
+    d.cur = next;
+    // Uncontrolled continuous sliders only re-render when the shown text changes.
+    if (!L.controlled && (L.step || L.fmt(prev) !== L.fmt(snapped))) setInner(next);
+    L.onValueChange?.(L.out(next));
+  };
+
+  const finish = (seek: boolean) => {
+    const L = live.current;
+    const d = drag.current;
+    if (!d.dragging) return;
+    if (seek) moveTo(d.startX, true);
+    glide(pick(ratios, d.thumb), L.ratioOf(nth(d.cur, d.thumb)), L.reduce).start();
+    d.dragging = false;
+    d.target = [-1, -1];
+    if (!L.controlled) setInner(d.cur);
+    setActive(null);
+    L.onSlidingComplete?.(L.out(d.cur));
+  };
+
+  const pan = usePanResponder({
+    onStartShouldSetPanResponder: () => !live.current.disabled,
+    onMoveShouldSetPanResponder: () => !live.current.disabled,
+    onPanResponderTerminationRequest: () => false,
+    onShouldBlockNativeResponder: () => true,
+    onPanResponderGrant: (e: GestureResponderEvent) => {
       const L = live.current;
-      const d = drag.current;
-      const i = d.thumb;
-      let v = L.min + ratioAt(x) * L.span;
-      if (L.range) v = i === 0 ? Math.min(v, d.cur[1]) : Math.max(v, d.cur[0]);
-      const snapped = L.snap(v);
-      const coarse = !!L.step && (L.step / L.span) * usableOf() >= SNAP_PX;
-      const target = coarse ? L.ratioOf(snapped) : L.ratioOf(v);
-      if (animate || coarse) {
-        if (target !== d.target[i]) glide(ratios[i], target, L.reduce).start();
-      } else {
-        ratios[i].setValue(target);
+      const x = e.nativeEvent.locationX;
+      const cur = [...L.vals];
+      const xs = cur.map((v) => L.inset + L.ratioOf(v) * usableOf());
+      let thumb = 0;
+      if (L.range) {
+        const d0 = Math.abs(x - nth(xs, 0));
+        const d1 = Math.abs(x - nth(xs, 1));
+        thumb = d0 === d1 ? (x > nth(xs, 1) ? 1 : 0) : d1 < d0 ? 1 : 0;
       }
-      d.target[i] = target;
-      if (snapped === d.cur[i]) return;
-      const prev = d.cur[i];
-      const next = [...d.cur];
-      next[i] = snapped;
-      d.cur = next;
-      // Uncontrolled continuous sliders only re-render when the shown text changes.
-      if (!L.controlled && (L.step || L.fmt(prev) !== L.fmt(snapped))) setInner(next);
-      L.onValueChange?.(L.out(next));
-    };
-
-    const finish = (seek: boolean) => {
-      const L = live.current;
+      // Grabbing the thumb (or anywhere on a bar) drags relative to it; elsewhere seeks first.
+      const onThumb = !L.isBar && Math.abs(x - nth(xs, thumb)) <= Math.max(L.T / 2 + 8, 22);
+      const relative = L.isBar || onThumb;
+      drag.current = { dragging: true, thumb, startX: x, origin: relative ? nth(xs, thumb) : x, relative, moved: false, cur, target: [-1, -1] };
+      setActive(thumb);
+      L.onSlidingStart?.(L.out(cur));
+      if (!relative) moveTo(x, true);
+    },
+    onPanResponderMove: (_, g) => {
       const d = drag.current;
-      if (!d.dragging) return;
-      if (seek) moveTo(d.startX, true);
-      glide(ratios[d.thumb], L.ratioOf(d.cur[d.thumb]), L.reduce).start();
-      d.dragging = false;
-      d.target = [-1, -1];
-      if (!L.controlled) setInner(d.cur);
-      setActive(null);
-      L.onSlidingComplete?.(L.out(d.cur));
-    };
-
-    return PanResponder.create({
-      onStartShouldSetPanResponder: () => !live.current.disabled,
-      onMoveShouldSetPanResponder: () => !live.current.disabled,
-      onPanResponderTerminationRequest: () => false,
-      onShouldBlockNativeResponder: () => true,
-      onPanResponderGrant: (e: GestureResponderEvent) => {
-        const L = live.current;
-        const x = e.nativeEvent.locationX;
-        const cur = [...L.vals];
-        const xs = cur.map((v) => L.inset + L.ratioOf(v) * usableOf());
-        let thumb = 0;
-        if (L.range) {
-          const d0 = Math.abs(x - xs[0]);
-          const d1 = Math.abs(x - xs[1]);
-          thumb = d0 === d1 ? (x > xs[1] ? 1 : 0) : d1 < d0 ? 1 : 0;
-        }
-        // Grabbing the thumb (or anywhere on a bar) drags relative to it; elsewhere seeks first.
-        const onThumb = !L.isBar && Math.abs(x - xs[thumb]) <= Math.max(L.T / 2 + 8, 22);
-        const relative = L.isBar || onThumb;
-        drag.current = { dragging: true, thumb, startX: x, origin: relative ? xs[thumb] : x, relative, moved: false, cur, target: [-1, -1] };
-        setActive(thumb);
-        L.onSlidingStart?.(L.out(cur));
-        if (!relative) moveTo(x, true);
-      },
-      onPanResponderMove: (_, g) => {
-        const d = drag.current;
-        if (Math.abs(g.dx) >= 3) d.moved = true;
-        if (!d.moved && live.current.isBar) return; // keep a tap on a bar a tap
-        moveTo(d.origin + g.dx, false);
-      },
-      // A tap on a bar (no drag) still seeks.
-      onPanResponderRelease: () => finish(drag.current.relative && live.current.isBar && !drag.current.moved),
-      onPanResponderTerminate: () => finish(false),
-    });
-  }, [ratios]);
+      if (Math.abs(g.dx) >= 3) d.moved = true;
+      if (!d.moved && live.current.isBar) return; // keep a tap on a bar a tap
+      moveTo(d.origin + g.dx, false);
+    },
+    // A tap on a bar (no drag) still seeks.
+    onPanResponderRelease: () => finish(drag.current.relative && live.current.isBar && !drag.current.moved),
+    onPanResponderTerminate: () => finish(false),
+  });
 
   const stepBy = (i: number, dir: 1 | -1, amount?: number) => {
     if (disabled) return;
     const inc = amount ?? (step || span / 100);
     const next = [...vals];
-    next[i] = snap(next[i] + dir * inc);
-    if (range) next[i] = i === 0 ? Math.min(next[i], vals[1]) : Math.max(next[i], vals[0]);
-    if (next[i] === vals[i]) return;
+    let moved = snap(nth(next, i) + dir * inc);
+    if (range) moved = i === 0 ? Math.min(moved, nth(vals, 1)) : Math.max(moved, nth(vals, 0));
+    next[i] = moved;
+    if (moved === vals[i]) return;
     if (!controlled) setInner(next);
     onValueChange?.(out(next));
     onSlidingComplete?.(out(next));
@@ -341,9 +348,9 @@ export function Slider(props: SliderProps) {
   const usable = Math.max(1, w - 2 * inset);
   const geo = useMemo(() => {
     if (!w) return null;
-    const px = ratios.map((r) =>
-      r.interpolate({ inputRange: [0, 1], outputRange: [inset, inset + usable], extrapolate: 'clamp' })
-    );
+    const toPx = (r: Animated.Value) =>
+      r.interpolate({ inputRange: [0, 1], outputRange: [inset, inset + usable], extrapolate: 'clamp' });
+    const px = [toPx(ratios[0]), toPx(ratios[1])] as const;
     // Single: a full-width fill slid left so its edge sits at the thumb. Range: a full-width fill
     // scaled about its centre to span the two thumbs. Both are clipped by a rounded container.
     const shift = Animated.add(px[0], -w);
@@ -386,7 +393,7 @@ export function Slider(props: SliderProps) {
   }, [marks, stepped, step, span, min]);
   const hasMarkLabels = markList.some((m) => m.label);
   const minMax = showMinMax || minLabel !== undefined || maxLabel !== undefined;
-  const inFill = (v: number) => (range ? v >= vals[0] && v <= vals[1] : v <= vals[0]);
+  const inFill = (v: number) => (range ? v >= nth(vals, 0) && v <= nth(vals, 1) : v <= nth(vals, 0));
   const dot = Math.max(2, Math.round(trackH * (isBar ? 0.12 : 0.4)));
 
   // ---- colours --------------------------------------------------------------------------------
@@ -425,7 +432,7 @@ export function Slider(props: SliderProps) {
       <View>{icon !== undefined ? drawIcon(icon, iconColor) : null}</View>
       {showValue === 'always' ? (
         <Text numberOfLines={1} selectable={false} maxFontSizeMultiplier={FONT_CAP} style={[styles.barValue, ff, { color: textColor, fontSize: sz.font + 1 }, labelStyle]}>
-          {range ? `${fmt(vals[0])} – ${fmt(vals[1])}` : fmt(vals[0])}
+          {range ? `${fmt(nth(vals, 0))} – ${fmt(nth(vals, 1))}` : fmt(nth(vals, 0))}
         </Text>
       ) : null}
     </View>
@@ -450,7 +457,7 @@ export function Slider(props: SliderProps) {
       accessibilityRole={!range ? 'adjustable' : undefined}
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: !!disabled }}
-      accessibilityValue={!range ? { min, max, now: vals[0], text: fmt(vals[0]) } : undefined}
+      accessibilityValue={!range ? { min, max, now: nth(vals, 0), text: fmt(nth(vals, 0)) } : undefined}
       accessibilityActions={!range ? [{ name: 'increment' }, { name: 'decrement' }] : undefined}
       onAccessibilityAction={(e: AccessibilityActionEvent) => stepBy(0, e.nativeEvent.actionName === 'increment' ? 1 : -1)}
     >
@@ -481,7 +488,7 @@ export function Slider(props: SliderProps) {
           ) : null}
 
           <View
-            {...pan.panHandlers}
+            {...pan}
             onLayout={(e) => setW(e.nativeEvent.layout.width)}
             style={[styles.surface, { height: surfaceH }, !disabled && styles.pointer]}
           >
@@ -535,7 +542,7 @@ export function Slider(props: SliderProps) {
                       key={i}
                       accessible={range}
                       accessibilityRole={range ? 'adjustable' : undefined}
-                      accessibilityLabel={range ? `${accessibilityLabel ?? 'Range'} ${i === 0 ? 'minimum' : 'maximum'}` : undefined}
+                      accessibilityLabel={range ? (i === 0 ? labels.rangeMinimum : labels.rangeMaximum)(accessibilityLabel ?? labels.range) : undefined}
                       accessibilityValue={range ? { min, max, now: v, text: fmt(v) } : undefined}
                       accessibilityActions={range ? [{ name: 'increment' }, { name: 'decrement' }] : undefined}
                       onAccessibilityAction={(e: AccessibilityActionEvent) => stepBy(i, e.nativeEvent.actionName === 'increment' ? 1 : -1)}

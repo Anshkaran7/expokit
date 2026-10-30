@@ -4,6 +4,12 @@
   "title": "Select",
   "description": "A form field with a floating label and a glowing focus halo that opens a dropdown anchored right under it — matching its width, preferring below, flipping above only when there's clearly no room, re-placing itself on resize / rotation / keyboard, and scrolling inside when long — or, with presentation=\"sheet\", a drag-to-dismiss bottom sheet (a dialog on wide screens). The chevron turns, rows carry icons, descriptions, groups and disabled states, the chosen row gets a springy accent check, search highlights matches with a \"No results\" state, multiple mode adds checkboxes and removable chips that pop in and collapse out smoothly (overflow rolls into a \"+N\" chip, the footer count rolls too), and on web arrow keys, Enter and Escape drive the menu.",
   "tier": "free",
+  "aliases": [
+    "multi-select",
+    "multiselect",
+    "combobox",
+    "dropdown"
+  ],
   "dependencies": [
     "react-native-svg"
   ],

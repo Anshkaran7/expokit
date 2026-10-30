@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Animated,
   Image,
@@ -41,61 +41,61 @@ export interface ListItemIconProps {
 
 export interface ListItemAvatar {
   /** Image URL. Falls back to initials while loading or when it fails. */
-  src?: string;
+  src?: string | undefined;
   /** Used for the initials and the fallback colour. */
-  name?: string;
+  name?: string | undefined;
   /** Fallback circle colour (default: picked from the name). */
-  color?: string;
+  color?: string | undefined;
   /** Shows a green presence dot. */
-  online?: boolean;
+  online?: boolean | undefined;
 }
 
 export interface ListItemProps {
   title: string;
   /** One muted line under the title. */
-  subtitle?: string;
+  subtitle?: string | undefined;
   /** Longer muted text under the subtitle, clamped to `numberOfLines`. */
-  description?: string;
+  description?: string | undefined;
   /** Lines shown of `description` (default 2). */
-  numberOfLines?: number;
+  numberOfLines?: number | undefined;
   /** Small text at the right end of the title row, e.g. a time ("9:41"). */
-  meta?: string;
+  meta?: string | undefined;
 
   /** Built-in icon name or your own icon, drawn in a rounded tile. */
-  icon?: ListItemIconName | ((props: ListItemIconProps) => React.ReactNode);
+  icon?: (ListItemIconName | ((props: ListItemIconProps) => React.ReactNode)) | undefined;
   /** Tile colour (default: theme accent; the danger colour when `destructive`). */
-  iconColor?: string;
+  iconColor?: string | undefined;
   /** 'filled' white glyph on a solid tile (iOS Settings) · 'tinted' coloured glyph on a soft tile. */
-  iconVariant?: 'filled' | 'tinted';
+  iconVariant?: 'filled' | 'tinted' | undefined;
   /** Round avatar instead of an icon tile. */
-  avatar?: ListItemAvatar;
+  avatar?: ListItemAvatar | undefined;
   /** Anything else on the left (overrides `icon` / `avatar`). */
-  leading?: React.ReactNode;
+  leading?: React.ReactNode | undefined;
 
   /** Muted value text on the right, e.g. "English" or "1.2 GB". */
-  value?: string;
+  value?: string | undefined;
   /** `true` draws a dot; a number or string draws a pill (99+ above 99). */
-  badge?: boolean | number | string;
+  badge?: boolean | number | string | undefined;
   /** Shows a chevron. Defaults to true when the row is pressable and has no `trailing` / `checked`. */
-  chevron?: boolean;
+  chevron?: boolean | undefined;
   /** Shows an accent check mark (for pickers). */
-  checked?: boolean;
+  checked?: boolean | undefined;
   /** Anything on the right, e.g. a <Switch />. Rendered after `value` and `badge`. */
-  trailing?: React.ReactNode;
+  trailing?: React.ReactNode | undefined;
 
-  onPress?: () => void;
-  onLongPress?: () => void;
+  onPress?: (() => void) | undefined;
+  onLongPress?: (() => void) | undefined;
   /** Red title and icon, for "Sign out" or "Delete account". */
-  destructive?: boolean;
-  disabled?: boolean;
-  size?: ListItemSize;
+  destructive?: boolean | undefined;
+  disabled?: boolean | undefined;
+  size?: ListItemSize | undefined;
   /** Hairline under the row that starts past the leading slot. ListGroup / ListSection set it for you. */
-  divider?: boolean;
+  divider?: boolean | undefined;
   /** Highlight colour for checks, badges and default icon tiles (default: theme accent). */
-  accent?: string;
-  titleStyle?: StyleProp<TextStyle>;
-  accessibilityLabel?: string;
-  style?: StyleProp<ViewStyle>;
+  accent?: string | undefined;
+  titleStyle?: StyleProp<TextStyle> | undefined;
+  accessibilityLabel?: string | undefined;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 const SIZES: Record<ListItemSize, { minH: number; tile: number; glyph: number; avatar: number; title: number; sub: number; padY: number }> = {
@@ -109,7 +109,7 @@ const SIZES: Record<ListItemSize, { minH: number; tile: number; glyph: number; a
 const FONT_CAP = 1.35;
 const PAD_X = 16;
 const GAP = 12;
-const AVATAR_COLORS = ['#f97316', '#0ea5e9', '#22c55e', '#a855f7', '#ec4899', '#14b8a6', '#6366f1', '#eab308'];
+const AVATAR_COLORS: [string, ...string[]] = ['#f97316', '#0ea5e9', '#22c55e', '#a855f7', '#ec4899', '#14b8a6', '#6366f1', '#eab308'];
 
 /**
  * Settings / contacts style row: icon tile, avatar or custom leading; title, subtitle and
@@ -143,7 +143,7 @@ export function ListItem({
   accessibilityLabel,
   style,
 }: ListItemProps) {
-  const { colors, radius, font } = useKit();
+  const { colors, radius, font, labels } = useKit();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
   const s = SIZES[size];
@@ -152,7 +152,7 @@ export function ListItem({
   const titleColor = destructive ? colors.danger : colors.foreground;
 
   // Press highlight: an overlay whose opacity runs on the native driver.
-  const highlight = useRef(new Animated.Value(0)).current;
+  const [highlight] = useState(() => new Animated.Value(0));
   const fade = (to: number, duration: number) =>
     Animated.timing(highlight, { toValue: to, duration, useNativeDriver: true }).start();
 
@@ -257,7 +257,7 @@ export function ListItem({
       onPressOut={() => fade(0, 320)}
       accessibilityRole="button"
       accessibilityState={{ disabled: !!disabled, checked: checked === undefined ? undefined : checked }}
-      accessibilityLabel={accessibilityLabel ?? [title, subtitle, value, badgeText ? `${badgeText} new` : null].filter(Boolean).join(', ')}
+      accessibilityLabel={accessibilityLabel ?? [title, subtitle, value, badgeText ? labels.newCount(String(badgeText)) : null].filter(Boolean).join(', ')}
       style={rowStyle}
     >
       <Animated.View
@@ -274,13 +274,13 @@ export function ListItem({
 
 export interface ListGroupProps {
   /** Small uppercase heading above the card. */
-  header?: string;
+  header?: string | undefined;
   /** Muted explanation under the card. */
-  footer?: string;
+  footer?: string | undefined;
   /** Card colour (default: theme card). */
-  background?: string;
+  background?: string | undefined;
   children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /**
@@ -312,12 +312,12 @@ export function ListGroup({ header, footer, background, children, style }: ListG
 
 export interface ListSectionProps {
   /** Section heading, e.g. "A" in a contacts list or "Today" in an inbox. */
-  header?: string;
-  footer?: string;
+  header?: string | undefined;
+  footer?: string | undefined;
   /** Hairline under the last row too (default false). */
-  dividerAfterLast?: boolean;
+  dividerAfterLast?: boolean | undefined;
   children: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<ViewStyle> | undefined;
 }
 
 /** Plain full-width section: header text, then rows with inset separators. */
@@ -360,7 +360,7 @@ function AvatarCircle({ src, name = '', color, online, size, ring }: ListItemAva
     .join('');
   let hash = 0;
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
-  const bg = color ?? AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  const bg = color ?? AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length] ?? AVATAR_COLORS[0];
   const dot = Math.max(10, Math.round(size * 0.28));
   return (
     <View style={{ width: size, height: size }}>

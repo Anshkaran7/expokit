@@ -4,6 +4,7 @@
   "title": "Stepper",
   "description": "Quantity control whose number rolls — each changed digit slides out as the new one slides in, up or down with the change. Airbnb-style outline, an iOS-style filled capsule, a compact row control, and a DoorDash-style cart button that springs open from a single + into − 1 + (with a trash can at 1). Buttons spring on press, hold to repeat with acceleration, and pushing past a limit gives a little bump.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],
