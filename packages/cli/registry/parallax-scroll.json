@@ -4,6 +4,7 @@
   "title": "Parallax Scroll",
   "description": "A scroll view with real depth: the header photo glides slower than the page, darkens as it leaves and stretches when you pull down, while a title bar fades in over it. Photos pan inside their frames and headlines drift at their own speed — all on the native driver, zero JS per scroll frame.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

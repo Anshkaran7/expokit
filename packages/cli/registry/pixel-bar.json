@@ -4,6 +4,7 @@
   "title": "Pixel Bars",
   "description": "Columns of squares that fill bottom-up, with ghost cells for the empty part. Built on expo-charts.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-charts",
     "react-native-svg"

@@ -4,6 +4,7 @@
   "title": "Food ordering app",
   "description": "A complete Expo Router app for a donut shop: onboarding once, sign in, a rolling menu, coupons, bag with checkout, profile and settings with a working light / dark switch.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics",

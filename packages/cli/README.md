@@ -43,6 +43,28 @@ import { Button } from '@/components/ui/button';
 
 See every component: `npx @expokit/cli@latest add --list`
 
+Already have a `Skeleton.tsx` (or any file the kit would clash with)? `add` skips that item, says why, and adds the
+rest. Put the kit's copy next to yours with `--dir`:
+
+```bash
+npx @expokit/cli@latest add skeleton --dir src/components/kit   # import from "@/components/kit/ui/skeleton"
+```
+
+`init` asks for your brand colour, font, radius and light / dark (or takes `--brand`, `--font`, `--radius`,
+`--scheme`; `--yes` skips the questions) and writes `lib/kit-theme.tsx`, an `<AppTheme>` wrapper for your root layout.
+
+## Keeping up to date
+
+`components.json` remembers a hash of every file `add` wrote. When a new CLI ships fixes:
+
+```bash
+npx @expokit/cli@latest diff toast      # your changes since install, and what changed upstream
+npx @expokit/cli@latest update          # refresh every installed item
+```
+
+`update` refreshes the files nobody touched and stops on a file you patched, showing the diff, so your fix is never
+silently replaced. `update toast --force` takes upstream anyway.
+
 ## Docs
 
 Everything else — live previews, props, installation, theming, Pro, AI / MCP setup and help — is on
@@ -56,9 +78,14 @@ Everything else — live previews, props, installation, theming, Pro, AI / MCP s
   repeat adds count once a day. Turn it off with `DO_NOT_TRACK=1` or `EXPO_KIT_TELEMETRY=0`; it never runs in CI,
   `--dry-run` or `update`.
 - **Writes only inside your app** — `components.json`, the `@/*` alias in `tsconfig.json` and the component files.
-  `--dry-run` shows every change first; `add` never overwrites a file you changed unless you pass `--force`.
-  `paths` in `components.json` that point outside the app are refused. Symlinks inside the app are followed, not
-  checked, so a cloned repo that symlinks a folder elsewhere can still send writes there.
+  `--dry-run` shows every change first; `add` and `update` never overwrite a file you changed unless you pass
+  `--force` (the hashes in `components.json` only ever mark a file as untouched; their paths are never read or
+  written), and
+  never replaces one that differs only by case (`Skeleton.tsx` vs `skeleton.tsx`), a symlink or a folder, not even
+  with `--force`. `paths` in `components.json` that point outside the app are refused, and `aliases` must be plain
+  import aliases (they are written into the copied files' imports). A file that is a symlink is never written
+  through; a symlinked *folder* inside the app is still followed, so a cloned repo that links a folder elsewhere can
+  send writes there.
 - **Free components need no network to install** — they ship inside this package. Pro components are downloaded over HTTPS from
   expokit.in; your token is stored readable only by you, sent only to that site and never through a redirect.
   In scripts, pipe it to `login` or set `EXPO_KIT_TOKEN` (`--token` leaves it in your shell history).

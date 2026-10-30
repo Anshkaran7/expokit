@@ -4,6 +4,7 @@
   "title": "Checkout",
   "description": "A premium checkout: product bag with quantity steppers, delivery cards, payment method, a collapsible promo code, a live summary and a sticky “Slide to pay” bar that ends on an order-placed screen.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

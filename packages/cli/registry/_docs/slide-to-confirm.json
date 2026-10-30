@@ -11,13 +11,13 @@
     [
       "label",
       "string",
-      "\"Slide to confirm\"",
+      "labels.slideToConfirm",
       "Shimmering text in the track."
     ],
     [
       "confirmedLabel",
       "string",
-      "\"Confirmed\"",
+      "labels.confirmed",
       "Text once completed."
     ],
     [

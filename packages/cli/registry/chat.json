@@ -4,6 +4,13 @@
   "title": "Chat",
   "description": "An AI assistant chat screen: replies stream in word by word with a soft fade and a blinking caret, a shimmering “Thinking…” waits for the first token, and the send button morphs into Stop. Light markdown (bold, inline code, lists, scrollable code blocks), suggestion chips, copy / regenerate / thumbs actions and a prompt field that grows to five lines and stays above the keyboard.",
   "tier": "pro",
+  "aliases": [
+    "ai-chat",
+    "chatbot",
+    "assistant",
+    "messages",
+    "chatgpt"
+  ],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

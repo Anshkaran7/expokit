@@ -4,6 +4,7 @@
   "title": "Dashboard",
   "description": "A finance / analytics home screen: a collapsing “Overview” large title with bell and avatar, time-of-day greeting, Day / Week / Month switcher, a revenue area chart that rises in on every period change and scrubs under your finger while the headline number rolls, KPI tiles with sparklines, springy quick actions and recent transactions — plus skeleton loading and pull-to-refresh.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

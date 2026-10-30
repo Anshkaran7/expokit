@@ -17,20 +17,26 @@
     [
       "label",
       "string",
-      "'Show QR Code'",
+      "labels.showQrCode",
       "Text on the pill."
     ],
     [
       "copyLabel",
       "string",
-      "'Copy'",
+      "labels.copy",
       "Copy button text."
     ],
     [
       "copiedLabel",
       "string",
-      "'Copied'",
+      "labels.copied",
       "Shown after Copy is pressed."
+    ],
+    [
+      "closeLabel",
+      "string",
+      "labels.close",
+      "Screen-reader name of the card's close button. Set it app-wide with KitProvider's labels."
     ],
     [
       "onCopy",

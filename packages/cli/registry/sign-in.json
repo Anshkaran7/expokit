@@ -4,6 +4,7 @@
   "title": "Sign In",
   "description": "One configurable sign-in flow modelled on top mobile apps: Apple / Google / Microsoft / GitHub buttons, phone number + SMS code with a dial-code picker and resend countdown, and email with a password (plus sign-up strength meter and forgot password), a one-time code or a magic link with a 'Check your inbox' screen. Every method is optional; steps slide in direction-aware, respect Reduce Motion, and stay clear of the keyboard. Monochrome by default.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

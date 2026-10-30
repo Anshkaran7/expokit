@@ -4,6 +4,7 @@
   "title": "Card Stack",
   "description": "A Wallet-style stack: cards sit behind each other in 3D depth, fan open on tap, and the one you pick slides to the front as the stack closes. Works for payment cards, passes and notification piles.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [],
   "registryDependencies": [
     "kit"

@@ -4,6 +4,7 @@
   "title": "Loyalty Card",
   "description": "A membership or loyalty card on a photo of your shop — points and tier with progress to the next reward, or a stamp card with white stamps. It tilts toward your finger and flips on tap to a member code for the till.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

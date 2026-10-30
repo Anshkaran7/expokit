@@ -4,8 +4,12 @@
   "title": "Search Results",
   "description": "A clean, monochrome search screen: a compact pinned search field, one scrolling row of filter chips (Filters sheet, sort, price, rating, free delivery, open now), tight list rows with neutral thumbnails, rating, distance and price, Recent and Trending while the field is empty, skeleton rows while searching and a compact “No results” state — with a subtle staggered entrance that respects Reduce Motion.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-haptics",
+    "react-native-gesture-handler",
+    "react-native-reanimated",
+    "react-native-worklets",
     "react-native-svg"
   ],
   "registryDependencies": [

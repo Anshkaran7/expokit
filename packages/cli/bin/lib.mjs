@@ -2,6 +2,7 @@
  * Pure helpers for the expo-kit CLI (no I/O, no dependencies) — kept separate so they can be unit-tested.
  */
 
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 
 /** Thrown for user-facing errors; the CLI entry point prints `message` and exits 1. */
@@ -346,13 +347,122 @@ export function needsDevBuild(deps) {
 
 /**
  * The component a file is named for: the PascalCase export matching one of `names` ("Grain Gradient" or
- * "grain-gradient" → GrainGradient), else the first PascalCase export (never a CONSTANT).
+ * "grain-gradient" → GrainGradient), then one that starts with it (Toast → Toaster, not ToastProvider: the shortest),
+ * else the first PascalCase export (never a CONSTANT).
  */
 export function pickMainExport(source, names = []) {
   const exports = [...source.matchAll(/export (?:function|const) ([A-Z][A-Za-z0-9]*[a-z][A-Za-z0-9]*)\b/g)].map((m) => m[1]);
   const pascal = (s) => String(s ?? '').split(/[^A-Za-z0-9]+/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join('');
-  const wanted = names.map(pascal).map((n) => n.toLowerCase());
-  return exports.find((e) => wanted.includes(e.toLowerCase())) ?? exports[0] ?? null;
+  const wanted = names.map(pascal).map((n) => n.toLowerCase()).filter(Boolean);
+  const exact = exports.find((e) => wanted.includes(e.toLowerCase()));
+  if (exact) return exact;
+  const prefixed = exports.filter((e) => wanted.some((w) => e.toLowerCase().startsWith(w))).sort((a, b) => a.length - b.length);
+  return prefixed[0] ?? exports[0] ?? null;
+}
+
+// ---------------------------------------------------------------------------
+// add: clashes, kit files, packages, suggestions, --dir
+// ---------------------------------------------------------------------------
+
+/**
+ * The entry in a folder listing that differs from `name` only by case (`Skeleton.tsx` for `skeleton.tsx`), or null.
+ * macOS and Windows treat the two as one file, so writing ours would replace theirs; on Linux both would live side
+ * by side and break the repo for anyone who clones it on a Mac.
+ */
+export function caseClash(entries, name) {
+  const lower = name.toLowerCase();
+  return entries.find((e) => e !== name && e.toLowerCase() === lower) ?? null;
+}
+
+/** Whether a file came from ExpoKit (kit.tsx itself, or a component built on it) rather than being the user's own. */
+export function looksLikeKitFile(text) {
+  return /\bfrom\s+['"][^'"]*\/lib\/kit['"]/.test(text) || kitVersion(text) !== null;
+}
+
+const bareName = (spec) => spec.replace(/^(@?[^@]+)@.*$/, '$1');
+
+/** `deps` (npm specs, `pkg@1.2` allowed) that package.json doesn't list yet, deduped by package name. */
+export function missingPackages(deps, pkg) {
+  const has = (name) =>
+    [pkg?.dependencies, pkg?.devDependencies].some((d) => d && typeof d === 'object' && Object.hasOwn(d, name));
+  const seen = new Set();
+  return (deps ?? []).filter((spec) => {
+    const name = bareName(spec);
+    if (seen.has(name) || has(name)) return false;
+    seen.add(name);
+    return true;
+  });
+}
+
+function editDistance(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i += 1) {
+    const row = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      row[j] = Math.min(prev[j] + 1, row[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = row;
+  }
+  return prev[b.length];
+}
+
+/** Up to 3 item names close to a mistyped one ("buton" → button, "sheet-bottom" → bottom-sheet), closest first. */
+export function suggestItemNames(input, names) {
+  const want = String(input).toLowerCase();
+  const sorted = (s) => s.split('-').filter(Boolean).sort().join('-');
+  const flat = (s) => s.replace(/-/g, '');
+  const scored = [];
+  for (const name of new Set(names)) {
+    const d = editDistance(want, name);
+    let score = null;
+    if (sorted(want) === sorted(name) || flat(want) === flat(name)) score = 0;
+    else if (Math.min(want.length, name.length) >= 3 && (want.includes(name) || name.includes(want))) score = 1;
+    else if (d <= Math.max(1, Math.floor(want.length / 3))) score = 1 + d;
+    if (score !== null) scored.push({ name, score, d });
+  }
+  return scored
+    .sort((a, b) => a.score - b.score || a.d - b.d || a.name.localeCompare(b.name))
+    .slice(0, 3)
+    .map((s) => s.name);
+}
+
+/**
+ * Registry files import each other as `@/components/…` and `@/lib/…`. When components.json maps those to other
+ * aliases (or `add --dir` moved the components), point the imports there. Leaves everything else untouched.
+ */
+export function rewriteKitImports(text, aliases) {
+  let out = text;
+  for (const key of ['components', 'lib', 'hooks']) {
+    const to = aliases?.[key];
+    if (typeof to !== 'string' || to === `@/${key}`) continue;
+    out = out.replace(new RegExp(`(['"])@/${key}/`, 'g'), (_, q) => `${q}${to.replace(/\/+$/, '')}/`);
+  }
+  return out;
+}
+
+/**
+ * The folder `@/*` points at in a parsed tsconfig ("src" for `./src/*`, "" for `./*`), or null when there is no
+ * such alias. Used to tell whether an `add --dir` folder can be imported as `@/…`.
+ */
+export function aliasRootFromTsconfig(tsconfig) {
+  const target = tsconfig?.compilerOptions?.paths?.['@/*']?.[0];
+  if (typeof target !== 'string' || !target.endsWith('*')) return null;
+  const base = typeof tsconfig.compilerOptions.baseUrl === 'string' ? tsconfig.compilerOptions.baseUrl : '.';
+  const joined = path.posix.normalize(path.posix.join(base, target.slice(0, -1)));
+  const clean = joined.replace(/\/+$/, '');
+  return clean === '.' ? '' : clean;
+}
+
+/**
+ * `@/…` alias for a project-relative folder under the alias root (`src/components/kit` → `@/components/kit` when
+ * `@/*` is `./src/*`), or null when the folder is outside it, is the root itself, or isn't a plain folder path.
+ */
+export function aliasTargetForDir(dir, aliasRoot) {
+  const rel = String(dir).replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+  if (!rel || rel.startsWith('/') || /^[A-Za-z]:/.test(rel) || !/^[A-Za-z0-9._()/-]+$/.test(rel)) return null;
+  if (rel.split('/').some((seg) => seg === '..' || seg === '.' || seg === '')) return null;
+  if (!aliasRoot) return `@/${rel}`;
+  return rel.startsWith(`${aliasRoot}/`) ? `@/${rel.slice(aliasRoot.length + 1)}` : null;
 }
 
 /** Union of dependency lists, order preserved. */
@@ -362,6 +472,203 @@ export function mergeDependencies(...lists) {
     for (const dep of list ?? []) if (!out.includes(dep)) out.push(dep);
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Install records (components.json `files` / `installed`), diffs, init theme
+// ---------------------------------------------------------------------------
+
+/** sha256 (hex) of a file's text, line endings normalised so a git autocrlf checkout hashes the same. */
+export function contentHash(text) {
+  return createHash('sha256').update(String(text).replace(/\r\n/g, '\n'), 'utf8').digest('hex');
+}
+
+const HASH = /^[0-9a-f]{64}$/;
+
+/**
+ * The hash components.json recorded for a project file, or null. The file comes from the repo, so it is untrusted:
+ * only own, well-formed entries count, and its keys are only ever looked up — never used as paths to read or write.
+ */
+export function recordedHash(files, rel) {
+  if (!files || typeof files !== 'object' || Array.isArray(files) || !Object.hasOwn(files, rel)) return null;
+  const value = files[rel];
+  return typeof value === 'string' && HASH.test(value) ? value : null;
+}
+
+/**
+ * A project file against the registry's copy:
+ *   current (same as upstream) · pristine (as the CLI wrote it, upstream moved on) ·
+ *   modified (changed since it was written) · untracked (differs, and there is no record to tell why)
+ */
+export function fileStatus(recorded, have, upstream) {
+  const norm = (t) => String(t).replace(/\r\n/g, '\n');
+  if (norm(have) === norm(upstream)) return 'current';
+  if (!recorded) return 'untracked';
+  return contentHash(have) === recorded ? 'pristine' : 'modified';
+}
+
+/**
+ * components.json `installed`, cleaned: `{ name: { version?, kitVersion?, dir? } }`. Older CLIs stored just the
+ * version string. Unknown names and odd values are dropped (the file is untrusted); `dir` is checked where it's used.
+ */
+export function normalizeInstalled(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+  for (const [name, value] of Object.entries(raw)) {
+    if (!isValidItemName(name)) continue;
+    if (typeof value === 'string') {
+      out[name] = value.length <= 40 ? { version: value } : {};
+      continue;
+    }
+    if (!value || typeof value !== 'object' || Array.isArray(value)) continue;
+    const entry = {};
+    if (typeof value.version === 'string' && value.version.length <= 40) entry.version = value.version;
+    if (Number.isInteger(value.kitVersion) && value.kitVersion > 0) entry.kitVersion = value.kitVersion;
+    if (typeof value.dir === 'string' && value.dir.length <= 200) entry.dir = value.dir;
+    out[name] = entry;
+  }
+  return out;
+}
+
+const splitLines = (text) => {
+  const lines = String(text).replace(/\r\n/g, '\n').split('\n');
+  if (lines[lines.length - 1] === '') lines.pop();
+  return lines;
+};
+
+/** Edit script (' ', '-', '+' per line) by LCS; past `maxCells` the changed middle is one remove + add block. */
+function diffOps(a, b, maxCells) {
+  let pre = 0;
+  while (pre < a.length && pre < b.length && a[pre] === b[pre]) pre += 1;
+  let suf = 0;
+  while (suf < a.length - pre && suf < b.length - pre && a[a.length - 1 - suf] === b[b.length - 1 - suf]) suf += 1;
+  const x = a.slice(pre, a.length - suf);
+  const y = b.slice(pre, b.length - suf);
+  const ops = a.slice(0, pre).map((line) => [' ', line]);
+  if (x.length * y.length > maxCells) {
+    ops.push(...x.map((line) => ['-', line]), ...y.map((line) => ['+', line]));
+  } else {
+    const w = y.length + 1;
+    const lcs = new Uint32Array((x.length + 1) * w);
+    for (let i = x.length - 1; i >= 0; i -= 1) {
+      for (let j = y.length - 1; j >= 0; j -= 1) {
+        lcs[i * w + j] = x[i] === y[j] ? lcs[(i + 1) * w + j + 1] + 1 : Math.max(lcs[(i + 1) * w + j], lcs[i * w + j + 1]);
+      }
+    }
+    let i = 0;
+    let j = 0;
+    while (i < x.length || j < y.length) {
+      if (i < x.length && j < y.length && x[i] === y[j]) {
+        ops.push([' ', x[i]]);
+        i += 1;
+        j += 1;
+      } else if (i < x.length && (j === y.length || lcs[(i + 1) * w + j] >= lcs[i * w + j + 1])) {
+        ops.push(['-', x[i]]);
+        i += 1;
+      } else {
+        ops.push(['+', y[j]]);
+        j += 1;
+      }
+    }
+  }
+  ops.push(...a.slice(a.length - suf).map((line) => [' ', line]));
+  return ops;
+}
+
+/** A unified diff (`--- from` / `+++ to` / `@@` hunks) of two texts, or '' when they match (CRLF vs LF is no change). */
+export function unifiedDiff(a, b, { from = 'a', to = 'b', context = 3, maxCells = 4_000_000 } = {}) {
+  const na = String(a).replace(/\r\n/g, '\n');
+  const nb = String(b).replace(/\r\n/g, '\n');
+  if (na === nb) return '';
+  const head = `--- ${from}\n+++ ${to}\n`;
+  const ops = diffOps(splitLines(na), splitLines(nb), maxCells);
+  const changed = ops.flatMap((op, i) => (op[0] === ' ' ? [] : [i]));
+  if (!changed.length) return `${head}(only the newline at the end of the file differs)\n`;
+
+  // Line numbers before each op, for the @@ headers.
+  const at = [];
+  let la = 1;
+  let lb = 1;
+  for (const [kind] of ops) {
+    at.push([la, lb]);
+    if (kind !== '+') la += 1;
+    if (kind !== '-') lb += 1;
+  }
+  let out = head;
+  let k = 0;
+  while (k < changed.length) {
+    const start = Math.max(0, changed[k] - context);
+    let end = changed[k];
+    while (k + 1 < changed.length && changed[k + 1] - end <= context * 2 + 1) end = changed[(k += 1)];
+    k += 1;
+    end = Math.min(ops.length - 1, end + context);
+    const slice = ops.slice(start, end + 1);
+    const countA = slice.filter(([kind]) => kind !== '+').length;
+    const countB = slice.filter(([kind]) => kind !== '-').length;
+    const [sa, sb] = at[start];
+    out += `@@ -${countA ? sa : sa - 1},${countA} +${countB ? sb : sb - 1},${countB} @@\n`;
+    out += slice.map(([kind, line]) => `${kind}${line}\n`).join('');
+  }
+  return out;
+}
+
+/** `init` theme answers, checked: they are written into a .tsx file, so only plain values get through. */
+export function themeOptions({ brand, font, radius, scheme } = {}) {
+  const out = { brand: null, font: null, radius: null, scheme: 'system' };
+  if (brand !== undefined && brand !== null && brand !== '') {
+    const hex = String(brand).trim().replace(/^#?/, '#').toLowerCase();
+    if (!/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(hex)) throw new CliError(`--brand must be a hex colour like #6366f1 (got ${JSON.stringify(brand)}).`);
+    out.brand = hex.length === 4 ? `#${[...hex.slice(1)].map((c) => c + c).join('')}` : hex;
+  }
+  if (font !== undefined && font !== null && font !== '') {
+    const name = String(font).trim();
+    if (!/^[A-Za-z0-9][A-Za-z0-9 _-]{0,63}$/.test(name)) throw new CliError(`--font must be a font family name like Inter (got ${JSON.stringify(font)}).`);
+    out.font = name;
+  }
+  if (radius !== undefined && radius !== null && radius !== '') {
+    const text = String(radius).trim();
+    if (!/^\d{1,2}$/.test(text) || Number(text) > 48) throw new CliError(`--radius must be a whole number of points from 0 to 48 (got ${JSON.stringify(radius)}).`);
+    out.radius = Number(text);
+  }
+  if (scheme !== undefined && scheme !== null && scheme !== '') {
+    const s = String(scheme).trim().toLowerCase();
+    if (!['system', 'light', 'dark'].includes(s)) throw new CliError(`--scheme must be light, dark or system (got ${JSON.stringify(scheme)}).`);
+    out.scheme = s;
+  }
+  return out;
+}
+
+/** The `AppTheme` wrapper `init` writes next to kit.tsx: KitProvider with the chosen theme, and a place for your tokens. */
+export function kitThemeSource({ brand, font, radius, scheme }, libAlias = '@/lib') {
+  const props = [`scheme="${scheme}"`];
+  if (brand) props.push(`accent="${brand}"`);
+  if (radius !== null && radius !== undefined) props.push(`radius={${radius}}`);
+  if (font) props.push(`fontFamily="${font}"`);
+  return `import type { ReactNode } from 'react';
+
+import { KitProvider } from '${String(libAlias).replace(/\/+$/, '')}/kit';
+
+/**
+ * Your app's ExpoKit theme, written by \`expo-kit init\`. Wrap your root layout in it:
+ *   <AppTheme><Stack /></AppTheme>
+ * Already have a design system? Point the kit tokens at it in \`colors\`:
+ * https://expokit.in/docs/design-tokens
+ */
+export function AppTheme({ children }: { children: ReactNode }) {
+  return (
+    <KitProvider
+      ${props.join('\n      ')}
+      colors={{
+        // light: { background: tokens.surface, foreground: tokens.text, muted: tokens.subtle, border: tokens.line },
+        light: {},
+        dark: {},
+      }}
+    >
+      {children}
+    </KitProvider>
+  );
+}
+`;
 }
 
 // ---------------------------------------------------------------------------

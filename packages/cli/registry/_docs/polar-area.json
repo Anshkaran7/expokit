@@ -79,6 +79,12 @@
       "string",
       "auto summary",
       "What screen readers announce; defaults to a summary of the data."
+    ],
+    [
+      "accessibilityHint",
+      "string",
+      "\"Swipe up or down to read each …\"",
+      "Screen-reader hint for the swipe-to-read gesture; pass your own to translate it."
     ]
   ],
   "behavior": [],

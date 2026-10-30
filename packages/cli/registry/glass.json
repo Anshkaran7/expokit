@@ -4,6 +4,7 @@
   "title": "Glass",
   "description": "Liquid Glass for every device: real iOS 26 Liquid Glass (interactive, mergeable with GlassGroup), system material blur on older iOS, real blur on Android 12+ inside GlassProvider / GlassBackdrop (a frosted surface otherwise) and backdrop blur on web — with a specular rim, hairline edge and soft shadow wherever the glass is emulated. The base every glass component is built on.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-glass-effect",
     "expo-blur",

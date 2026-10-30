@@ -4,6 +4,7 @@
   "title": "Orb Reveal",
   "description": "An onboarding hero built around a thick liquid-glass orb. Hold it and it swells while a deep blue smile of light glows through it; drag it up and it shrinks into a glass button, showing your title through the lens on the way — magnified in the middle, mirrored around the bevel, with a rainbow fringe — then glass marbles fountain out of it into a heart. Drag it back down and the marbles float away.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "@shopify/react-native-skia",
     "react-native-reanimated",

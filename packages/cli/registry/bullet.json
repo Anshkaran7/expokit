@@ -4,6 +4,7 @@
   "title": "Bullet",
   "description": "Compact KPI rows with qualitative bands and a target tick. Built on expo-charts.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-charts",
     "react-native-svg"

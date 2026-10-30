@@ -4,6 +4,7 @@
   "title": "Swipe Deck",
   "description": "A stack of photo cards you swipe left or right — the top card follows your finger, leans in 3D, washes green or red and stamps SAVE / SKIP, then flies off as the next card rises. Flick momentum, undo, and a ref for buttons.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [],
   "registryDependencies": [
     "kit"

@@ -4,6 +4,7 @@
   "title": "Inbox",
   "description": "A messaging inbox: search, All / Unread / Mentions filter chips with counts, swipeable rows to archive, delete or mark read, unread count badges and a friendly empty state.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

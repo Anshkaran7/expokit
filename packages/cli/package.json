@@ -1,6 +1,6 @@
 {
   "name": "@expokit/cli",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "mcpName": "io.github.Anshkaran7/expokit",
   "description": "Animated UI components for Expo and React Native — a shadcn-style CLI that copies buttons, inputs, cards, charts and full screens into your app",
   "license": "MIT",

@@ -4,6 +4,7 @@
   "title": "Profile",
   "description": "Account profile for any app: a centred header (avatar, name, badge, email · phone, Edit profile), a highlights strip, then iOS-style grouped rows for personal details, account, preferences and support, and a sign-out button. Monochrome by default; sections rise in smoothly and respect Reduce Motion.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

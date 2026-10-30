@@ -4,6 +4,7 @@
   "title": "Gift Card",
   "description": "A gift card on any photo — the amount, a note and who it's for on the front; tap to flip it and read the redeem code off a brushed-silver panel, with a copy button. Tilts toward your finger with a moving reflection; redeemed state.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

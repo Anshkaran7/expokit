@@ -4,6 +4,7 @@
   "title": "Timeline",
   "description": "Gantt-style tasks with start/end, a progress fill and a today marker. Built on expo-charts.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-charts",
     "react-native-svg"

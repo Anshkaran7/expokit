@@ -4,6 +4,7 @@
   "title": "AI assistant app",
   "description": "A complete Expo Router app for an AI chat assistant: onboarding once, Apple / Google / email-code sign in, a streaming chat with suggestions and stop, conversation history, profile and settings.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics",

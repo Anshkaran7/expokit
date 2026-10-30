@@ -4,6 +4,7 @@
   "title": "Offers",
   "description": "An “Apply coupon” screen people enjoy: type a code or tap Apply, see what each coupon saves on this cart, locked offers say how much more to add, and applying one drops a saving banner — with confetti. A 3D holographic coupon leads, category chips filter, and a footer shows what's left to pay.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],

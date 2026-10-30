@@ -17,7 +17,7 @@
     [
       "placeholder",
       "string",
-      "\"Search\"",
+      "labels.search",
       "Placeholder, also the field's accessibility label."
     ],
     [

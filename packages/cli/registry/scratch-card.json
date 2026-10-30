@@ -4,6 +4,7 @@
   "title": "Scratch Card",
   "description": "A scratch-to-win card: your finger rubs a shimmering foil away (silver, gold, holo, rose or your own) and whatever is underneath shows through — cashback, a prize, a whole Coupon. Once enough is scratched the rest clears with a haptic tap; progress, controlled reveal and reset included.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

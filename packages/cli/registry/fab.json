@@ -4,6 +4,7 @@
   "title": "Floating Action Button",
   "description": "Corner FAB in a solid accent fill with a matching glow. Tapping it fans out a staggered speed dial — a labelled list or an arc — over a dimmed backdrop while the button turns neutral and the plus rotates into ×. Extended mode springs between a pill and a circle; an optional pulse ring draws the eye on empty states.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

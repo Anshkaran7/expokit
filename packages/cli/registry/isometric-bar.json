@@ -4,6 +4,7 @@
   "title": "Isometric Bars",
   "description": "3D bars with depth, shaded sides and lids; the tallest bar can be highlighted. Morphs between datasets. Built on expo-charts.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-charts",
     "react-native-svg"

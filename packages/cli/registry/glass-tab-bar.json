@@ -4,6 +4,11 @@
   "title": "Glass Tab Bar",
   "description": "A floating Liquid Glass tab bar like iOS 26: a glass pill whose selected tab sits in a lighter bubble that springs between tabs, stretching as it travels and settling when it lands. Icons lift when selected, red count badges, optional labels and a separate circular trailing button (search) grouped with the bar so the two melt together on iOS 26. Real Liquid Glass on iOS 26, blur everywhere else; native-driver motion that respects Reduce Motion, selection haptics and a tablist for screen readers.",
   "tier": "pro",
+  "aliases": [
+    "liquid-glass-tabs",
+    "floating-tab-bar",
+    "ios-26-tab-bar"
+  ],
   "dependencies": [
     "expo-glass-effect",
     "expo-blur",

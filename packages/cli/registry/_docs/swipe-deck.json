@@ -65,7 +65,7 @@
     [
       "rightLabel / leftLabel",
       "string | null",
-      "\"LIKE\" / \"NOPE\"",
+      "labels.like / labels.nope",
       "Stamp shown while dragging; null hides it."
     ],
     [

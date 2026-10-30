@@ -4,6 +4,7 @@
   "title": "Glass Segmented Control",
   "description": "A Liquid Glass segmented control: a glass track with a brighter glass thumb that springs to the new segment, stretching in the direction of travel before it settles like a drop. Press the thumb and drag it across the segments — it follows your finger, ticks as it crosses each one and snaps to the nearest on release. Native-driver motion, Reduce Motion aware, monochrome unless you give it an accent.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "expo-glass-effect",
     "expo-blur",

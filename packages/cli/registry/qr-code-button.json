@@ -4,6 +4,7 @@
   "title": "QR Code Button",
   "description": "A \"Show QR Code\" pill that swells under your finger and morphs, on a smooth ease, into a white card holding a real, scannable QR code — Copy and close below it. The code is encoded inside the component (byte mode, error correction M, every version up to 40) and drawn as one crisp SVG path, so there's no QR library to install.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

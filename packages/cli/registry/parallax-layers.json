@@ -4,6 +4,7 @@
   "title": "Parallax Layers",
   "description": "Build a scene from layers at different depths — drag across it and near layers slide further than far ones while the whole scene tilts, for a convincing 3D look. Drifts on its own at rest. Native-driven, no extra libraries.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [],
   "registryDependencies": [
     "kit"

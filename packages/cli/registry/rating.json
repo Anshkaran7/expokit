@@ -4,6 +4,7 @@
   "title": "Rating",
   "description": "Star or heart rating you can tap or drag across (touch and mouse), with half-star precision. Icons fill smoothly, pop in a quick stagger with a wobble, and the top one throws a spark burst; read-only mode renders any fraction.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

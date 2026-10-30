@@ -4,6 +4,7 @@
   "title": "Number Ticker",
   "description": "An odometer for your numbers — every digit rolls on its own spring (up when the value grows, down when it shrinks), staggered right to left, with a green/red colour flash, separators, decimals, prefix and suffix.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [],
   "registryDependencies": [
     "kit"

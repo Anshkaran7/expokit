@@ -27,6 +27,12 @@
       "Printed on the foil."
     ],
     [
+      "revealHint",
+      "string",
+      "\"Double-tap to reveal\"",
+      "Screen-reader hint on the foil; pass your own to translate it."
+    ],
+    [
       "threshold",
       "number",
       "0.55",
@@ -102,7 +108,7 @@
     ],
     [
       "Screen readers",
-      "The foil is a button labelled with label and sublabel, with the hint 'Double-tap to reveal'."
+      "The foil is a button labelled with label and sublabel, with the hint revealHint (default 'Double-tap to reveal')."
     ]
   ],
   "usage": null,

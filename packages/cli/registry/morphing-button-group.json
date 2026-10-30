@@ -4,6 +4,7 @@
   "title": "Morphing Button Group",
   "description": "A row of buttons that morphs between sets: one button splits into two, two join into one, and a button that changes its label cross-fades it while it stretches. Ships with SignatureSheet, the pattern it was made for — a \"Sign\" pill that grows into a signing card whose Cancel splits into Reset + Confirm once you draw, and Confirm stretches into \"Confirm Signature\" before the card glides back down.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics"

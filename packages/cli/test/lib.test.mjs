@@ -5,6 +5,13 @@ import {
   CliError,
   RETRY_MAX_WAIT_MS,
   addTsconfigPathAlias,
+  aliasRootFromTsconfig,
+  aliasTargetForDir,
+  caseClash,
+  looksLikeKitFile,
+  missingPackages,
+  rewriteKitImports,
+  suggestItemNames,
   canSendToken,
   envWithoutToken,
   isInsideDir,
@@ -22,6 +29,13 @@ import {
   retryDelayMs,
   retryHint,
   tabComponentName,
+  contentHash,
+  fileStatus,
+  kitThemeSource,
+  normalizeInstalled,
+  recordedHash,
+  themeOptions,
+  unifiedDiff,
 } from '../bin/lib.mjs';
 import { handleLine } from '../bin/mcp.mjs';
 
@@ -291,4 +305,191 @@ test('telemetryEnabled: on by default, off for DO_NOT_TRACK, EXPO_KIT_TELEMETRY=
 test('needsDevBuild: expo-status-bar and async-storage ship in Expo Go (the app templates use them)', () => {
   assert.deepEqual(needsDevBuild(['expo-status-bar', '@react-native-async-storage/async-storage', 'expo-router']), []);
   assert.deepEqual(needsDevBuild(['react-native-mmkv']), ['react-native-mmkv']);
+});
+
+test('pickMainExport: a prefixed export beats the first one (Toast → Toaster)', () => {
+  const src = "export function ToastProvider() {}\nexport function Toaster() {}\nexport const toast = 1;";
+  assert.equal(pickMainExport(src, ['Toast', 'toast']), 'Toaster');
+  assert.equal(pickMainExport(src, ['Other']), 'ToastProvider');
+});
+
+test('caseClash: a different-case twin in the folder, never the exact name', () => {
+  assert.equal(caseClash(['Skeleton.tsx', 'Card.tsx'], 'skeleton.tsx'), 'Skeleton.tsx');
+  assert.equal(caseClash(['skeleton.tsx', 'Skeleton.tsx'], 'skeleton.tsx'), 'Skeleton.tsx');
+  assert.equal(caseClash(['skeleton.tsx'], 'skeleton.tsx'), null);
+  assert.equal(caseClash([], 'skeleton.tsx'), null);
+  assert.equal(caseClash(['UI'], 'ui'), 'UI');
+});
+
+test('looksLikeKitFile: kit sources and files built on it, not a user file of the same name', () => {
+  assert.equal(looksLikeKitFile("import { useKit } from '@/lib/kit';\nexport function Button() {}"), true);
+  assert.equal(looksLikeKitFile('import { useKit } from "@/lib/kit";'), true);
+  assert.equal(looksLikeKitFile("import { useKit } from '@/shared/lib/kit';"), true);
+  assert.equal(looksLikeKitFile('export const KIT_VERSION = 3;\nexport function KitProvider() {}'), true);
+  assert.equal(looksLikeKitFile('export function KitProvider({ children }) { return children; }'), true);
+  assert.equal(looksLikeKitFile("import { Pressable } from 'react-native';\nexport function Button() {}"), false);
+  assert.equal(looksLikeKitFile("import { theme } from '@/lib/kitchen';"), false);
+  assert.equal(looksLikeKitFile(''), false);
+});
+
+test('missingPackages: skips what package.json already lists (dependencies or devDependencies)', () => {
+  const pkg = { dependencies: { 'react-native-svg': '15.0.0' }, devDependencies: { 'expo-haptics': '~14.0.0' } };
+  assert.deepEqual(missingPackages(['react-native-svg', 'expo-haptics', 'expo-blur'], pkg), ['expo-blur']);
+  assert.deepEqual(missingPackages(['react-native-svg@15.1.0', '@shopify/react-native-skia@2'], pkg), ['@shopify/react-native-skia@2']);
+  assert.deepEqual(missingPackages(['expo-blur', 'expo-blur'], {}), ['expo-blur']);
+  assert.deepEqual(missingPackages(['expo-blur'], null), ['expo-blur']);
+  // An inherited key (`__proto__`, `toString`) is not an installed package.
+  assert.deepEqual(missingPackages(['constructor'], { dependencies: {} }), ['constructor']);
+});
+
+test('suggestItemNames: typos, word order and partial names, closest first', () => {
+  const names = ['button', 'button-3d', 'bottom-sheet', 'grain', 'skeleton', 'toast', 'glass-tab-bar'];
+  assert.deepEqual(suggestItemNames('buton', names).slice(0, 1), ['button']);
+  assert.deepEqual(suggestItemNames('sheet-bottom', names).slice(0, 1), ['bottom-sheet']);
+  assert.deepEqual(suggestItemNames('skeletn', names), ['skeleton']);
+  assert.ok(suggestItemNames('grain-gradient', names).includes('grain'));
+  assert.ok(suggestItemNames('glass-tabbar', names).includes('glass-tab-bar'));
+  assert.deepEqual(suggestItemNames('zzzzzz', names), []);
+  assert.ok(suggestItemNames('b', names).length <= 3);
+});
+
+test('rewriteKitImports: moves @/components and @/lib imports to the configured aliases', () => {
+  const src = [
+    "import { useKit } from '@/lib/kit';",
+    'import { Button } from "@/components/ui/button";',
+    "export { x } from '@/components/ui/x';",
+    "const lazy = import('@/components/ui/sheet');",
+    "import { other } from '@/components-extra/y';",
+    "import { glass } from '@/lib/kitchen';",
+  ].join('\n');
+  const out = rewriteKitImports(src, { components: '@/components/kit', lib: '@/lib' });
+  assert.match(out, /from '@\/lib\/kit'/);
+  assert.match(out, /from "@\/components\/kit\/ui\/button"/);
+  assert.match(out, /from '@\/components\/kit\/ui\/x'/);
+  assert.match(out, /import\('@\/components\/kit\/ui\/sheet'\)/);
+  assert.match(out, /'@\/components-extra\/y'/);
+  assert.match(out, /'@\/lib\/kitchen'/);
+  assert.equal(rewriteKitImports(src, { components: '@/components', lib: '@/lib' }), src);
+  assert.equal(rewriteKitImports(src, {}), src);
+});
+
+test('aliasRootFromTsconfig + aliasTargetForDir: --dir must stay reachable through @/', () => {
+  assert.equal(aliasRootFromTsconfig({ compilerOptions: { paths: { '@/*': ['./src/*'] } } }), 'src');
+  assert.equal(aliasRootFromTsconfig({ compilerOptions: { paths: { '@/*': ['./*'] } } }), '');
+  assert.equal(aliasRootFromTsconfig({ compilerOptions: { paths: { '@/*': ['src/*'] } } }), 'src');
+  assert.equal(aliasRootFromTsconfig({ compilerOptions: { baseUrl: 'app', paths: { '@/*': ['./src/*'] } } }), 'app/src');
+  assert.equal(aliasRootFromTsconfig({}), null);
+  assert.equal(aliasRootFromTsconfig(null), null);
+
+  assert.equal(aliasTargetForDir('src/components/kit', 'src'), '@/components/kit');
+  assert.equal(aliasTargetForDir('./components/kit/', ''), '@/components/kit');
+  assert.equal(aliasTargetForDir('components\\kit', ''), '@/components/kit');
+  assert.equal(aliasTargetForDir('lib/kit', 'src'), null); // outside src/: @/ can't reach it
+  assert.equal(aliasTargetForDir('src', 'src'), null); // the alias root itself is not a components folder
+  assert.equal(aliasTargetForDir('../elsewhere', ''), null);
+  assert.equal(aliasTargetForDir('/abs/path', ''), null);
+  assert.equal(aliasTargetForDir('src/comp onents', 'src'), null); // must be a plain folder path
+});
+
+// ---------------------------------------------------------------------------
+// install records: hashes, statuses, diffs, init theme
+// ---------------------------------------------------------------------------
+
+test('contentHash: sha256 hex of the text, CRLF and LF hash the same (git autocrlf)', () => {
+  const h = contentHash('a\nb\n');
+  assert.match(h, /^[0-9a-f]{64}$/);
+  assert.equal(contentHash('a\r\nb\r\n'), h);
+  assert.notEqual(contentHash('a\nb'), h);
+});
+
+test('recordedHash: only a well-formed own entry counts (components.json is untrusted)', () => {
+  const good = 'a'.repeat(64);
+  const files = JSON.parse(`{"lib/kit.tsx":"${good}","bad":"xyz","upper":"${'A'.repeat(64)}","__proto__":"${good}","n":42}`);
+  assert.equal(recordedHash(files, 'lib/kit.tsx'), good);
+  assert.equal(recordedHash(files, 'bad'), null);
+  assert.equal(recordedHash(files, 'upper'), null);
+  assert.equal(recordedHash(files, 'n'), null);
+  assert.equal(recordedHash(files, 'toString'), null);
+  assert.equal(recordedHash(files, 'missing'), null);
+  assert.equal(recordedHash(null, 'lib/kit.tsx'), null);
+  assert.equal(recordedHash(['x'], '0'), null);
+  assert.equal(recordedHash('str', '0'), null);
+});
+
+test('fileStatus: current / pristine (ours, untouched) / modified / untracked', () => {
+  const installed = 'v1\n';
+  const upstream = 'v2\n';
+  assert.equal(fileStatus(contentHash(installed), upstream, upstream), 'current');
+  assert.equal(fileStatus(contentHash(installed), installed, upstream), 'pristine');
+  assert.equal(fileStatus(contentHash(installed), 'v1 patched\n', upstream), 'modified');
+  assert.equal(fileStatus(null, 'v1 patched\n', upstream), 'untracked');
+  assert.equal(fileStatus(null, upstream.replace('\n', '\r\n'), upstream), 'current');
+});
+
+test('normalizeInstalled: legacy version strings, objects, junk dropped', () => {
+  const raw = JSON.parse(
+    '{"toast":"0.4.4","skeleton":{"version":"0.5.0","kitVersion":3,"dir":"components/kit"},"__proto__":{"version":"x"},"Bad Name":"1","arr":[1],"num":{"version":5,"kitVersion":"3"}}'
+  );
+  const out = normalizeInstalled(raw);
+  assert.deepEqual(out.toast, { version: '0.4.4' });
+  assert.deepEqual(out.skeleton, { version: '0.5.0', kitVersion: 3, dir: 'components/kit' });
+  assert.equal(Object.hasOwn(out, 'Bad Name'), false);
+  assert.equal(Object.hasOwn(out, 'arr'), false);
+  assert.deepEqual(out.num, {});
+  assert.equal(Object.getPrototypeOf(out), Object.prototype);
+  assert.deepEqual(normalizeInstalled('nope'), {});
+  assert.deepEqual(normalizeInstalled(['toast']), {});
+  assert.deepEqual(normalizeInstalled(undefined), {});
+});
+
+test('unifiedDiff: hunks with context, nothing for equal text, big inputs still diff', () => {
+  assert.equal(unifiedDiff('a\nb\n', 'a\nb\n'), '');
+  const a = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].join('\n') + '\n';
+  const b = a.replace('5\n', 'five\n').replace('10\n', '10\n11\n');
+  const d = unifiedDiff(a, b, { from: 'yours', to: 'upstream' });
+  assert.match(d, /^--- yours\n\+\+\+ upstream\n/);
+  assert.match(d, /@@ -2,9 \+2,10 @@/);
+  assert.match(d, /\n-5\n\+five\n/);
+  assert.match(d, /\n\+11\n?$/);
+  // CRLF vs LF alone is no diff
+  assert.equal(unifiedDiff('x\r\ny\r\n', 'x\ny\n'), '');
+  // Final-newline-only differences are still reported
+  assert.match(unifiedDiff('x', 'x\n'), /newline/);
+  // Two far-apart changes make two hunks
+  const long = Array.from({ length: 40 }, (_, i) => `l${i}`).join('\n') + '\n';
+  const two = unifiedDiff(long, long.replace('l2\n', 'L2\n').replace('l35\n', 'L35\n'));
+  assert.equal(two.match(/^@@/gm).length, 2);
+  // Huge rewrites fall back to a whole-block replace instead of a quadratic table
+  const big = Array.from({ length: 5000 }, (_, i) => `a${i}`).join('\n');
+  const other = Array.from({ length: 5000 }, (_, i) => `b${i}`).join('\n');
+  const bd = unifiedDiff(big, other);
+  assert.match(bd, /^-a0$/m);
+  assert.match(bd, /^\+b4999$/m);
+});
+
+test('themeOptions: brand colour, font, radius, scheme validated (they become code)', () => {
+  assert.deepEqual(themeOptions({ brand: '#FF6600', font: 'Inter Tight', radius: '14', scheme: 'dark' }), {
+    brand: '#ff6600',
+    font: 'Inter Tight',
+    radius: 14,
+    scheme: 'dark',
+  });
+  assert.deepEqual(themeOptions({}), { brand: null, font: null, radius: null, scheme: 'system' });
+  assert.deepEqual(themeOptions({ brand: 'f60', scheme: 'LIGHT' }), { brand: '#ff6600', font: null, radius: null, scheme: 'light' });
+  for (const bad of [{ brand: "#fff'; evil()" }, { brand: 'red' }, { brand: '#ggg' }, { font: 'Inter"}/>' }, { font: 'x'.repeat(65) }, { radius: '-1' }, { radius: '1e3' }, { radius: '99' }, { radius: 'abc' }, { scheme: 'sepia' }]) {
+    assert.throws(() => themeOptions(bad), CliError, JSON.stringify(bad));
+  }
+});
+
+test('kitThemeSource: a KitProvider wrapper with only the chosen props, through the lib alias', () => {
+  const src = kitThemeSource({ brand: '#ff6600', font: 'Inter', radius: 14, scheme: 'dark' }, '@/lib');
+  assert.match(src, /import \{ KitProvider \} from '@\/lib\/kit';/);
+  assert.match(src, /export function AppTheme/);
+  assert.match(src, /scheme="dark"/);
+  assert.match(src, /accent="#ff6600"/);
+  assert.match(src, /radius=\{14\}/);
+  assert.match(src, /fontFamily="Inter"/);
+  const plain = kitThemeSource({ brand: null, font: null, radius: null, scheme: 'system' }, '~/lib/');
+  assert.match(plain, /from '~\/lib\/kit'/);
+  assert.doesNotMatch(plain, /accent=|radius=\{|fontFamily=/);
 });

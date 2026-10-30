@@ -4,6 +4,7 @@
   "title": "Carousel",
   "description": "Snapping horizontal carousel where neighbouring slides shrink, fade or tilt in 3D with the scroll position (native driver). Dots, expanding dots or a progress bar, autoplay that pauses while you touch, and a per-slide progress value for your own parallax.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [],
   "registryDependencies": [
     "kit"

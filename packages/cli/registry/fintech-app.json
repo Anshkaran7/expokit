@@ -4,6 +4,7 @@
   "title": "Business banking app",
   "description": "A complete Expo Router app for a small-business bank account: onboarding once, phone + OTP sign in, a live revenue dashboard, cards you can reveal and freeze, slide-to-pay transfers, profile and settings.",
   "tier": "pro",
+  "aliases": [],
   "dependencies": [
     "react-native-svg",
     "expo-haptics",
