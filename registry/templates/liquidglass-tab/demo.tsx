@@ -13,7 +13,9 @@ const FONT_CAP = 1.35;
 
 type TabKey = 'index' | 'explore' | 'alerts' | 'profile';
 
-const TABS: { key: TabKey; title: string; badge?: string; icon: (c: string) => React.ReactNode }[] = [
+type DemoTab = { key: TabKey; title: string; badge?: string; icon: (c: string) => React.ReactNode };
+
+const TABS: [DemoTab, ...DemoTab[]] = [
   { key: 'index', title: 'Home', icon: (c) => <Path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" stroke={c} strokeWidth={2} strokeLinejoin="round" fill="none" /> },
   {
     key: 'explore',

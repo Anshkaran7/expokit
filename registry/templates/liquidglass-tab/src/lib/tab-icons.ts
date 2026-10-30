@@ -106,7 +106,7 @@ export function resolveIconNames(tab: {
   icon?: TabIconPreset;
   iconName?: string;
   iconSelected?: string;
-}): { name?: string; selected?: string } {
+}): { name?: string | undefined; selected?: string | undefined } {
   if (tab.icon?.name) {
     return { name: tab.icon.name, selected: tab.icon.selected };
   }

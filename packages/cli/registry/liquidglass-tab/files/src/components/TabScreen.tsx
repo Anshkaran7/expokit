@@ -18,7 +18,7 @@ interface TabScreenProps {
   description: string;
   accent: string;
   /** Label of a button pinned to the bottom of the screen, above the tab bar. */
-  action?: string;
+  action?: string | undefined;
 }
 
 export function TabScreen({ title, description, accent, action }: TabScreenProps) {
@@ -93,7 +93,7 @@ export function TabScreen({ title, description, accent, action }: TabScreenProps
   );
 }
 
-export function TabScreenFromConfig({ tabName, action }: { tabName: string; action?: string }) {
+export function TabScreenFromConfig({ tabName, action }: { tabName: string; action?: string | undefined }) {
   const tab = getTab(tabName);
   if (!tab) {
     return null;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Animated,
   Image,
@@ -25,7 +25,20 @@ import { getTab, resolveIconLibrary, resolveIconNames, TAB_BAR, type TabItem } f
  * A floating blur pill with a sliding selection bubble. On scroll it collapses into a single
  * glass circle holding the active tab — tap the circle to expand it again, like iOS 26.
  */
-export function GlassTabBar({ state, navigation, insets }: BottomTabBarProps) {
+/**
+ * SDK 58 hands the tab bar `emitter` + `navigateToTab`; SDK 54–57 (and React Navigation) hand it
+ * `navigation`. The bar reads whichever it gets, so one file works on all of them.
+ */
+type TabPressEvent = { type: 'tabPress'; target: string; canPreventDefault: true };
+type TabBarNavigation = {
+  navigation?: { emit: (e: TabPressEvent) => { defaultPrevented: boolean }; navigate: (name: string, params?: object) => void };
+  emitter?: { emit: (e: TabPressEvent) => { defaultPrevented: boolean } };
+  navigateToTab?: (routeKey: string) => void;
+};
+
+export function GlassTabBar(props: BottomTabBarProps) {
+  const { state, insets } = props;
+  const nav = props as unknown as TabBarNavigation;
   const isDark = useColorScheme() === 'dark';
   const { width: screenW } = useWindowDimensions();
   const tint = isDark ? TAB_BAR.colors.tint.dark : TAB_BAR.colors.tint.light;
@@ -40,7 +53,7 @@ export function GlassTabBar({ state, navigation, insets }: BottomTabBarProps) {
   // Centre the capped bar on tablets and open foldables (phones keep the 16pt sides).
   const side = Math.max(16, (screenW - fullW) / 2);
   const itemW = fullW / Math.max(routes.length, 1);
-  const bubbleX = useRef(new Animated.Value(activeIndex * itemW)).current;
+  const [bubbleX] = useState(() => new Animated.Value(activeIndex * itemW));
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
@@ -101,10 +114,11 @@ export function GlassTabBar({ state, navigation, insets }: BottomTabBarProps) {
               const focused = route.key === activeKey;
               const color = focused ? tint : inactive;
               const onPress = () => {
-                const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-                if (!focused && !event.defaultPrevented) {
+                const event = (nav.emitter ?? nav.navigation)?.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+                if (!focused && !event?.defaultPrevented) {
                   Haptics.selectionAsync().catch(() => {});
-                  navigation.navigate(route.name, route.params);
+                  if (nav.navigateToTab) nav.navigateToTab(route.key);
+                  else nav.navigation?.navigate(route.name, route.params);
                 }
               };
               return (
@@ -151,14 +165,14 @@ function TabButton({
   width,
   onPress,
 }: {
-  tab?: TabItem;
+  tab?: TabItem | undefined;
   title: string;
   focused: boolean;
   color: ColorValue;
   width: number;
   onPress: () => void;
 }) {
-  const press = useRef(new Animated.Value(1)).current;
+  const [press] = useState(() => new Animated.Value(1));
   const to = (v: number) =>
     Animated.spring(press, { toValue: v, useNativeDriver: true, speed: 40, bounciness: 0 }).start();
 
@@ -206,7 +220,7 @@ function TabButton({
 type IconComponent = React.ComponentType<{ name: string; size: number; color: ColorValue }>;
 
 /** Same icon config as the native bar: `src` image, or a vector-icon set / custom icon font. */
-function TabIcon({ tab, focused, color, size }: { tab?: TabItem; focused: boolean; color: ColorValue; size: number }) {
+function TabIcon({ tab, focused, color, size }: { tab?: TabItem | undefined; focused: boolean; color: ColorValue; size: number }) {
   if (tab?.src) {
     const src = tab.src as ImageSourcePropType | { default: ImageSourcePropType; selected: ImageSourcePropType };
     const pair = typeof src === 'object' && src !== null && 'selected' in src ? src : null;
