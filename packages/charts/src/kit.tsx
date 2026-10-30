@@ -270,13 +270,13 @@ export interface ChartTooltipProps {
   y: number;
   boundsWidth: number;
   boundsHeight: number;
-  title?: string;
+  title?: string | undefined;
   items: TooltipItem[];
-  indicator?: TooltipIndicator;
-  footer?: { label: string; value: string };
-  variant?: TooltipVariant;
-  roundness?: TooltipRoundness;
-  hideIndicator?: boolean;
+  indicator?: TooltipIndicator | undefined;
+  footer?: { label: string; value: string } | undefined;
+  variant?: TooltipVariant | undefined;
+  roundness?: TooltipRoundness | undefined;
+  hideIndicator?: boolean | undefined;
 }
 
 const ROUND = { sm: 4, md: 6, lg: 8, xl: 14 };
