@@ -4,6 +4,7 @@
   "title": "Kit theme",
   "description": "Design tokens, KitProvider and motion presets shared by every ExpoKit component.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [],
   "registryDependencies": [],
   "sharedFiles": [],

@@ -4,6 +4,7 @@
   "title": "Ticket shape",
   "description": "Ticket and coupon outlines with real cut-outs — tear-line notches and perforated, scalloped or zigzag edges — painted with a colour, a gradient, a pattern or a photo, plus look-alike QR codes and barcodes. Shared by Ticket, Coupon and Scratch Card.",
   "tier": "free",
+  "aliases": [],
   "dependencies": [
     "react-native-svg"
   ],
