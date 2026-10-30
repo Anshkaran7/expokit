@@ -100,9 +100,6 @@
       "@/components/ui/radio-group": [
         "./ui/radio-group/src/components/ui/radio-group.tsx"
       ],
-      "@/components/ui/ruler-time-picker": [
-        "./ui/ruler-time-picker/src/components/ui/ruler-time-picker.tsx"
-      ],
       "@/components/ui/search-bar": [
         "./ui/search-bar/src/components/ui/search-bar.tsx"
       ],
