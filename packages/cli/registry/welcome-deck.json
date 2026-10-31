@@ -1,0 +1,24 @@
+{
+  "name": "welcome-deck",
+  "type": "block",
+  "title": "Welcome Deck",
+  "description": "A welcome and sign-up screen built around a 3D fan of cards. Grab anywhere and drag — the front card follows your finger in any direction, turning and swinging in 3D; let go and it's thrown off the screen while the next card moves to the front and the headline blurs into the next one, its key words in your accent. Get started or Log in flattens the fan into a swipeable carousel and brings up Continue with Apple / Google / email; back folds it into a fan again.",
+  "tier": "pro",
+  "aliases": [
+    "welcome-screen",
+    "card-fan",
+    "sign-up-carousel",
+    "landing-screen"
+  ],
+  "dependencies": [
+    "expo-blur",
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

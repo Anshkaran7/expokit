@@ -91,6 +91,50 @@ test('mcp: bad input is a tool error, unknown methods are JSON-RPC errors', asyn
   assert.deepEqual(replies[4].result, {});
 });
 
+test('mcp: free charts from expo-charts are found, viewed and installed with expo install', async () => {
+  const { replies } = await rpc([
+    init,
+    call(2, 'search_items', { query: 'line chart' }),
+    call(3, 'view_item', { name: 'area-chart', include_source: true }),
+    call(4, 'get_add_command', { names: ['button', 'line-chart', 'bar-chart', 'line-chart'] }),
+    call(5, 'get_add_command', { names: ['pie-chart'] }),
+    call(6, 'list_items', { type: 'chart', tier: 'free' }),
+  ]);
+  assert.match(text(replies[1]).split('\n')[1], /^- line-chart \(chart\) — Line Chart/, 'the Line Chart is the top hit');
+  const area = text(replies[2]);
+  assert.match(area, /Install \(npm package expo-charts, not copied source\): `npx expo install expo-charts react-native-svg`/);
+  assert.match(area, /import \{ AreaSeriesChart \} from 'expo-charts';/);
+  assert.match(area, /## Props/);
+  assert.match(area, /## Usage[\s\S]*from ['"]expo-charts['"]/, 'usage carries its import');
+  assert.match(area, /no source to edit/);
+  assert.doesNotMatch(area, /@expokit\/cli@latest add area-chart/);
+  const mixed = text(replies[3]);
+  assert.match(mixed, /npx @expokit\/cli@latest add button\n/, 'charts are not passed to the CLI');
+  assert.match(mixed, /npx expo install expo-charts react-native-svg/);
+  assert.equal(mixed.match(/Line Chart/g).length, 1, 'duplicates collapse');
+  const only = text(replies[4]);
+  assert.doesNotMatch(only, /@expokit\/cli/);
+  assert.match(only, /comes from the expo-charts npm package/);
+  const list = text(replies[5]);
+  assert.ok(Number(list.match(/^(\d+) item/)[1]) >= 30, 'the free charts are listed');
+});
+
+test('mcp: missing names, huge input and too many items stay short tool errors', async () => {
+  const huge = 'x'.repeat(10_000);
+  const { replies } = await rpc([
+    init,
+    call(2, 'view_item', {}),
+    call(3, 'view_item', { name: 42 }),
+    call(4, 'search_items', { query: huge }),
+    call(5, 'view_item', { name: huge }),
+    call(6, 'get_add_command', { names: Array(51).fill('button') }),
+  ]);
+  assert.match(text(replies[1]), /name is required/);
+  assert.match(text(replies[2]), /name is required/);
+  for (const r of replies.slice(3, 5)) assert.ok(text(r).length < 300, 'the query is not echoed back in full');
+  assert.equal(replies[5].result.isError, true);
+});
+
 test('the CLI registry ships docs for every item, and no Pro demo code', () => {
   const reg = path.resolve(path.dirname(CLI), '..', 'registry');
   for (const f of fs.readdirSync(reg).filter((f) => f.endsWith('.json'))) {
@@ -159,4 +203,16 @@ test('mcp init: codex prints the TOML, bad clients fail', () => {
   assert.equal(runCli(['mcp', 'init'], dir).status, 1);
   assert.match(runCli(['mcp', 'init', '--client', 'emacs'], dir).out, /Unknown client/);
   assert.match(runCli(['mcp', 'serve'], dir).out, /Unknown mcp option/);
+});
+
+test('server.json (the MCP Registry listing) matches the package version, so the registry installs this release', () => {
+  const dir = path.resolve(path.dirname(CLI), '..');
+  const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));
+  const server = JSON.parse(fs.readFileSync(path.join(dir, 'server.json'), 'utf8'));
+  assert.equal(server.name, pkg.mcpName, 'npm checks mcpName against the registry name');
+  assert.equal(server.version, pkg.version, 'bump server.json with package.json, then run mcp-publisher publish');
+  for (const p of server.packages) {
+    assert.equal(p.identifier, pkg.name);
+    assert.equal(p.version, pkg.version);
+  }
 });

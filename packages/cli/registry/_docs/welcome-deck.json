@@ -1,0 +1,107 @@
+{
+  "name": "welcome-deck",
+  "category": "Blocks",
+  "aliases": [
+    "welcome-screen",
+    "card-fan",
+    "sign-up-carousel",
+    "landing-screen"
+  ],
+  "exportName": "WelcomeDeck",
+  "files": [
+    "src/components/blocks/welcome-deck.tsx"
+  ],
+  "summary": "A 3D card fan you throw in any direction, then a sign-up carousel.",
+  "props": [
+    [
+      "slides",
+      "{ title, highlight?, image?, card? }[]",
+      "—",
+      "One card and headline each. highlight is a phrase inside title drawn in the accent; card replaces the photo with your own content."
+    ],
+    [
+      "onProvider",
+      "(provider: 'apple' | 'google' | 'email') => void",
+      "—",
+      "A sign-up button was pressed."
+    ],
+    [
+      "providers",
+      "('apple' | 'google' | 'email')[]",
+      "['apple', 'google', 'email']",
+      "Sign-up buttons in order."
+    ],
+    [
+      "title / subtitle",
+      "string",
+      "'Get started' / 'Your money, one tap away'",
+      "Heading and line under it on the sign-up step."
+    ],
+    [
+      "terms",
+      "ReactNode",
+      "—",
+      "Small print under the sign-up buttons (a string or your own node with links)."
+    ],
+    [
+      "getStartedLabel / logInLabel",
+      "string",
+      "'Get started' / 'Log in'",
+      "Welcome button text; both open the sign-up step."
+    ],
+    [
+      "defaultOpen",
+      "boolean",
+      "false",
+      "Start on the sign-up step."
+    ],
+    [
+      "onOpenChange",
+      "(open: boolean) => void",
+      "—",
+      "Get started / Log in opened the sign-up step, or back closed it."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "The front card changed (an index into slides)."
+    ],
+    [
+      "accent",
+      "string",
+      "theme accent",
+      "Colour of the highlighted words."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Root style."
+    ]
+  ],
+  "behavior": [
+    [
+      "Deck",
+      "Drag from anywhere on the screen, in any direction: the front card follows your finger and the cards behind start moving up. Let go past a short distance (or flick) and it's thrown that way; a short drag glides back. Each thrown card fades in again at the back of the fan. Nothing moves on its own."
+    ],
+    [
+      "Headline",
+      "Starts to blur bit by bit as you drag, then glides into the next one once the card is thrown, with no snap at the end (a real blur on iOS and web; soft copies on Android)."
+    ],
+    [
+      "Get started / Log in",
+      "Both open the sign-up step: the fan flattens and rises, then spreads into a row centred on the front card that you can swipe; the sign-up buttons slide up and the heading fades in. Back folds the centred card to the front of the fan."
+    ],
+    [
+      "Screen readers",
+      "The headline is a header that announces changes; the deck offers Next as an action. Only the current step's buttons are exposed."
+    ],
+    [
+      "Reduced motion",
+      "Cards fade instead of flying and the steps crossfade quickly."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}
