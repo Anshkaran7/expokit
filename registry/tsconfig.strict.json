@@ -21,6 +21,7 @@
     "blocks/settings/src/**/*",
     "blocks/sign-in/src/**/*",
     "blocks/status-screens/src/**/*",
+    "blocks/welcome-deck/src/**/*",
     "charts/bullet/src/**/*",
     "charts/isometric-bar/src/**/*",
     "charts/pixel-bar/src/**/*",
