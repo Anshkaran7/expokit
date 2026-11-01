@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AccessibilityInfo, Animated, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
-import { alpha, useKit } from '@/lib/kit';
+import { alpha, readableOn, useKit } from '@/lib/kit';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const CHECK = 'M5 12.5l4.5 4.5L19 7.5';
@@ -42,6 +42,9 @@ export function Checkbox({
   const reduce = useReduceMotion();
   const ff = font.family ? { fontFamily: font.family } : null;
   const tint = accent ?? colors.accent;
+  // The tick must read on the fill: white on a dark accent, ink on a light one (the dark theme's default
+  // accent is near-white, where a fixed white tick vanished).
+  const tick = accent ? readableOn(accent) : colors.accentForeground;
   const corner = shape === 'circle' ? size / 2 : Math.min(size / 2, radius.sm + 1);
   const [inner, setInner] = useState(defaultChecked);
   const on = checked ?? inner;
@@ -112,7 +115,7 @@ export function Checkbox({
           <Svg width={size * 0.8} height={size * 0.8} viewBox="0 0 24 24">
             <AnimatedPath
               d={CHECK}
-              stroke="#fff"
+              stroke={tick}
               strokeWidth={3}
               strokeLinecap="round"
               strokeLinejoin="round"
