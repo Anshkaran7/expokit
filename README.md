@@ -95,6 +95,10 @@ Found a vulnerability? Please report it privately — see [SECURITY.md](SECURITY
 - Instagram: [@expokit.in](https://www.instagram.com/expokit.in/)
 - Email: [work@karandev.in](mailto:work@karandev.in)
 
+## Sponsors
+
+ExpoKit is built by one developer. [Become a sponsor →](https://expokit.in/pricing#sponsor) — Pro forever, priority on your component requests, and your name here.
+
 ## License
 
 [MIT](LICENSE) © Karan (anshkaran7) — covers everything in this repository. ExpoKit Pro items are not part of it:
