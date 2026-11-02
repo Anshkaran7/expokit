@@ -1,0 +1,22 @@
+{
+  "name": "drip-toast",
+  "type": "component",
+  "title": "Drip Toast",
+  "description": "Toasts that drip out of the top of the screen — on an iPhone, straight out of the Dynamic Island — on a liquid strand that pinches off as the pill settles. A toast with a description or action lets a card drop out of the pill through a liquid neck, folds it back, and is sucked up into the edge when it leaves. mode=\"single\" keeps one pill that gulps the old toast and drips out the next, so drip.promise() turns its spinner straight into the success or error card.",
+  "tier": "pro",
+  "aliases": [],
+  "dependencies": [
+    "react-native-svg",
+    "expo-haptics",
+    "react-native-gesture-handler",
+    "react-native-reanimated",
+    "react-native-worklets"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

@@ -1,0 +1,204 @@
+{
+  "name": "drip-toast",
+  "category": "Feedback",
+  "aliases": [],
+  "exportName": "DripToaster",
+  "files": [
+    "src/components/ui/drip-toast.tsx"
+  ],
+  "summary": "Toasts that drip out of the top of the screen and get sucked back in.",
+  "props": [
+    [
+      "drip(title, options?)",
+      "(string, DripOptions) => id",
+      "—",
+      "Global API. Also drip.success / error / warning / info / loading / promise / dismiss(id?)."
+    ],
+    [
+      "DripProvider / useDrip()",
+      "context",
+      "—",
+      "Scoped queue: wrap UI + <DripToaster />, call useDrip() instead of the global drip()."
+    ],
+    [
+      "options.description",
+      "string",
+      "—",
+      "Drops a card out of the pill with this text."
+    ],
+    [
+      "options.action",
+      "{ label, onPress }",
+      "—",
+      "Button in the card (dismisses after press)."
+    ],
+    [
+      "options.content",
+      "ReactNode",
+      "—",
+      "Your own card content instead of description / action."
+    ],
+    [
+      "options.meta",
+      "string",
+      "time",
+      "Small text beside the description (a price, a time)."
+    ],
+    [
+      "options.icon",
+      "ReactNode | false",
+      "type icon",
+      "Replace the type icon, or false for none."
+    ],
+    [
+      "options.duration",
+      "number",
+      "Toaster duration",
+      "ms before it leaves; Infinity to keep."
+    ],
+    [
+      "options.id",
+      "string",
+      "auto",
+      "Reuse to update a toast in place."
+    ],
+    [
+      "options.dismissible",
+      "boolean",
+      "true",
+      "Tap and swipe dismiss it."
+    ],
+    [
+      "options.toaster",
+      "string",
+      "—",
+      "Target a <DripToaster id>."
+    ],
+    [
+      "<DripToaster> position",
+      "\"top-left\" | \"top-center\" | \"top-right\" | \"bottom-left\" | \"bottom-center\" | \"bottom-right\"",
+      "\"top-center\"",
+      "Edge and side the toasts sit on. Top toasts drip out of the edge; bottom ones rise in."
+    ],
+    [
+      "<DripToaster> mode",
+      "\"stack\" | \"single\"",
+      "\"stack\"",
+      "Pile toasts up (tap to fan out), or keep one pill that gulps each toast and drips out the next."
+    ],
+    [
+      "<DripToaster> appearance",
+      "\"dark\" | \"light\"",
+      "\"dark\"",
+      "Island-black pill or a white one, in either app theme."
+    ],
+    [
+      "<DripToaster> layout",
+      "\"spread\" | \"left\" | \"center\" | \"right\"",
+      "\"spread\"",
+      "Description and meta on one row, or stacked and aligned."
+    ],
+    [
+      "<DripToaster> duration",
+      "number",
+      "5000",
+      "Default time on screen in ms."
+    ],
+    [
+      "<DripToaster> visibleToasts",
+      "number",
+      "3",
+      "Toasts drawn in the stack."
+    ],
+    [
+      "<DripToaster> expand",
+      "boolean",
+      "false",
+      "Always fanned out."
+    ],
+    [
+      "<DripToaster> offset / gap / inset",
+      "number",
+      "8 / 14 / 16",
+      "Edge distance, stack spacing and side space."
+    ],
+    [
+      "<DripToaster> safeArea",
+      "boolean",
+      "false",
+      "Clear the notch and home indicator (react-native-safe-area-context's insets, when installed)."
+    ],
+    [
+      "<DripToaster> bottomInset",
+      "number",
+      "0",
+      "Extra space under a bottom toaster for a tab bar."
+    ],
+    [
+      "<DripToaster> radius",
+      "number",
+      "kit",
+      "Card corner radius."
+    ],
+    [
+      "<DripToaster> fill / stroke",
+      "string",
+      "appearance",
+      "Surface colours."
+    ],
+    [
+      "<DripToaster> showProgress",
+      "boolean",
+      "true",
+      "A line that drains as time runs out."
+    ],
+    [
+      "<DripToaster> showTimestamp",
+      "boolean",
+      "true",
+      "Arrival time beside the description."
+    ],
+    [
+      "<DripToaster> swipeToDismiss",
+      "boolean",
+      "true",
+      "Swipe to dismiss."
+    ],
+    [
+      "<DripToaster> haptics",
+      "boolean",
+      "true",
+      "Notification haptic on success / warning / error."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "—",
+      "Style for the host that fills its parent."
+    ]
+  ],
+  "behavior": [
+    [
+      "Touch",
+      "Tap a lone toast to dismiss it, or a stack to fan it out; swipe any way to dismiss. Timers and the drain line pause while you drag or the stack is open."
+    ],
+    [
+      "Motion",
+      "At the top, a toast drips out of the edge on a strand that thins and pinches off, then a card drops out of the pill when there is more to say. Leaving, the card folds up and the pill is sucked back into the edge. In single mode the pill gulps — rises on its strand and drips back with the new toast. At the bottom, toasts rise in. Errors shake once."
+    ],
+    [
+      "Reduced motion",
+      "No strand or travel: toasts fade in and out in place, the card snaps open and closed, and the error shake is skipped; fades and the spinner stay."
+    ],
+    [
+      "Haptics",
+      "A success, warning or error notification when a toast of that type appears or a promise settles; turn it off with haptics={false}."
+    ],
+    [
+      "Screen readers",
+      "Each toast is an alert in a polite live region, labelled by its title and description, with an escape action to dismiss it."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}
