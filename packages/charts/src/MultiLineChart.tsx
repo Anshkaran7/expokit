@@ -245,6 +245,8 @@ const MultiLineChartInner = ({
             <Pressable
               key={line.name}
               hitSlop={6}
+              accessibilityRole="button"
+              accessibilityState={{ selected: !hidden[line.name] }}
               onPress={() => setHidden((prev) => ({ ...prev, [line.name]: !prev[line.name] }))}
               style={[styles.legendItem, { opacity: hidden[line.name] ? 0.35 : 1 }]}
             >

@@ -196,6 +196,8 @@ const RadarChartInner = ({
             <Pressable
               key={s.name}
               hitSlop={6}
+              accessibilityRole="button"
+              accessibilityState={{ selected: !hidden[s.name] }}
               onPress={() => setHidden((prev) => ({ ...prev, [s.name]: !prev[s.name] }))}
               style={[styles.legendItem, { opacity: hidden[s.name] ? 0.35 : 1 }]}
             >

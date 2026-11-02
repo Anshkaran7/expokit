@@ -444,6 +444,8 @@ export function ChartLegend({
           key={item.key}
           hitSlop={8}
           disabled={!onToggle}
+          accessibilityRole={onToggle ? "button" : undefined}
+          accessibilityState={onToggle ? { selected: !hidden[item.key] } : undefined}
           onPress={() => onToggle?.(item.key)}
           style={({ pressed }) => [
             styles.legendItem,
