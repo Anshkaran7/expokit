@@ -85,40 +85,6 @@ export function Scramble() {
 const ANSWER =
   'Spring animations feel natural because they keep momentum: a flick carries its speed into the motion, and nothing stops dead.';
 
-/** @pro */
-export function Streaming() {
-  const { colors, radius } = useKit();
-  const [text, setText] = useState('');
-  const [run, setRun] = useState(0);
-  useEffect(() => {
-    // Simulates tokens arriving from a model, a few words at a time.
-    const words = ANSWER.split(' ');
-    let n = 0;
-    const id = setInterval(() => {
-      n = Math.min(words.length, n + 1 + Math.floor(Math.random() * 3));
-      setText(words.slice(0, n).join(' '));
-      if (n >= words.length) clearInterval(id);
-    }, 260);
-    return () => clearInterval(id);
-  }, [run]);
-  return (
-    <View style={{ gap: 16 }}>
-      <View style={{ padding: 14, borderRadius: radius.lg, backgroundColor: colors.muted }}>
-        <AnimatedText key={run} variant="typewriter" textStyle={{ fontSize: 16, lineHeight: 23 }}>
-          {text}
-        </AnimatedText>
-      </View>
-      <Chip
-        label="Ask again"
-        onPress={() => {
-          setText('');
-          setRun((r) => r + 1);
-        }}
-      />
-    </View>
-  );
-}
-
 export function Hero() {
   const { colors } = useKit();
   const [run, setRun] = useState(0);

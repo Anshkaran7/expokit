@@ -76,61 +76,6 @@ export function TravelCard() {
   );
 }
 
-/**
- * Album art in a music player — the title floats off the cover.
- * @pro
- */
-export function NowPlaying() {
-  const { colors } = useKit();
-  const [playing, setPlaying] = useState(true);
-  return (
-    <View style={{ alignItems: 'center', gap: 18 }}>
-      <View style={{ alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 20 }}>⌄</Text>
-        <View style={{ flexShrink: 1, alignItems: 'center' }}>
-          <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>PLAYING FROM</Text>
-          <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>Late night drive</Text>
-        </View>
-        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 20 }}>⋯</Text>
-      </View>
-      <TiltCard idle radius={20} accessibilityLabel="Midnight Bloom by Lumen" style={{ width: 250 }}>
-        <GrainGradient palette="noir" seed={1} style={{ height: 250 }} />
-        <TiltLayer depth={1}>
-          <View style={{ position: 'absolute', left: 18, bottom: 16 }}>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -1, lineHeight: 30 }}>MIDNIGHT</Text>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 30, fontWeight: '300', letterSpacing: -1, lineHeight: 32 }}>bloom</Text>
-          </View>
-        </TiltLayer>
-      </TiltCard>
-      <View style={{ alignSelf: 'stretch', gap: 10 }}>
-        <View>
-          <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: '700' }}>Midnight Bloom</Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 14 }}>Lumen</Text>
-        </View>
-        <View style={{ height: 4, borderRadius: 2, backgroundColor: alpha(colors.mutedForeground, 0.25) }}>
-          <View style={{ width: '42%', height: 4, borderRadius: 2, backgroundColor: colors.foreground }} />
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: -4 }}>
-          <Text style={{ color: colors.mutedForeground, fontSize: 11, fontVariant: ['tabular-nums'] }}>1:42</Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 11, fontVariant: ['tabular-nums'] }}>−2:21</Text>
-        </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 34 }}>
-          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 22 }}>⏮</Text>
-          <Pressable
-            onPress={() => setPlaying((p) => !p)}
-            accessibilityRole="button"
-            accessibilityLabel={playing ? 'Pause' : 'Play'}
-            style={{ width: 58, height: 58, borderRadius: 29, backgroundColor: colors.foreground, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.background, fontSize: 20 }}>{playing ? '❚❚' : '▶'}</Text>
-          </Pressable>
-          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 22 }}>⏭</Text>
-        </View>
-      </View>
-    </View>
-  );
-}
-
 /** A product card: the camera pops out of the card, price and button sit just above it. */
 export function Product() {
   const { colors } = useKit();

@@ -163,24 +163,6 @@ export function PillHighlight({ screen, bottomInset }: DemoProps) {
   );
 }
 
-/** @pro */
-export function CenterFab({ screen, bottomInset }: DemoProps) {
-  const [tab, setTab] = useState('home');
-  const [posts, setPosts] = useState(0);
-  const items: BottomNavItem[] = [
-    { key: 'home', label: 'Home', icon: 'home' },
-    { key: 'explore', label: 'Explore', icon: 'explore' },
-    { key: 'create', label: 'Post', icon: 'create', action: true },
-    { key: 'inbox', label: 'Inbox', icon: 'inbox', badge: 12 + posts },
-    { key: 'profile', label: 'Profile', icon: 'profile' },
-  ];
-  return (
-    <Screen screen={screen} title={posts ? `Posted ${posts} ${posts === 1 ? 'time' : 'times'}` : titleOf(items, tab)} rows={ROWS[tab]}>
-      <BottomNav bottomInset={bottomInset} variant="center-fab" items={items} value={tab} onValueChange={setTab} onAction={() => setPosts((n) => n + 1)} />
-    </Screen>
-  );
-}
-
 export function TabWithIndicator({ screen, bottomInset }: DemoProps) {
   const items: BottomNavItem[] = [
     { key: 'home', label: 'Home', icon: 'home' },

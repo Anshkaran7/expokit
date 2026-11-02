@@ -145,29 +145,6 @@ export function InSheet({ screen }: DemoProps) {
   );
 }
 
-/** @pro */
-export function ClockInSheet({ screen }: DemoProps) {
-  const [start, setStart] = useState<TimeValue | null>({ hours: 9, minutes: 0 });
-  const [end, setEnd] = useState<TimeValue | null>(null);
-  return (
-    <Card screen={screen}>
-      <Ink style={s.title}>Focus block · Thursday</Ink>
-      <TimePicker presentation="sheet" variant="clock" label="Starts" title="Start time" value={start} onChange={setStart} hour12 />
-      <TimePicker
-        presentation="sheet"
-        variant="clock"
-        label="Ends"
-        title="End time"
-        value={end}
-        onChange={setEnd}
-        minuteInterval={5}
-        hour12
-        helper="Snaps to 5-minute steps."
-      />
-    </Card>
-  );
-}
-
 const s = StyleSheet.create({
   card: { padding: 16, borderWidth: StyleSheet.hairlineWidth, gap: 12 },
   head: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', columnGap: 12, rowGap: 4 },

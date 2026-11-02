@@ -42,24 +42,6 @@ export function Variants() {
   );
 }
 
-/** @pro */
-export function Spotlight() {
-  const { colors } = useKit();
-  const [opened, setOpened] = useState(0);
-  return (
-    <Card variant="elevated" highlight="spotlight" onPress={() => setOpened((n) => n + 1)} accessibilityLabel="Open Kyoto guide">
-      <Card.Media source={{ uri: 'https://picsum.photos/seed/kyoto/600/400' }} height={150} />
-      <Card.Header>
-        <Card.Title>Kyoto in autumn</Card.Title>
-        <Card.Description numberOfLines={2}>Temples, maple-lined paths and the best matcha spots — a 4-day walking guide.</Card.Description>
-      </Card.Header>
-      <Card.Footer>
-        <Text style={{ fontSize: 13, color: colors.mutedForeground }}>12 min read · opened {opened}×</Text>
-      </Card.Footer>
-    </Card>
-  );
-}
-
 export function SelectablePlans() {
   const { colors } = useKit();
   const [plan, setPlan] = useState('pro');

@@ -149,49 +149,6 @@ export function CardControls() {
   );
 }
 
-/**
- * Choose a design — the card updates live as you pick.
- * @pro
- */
-export function ChooseDesign() {
-  const { colors } = useKit();
-  const [pick, setPick] = useState(0);
-  return (
-    <View style={{ gap: 16 }}>
-      <Header title="Pick your card" sub="Your design ships in 3–5 days" />
-      <PaymentCard
-        image={DESIGNS[pick].image}
-        bank="Northwind"
-        label="Debit"
-        number="6521 4400 9911 4410"
-        name="Maya Patel"
-        expiry="01/30"
-        brand="rupay"
-      />
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        {DESIGNS.map((d, i) => {
-          const on = i === pick;
-          return (
-            <Pressable
-              key={d.key}
-              onPress={() => setPick(i)}
-              accessibilityRole="radio"
-              accessibilityLabel={d.key}
-              accessibilityState={{ selected: on }}
-              style={{ padding: 2, borderRadius: 10, borderWidth: 2, borderColor: on ? colors.foreground : 'transparent' }}
-            >
-              <Image alt="" source={d.image} style={{ width: 52, height: 33, borderRadius: 6, backgroundColor: colors.muted }} />
-            </Pressable>
-          );
-        })}
-      </View>
-      <Pressable accessibilityRole="button" style={{ alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary, marginTop: 8 }}>
-        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Order this card</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 /** Add a card: the number fills in live (graphite default, no image). */
 export function AddCard() {
   const { colors } = useKit();

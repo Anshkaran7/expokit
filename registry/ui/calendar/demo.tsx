@@ -106,29 +106,6 @@ export function Marked({ screen }: DemoProps) {
   );
 }
 
-/** @pro */
-export function Booking({ screen }: DemoProps) {
-  const booked = useMemo(() => new Set([2, 5, 6, 11, 19].map((n) => toDateKey(addDays(today, n)))), []);
-  const [date, setDate] = useState<Date | null>(null);
-  return (
-    <Card screen={screen}>
-      <Ink style={s.title}>Book a consultation</Ink>
-      <Calendar
-        value={date}
-        onChange={setDate}
-        minDate={today}
-        maxDate={addDays(today, 45)}
-        isDateDisabled={(d) => d.getDay() === 0 || booked.has(toDateKey(d))}
-        showOutsideDays
-        fixedWeeks
-      />
-      <Ink tone="muted" style={s.muted}>
-        {date ? `Next: choose a time on ${day(date)}` : 'Faded days are fully booked or closed on Sundays.'}
-      </Ink>
-    </Card>
-  );
-}
-
 export function WeekStartsMonday({ screen }: DemoProps) {
   const [days, setDays] = useState<Date[]>([addDays(today, 1), addDays(today, 3)]);
   return (

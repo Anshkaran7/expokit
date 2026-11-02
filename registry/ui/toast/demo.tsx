@@ -101,57 +101,6 @@ export function RichColors({ screen }: DemoProps) {
   );
 }
 
-/**
- * Dynamic Island: a black capsule at the top that springs open, morphs between toasts and folds away.
- * @pro
- */
-export function Island({ screen }: DemoProps) {
-  const to = { toaster: 'demo-island' };
-  return (
-    <Frame screen={screen} style={{ justifyContent: 'flex-end' }}>
-      <View style={row}>
-        <Button
-          size="sm"
-          variant="secondary"
-          onPress={() => toast.success('AirPods connected', { ...to, description: 'Battery 84% · Case 100%' })}
-        >
-          Success
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onPress={() =>
-            toast.error('Payment failed', {
-              ...to,
-              description: 'Your card ending 4242 was declined by the bank. Update your billing details to keep Pro.',
-              action: { label: 'Update', onPress: () => toast.info('Opening billing…', to) },
-            })
-          }
-        >
-          Error
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onPress={() =>
-            toast.promise(wait(2200), { loading: 'Sending to Maya…', success: 'Photo sent', error: 'Could not send' }, to)
-          }
-        >
-          Promise
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          onPress={() => toast('Maya Chen', { ...to, description: 'Running 5 min late, grab us a table?' })}
-        >
-          Message
-        </Button>
-      </View>
-      <Toaster id="demo-island" variant="island" />
-    </Frame>
-  );
-}
-
 /** The spinner arc keeps turning while it closes into a circle, then the mark draws in. */
 export function PromiseMorph({ screen }: DemoProps) {
   const to = { toaster: 'demo-promise' };

@@ -161,32 +161,6 @@ export function Checkout() {
   );
 }
 
-/**
- * Keycaps — press and hold one to feel it sink.
- * @pro
- */
-export function Keycaps() {
-  const row = (keys: [string, number?][], appearance: 'light' | 'dark') => (
-    <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
-      {keys.map(([k, w]) => (
-        <Button3D key={k} appearance={appearance} size="lg" style={{ width: w ?? 56 }} accessibilityLabel={k}>
-          {k}
-        </Button3D>
-      ))}
-    </View>
-  );
-  return (
-    <View style={{ gap: 22 }}>
-      <Header title="Keycaps" sub="Press and hold a key to feel it sink" />
-      <View style={{ gap: 12 }}>
-        {row([['esc', 64], ['Q'], ['W'], ['E'], ['R']], 'light')}
-        {row([['⌘', 64], ['A'], ['S'], ['D'], ['F']], 'dark')}
-        {row([['space', 196], ['↵', 92]], 'light')}
-      </View>
-    </View>
-  );
-}
-
 /** Light, dark and glass keycaps, and a custom colour. */
 export function Materials() {
   return (

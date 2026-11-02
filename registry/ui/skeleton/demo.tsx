@@ -91,56 +91,6 @@ export function ProfileHeader() {
   );
 }
 
-/** @pro */
-export function LoadingSwap() {
-  const { colors, radius, text } = useKit();
-  const [loading, setLoading] = useState(true);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reload = () => {
-    setLoading(true);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => setLoading(false), 1600);
-  };
-  useEffect(() => {
-    timer.current = setTimeout(() => setLoading(false), 1600);
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, []);
-  return (
-    <View style={{ gap: 16 }}>
-      <Skeleton.Reveal
-        loading={loading}
-        skeleton={
-          <View style={{ gap: 12 }}>
-            <Skeleton.List rows={1} trailing={false} />
-            <Skeleton.Text lines={2} />
-          </View>
-        }
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 }}>
-          <View style={{ width: 44, height: 44, borderRadius: radius.full, backgroundColor: colors.accent, alignItems: 'center', justifyContent: 'center' }}>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.accentForeground, fontSize: 16, fontWeight: '400' }}>MC</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[text.md, { color: colors.foreground, fontWeight: '400' }]}>Maya Chen</Text>
-            <Text style={[text.sm, { color: colors.mutedForeground, fontWeight: '400' }]}>Product designer · Lisbon</Text>
-          </View>
-        </View>
-        <Text style={[text.sm, { color: colors.foreground, fontWeight: '400', marginTop: 4 }]}>
-          Shipped the new onboarding flow today. Activation is up 18% in the first week — thanks to everyone who tested the beta.
-        </Text>
-        <Text style={[text.xs, { color: colors.mutedForeground, fontWeight: '400', marginTop: 10 }]}>
-          124 likes · 18 comments
-        </Text>
-      </Skeleton.Reveal>
-      <Button size="sm" variant="outline" style={{ alignSelf: 'flex-start' }} disabled={loading} onPress={reload}>
-        {loading ? 'Loading…' : 'Reload'}
-      </Button>
-    </View>
-  );
-}
-
 export function Wave() {
   return (
     <Skeleton.Group style={{ gap: 16 }}>

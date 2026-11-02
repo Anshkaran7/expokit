@@ -229,32 +229,3 @@ export function Journey({ screen }: DemoProps) {
   );
 }
 
-/** @pro */
-export function DeliveryScroll({ screen }: DemoProps) {
-  const { colors } = useKit();
-  return (
-    <Timeline
-      variant="scroll"
-      style={screen ? { flex: 1 } : { height: 560 }}
-      header={
-        <View style={{ gap: 2, paddingBottom: 20 }}>
-          <Text style={{ fontSize: 12.5, letterSpacing: 0.4, color: colors.mutedForeground }}>PARCEL DHL 4471 9902 31</Text>
-          <Text style={{ fontSize: 20, letterSpacing: -0.4, color: colors.foreground }}>Out for delivery</Text>
-        </View>
-      }
-      items={[
-        { title: 'Order placed', time: 'Oct 6 · 18:22', description: 'Walnut desk lamp, linen shade · paid with Visa', icon: 'cart' },
-        { title: 'Payment confirmed', time: 'Oct 6 · 18:23', icon: 'tag' },
-        { title: 'Packed', time: 'Oct 7 · 10:40', description: 'Double-boxed with paper padding. Photo from the packing station:', icon: 'package', images: [{ uri: pic('parcel'), aspectRatio: 3 / 2 }] },
-        { title: 'Handed to carrier', time: 'Oct 7 · 16:05', description: 'Picked up from the Leipzig warehouse', icon: 'truck' },
-        { title: 'Left the sorting hub', time: 'Oct 8 · 02:14', description: 'Hauptumschlagbasis Leipzig', icon: 'truck' },
-        { title: 'Arrived in the Netherlands', time: 'Oct 9 · 07:50', description: 'Customs cleared, no fees due', icon: 'home' },
-        { title: 'Delivery attempt failed', time: 'Oct 10 · 14:31', description: 'No one home and no safe place. A card was left in the mailbox.', status: 'error', icon: 'home' },
-        { title: 'Rescheduled', time: 'Oct 10 · 19:02', description: 'You picked Monday, 12:00–18:00', icon: 'chat' },
-        { title: 'Out for delivery', time: '11:05', description: 'Jonas is 6 stops away in a white van', icon: 'truck', status: 'current', links: [{ label: 'Track on map', onPress: () => {} }] },
-        { title: 'Delivered', time: 'Est. 15:30', description: 'Leave at the front door if no one answers', icon: 'home', status: 'upcoming' },
-        { title: 'Rate your delivery', status: 'upcoming', icon: 'star' },
-      ]}
-    />
-  );
-}

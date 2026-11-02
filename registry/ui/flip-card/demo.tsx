@@ -73,56 +73,6 @@ export function Polaroid() {
   );
 }
 
-/**
- * A recipe card: the dish on the front, ingredients on the back.
- * @pro
- */
-export function Recipe() {
-  const { colors } = useKit();
-  const items = ['3 parsnips, halved', '2 red onions, quartered', '4 carrots', 'Parsley & dill', 'Olive oil, salt, cracked pepper'];
-  return (
-    <View style={{ gap: 16 }}>
-      <Header title="Tonight’s dinner" sub="Picked for you · vegetarian" />
-      <FlipCard
-      radius={22}
-      accessibilityLabel="Roasted root vegetables recipe"
-      front={
-        <View style={{ height: 260, backgroundColor: '#222' }}>
-          <Image alt="" source={photo(292, 720, 520)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
-          <Scrim />
-          <View style={{ flex: 1, justifyContent: 'flex-end', padding: 18, gap: 2 }}>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '700', letterSpacing: 1 }}>45 MIN · SERVES 4</Text>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#fff', fontSize: 26, fontWeight: '800', letterSpacing: -0.5 }}>Roasted roots</Text>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Tap for ingredients</Text>
-          </View>
-        </View>
-      }
-      back={
-        <View style={{ flex: 1, padding: 20, backgroundColor: '#f6f1e7', gap: 10 }}>
-          <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#3b3226', fontSize: 12, fontWeight: '800', letterSpacing: 1.2 }}>INGREDIENTS</Text>
-          {items.map((it) => (
-            <View key={it} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(59,50,38,0.12)' }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#c9a227' }} />
-              <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: '#3b3226', fontSize: 15 }}>{it}</Text>
-            </View>
-          ))}
-        </View>
-      }
-      />
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        {['45 min', 'Serves 4', '520 kcal'].map((t) => (
-          <View key={t} style={{ flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 12, backgroundColor: colors.muted }}>
-            <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.foreground, fontSize: 13, fontWeight: '600' }}>{t}</Text>
-          </View>
-        ))}
-      </View>
-      <Pressable accessibilityRole="button" style={{ alignItems: 'center', paddingVertical: 14, borderRadius: 14, backgroundColor: colors.primary }}>
-        <Text maxFontSizeMultiplier={FONT_CAP} style={{ color: colors.primaryForeground, fontSize: 15, fontWeight: '600' }}>Start cooking</Text>
-      </Pressable>
-    </View>
-  );
-}
-
 /** A team profile: photo on the front, stats on the back. */
 export function Profile() {
   const { colors } = useKit();

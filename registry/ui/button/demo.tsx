@@ -23,32 +23,6 @@ export function Variants() {
   );
 }
 
-/** @pro */
-export function GradientAndGlow() {
-  const { colors } = useKit();
-  return (
-    <View style={{ gap: 12 }}>
-      <Button
-        variant="gradient"
-        size="lg"
-        block
-        pill
-        right={<Text maxFontSizeMultiplier={FONT_CAP} style={{ color: readableOn(colors.accent), fontSize: 18 }}>→</Text>}
-      >
-        Get started
-      </Button>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Button variant="glow" pill style={{ flex: 1 }}>
-          Go live
-        </Button>
-        <Button variant="gradient" pill style={{ flex: 1 }}>
-          Boost
-        </Button>
-      </View>
-    </View>
-  );
-}
-
 const PALETTE = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#0ea5e9', '#ec4899'];
 
 export function DynamicColor() {
