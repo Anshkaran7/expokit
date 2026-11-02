@@ -52,6 +52,7 @@
     "ui/date-picker/src/**/*",
     "ui/dialog/src/**/*",
     "ui/drawer/src/**/*",
+    "ui/drip-toast/src/**/*",
     "ui/fab/src/**/*",
     "ui/flip-calendar/src/**/*",
     "ui/flip-card/src/**/*",
