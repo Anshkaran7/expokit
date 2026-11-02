@@ -1,0 +1,21 @@
+{
+  "name": "glass-carousel",
+  "type": "component",
+  "title": "Glass Carousel",
+  "description": "A full-screen carousel seen through liquid glass: as you swipe, the cards bend inward at the screen edges with a rainbow fringe while the settled card stays sharp. Cards shrink with speed and snap on a critically damped spring. Tap the centre card and it lifts while the others fall away in a stagger; tap again to bring them back. Backgrounds cross-fade with the scroll.",
+  "tier": "pro",
+  "aliases": [],
+  "dependencies": [
+    "@shopify/react-native-skia",
+    "react-native-reanimated",
+    "react-native-worklets",
+    "react-native-gesture-handler"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

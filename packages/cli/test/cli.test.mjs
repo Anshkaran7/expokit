@@ -387,6 +387,27 @@ test('one install for the whole batch, without packages package.json already lis
   assert.match(r2.out, /already in package\.json: react-native-svg, expo-haptics, react-native-gesture-handler/);
 });
 
+test('doctor flags packages an installed item needs that package.json lacks (a failed expo install)', () => {
+  const dir = makeProject(STOCK_TSCONFIG);
+  assert.equal(run(['init', '--yes'], dir).status, 0);
+  const configPath = path.join(dir, 'components.json');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  config.installed.button = { version: '0.0.0' };
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+  const r = run(['doctor'], dir);
+  assert.equal(r.status, 1, r.out);
+  assert.match(r.out, /Missing dependency: react-native-svg/);
+  assert.match(r.out, /npx expo install react-native-svg expo-haptics/);
+
+  const pkgPath = path.join(dir, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  pkg.dependencies = { ...pkg.dependencies, 'react-native-svg': '*', 'expo-haptics': '*' };
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+  const ok = run(['doctor'], dir);
+  assert.equal(ok.status, 0, ok.out);
+});
+
 test('the project\'s own Prettier formats the files add wrote; --no-format skips it; no Prettier, no run', { skip: process.platform === 'win32' }, () => {
   const dir = makeProjectWithDeps();
   const pkg = JSON.parse(fs.readFileSync(path.join(dir, 'package.json'), 'utf8'));

@@ -1,0 +1,152 @@
+{
+  "name": "glass-carousel",
+  "category": "Glass",
+  "aliases": [],
+  "exportName": "GlassCarousel",
+  "files": [
+    "src/components/ui/glass-carousel.tsx"
+  ],
+  "summary": "Swipe cards through a liquid-glass lens; tap one to lift it while the rest fall away.",
+  "props": [
+    [
+      "data",
+      "T[]",
+      "—",
+      "One card each; the carousel loops."
+    ],
+    [
+      "renderItem",
+      "({ item, index, onLoad }) => ReactNode",
+      "—",
+      "Card content (snapshotted). Call onLoad when its images have loaded."
+    ],
+    [
+      "renderBackdrop",
+      "({ item, index, onLoad }) => ReactNode",
+      "—",
+      "Layer under the content, blurred toward the bottom."
+    ],
+    [
+      "renderBackground",
+      "({ item, index }) => ReactNode",
+      "—",
+      "Full-size layer behind the carousel; cross-fades between items as you scroll."
+    ],
+    [
+      "keyExtractor",
+      "(item: T, index: number) => string",
+      "index",
+      "React key for each card."
+    ],
+    [
+      "itemLabel",
+      "(item: T, index: number) => string",
+      "'Card N'",
+      "What screen readers say for a card."
+    ],
+    [
+      "cardHeight",
+      "number",
+      "520",
+      "Card height; shrinks to fit short screens."
+    ],
+    [
+      "aspect",
+      "number",
+      "0.66",
+      "Card width ÷ height."
+    ],
+    [
+      "gap",
+      "number",
+      "12",
+      "Space between cards."
+    ],
+    [
+      "radius",
+      "number",
+      "kit radius.scale(28)",
+      "Card corner radius."
+    ],
+    [
+      "lens",
+      "number",
+      "1",
+      "Strength of the glass bend, 0–1."
+    ],
+    [
+      "index",
+      "number",
+      "—",
+      "Controlled centre card; turns the shortest way round."
+    ],
+    [
+      "defaultIndex",
+      "number",
+      "0",
+      "Uncontrolled initial card."
+    ],
+    [
+      "onIndexChange",
+      "(index: number) => void",
+      "—",
+      "Fires when the centre card changes."
+    ],
+    [
+      "onFocusChange",
+      "(open: boolean, index: number) => void",
+      "—",
+      "The centre card opened or closed."
+    ],
+    [
+      "extraData",
+      "unknown",
+      "—",
+      "Change it to snapshot every card again."
+    ],
+    [
+      "children",
+      "ReactNode",
+      "—",
+      "Drawn above the carousel: a header, buttons."
+    ],
+    [
+      "style",
+      "StyleProp<ViewStyle>",
+      "flex: 1",
+      "Root style; give it a screen or a tall card."
+    ]
+  ],
+  "behavior": [
+    [
+      "Touch",
+      "Drag or flick sideways; a flick always moves at least one card. Tap a side card to turn to it and open it, tap the centre card to open it, tap anywhere to close."
+    ],
+    [
+      "Lens",
+      "A Skia shader bends the cards at the screen edges, magnified inward with a red/green/blue split. Once the carousel settles, the centre card is drawn sharp."
+    ],
+    [
+      "Snapshots",
+      "Each card's content is snapshotted into an image, so keep it static. Call onLoad from your images so the card is captured again once they load; change extraData to capture every card again."
+    ],
+    [
+      "Backdrop",
+      "renderBackdrop draws under the content and is blurred in toward the bottom of the card, so text there stays readable over a photo."
+    ],
+    [
+      "Screen readers",
+      "One adjustable element ('Sunrise Yoga, 1 of 4'): swipe up or down to change cards; activate and escape open and close."
+    ],
+    [
+      "Reduced motion",
+      "Scrolling settles faster and opening jumps straight to its end state."
+    ],
+    [
+      "Web",
+      "No view snapshots there: the cards scroll and open the same way as live views, without the lens."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}

@@ -1616,6 +1616,17 @@ function cmdDoctor(cwd) {
     log('  ✓ package.json main');
   }
 
+  // `add` runs expo install for these, which can fail and leave a component that crashes on import.
+  const itemDeps = Object.keys(config.installed).flatMap((name) => (isValidItemName(name) && readMeta(name)?.dependencies) || []);
+  const missing = missingPackages(mergeDependencies(itemDeps), pkg);
+  if (missing.length) {
+    for (const dep of missing) warn(`Missing dependency: ${dep}`);
+    console.log(`    Fix: npx expo install ${missing.join(' ')}`);
+    issues += missing.length;
+  } else if (itemDeps.length) {
+    log('  ✓ item dependencies');
+  }
+
   const tabsPath = path.join(projectRoot, config.paths.lib ?? 'src/lib', 'tabs.ts');
   const usesLiquidGlass = fs.existsSync(tabsPath) || Object.hasOwn(config.installed, 'liquidglass-tab');
   if (usesLiquidGlass) {

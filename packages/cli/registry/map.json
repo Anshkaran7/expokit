@@ -1,0 +1,21 @@
+{
+  "name": "map",
+  "type": "component",
+  "title": "Map",
+  "description": "A full map with no API key, no native module and no config plugin: raster tiles drawn by React Native and moved on the UI thread, so it runs in Expo Go, iOS, Android and web. Drag and fling with momentum, pinch around your fingers, double-tap to zoom in, two-finger tap to zoom out. The camera flies like a plane between far places and glides between near ones. Comes with drop-in pins, rating tags, clusters that split as you zoom, a pulsing location dot with a heading beam, routes that draw themselves on, geofence circles and a floating control stack, all themed by the kit and switching to a dark basemap in dark mode.",
+  "tier": "pro",
+  "aliases": [],
+  "dependencies": [
+    "react-native-reanimated",
+    "react-native-worklets",
+    "react-native-gesture-handler",
+    "react-native-svg"
+  ],
+  "registryDependencies": [
+    "kit"
+  ],
+  "sharedFiles": [
+    "lib/kit.tsx"
+  ],
+  "filesDir": null
+}

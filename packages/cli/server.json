@@ -9,12 +9,12 @@
     "source": "github",
     "subfolder": "packages/cli"
   },
-  "version": "0.5.4",
+  "version": "0.5.5",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@expokit/cli",
-      "version": "0.5.4",
+      "version": "0.5.5",
       "transport": {
         "type": "stdio"
       },

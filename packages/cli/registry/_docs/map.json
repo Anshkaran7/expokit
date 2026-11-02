@@ -1,0 +1,158 @@
+{
+  "name": "map",
+  "category": "Display",
+  "aliases": [],
+  "exportName": "MapPin",
+  "files": [
+    "src/components/ui/map.tsx"
+  ],
+  "summary": "A map with flying camera, clusters, animated pins and routes — no API key, works in Expo Go.",
+  "props": [
+    [
+      "initialCamera",
+      "{ center: [lng, lat], zoom }",
+      "world",
+      "Where MapView opens."
+    ],
+    [
+      "initialBounds",
+      "[lng, lat][]",
+      "—",
+      "Open framing these points inside contentInset (wins over initialCamera)."
+    ],
+    [
+      "theme",
+      "'auto' | 'light' | 'dark' | 'streets' | 'satellite'",
+      "'auto'",
+      "Basemap look; auto follows light / dark mode."
+    ],
+    [
+      "tileUrl",
+      "string",
+      "Esri",
+      "Your raster tiles: {z} {x} {y}, {r} → @2x on retina, {s} → subdomain."
+    ],
+    [
+      "tileMaxZoom",
+      "number",
+      "19",
+      "Deepest zoom your tiles exist at; past it they're scaled up."
+    ],
+    [
+      "attribution",
+      "string | null",
+      "tile credit",
+      "Credit line at the bottom-left."
+    ],
+    [
+      "minZoom / maxZoom",
+      "number",
+      "0 / 19",
+      "Zoom limits."
+    ],
+    [
+      "contentInset",
+      "{ top, right, bottom, left }",
+      "0",
+      "Space your own UI covers; the camera centres and frames inside the rest."
+    ],
+    [
+      "onCameraChange",
+      "(camera) => void",
+      "—",
+      "The camera came to rest."
+    ],
+    [
+      "onPress / onLongPress",
+      "(coordinate) => void",
+      "—",
+      "Tap, or press and hold, on the map."
+    ],
+    [
+      "ref",
+      "MapViewHandle",
+      "—",
+      "flyTo, easeTo, fitBounds, zoomBy, getCamera. Inside the map, useMap() returns the same."
+    ],
+    [
+      "MapPin",
+      "{ coordinate, variant: 'pin' | 'pill' | 'dot', label, icon, color, selected, onPress }",
+      "—",
+      "Ready-made marker."
+    ],
+    [
+      "MapMarker",
+      "{ coordinate, anchor, rotation, moveDuration, onPress, children }",
+      "—",
+      "Any view pinned to a coordinate."
+    ],
+    [
+      "MapClusters",
+      "{ data, coordinate, keyExtractor, renderItem, renderCluster?, standalone?, radius }",
+      "—",
+      "Merges nearby markers into bubbles."
+    ],
+    [
+      "MapRoute",
+      "{ coordinates, color, width, casing, dashed, progress, track, animateIn }",
+      "—",
+      "A line that draws itself on."
+    ],
+    [
+      "MapUserLocation",
+      "{ coordinate, heading, accuracy, color }",
+      "—",
+      "Pulsing location dot."
+    ],
+    [
+      "MapCircle",
+      "{ center, radius (m), color, fillOpacity }",
+      "—",
+      "A real-world-size circle."
+    ],
+    [
+      "MapControls",
+      "{ onLocate, following, position }",
+      "—",
+      "Zoom and locate buttons."
+    ],
+    [
+      "pointAlong",
+      "(coordinates, t) => { coordinate, bearing }",
+      "—",
+      "Point and heading part-way along a line."
+    ]
+  ],
+  "behavior": [
+    [
+      "Touch",
+      "One finger drags and flings with momentum; two fingers pinch around their midpoint and pan at the same time. Double-tap zooms in where you tap, a two-finger tap zooms out, press and hold fires onLongPress."
+    ],
+    [
+      "Camera",
+      "flyTo zooms out, travels and zooms back in for far hops and glides for near ones; easeTo always glides; fitBounds frames a set of points inside contentInset, so nothing hides under your sheet."
+    ],
+    [
+      "Tiles",
+      "Sharp tiles fade in over a coarser layer two zooms out, so the map is never blank while loading. Tiles are only re-laid-out when the camera drifts far from them; every frame in between is a single transform on the UI thread."
+    ],
+    [
+      "Markers",
+      "Any view inside MapMarker stays the same size as you zoom. Give it a new coordinate and it glides there; give it a rotation and it turns the short way round. Pins drop in, tags and bubbles grow in."
+    ],
+    [
+      "Basemap",
+      "Esri's keyless light / dark canvas (with a separate label layer), streets and satellite tiles; auto follows the kit's light / dark mode. They're for building and demos: for production traffic pass tileUrl for a provider you have a plan with, and keep the credit line it asks for."
+    ],
+    [
+      "Screen readers",
+      "Markers and cluster bubbles are buttons named by their label; the controls are named Zoom in, Zoom out and Show my location."
+    ],
+    [
+      "Reduced motion",
+      "Camera moves, zooms and route drawing jump to their end; the location pulse stops."
+    ]
+  ],
+  "usage": null,
+  "examples": []
+}
