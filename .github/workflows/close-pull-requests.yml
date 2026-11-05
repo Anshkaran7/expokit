@@ -1,7 +1,7 @@
 name: Close pull requests
 
-# This repository is a read-only mirror of ExpoKit (synced from the private repo), so PRs can't be merged here.
-# pull_request_target runs with this repo's token but never checks out the PR's code.
+# Read-only mirror: close PRs opened from other people's forks so contributors use issues instead.
+# PRs from this repo (branches) and from Anshkaran7's fork stay open so Scorecard can see CI and review.
 on:
   pull_request_target:
     types: [opened, reopened]
@@ -10,6 +10,9 @@ permissions: {}
 
 jobs:
   close:
+    if: >-
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      github.event.pull_request.user.login != 'Anshkaran7'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
