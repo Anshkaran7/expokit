@@ -177,18 +177,17 @@ const RadarChartInner = ({
         <TouchLayer onTap={select} onHover={(x, y) => select(x, y, true)} onHoverEnd={() => setSelected(null)} />
       </View>
 
-      {selected !== null ? (
-        <View style={styles.detail}>
-          <Text style={[styles.detailTitle, { color: labelColor }]}>{axes[selected]}</Text>
-          {series
-            .filter((s) => !hidden[s.name])
-            .map((s) => (
-              <Text key={s.name} style={[styles.detailValue, { color: colors[series.indexOf(s)] }]}>
-                {s.name} {formatValue(s.data[selected] ?? 0)}
-              </Text>
-            ))}
-        </View>
-      ) : null}
+      {/* Always laid out (invisible until an axis is picked) so hovering never changes the chart's height. */}
+      <View style={[styles.detail, { opacity: selected === null ? 0 : 1 }]} aria-hidden={selected === null}>
+        <Text style={[styles.detailTitle, { color: labelColor }]}>{axes[selected ?? 0]}</Text>
+        {series
+          .filter((s) => !hidden[s.name])
+          .map((s) => (
+            <Text key={s.name} style={[styles.detailValue, { color: colors[series.indexOf(s)] }]}>
+              {s.name} {formatValue(s.data[selected ?? 0] ?? 0)}
+            </Text>
+          ))}
+      </View>
 
       {showLegend && series.length > 1 ? (
         <View style={styles.legend}>
